@@ -1,0 +1,3 @@
+[submodule "langchain-ai-docs"]
+	path = langchain-ai-docs
+	url = git@github.com:langchain-ai/docs.git

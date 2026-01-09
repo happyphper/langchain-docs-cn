@@ -32,7 +32,18 @@ export default defineConfig({
   vite: {
     plugins: [groupIconVitePlugin()]
   },
+  lastUpdated: true,
+  lang: 'zh-CN',
   themeConfig: {
+    outline: {
+      label: '本页目录',
+      level: [2, 3]
+    },
+    returnToTopLabel: '返回顶部',
+    sidebarMenuLabel: '菜单',
+    darkModeSwitchLabel: '主题',
+    lightModeSwitchTitle: '切换到浅色模式',
+    darkModeSwitchTitle: '切换到深色模式',
     search: {
       provider: 'local',
       options: {
@@ -61,8 +72,19 @@ export default defineConfig({
       message: 'LangChain 中文文档',
       copyright: 'Copyright © 王码码'
     },
+    docFooter: {
+      prev: '上一页',
+      next: '下一页'
+    },
+    lastUpdated: {
+      text: '最后更新于',
+      formatOptions: {
+        dateStyle: 'short',
+        timeStyle: 'medium'
+      }
+    },
     editLink: {
-      pattern: 'https://github.com/happyphper/langchain-docs-cn/edit/main/cn-docs/:path',
+      pattern: 'https://github.com/happyphper/langchain-docs-cn/edit/main/docs/:path',
       text: '在 GitHub 上编辑此页'
     },
     nav: [

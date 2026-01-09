@@ -32,6 +32,7 @@ library.add(fas, fab)
 
 import DocHeader from './components/DocHeader.vue'
 import LanguageSelector from './components/LanguageSelector.vue'
+import CustomFooter from './components/CustomFooter.vue'
 import { h, defineComponent } from 'vue'
 
 import { useData, inBrowser } from 'vitepress'
@@ -66,7 +67,10 @@ const CustomLayout = defineComponent({
           return null
         }
         return h(LanguageSelector)
-      }
+      },
+      // 确保默认的页脚和编辑链接能够显示
+      // 不覆盖 doc-footer-before 和 doc-after 插槽
+      'doc-after': () => h(CustomFooter)
     })
   }
 })

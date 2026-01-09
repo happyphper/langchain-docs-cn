@@ -61,7 +61,7 @@ export class MdxConverter {
     const content = await fs.readFile(file, 'utf-8');
     const targetPath = path.join(output, 'index.md');
 
-    let converted = MdxTransformer.transform(content, 'python');
+    let converted = MdxTransformer.transform(content, 'python', 'index.md');
 
     const { data, content: body } = matter(converted);
     data.sidebar = false;
@@ -81,7 +81,8 @@ export class MdxConverter {
     const targetPath = path.join(output, targetRelPath);
     await fs.ensureDir(path.dirname(targetPath));
 
-    const converted = MdxTransformer.transform(content, 'all');
+    // 传入原始相对路径，用于计算图片的绝对路径
+    const converted = MdxTransformer.transform(content, 'all', relativePath);
     await fs.writeFile(targetPath, converted);
     this.convertedFiles.push(targetRelPath);
     console.log(`[LANGSMITH] 已转换: ${targetRelPath}`);
@@ -115,7 +116,8 @@ export class MdxConverter {
     const targetPath = path.join(output, targetRelPath);
     await fs.ensureDir(path.dirname(targetPath));
 
-    const converted = MdxTransformer.transform(content, lang);
+    // 传入原始相对路径 relativePath，因为图片是按原始结构 sync 到 public 的
+    const converted = MdxTransformer.transform(content, lang, relativePath);
     await fs.writeFile(targetPath, converted);
     this.convertedFiles.push(targetRelPath);
     console.log(`[${lang.toUpperCase()}] 已转换: ${targetRelPath}`);

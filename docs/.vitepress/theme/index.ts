@@ -34,7 +34,7 @@ import DocHeader from './components/DocHeader.vue'
 import LanguageSelector from './components/LanguageSelector.vue'
 import { h, defineComponent } from 'vue'
 
-import { useData } from 'vitepress'
+import { useData, inBrowser } from 'vitepress'
 import mediumZoom from 'medium-zoom'
 import type { Zoom } from 'medium-zoom'
 
@@ -100,17 +100,20 @@ export default {
     app.component('Tooltip', Tooltip)
     app.component('ParamField', ParamField)
     app.component('Frame', Frame)
-    // Use client-only safe implementation
-    const mermaidRenderer = createMermaidRenderer();
-    mermaidRenderer.initialize();
 
-    if (router) {
-      router.onAfterRouteChange = () => {
-        nextTick(() => {
-          mermaidRenderer.renderMermaidDiagrams();
-          initZoom();
-        });
-      };
+    // Use client-only safe implementation
+    if (inBrowser) {
+      const mermaidRenderer = createMermaidRenderer();
+      mermaidRenderer.initialize();
+
+      if (router) {
+        router.onAfterRouteChange = () => {
+          nextTick(() => {
+            mermaidRenderer.renderMermaidDiagrams();
+            initZoom();
+          });
+        };
+      }
     }
   }
 }

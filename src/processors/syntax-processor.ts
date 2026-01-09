@@ -9,13 +9,14 @@ export class SyntaxProcessor {
      * 示例：`${{ env.VAR }}` -> <code v-pre>${{ env.VAR }}</code>
      */
     static escapeVueInterpolation(content: string): string {
-        // 只匹配包含 {{...}} 的行内代码（单个反引号）
-        // 使用负向前瞻和负向后顾确保不匹配代码块的反引号
+        // 匹配所有行内代码（单个反引号）
         // (?<!`) 确保反引号前面不是反引号
         // (?!`) 确保反引号后面不是反引号
-        return content.replace(/(?<!`)(`)((?:[^`]*?\{\{[^}]*?\}\}[^`]*?)+)\1(?!`)/g, (match, backtick, codeContent) => {
-            // 只有当内容确实包含 {{}} 时才转换
-            if (codeContent.includes('{{') && codeContent.includes('}}')) {
+        return content.replace(/(?<!`)(`)([^`]+)\1(?!`)/g, (match, backtick, codeContent) => {
+            // 只要内容包含 {{，这就可能是 Vue 插值或容易引起混淆的内容
+            // 加上 v-pre 是安全的，可以防止 Vue 编译错误
+            // 这涵盖了 `{{`, `{{{{`, `${{...}}` 等情况
+            if (codeContent.includes('{{')) {
                 return `<code v-pre>${codeContent}</code>`;
             }
             return match;

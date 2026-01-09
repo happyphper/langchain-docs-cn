@@ -2,8 +2,36 @@
 import { LINK_MAPS } from '../links.js';
 
 export class LinkProcessor {
-    static processImages(content: string): string {
+    static processImages(content: string, filePath: string = ''): string {
         let transformed = content;
+
+        // 获取当前文件的目录路径 (假设 filePath 是相对于根目录的，如 'langsmith/guide.md')
+        // 如果 filePath 为空，则无法正确计算相对路径，只能回退到简单处理
+        const fileDir = filePath ? filePath.split('/').slice(0, -1).join('/') : '';
+
+        const resolvePath = (src: string) => {
+            if (!src) return src;
+            if (src.startsWith('http') || src.startsWith('/') || src.startsWith('data:')) return src;
+
+            // 处理相对路径
+            let cleanSrc = src;
+            if (cleanSrc.startsWith('./')) {
+                cleanSrc = cleanSrc.substring(2);
+            }
+
+            // 如果有文件上下文，拼接成绝对路径
+            if (fileDir) {
+                // 简单的路径拼接，不使用 path 模块以避免引入 Node.js 依赖（如果这是一个纯前端通用库的话，也就是为了保险）
+                // 处理 ../ 的情况比较复杂，这里暂时假设结构比较简单，或者直接拼接
+                // 但为了健壮性，我们可以处理简单的 ../
+                // 这里我们生成以 / 开头的绝对路径，指向 public 目录中的资源
+                return `/${fileDir}/${cleanSrc}`.replace(/\/+/g, '/'); // 替换多余的 //
+            }
+
+            // 如果没有上下文，只能回退到之前的行为（或者就保持相对路径）
+            // 之前的行为是直接加 /，导致了 /./ 问题。现在至少去掉 ./
+            return `/${cleanSrc}`;
+        };
 
         // 1. 处理居中 div 包裹的图片标签，剥离外层 div
         // 匹配: <div style={{ display: "flex", justifyContent: "center" }}> ... <img ... /> ... </div>
@@ -23,10 +51,7 @@ export class LinkProcessor {
             let src = srcMatch ? srcMatch[1] : '';
             let alt = altMatch ? altMatch[1] : '';
 
-            // 规范化路径：仅处理非 http 开头的本地路径
-            if (src && !src.startsWith('http') && !src.startsWith('/')) {
-                src = `/${src}`;
-            }
+            src = resolvePath(src);
 
             // 返回标准的 img 标签，不带外层 div
             return `<img src="${src}" alt="${alt}" />`;
@@ -34,9 +59,14 @@ export class LinkProcessor {
 
         // 3. 处理 Markdown 原生图片语法 ![]()，确保路径正确
         transformed = transformed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
-            // 规范化路径：仅处理非 http 开头的本地路径
-            if (src && !src.startsWith('http') && !src.startsWith('/')) {
-                return `![${alt}](/${src})`;
+            // 移除 data: 协议的图片，防止构建错误（通常是超长 Base64 导致的解析问题）
+            if (src.trim().startsWith('data:')) {
+                return alt;
+            }
+
+            const newSrc = resolvePath(src);
+            if (newSrc !== src) {
+                return `![${alt}](${newSrc})`;
             }
             return match;
         });

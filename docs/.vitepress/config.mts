@@ -23,6 +23,7 @@ export default defineConfig({
   title: "LangChain Docs",
   description: "LangChain Chinese Documentations",
   cleanUrls: true,
+  ignoreDeadLinks: true,
   markdown: {
     config: (md) => {
       md.use(groupIconMdPlugin)

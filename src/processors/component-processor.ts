@@ -226,6 +226,37 @@ export class ComponentProcessor {
             .replace(/<AccordionGroup\s*(\s+[^>]*?)?\/?>/gi, '');
     }
 
+    /**
+     * 将 HTML <details> 标签转换为 VitePress 的 ::: details 语法
+     * 同时会自动剥离内部可选的 <div> 包裹层
+     */
+    static processDetailsTag(content: string): string {
+        let transformed = content;
+
+        // 匹配 <details> ... <summary>Title</summary> ... </details>
+        // group 1: title
+        // group 2: inner content
+        const regex = /<details[^>]*>\s*<summary>(.*?)<\/summary>([\s\S]*?)<\/details>/gi;
+
+        transformed = transformed.replace(regex, (match, title, innerContent) => {
+            let processedInner = innerContent.trim();
+
+            // 如果内容被 div 包裹，剥离它
+            // 仅处理最简单的包裹情况 <div>...</div>
+            // 使用正则允许 div 前后有空白
+            const divWrapperRegex = /^\s*<div[^>]*>([\s\S]*?)<\/div>\s*$/i;
+            const divMatch = processedInner.match(divWrapperRegex);
+
+            if (divMatch) {
+                processedInner = divMatch[1].trim();
+            }
+
+            return `\n::: details ${title.trim()}\n${processedInner}\n:::\n`;
+        });
+
+        return transformed;
+    }
+
     static processNestedComponents(content: string): string {
         const inlineComponents = ['Tooltip', 'Icon', 'a'];
 

@@ -6,7 +6,7 @@ import { LinkProcessor } from '../processors/link-processor.js';
 import { SyntaxProcessor } from '../processors/syntax-processor.js';
 
 export class MdxTransformer {
-    static transform(content: string, targetLang: string): string {
+    static transform(content: string, targetLang: string, filePath: string = ''): string {
         const { data, content: body } = matter(content);
         let transformedBody = body;
 
@@ -54,7 +54,7 @@ export class MdxTransformer {
         transformedBody = ComponentProcessor.processSnippetImports(transformedBody, targetLang, snippetImports);
 
         // 5. 链接与图片 (现在安全了，因为代码块被占位符替代了)
-        transformedBody = LinkProcessor.processImages(transformedBody);
+        transformedBody = LinkProcessor.processImages(transformedBody, filePath);
         transformedBody = LinkProcessor.processApiLinks(transformedBody, targetLang);
 
         // 6. 语法处理
@@ -69,6 +69,9 @@ export class MdxTransformer {
 
         // 9. 递归处理组件嵌套
         transformedBody = ComponentProcessor.processNestedComponents(transformedBody);
+
+        // 9.5 处理 details 标签 (HTML <details> -> ::: details)
+        transformedBody = ComponentProcessor.processDetailsTag(transformedBody);
 
         // 10. Accordions
         transformedBody = ComponentProcessor.processAccordions(transformedBody);

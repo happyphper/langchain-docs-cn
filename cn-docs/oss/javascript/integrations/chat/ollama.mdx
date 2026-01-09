@@ -1,0 +1,343 @@
+---
+title: ChatOllama
+---
+[Ollama](https://ollama.ai/) 允许您在本地运行开源大语言模型（LLM），例如 Llama 3.1。
+
+Ollama 将模型权重、配置和数据打包成一个由 Modelfile 定义的单一软件包。它优化了设置和配置细节，包括 GPU 的使用。
+
+本指南将帮助您开始使用 `ChatOllama` [聊天模型](/oss/langchain/models)。有关 `ChatOllama` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_ollama.ChatOllama.html)。
+
+## 概述
+
+### 集成详情
+
+Ollama 允许您使用具有不同能力的多种模型。下面详情表中的某些字段仅适用于 Ollama 提供的部分模型。
+
+有关支持的模型和模型变体的完整列表，请参阅 [Ollama 模型库](https://ollama.com/search) 并按标签搜索。
+
+| 类 | 包 | 可序列化 | [Python 支持](https://python.langchain.com/docs/integrations/chat/ollama) | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| [ChatOllama](https://api.js.langchain.com/classes/langchain_ollama.ChatOllama.html) | [`@langchain/ollama`](https://www.npmjs.com/package/@langchain/ollama) | beta | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/ollama?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/ollama?style=flat-square&label=%20&) |
+
+### 模型特性
+
+有关如何使用特定功能的指南，请参阅下表标题中的链接。
+
+| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
+
+## 设置
+
+按照 [这些说明](https://github.com/ollama/ollama) 设置并运行本地 Ollama 实例。然后，下载 `@langchain/ollama` 包。
+
+### 凭证
+
+如果您希望自动追踪模型调用，还可以通过取消注释以下内容来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```bash
+# export LANGSMITH_TRACING="true"
+# export LANGSMITH_API_KEY="your-api-key"
+```
+
+### 安装
+
+LangChain ChatOllama 集成位于 `@langchain/ollama` 包中：
+
+<CodeGroup>
+```bash npm
+npm install @langchain/ollama @langchain/core
+```
+```bash yarn
+yarn add @langchain/ollama @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/ollama @langchain/core
+```
+</CodeGroup>
+
+## 实例化
+
+现在我们可以实例化我们的模型对象并生成聊天补全：
+
+```typescript
+import { ChatOllama } from "@langchain/ollama"
+
+const llm = new ChatOllama({
+    model: "llama3",
+    temperature: 0,
+    maxRetries: 2,
+    // other params...
+})
+```
+
+## 调用
+
+```typescript
+const aiMsg = await llm.invoke([
+    [
+        "system",
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+    ],
+    ["human", "I love programming."],
+])
+aiMsg
+```
+
+```text
+AIMessage {
+  "content": "Je adore le programmation.\n\n(Note: \"programmation\" is the feminine form of the noun in French, but if you want to use the masculine form, it would be \"le programme\" instead.)",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "llama3",
+    "created_at": "2024-08-01T16:59:17.359302Z",
+    "done_reason": "stop",
+    "done": true,
+    "total_duration": 6399311167,
+    "load_duration": 5575776417,
+    "prompt_eval_count": 35,
+    "prompt_eval_duration": 110053000,
+    "eval_count": 43,
+    "eval_duration": 711744000
+  },
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 35,
+    "output_tokens": 43,
+    "total_tokens": 78
+  }
+}
+```
+
+```typescript
+console.log(aiMsg.content)
+```
+
+```text
+Je adore le programmation.
+
+(Note: "programmation" is the feminine form of the noun in French, but if you want to use the masculine form, it would be "le programme" instead.)
+```
+
+## 工具
+
+Ollama 现在为[其可用模型的一个子集](https://ollama.com/search?c=tools)提供了原生工具调用支持。下面的示例演示了如何从 Ollama 模型调用工具。
+
+```typescript
+import { tool } from "@langchain/core/tools";
+import { ChatOllama } from "@langchain/ollama";
+import * as z from "zod";
+
+const weatherTool = tool((_) => "Da weather is weatherin", {
+  name: "get_current_weather",
+  description: "Get the current weather in a given location",
+  schema: z.object({
+    location: z.string().describe("The city and state, e.g. San Francisco, CA"),
+  }),
+});
+
+// Define the model
+const llmForTool = new ChatOllama({
+  model: "llama3-groq-tool-use",
+});
+
+// Bind the tool to the model
+const llmWithTools = llmForTool.bindTools([weatherTool]);
+
+const resultFromTool = await llmWithTools.invoke(
+  "What's the weather like today in San Francisco? Ensure you use the 'get_current_weather' tool."
+);
+
+console.log(resultFromTool);
+```
+
+```text
+AIMessage {
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "llama3-groq-tool-use",
+    "created_at": "2024-08-01T18:43:13.2181Z",
+    "done_reason": "stop",
+    "done": true,
+    "total_duration": 2311023875,
+    "load_duration": 1560670292,
+    "prompt_eval_count": 177,
+    "prompt_eval_duration": 263603000,
+    "eval_count": 30,
+    "eval_duration": 485582000
+  },
+  "tool_calls": [
+    {
+      "name": "get_current_weather",
+      "args": {
+        "location": "San Francisco, CA"
+      },
+      "id": "c7a9d590-99ad-42af-9996-41b90efcf827",
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 177,
+    "output_tokens": 30,
+    "total_tokens": 207
+  }
+}
+```
+
+### `.withStructuredOutput`
+
+对于[支持工具调用的模型](https://ollama.com/search?c=tools)，您也可以调用 `.withStructuredOutput()` 来从工具获取结构化输出。
+
+```typescript
+import { ChatOllama } from "@langchain/ollama";
+import * as z from "zod";
+
+// Define the model
+const llmForWSO = new ChatOllama({
+  model: "llama3-groq-tool-use",
+});
+
+// Define the tool schema you'd like the model to use.
+const schemaForWSO = z.object({
+  location: z.string().describe("The city and state, e.g. San Francisco, CA"),
+});
+
+// Pass the schema to the withStructuredOutput method to bind it to the model.
+const llmWithStructuredOutput = llmForWSO.withStructuredOutput(schemaForWSO, {
+  name: "get_current_weather",
+});
+
+const resultFromWSO = await llmWithStructuredOutput.invoke(
+  "What's the weather like today in San Francisco? Ensure you use the 'get_current_weather' tool."
+);
+console.log(resultFromWSO);
+```
+
+```javascript
+{ location: 'San Francisco, CA' }
+```
+
+### JSON 模式
+
+Ollama 还为所有聊天模型支持 JSON 模式，该模式强制模型输出仅返回 JSON。以下是一个示例，说明这对于信息提取如何有用：
+
+```typescript
+import { ChatOllama } from "@langchain/ollama";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+
+const promptForJsonMode = ChatPromptTemplate.fromMessages([
+  [
+    "system",
+    `You are an expert translator. Format all responses as JSON objects with two keys: "original" and "translated".`,
+  ],
+  ["human", `Translate "{input}" into {language}.`],
+]);
+
+const llmJsonMode = new ChatOllama({
+  baseUrl: "http://localhost:11434", // Default value
+  model: "llama3",
+  format: "json",
+});
+
+const chainForJsonMode = promptForJsonMode.pipe(llmJsonMode);
+
+const resultFromJsonMode = await chainForJsonMode.invoke({
+  input: "I love programming",
+  language: "German",
+});
+
+console.log(resultFromJsonMode);
+```
+
+```text
+AIMessage {
+  "content": "{\n\"original\": \"I love programming\",\n\"translated\": \"Ich liebe Programmierung\"\n}",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "llama3",
+    "created_at": "2024-08-01T17:24:54.35568Z",
+    "done_reason": "stop",
+    "done": true,
+    "total_duration": 1754811583,
+    "load_duration": 1297200208,
+    "prompt_eval_count": 47,
+    "prompt_eval_duration": 128532000,
+    "eval_count": 20,
+    "eval_duration": 318519000
+  },
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 47,
+    "output_tokens": 20,
+    "total_tokens": 67
+  }
+}
+```
+
+## 多模态模型
+
+Ollama 在 0.1.15 及更高版本中支持开源多模态模型，如 [LLaVA](https://ollama.ai/library/llava)。
+您可以将图像作为消息 `content` 字段的一部分传递给[支持多模态的](/oss/langchain/messages#multimodal)模型，如下所示：
+
+```typescript
+import { ChatOllama } from "@langchain/ollama";
+import { HumanMessage } from "@langchain/core/messages";
+import * as fs from "node:fs/promises";
+
+const imageData = await fs.readFile("../../../../../examples/hotdog.jpg");
+const llmForMultiModal = new ChatOllama({
+  model: "llava",
+  baseUrl: "http://127.0.0.1:11434",
+});
+const multiModalRes = await llmForMultiModal.invoke([
+  new HumanMessage({
+    content: [
+      {
+        type: "text",
+        text: "What is in this image?",
+      },
+      {
+        type: "image_url",
+        image_url: `data:image/jpeg;base64,${imageData.toString("base64")}`,
+      },
+    ],
+  }),
+]);
+console.log(multiModalRes);
+```
+
+```text
+AIMessage {
+  "content": " The image shows a hot dog in a bun, which appears to be a footlong. It has been cooked or grilled to the point where it's browned and possibly has some blackened edges, indicating it might be slightly overcooked. Accompanying the hot dog is a bun that looks toasted as well. There are visible char marks on both the hot dog and the bun, suggesting they have been cooked directly over a source of heat, such as a grill or broiler. The background is white, which puts the focus entirely on the hot dog and its bun. ",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "llava",
+    "created_at": "2024-08-01T17:25:02.169957Z",
+    "done_reason": "stop",
+    "done": true,
+    "total_duration": 5700249458,
+    "load_duration": 2543040666,
+    "prompt_eval_count": 1,
+    "prompt_eval_duration": 1032591000,
+    "eval_count": 127,
+    "eval_duration": 2114201000
+  },
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 1,
+    "output_tokens": 127,
+    "total_tokens": 128
+  }
+}
+```
+
+---
+
+## API 参考
+
+有关 ChatOllama 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_ollama.ChatOllama.html)。

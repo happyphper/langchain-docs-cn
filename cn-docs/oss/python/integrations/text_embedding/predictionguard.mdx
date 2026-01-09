@@ -1,0 +1,201 @@
+---
+title: PredictionGuardEmbeddings
+---
+>[Prediction Guard](https://predictionguard.com) 是一个安全、可扩展的生成式 AI 平台，能够保护敏感数据、防止常见的 AI 故障，并可在经济实惠的硬件上运行。
+
+## 概述
+
+### 集成详情
+
+本集成展示了如何在 LangChain 中使用 Prediction Guard 的嵌入集成。该集成支持文本和图像，可以单独使用，也可以作为匹配对一起使用。
+
+## 设置
+
+要访问 Prediction Guard 模型，请通过[此链接](https://predictionguard.com/get-started)联系我们以获取 Prediction Guard API 密钥并开始使用。
+
+### 凭证
+
+获取密钥后，您可以通过以下方式设置：
+
+```python
+import os
+
+os.environ["PREDICTIONGUARD_API_KEY"] = "<Prediction Guard API Key"
+```
+
+### 安装
+
+```python
+pip install -qU langchain-predictionguard
+```
+
+## 实例化
+
+首先，安装 Prediction Guard 和 LangChain 包。然后，设置所需的环境变量并进行包导入。
+
+```python
+from langchain_predictionguard import PredictionGuardEmbeddings
+```
+
+```python
+embeddings = PredictionGuardEmbeddings(model="bridgetower-large-itm-mlm-itc")
+```
+
+Prediction Guard 的嵌入生成支持文本和图像。该集成通过多个函数提供了这种支持。
+
+## 索引与检索
+
+```python
+# 使用示例文本创建向量存储
+from langchain_core.vectorstores import InMemoryVectorStore
+
+text = "LangChain is the framework for building context-aware reasoning applications."
+
+vectorstore = InMemoryVectorStore.from_texts(
+    [text],
+    embedding=embeddings,
+)
+
+# 将向量存储用作检索器
+retriever = vectorstore.as_retriever()
+
+# 检索最相似的文本
+retrieved_documents = retriever.invoke("What is LangChain?")
+
+# 显示检索到的文档内容
+retrieved_documents[0].page_content
+```
+
+```text
+'LangChain is the framework for building context-aware reasoning applications.'
+```
+
+## 直接使用
+
+向量存储和检索器的实现会调用 `embeddings.embed_documents(...)` 和 `embeddings.embed_query(...)` 来为 `from_texts` 和检索 `invoke` 操作中使用的文本创建嵌入。
+
+这些方法可以直接通过以下命令调用。
+
+### 嵌入单个文本
+
+```python
+# 嵌入单个字符串
+text = "This is an embedding example."
+single_vector = embeddings.embed_query(text)
+
+single_vector[:5]
+```
+
+```text
+[0.01456777285784483,
+ -0.08131945133209229,
+ -0.013045587576925755,
+ -0.09488929063081741,
+ -0.003087474964559078]
+```
+
+### 嵌入多个文本
+
+```python
+# 嵌入多个字符串
+docs = [
+    "This is an embedding example.",
+    "This is another embedding example.",
+]
+
+two_vectors = embeddings.embed_documents(docs)
+
+for vector in two_vectors:
+    print(vector[:5])
+```
+
+```text
+[0.01456777285784483, -0.08131945133209229, -0.013045587576925755, -0.09488929063081741, -0.003087474964559078]
+[-0.0015021917643025517, -0.08883760124444962, -0.0025286630261689425, -0.1052245944738388, 0.014225339516997337]
+```
+
+### 嵌入单个图像
+
+```python
+# 嵌入单个图像。这些函数接受图像 URL、图像文件、数据 URI 和 base64 编码的字符串。
+image = [
+    "https://farm4.staticflickr.com/3300/3497460990_11dfb95dd1_z.jpg",
+]
+single_vector = embeddings.embed_images(image)
+
+print(single_vector[0][:5])
+```
+
+```text
+[0.0911610797047615, -0.034427884966135025, 0.007927080616354942, -0.03500846028327942, 0.022317267954349518]
+```
+
+### 嵌入多个图像
+
+```python
+# 嵌入多个图像
+images = [
+    "https://fastly.picsum.photos/id/866/200/300.jpg?hmac=rcadCENKh4rD6MAp6V_ma-AyWv641M4iiOpe1RyFHeI",
+    "https://farm4.staticflickr.com/3300/3497460990_11dfb95dd1_z.jpg",
+]
+
+two_vectors = embeddings.embed_images(images)
+
+for vector in two_vectors:
+    print(vector[:5])
+```
+
+```text
+[0.1593627631664276, -0.03636132553219795, -0.013229663483798504, -0.08789524435997009, 0.062290553003549576]
+[0.0911610797047615, -0.034427884966135025, 0.007927080616354942, -0.03500846028327942, 0.022317267954349518]
+```
+
+### 嵌入单个文本-图像对
+
+```python
+# 嵌入单个文本-图像对
+inputs = [
+    {
+        "text": "This is an embedding example.",
+        "image": "https://farm4.staticflickr.com/3300/3497460990_11dfb95dd1_z.jpg",
+    },
+]
+single_vector = embeddings.embed_image_text(inputs)
+
+print(single_vector[0][:5])
+```
+
+```text
+[0.0363212488591671, -0.10172265768051147, -0.014760786667466164, -0.046511903405189514, 0.03860781341791153]
+```
+
+### 嵌入多个文本-图像对
+
+```python
+# 嵌入多个文本-图像对
+inputs = [
+    {
+        "text": "This is an embedding example.",
+        "image": "https://fastly.picsum.photos/id/866/200/300.jpg?hmac=rcadCENKh4rD6MAp6V_ma-AyWv641M4iiOpe1RyFHeI",
+    },
+    {
+        "text": "This is another embedding example.",
+        "image": "https://farm4.staticflickr.com/3300/3497460990_11dfb95dd1_z.jpg",
+    },
+]
+two_vectors = embeddings.embed_image_text(inputs)
+
+for vector in two_vectors:
+    print(vector[:5])
+```
+
+```text
+[0.11867266893386841, -0.05898813530802727, -0.026179173961281776, -0.10747235268354416, 0.07684746384620667]
+[0.026654226705431938, -0.10080841928720474, -0.012732953764498234, -0.04365091398358345, 0.036743905395269394]
+```
+
+---
+
+## API 参考
+
+有关 PredictionGuardEmbeddings 所有功能和配置的详细文档，请查看 API 参考：[python.langchain.com/api_reference/community/embeddings/langchain_community.embeddings.predictionguard.PredictionGuardEmbeddings.html](https://python.langchain.com/api_reference/community/embeddings/langchain_community.embeddings.predictionguard.PredictionGuardEmbeddings.html)

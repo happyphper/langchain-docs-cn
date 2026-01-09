@@ -1,0 +1,189 @@
+---
+title: Zep Cloud
+---
+> 从聊天历史中回忆、理解并提取数据。为个性化 AI 体验提供动力。
+
+> [Zep](https://www.getzep.com) 是一个面向 AI 助手应用的长时记忆服务。
+> 通过 Zep，您可以为 AI 助手提供回忆过去对话的能力，无论对话多么久远，
+> 同时还能减少幻觉、延迟和成本。
+
+> 参见 [Zep Cloud 安装指南](https://help.getzep.com/sdks)
+
+## 使用方法
+
+在下面的示例中，我们使用了 Zep 的自动嵌入功能，该功能使用低延迟嵌入模型在 Zep 服务器上自动嵌入文档。
+
+## 注意
+
+- 这些示例使用 Zep 的异步接口。通过从方法名中移除 `a` 前缀来调用同步接口。
+
+## 从文档加载或创建集合
+
+```python
+from uuid import uuid4
+
+from langchain_community.document_loaders import WebBaseLoader
+from langchain_community.vectorstores import ZepCloudVectorStore
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+ZEP_API_KEY = "<your zep project key>"  # 您可以从 Zep 仪表板生成您的 zep 项目密钥
+collection_name = f"babbage{uuid4().hex}"  # 唯一的集合名称。仅限字母数字
+
+# 加载文档
+article_url = "https://www.gutenberg.org/cache/epub/71292/pg71292.txt"
+loader = WebBaseLoader(article_url)
+documents = loader.load()
+
+# 将其分割成块
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+
+# 实例化 VectorStore。由于该集合在 Zep 中尚不存在，
+# 它将被创建并用我们传入的文档填充。
+vs = ZepCloudVectorStore.from_documents(
+    docs,
+    embedding=None,
+    collection_name=collection_name,
+    api_key=ZEP_API_KEY,
+)
+```
+
+```python
+# 等待集合嵌入完成
+
+
+async def wait_for_ready(collection_name: str) -> None:
+    import time
+
+    from zep_cloud.client import AsyncZep
+
+    client = AsyncZep(api_key=ZEP_API_KEY)
+
+    while True:
+        c = await client.document.get_collection(collection_name)
+        print(
+            "Embedding status: "
+            f"{c.document_embedded_count}/{c.document_count} documents embedded"
+        )
+        time.sleep(1)
+        if c.document_embedded_count == c.document_count:
+            break
+
+
+await wait_for_ready(collection_name)
+```
+
+```text
+Embedding status: 401/401 documents embedded
+```
+
+## 在集合上进行相似性搜索查询
+
+```python
+# 查询它
+query = "what is the structure of our solar system?"
+docs_scores = await vs.asimilarity_search_with_relevance_scores(query, k=3)
+
+# 打印结果
+for d, s in docs_scores:
+    print(d.page_content, " -> ", s, "\n====\n")
+```
+
+```text
+the positions of the two principal planets, (and these the most
+necessary for the navigator,) Jupiter and Saturn, require each not less
+than one hundred and sixteen tables. Yet it is not only necessary to
+predict the position of these bodies, but it is likewise expedient to
+tabulate the motions of the four satellites of Jupiter, to predict the
+exact times at which they enter his shadow, and at which their shadows
+cross his disc, as well as the times at which they are interposed  ->  0.78691166639328
+====
+
+are reduced to a system of wheel-work. We are, nevertheless, not without
+hopes of conveying, even to readers unskilled in mathematics, some
+satisfactory notions of a general nature on this subject.
+
+_Thirdly_, To explain the actual state of the machinery at the present
+time; what progress has been made towards its completion; and what are
+the probable causes of those delays in its progress, which must be a
+subject of regret to all friends of science. We shall indicate what  ->  0.7853284478187561
+====
+
+from the improved state of astronomy, he found it necessary to recompute
+these tables in 1821.
+
+Although it is now about thirty years since the discovery of the four
+new planets, Ceres, Pallas, Juno, and Vesta, it was not till recently
+that tables of their motions were published. They have lately appeared
+in Encke's Ephemeris.
+
+We have thus attempted to convey some notion (though necessarily a very
+inadequate one) of the immense extent of numerical tables which it has  ->  0.7840130925178528
+====
+```
+
+## 使用 MMR 重新排序在集合上进行搜索
+
+Zep 提供原生、硬件加速的 MMR 搜索结果重新排序。
+
+```python
+query = "what is the structure of our solar system?"
+docs = await vs.asearch(query, search_type="mmr", k=3)
+
+for d in docs:
+    print(d.page_content, "\n====\n")
+```
+
+```text
+the positions of the two principal planets, (and these the most
+necessary for the navigator,) Jupiter and Saturn, require each not less
+than one hundred and sixteen tables. Yet it is not only necessary to
+predict the position of these bodies, but it is likewise expedient to
+tabulate the motions of the four satellites of Jupiter, to predict the
+exact times at which they enter his shadow, and at which their shadows
+cross his disc, as well as the times at which they are interposed
+====
+
+are reduced to a system of wheel-work. We are, nevertheless, not without
+hopes of conveying, even to readers unskilled in mathematics, some
+satisfactory notions of a general nature on this subject.
+
+_Thirdly_, To explain the actual state of the machinery at the present
+time; what progress has been made towards its completion; and what are
+the probable causes of those delays in its progress, which must be a
+subject of regret to all friends of science. We shall indicate what
+====
+
+general commerce. But the science in which, above all others, the most
+extensive and accurate tables are indispensable, is Astronomy; with the
+improvement and perfection of which is inseparably connected that of the
+kindred art of Navigation. We scarcely dare hope to convey to the
+general reader any thing approaching to an adequate notion of the
+multiplicity and complexity of the tables necessary for the purposes of
+the astronomer and navigator. We feel, nevertheless, that the truly
+====
+```
+
+# 按元数据过滤
+
+使用元数据过滤器来缩小结果范围。首先，加载另一本书："Adventures of Sherlock Holmes"
+
+```python
+# 让我们向现有集合添加更多内容
+article_url = "https://www.gutenberg.org/files/48320/48320-0.txt"
+loader = WebBaseLoader(article_url)
+documents = loader.load()
+
+# 将其分割成块
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+
+await vs.aadd_documents(docs)
+
+await wait_for_ready(collection_name)
+```
+
+```text
+Adding documents
+generated documents 1290
+added documents ['ddec2883-5776-47be-a7bc-23e851e969a9', '19d2a5ce-0a36-4d32-b522-2a54a69970e8', '5e6d8ed2-4527-4515-9557-f178b2682df8', 'ad2b04d9-e1f1-4d90-9920-ab6d95c63dd7', '19871eb4-b624-49d1-a160-a24487298ac6', '19e9e04b-6b3f-4a91-9717-1565a5065642', '0e9a6411-a6a6-4453-a655-2a251519a1fa', '51de5926-dbb1-4d58-b6d4-47c8e5988042', '244dc860-2bf0-41a1-aa3c-e170c0209c5a', '175e8811-70cd-499c-a35f-2502749bff2e', '5298951a-1087-45f4-afff-3466032301fc', 'd87f4495-95c9-4152-bf1b-90f73652e639', '638f6b85-1e05-462f-8c75-4c642a309d88', '92f7f430-9ffc-4ca5-ac92-953793a4a7b0', '5ce532f2-86b0-4953-8815-96b7fb0da046', '8187857a-02b6-4faa-80b3-ca6d64b0ae59', '599d479c-7c2e-4ad9-b5e4-651fced1f38c', 'e0869e51-92a5-4c87-ba35-a977c3fe43d2', 'bed376d9-3785-4fa3-a986-4d069e817a0e', '31e8e7b1-164b-4872-8a21-0a417d9c2793', '87f96ecb-c78a-4aaf-a976-557a76adecf1', '8f0e7eb2-fb67-4010-bec4-70f1ea319d22', '5d280424-00cc-475c-8334-3ac1dbda84c9', 'a27876c9-68c2-460c-bce1-43cbc734885a', '492fe1fc-0dc8-45ee-a343-3fc514014298', '964a4887-0a21-442b-8677-9568c8ea5b4a', '87b82a96-c981-454e-87f6-171cbaa90e20', '14014728-1617-4ff5-8f56-b2cbcdf08bcf', 'af95852d-e7ce-4db7-9b47-3cfbffcfd81b', '1f6526bf-f5a9-4a1a-9a9f-42e6d175d9d5', '0a214058-d318-4f75-a413-140a4bdbc55f', '0eee06d6-d7e0-4097-8231-af823635f786', '7e74bdc5-f42f-474e-8c3d-0a346227f1e6', 'c8959f06-5282-47e8-92fe-16a90bb20132', 'd895bdcb-b7d1-40fe-a9a8-92647630688a', 'ebb30286-4eba-4733-94c7-f2e92cfcd0a3', '02c87eb9-031d-44bc-ad9a-c3b07b6d879c', '5338e6e3-ebfd-42b9-ba71-4eb728a9aba0', 'b372dba5-f1e7-4cff-9ba2-17132b51423d', 'bad22837-aba8-4431-a742-e1642abdc1d3', 'e73f3146-9ac1-4517-8905-45ba31de1551', '6903a3cb-acb1-42cd-9653-b208487368e9', '92600304-7eb9-4a6f-9a27-ba14a28fc636', '44e720af-efcf-477a-a655-08967ff3159a', '61565e97-7aa5-4c8c-a330-86ba265824d6', 'de10ad67-1992-4c85-8112-c1a2cd93edc0', '103d4a40-789a-4797-ad86-e50b2efe93e8', 'a5940a28-a9db-435c-b3c2-3485fafba55a', '637475cc-9a54-4ced-ab03-4a5dddb1e152', 'b209df0d-6513-4a74-b0ea-7bb2b2e01c4b', 'e6ee7511-eec8-4b20-94b1-e338093c9760', 'ef4ceb0d-a990-4cc2-91ed-320e1552c98d', '8058b68a-7ce5-4fb9-9f89-ed1c9e04b60e', 'ddebdfe0-87c1-4c4f-9d1f-fdc32b6bd5e2', '5211afd6-3076-40ec-b964-8c4a165b6e3d', 'ac5e9a17-ff57-4885-b3b7-4229d09a2077', 'fcea3094-7d86-4c05-9780-5c894197b65a', '81b0bdd9-5be6-4b95-89db-fe737446512a', '68f42964-0c21-4409-8356-067bbc5eddb0', '28b3dbc4-3b5f-4a7e-9906-b34a30832384', '83a15ca3-b54b-449a-813b-76db3e1f11ea', '1fd0d950-e1e3-4c5a-b62c-487ed11e06ac', '70253ef9-e4c3-4f9e-aa51-18b2b067d2d5', 'f5538e25-1e4e-438f-b1ef-ebc359085df8', '643e6f1e-b5dd-4630-9e30-f323abff5261', 'ef370f62-6a99-4116-9843-ad3f36ca0779', '915d4b2b-5467-4398-ab65-369250ca1245', '830c873a-eb80-40f9-9f6b-92f3b7be4f19', 'a965a589-8717-43d0-9419-7e8fefda070d', 'd686b00b-f91c-4d80-ae4d-5e2b6c227c86', '264951a6-5788-4a22-b925-758bcf0c499e', '32227ea1-1aa6-470c-9148-911c3fdda203', '97474d19-ef5d-4f14-8ffd-09d68bf5960a', '71fc221f-0048-4fbd-a68e-7c40885e091c', 'ef7a0a8c-16fd-4a2a-8d70-0fbf086b312e', 'fae9bea0-9815-4495-87a6-72700c728e71', '3cafc749-c648-477f-9b3d-33eacddc42aa', '31756e9d-993d-4653-b521-ef5cd653ab3a', '6c9b28ad-adde-4055-87f4-e34c387ab607', 'dfddcef4-9229-4c2c-9deb-6533f6c87bfe', '0511f770-041c-405d-a9f0-5e9a2c62563e', 'e9e8f9b2-1879-4528-bc72-1318bd026f53', 'dbcc7682-cf0e-49db-998c-d581df5cc0b9', '95c3a979-92fd-4268-9b1f-36f526fb1115', 'fb602a32-87c2-4fa1-9e15-8d69fd780baf', '163489b5-20a9-4eba-a9cc-660c7d5c0d21', 'beef4aaa-7eed-4dec-a953-de40a20efc9e', 'c61782a0-184b-43c7-a232-772087bdafa1', 'acf045d9-c43d-4e16-87d1-93b142bd3c3a', 'bb014519-b473-4329-8045-7dbe33200c34', 'ecb12661-86b1-47f7-a4e8-6854beedbe46', 'c2450f1b-593f-4b8f-ba80-ec56bcf802ae', 'bc47a6b4-8a4b-4e0a-9fd2-a9999d0c6c74', '3f2581c2-1c91-4e57-830b-a08cd7b09f9f', '4441431d-d3be-49f5-bf07-d415baced24d', 'bcd90088-0313-4647-a83d-673e470565a0', '3949bacf-8bb5-451d-81f4-f902f2fe8aca', '7925ac14-5ce2-4717-afcb-86da4ec6f933', 'ddbb242d-c914-4608-97c0-d3c5ae817a15', '7c351dfc-8f19-4a49-9a65-b79b5ed8aa07', '65db2c1b-36e1-4b38-8d28-554

@@ -1,0 +1,302 @@
+---
+title: SearchApi
+---
+本笔记本展示了如何使用 SearchApi 进行网络搜索的示例。请访问 [https://www.searchapi.io/](https://www.searchapi.io/) 注册免费账户并获取 API 密钥。
+
+```python
+import os
+
+os.environ["SEARCHAPI_API_KEY"] = ""
+```
+
+```python
+from langchain_community.utilities import SearchApiAPIWrapper
+```
+
+```python
+search = SearchApiAPIWrapper()
+```
+
+```python
+search.run("Obama's first name?")
+```
+
+```text
+'Barack Obama Full name: Barack Hussein Obama II'
+```
+
+## 作为 Self Ask With Search 链的一部分使用
+
+```python
+os.environ["OPENAI_API_KEY"] = ""
+```
+
+```python
+from langchain_community.utilities import SearchApiAPIWrapper
+from langchain.tools import Tool
+from langchain_openai import OpenAI
+
+llm = OpenAI(temperature=0)
+search = SearchApiAPIWrapper()
+tools = [
+    Tool(
+        name="intermediate_answer",
+        func=search.run,
+        description="useful for when you need to ask with search",
+    )
+]
+```
+
+```python
+from langchain.agents import create_agent
+
+
+agent = create_agent("gpt-4.1-mini", tools)
+```
+
+```python
+input_message = {
+    "role": "user",
+    "content": "Who lived longer: Plato, Socrates, or Aristotle?",
+}
+
+for step in agent.stream(
+    {"messages": [input_message]},
+    stream_mode="values",
+):
+    step["messages"][-1].pretty_print()
+```
+
+```text
+================================ Human Message =================================
+
+Who lived longer: Plato, Socrates, or Aristotle?
+================================== Ai Message ==================================
+Tool Calls:
+  intermediate_answer (call_Q0JquDV3SWfnn3rkwJkJaffG)
+ Call ID: call_Q0JquDV3SWfnn3rkwJkJaffG
+  Args:
+    __arg1: Lifespan of Plato
+  intermediate_answer (call_j9rXzVlrCcGc8HOFnKUH6j5E)
+ Call ID: call_j9rXzVlrCcGc8HOFnKUH6j5E
+  Args:
+    __arg1: Lifespan of Socrates
+  intermediate_answer (call_IBQT2qn5PzDE6q0ZyfPdhRaX)
+ Call ID: call_IBQT2qn5PzDE6q0ZyfPdhRaX
+  Args:
+    __arg1: Lifespan of Aristotle
+================================= Tool Message =================================
+Name: intermediate_answer
+
+384–322 BC was an Ancient Greek philosopher and polymath. His writings cover a broad range of subjects spanning the natural sciences, philosophy, linguistics, ...
+The Greek philosopher Aristotle (384-322 B.C.) made significant and lasting contributions to nearly every aspect of human knowledge, ...
+Aristotle's lifespan (384 - 322) (jan 1, 384 BC – jan 1, 322 BC). Added to timeline: Political Philosophy timeline. ByEdoardo. 25 Aug 2020.
+Aristotle was one of the greatest philosophers and scientists the world has ever seen. He was born in 384 bc at Stagirus, a Greek seaport on the coast of Thrace ...
+393–c. 370 bce), king of Macedonia and grandfather of Alexander the Great (reigned 336–323 bce). After his father's death in 367, Aristotle ...
+It is difficult to rule out that possibility decisively, since little is known about the period of Aristotle's life from 341–335. He evidently ...
+Lifespan: c. 384 B.C. to 322 B.C.; Contributions: Considered one of the greatest thinkers in various fields including politics, psychology, and ...
+Aristotle (Greek: Ἀριστοτέλης Aristotélēs, pronounced [aristotélɛːs]) lived 384–322 BC.
+Aristotle (384 B.C.E.—322 B.C.E.). Aristotle is a towering figure in ancient Greek philosophy, who made important contributions to logic, criticism, ...
+Aristotle. Born: 384 BC in Stagirus, Macedonia, Greece Died: 322 BC in Chalcis, Euboea, Greece. Aristotle was not primarily a mathematician but made ...
+================================== Ai Message ==================================
+
+Based on the information:
+
+- Plato reportedly lived to be around eighty or eighty-one years old.
+- Socrates' exact lifespan is not directly stated here, but he is known historically to have lived approximately from 470 BC to 399 BC, making him around 71 years old.
+- Aristotle lived from 384 BC to 322 BC, which means he was about 62 years old.
+
+Therefore, Plato lived longer than both Socrates and Aristotle.
+```
+
+## 自定义参数
+
+SearchApi 包装器可以自定义以使用不同的搜索引擎，例如 [Google News](https://www.searchapi.io/docs/google-news)、[Google Jobs](https://www.searchapi.io/docs/google-jobs)、[Google Scholar](https://www.searchapi.io/docs/google-scholar) 或 [SearchApi](https://www.searchapi.io/docs/google) 文档中列出的其他引擎。SearchApi 支持的所有参数都可以在执行查询时传递。
+
+```python
+search = SearchApiAPIWrapper(engine="google_jobs")
+```
+
+```python
+search.run("AI Engineer", location="Portugal", gl="pt")[0:500]
+```
+
+```text
+'No good search result found'
+```
+
+## 获取包含元数据的结果
+
+```python
+import pprint
+```
+
+```python
+search = SearchApiAPIWrapper(engine="google_scholar")
+results = search.results("Large Language Models")
+pprint.pp(results)
+```
+
+```text
+{'search_metadata': {'id': 'search_6Lpb2Z8vDqdsPRbrGkVgQzRy',
+                     'status': 'Success',
+                     'created_at': '2025-05-11T03:39:28Z',
+                     'request_time_taken': 0.86,
+                     'parsing_time_taken': 0.01,
+                     'total_time_taken': 0.87,
+                     'request_url': 'https://scholar.google.com/scholar?q=Large+Language+Models&hl=en',
+                     'html_url': 'https://www.searchapi.io/api/v1/searches/search_6Lpb2Z8vDqdsPRbrGkVgQzRy.html',
+                     'json_url': 'https://www.searchapi.io/api/v1/searches/search_6Lpb2Z8vDqdsPRbrGkVgQzRy'},
+ 'search_parameters': {'engine': 'google_scholar',
+                       'q': 'Large Language Models',
+                       'hl': 'en'},
+ 'search_information': {'query_displayed': 'Large Language Models',
+                        'total_results': 6390000,
+                        'page': 1,
+                        'time_taken_displayed': 0.08},
+ 'organic_results': [{'position': 1,
+                      'title': 'ChatGPT for good? On opportunities and '
+                               'challenges of large language models for '
+                               'education',
+                      'data_cid': 'uthwmf2nU3EJ',
+                      'link': 'https://www.sciencedirect.com/science/article/pii/S1041608023000195',
+                      'publication': 'E Kasneci, K Seßler, S Küchemann, M '
+                                     'Bannert… - Learning and individual …, '
+                                     '2023 - Elsevier',
+                      'snippet': '… state of large language models and their '
+                                 'applications. We then highlight how these '
+                                 'models can be … With regard to challenges, '
+                                 'we argue that large language models in '
+                                 'education require …',
+                      'inline_links': {'cited_by': {'cites_id': '8166055256995715258',
+                                                    'total': 4675,
+                                                    'link': 'https://scholar.google.com/scholar?cites=8166055256995715258&as_sdt=2005&sciodt=0,5&hl=en'},
+                                       'versions': {'cluster_id': '8166055256995715258',
+                                                    'total': 16,
+                                                    'link': 'https://scholar.google.com/scholar?cluster=8166055256995715258&hl=en&as_sdt=0,5'},
+                                       'related_articles_link': 'https://scholar.google.com/scholar?q=related:uthwmf2nU3EJ:scholar.google.com/&scioq=Large+Language+Models&hl=en&as_sdt=0,5'},
+                      'resource': {'name': 'osf.io',
+                                   'format': 'PDF',
+                                   'link': 'https://osf.io/preprints/edarxiv/5er8f/download'},
+                      'authors': [{'name': 'E Kasneci',
+                                   'id': 'bZVkVvoAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=bZVkVvoAAAAJ&hl=en&oi=sra'},
+                                  {'name': 'K Seßler',
+                                   'id': 'MbMBoN4AAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=MbMBoN4AAAAJ&hl=en&oi=sra'},
+                                  {'name': 'S Küchemann',
+                                   'id': 'g1jX5QUAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=g1jX5QUAAAAJ&hl=en&oi=sra'},
+                                  {'name': 'M Bannert',
+                                   'id': 'TjfQ8QkAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=TjfQ8QkAAAAJ&hl=en&oi=sra'}]},
+                     {'position': 2,
+                      'title': 'A survey on evaluation of large language '
+                               'models',
+                      'data_cid': 'o93zfHYlUTIJ',
+                      'link': 'https://dl.acm.org/doi/abs/10.1145/3641289',
+                      'publication': 'Y Chang, X Wang, J Wang, Y Wu, L Yang… - '
+                                     'ACM transactions on …, 2024 - dl.acm.org',
+                      'snippet': '… 3.1 Natural Language Processing Tasks … '
+                                 'the development of language models, '
+                                 'particularly large language models, was to '
+                                 'enhance performance on natural language '
+                                 'processing tasks, …',
+                      'inline_links': {'cited_by': {'cites_id': '3625720365842685347',
+                                                    'total': 2864,
+                                                    'link': 'https://scholar.google.com/scholar?cites=3625720365842685347&as_sdt=2005&sciodt=0,5&hl=en'},
+                                       'versions': {'cluster_id': '3625720365842685347',
+                                                    'total': 8,
+                                                    'link': 'https://scholar.google.com/scholar?cluster=3625720365842685347&hl=en&as_sdt=0,5'},
+                                       'related_articles_link': 'https://scholar.google.com/scholar?q=related:o93zfHYlUTIJ:scholar.google.com/&scioq=Large+Language+Models&hl=en&as_sdt=0,5'},
+                      'resource': {'name': 'acm.org',
+                                   'format': 'PDF',
+                                   'link': 'https://dl.acm.org/doi/pdf/10.1145/3641289'},
+                      'authors': [{'name': 'Y Chang',
+                                   'id': 'Hw-lrpAAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=Hw-lrpAAAAAJ&hl=en&oi=sra'},
+                                  {'name': 'X Wang',
+                                   'id': 'Q7Ieos8AAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=Q7Ieos8AAAAJ&hl=en&oi=sra'},
+                                  {'name': 'J Wang',
+                                   'id': 'hBZ_tKsAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=hBZ_tKsAAAAJ&hl=en&oi=sra'},
+                                  {'name': 'Y Wu',
+                                   'id': 'KVeRu2QAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=KVeRu2QAAAAJ&hl=en&oi=sra'},
+                                  {'name': 'L Yang',
+                                   'id': 'go3sFxcAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=go3sFxcAAAAJ&hl=en&oi=sra'}]},
+                     {'position': 3,
+                      'title': 'A comprehensive overview of large language '
+                               'models',
+                      'data_cid': 'UDLkJGuOVl4J',
+                      'link': 'https://arxiv.org/abs/2307.06435',
+                      'publication': 'H Naveed, AU Khan, S Qiu, M Saqib, S '
+                                     'Anwar… - arXiv preprint arXiv …, 2023 - '
+                                     'arxiv.org',
+                      'snippet': '… Large Language Models (LLMs) have recently '
+                                 'demonstrated remarkable capabilities in '
+                                 'natural language processing tasks and '
+                                 'beyond. This success of LLMs has led to a '
+                                 'large influx of …',
+                      'inline_links': {'cited_by': {'cites_id': '6797777278393922128',
+                                                    'total': 990,
+                                                    'link': 'https://scholar.google.com/scholar?cites=6797777278393922128&as_sdt=2005&sciodt=0,5&hl=en'},
+                                       'versions': {'cluster_id': '6797777278393922128',
+                                                    'total': 4,
+                                                    'link': 'https://scholar.google.com/scholar?cluster=6797777278393922128&hl=en&as_sdt=0,5'},
+                                       'related_articles_link': 'https://scholar.google.com/scholar?q=related:UDLkJGuOVl4J:scholar.google.com/&scioq=Large+Language+Models&hl=en&as_sdt=0,5',
+                                       'cached_page_link': 'https://scholar.googleusercontent.com/scholar?q=cache:UDLkJGuOVl4J:scholar.google.com/+Large+Language+Models&hl=en&as_sdt=0,5'},
+                      'resource': {'name': 'arxiv.org',
+                                   'format': 'PDF',
+                                   'link': 'https://arxiv.org/pdf/2307.06435'},
+                      'authors': [{'name': 'H Naveed',
+                                   'id': 'k5dpooQAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=k5dpooQAAAAJ&hl=en&oi=sra'},
+                                  {'name': 'AU Khan',
+                                   'id': 'sbOhz2UAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=sbOhz2UAAAAJ&hl=en&oi=sra'},
+                                  {'name': 'S Qiu',
+                                   'id': 'OPNVthUAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=OPNVthUAAAAJ&hl=en&oi=sra'},
+                                  {'name': 'M Saqib',
+                                   'id': 'KvbLR3gAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=KvbLR3gAAAAJ&hl=en&oi=sra'},
+                                  {'name': 'S Anwar',
+                                   'id': 'vPJIHywAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=vPJIHywAAAAJ&hl=en&oi=sra'}]},
+                     {'position': 4,
+                      'title': 'Large language models in medicine',
+                      'data_cid': 'Ph9AwHTmhzAJ',
+                      'link': 'https://www.nature.com/articles/s41591-023-02448-8',
+                      'publication': 'AJ Thirunavukarasu, DSJ Ting, K '
+                                     'Elangovan… - Nature medicine, 2023 - '
+                                     'nature.com',
+                      'snippet': '… HuggingChat offers a free-to-access '
+                                 'chatbot with a similar interface to ChatGPT '
+                                 'but uses Large Language Model Meta AI '
+                                 '(LLaMA) as its backend model 30 . Finally, '
+                                 'cheap imitations of …',
+                      'inline_links': {'cited_by': {'cites_id': '3497017024792502078',
+                                                    'total': 2474,
+                                                    'link': 'https://scholar.google.com/scholar?cites=3497017024792502078&as_sdt=2005&sciodt=0,5&hl=en'},
+                                       'versions': {'cluster_id': '3497017024792502078',
+                                                    'total': 7,
+                                                    'link': 'https://scholar.google.com/scholar?cluster=3497017024792502078&hl=en&as_sdt=0,5'},
+                                       'related_articles_link': 'https://scholar.google.com/scholar?q=related:Ph9AwHTmhzAJ:scholar.google.com/&scioq=Large+Language+Models&hl=en&as_sdt=0,5'},
+                      'resource': {'name': 'google.com',
+                                   'format': 'PDF',
+                                   'link': 'https://drive.google.com/file/d/1FKEGsSZ9GYOeToeKpxB4m3atGRbC-TSm/view'},
+                      'authors': [{'name': 'AJ Thirunavukarasu',
+                                   'id': '3qb1AYwAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=3qb1AYwAAAAJ&hl=en&oi=sra'},
+                                  {'name': 'DSJ Ting',
+                                   'id': 'KbrpC8cAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=KbrpC8cAAAAJ&hl=en&oi=sra'},
+                                  {'name': 'K Elangovan',
+                                   'id': 'BE_lVTQAAAAJ',
+                                   'link': 'https://scholar.google.com/citations?user=BE_lVTQAAAAJ&hl=en&oi=sra'}]},
+                     {'position': 5,
+                      'title': 'A watermark for large language models',
+                      'data_cid': 'BlSyLHT4

@@ -1,0 +1,169 @@
+---
+title: Trubrics
+---
+>[Trubrics](https://trubrics.com) 是一个 LLM 用户分析平台，可让您收集、分析和管理 AI 模型上的用户提示与反馈。
+>
+>查看 [Trubrics 仓库](https://github.com/trubrics/trubrics-sdk) 以获取有关 `Trubrics` 的更多信息。
+
+在本指南中，我们将介绍如何设置 `TrubricsCallbackHandler`。
+
+## 安装与设置
+
+```python
+pip install -qU  trubrics langchain langchain-community
+```
+
+### 获取 Trubrics 凭据
+
+如果您没有 Trubrics 账户，请在此处[创建](https://trubrics.streamlit.app/)。在本教程中，我们将使用账户创建时内置的 `default` 项目。
+
+现在将您的凭据设置为环境变量：
+
+```python
+import os
+
+os.environ["TRUBRICS_EMAIL"] = "***@***"
+os.environ["TRUBRICS_PASSWORD"] = "***"
+```
+
+```python
+from langchain_community.callbacks.trubrics_callback import TrubricsCallbackHandler
+```
+
+### 用法
+
+`TrubricsCallbackHandler` 可以接收各种可选参数。请参阅[此处](https://trubrics.github.io/trubrics-sdk/platform/user_prompts/#saving-prompts-to-trubrics)了解可以传递给 Trubrics 提示的 kwargs。
+
+```python
+class TrubricsCallbackHandler(BaseCallbackHandler):
+
+    """
+    Trubrics 的回调处理器。
+
+    参数：
+        project: 一个 trubrics 项目，默认项目是 "default"
+        email: 一个 trubrics 账户邮箱，也可以在环境变量中设置
+        password: 一个 trubrics 账户密码，也可以在环境变量中设置
+        **kwargs: 所有其他 kwargs 都会被解析并设置为 trubrics 提示变量，或添加到 `metadata` 字典中
+    """
+```
+
+## 示例
+
+以下是两个关于如何在 LangChain [LLMs](/oss/langchain/models) 或 [聊天模型](/oss/langchain/models) 中使用 `TrubricsCallbackHandler` 的示例。我们将使用 OpenAI 模型，因此请在此处设置您的 `OPENAI_API_KEY`：
+
+```python
+os.environ["OPENAI_API_KEY"] = "sk-***"
+```
+
+### 1. 与 LLM 一起使用
+
+```python
+from langchain_openai import OpenAI
+```
+
+```python
+llm = OpenAI(callbacks=[TrubricsCallbackHandler()])
+```
+
+```text
+2023-09-26 11:30:02.149 | INFO     | trubrics.platform.auth:get_trubrics_auth_token:61 - User jeff.kayne@trubrics.com has been authenticated.
+```
+
+```python
+res = llm.generate(["Tell me a joke", "Write me a poem"])
+```
+
+```text
+2023-09-26 11:30:07.760 | INFO     | trubrics.platform:log_prompt:102 - User prompt saved to Trubrics.
+2023-09-26 11:30:08.042 | INFO     | trubrics.platform:log_prompt:102 - User prompt saved to Trubrics.
+```
+
+```python
+print("--> GPT's joke: ", res.generations[0][0].text)
+print()
+print("--> GPT's poem: ", res.generations[1][0].text)
+```
+
+```text
+--> GPT's joke:
+
+Q: What did the fish say when it hit the wall?
+A: Dam!
+
+--> GPT's poem:
+
+A Poem of Reflection
+
+I stand here in the night,
+The stars above me filling my sight.
+I feel such a deep connection,
+To the world and all its perfection.
+
+A moment of clarity,
+The calmness in the air so serene.
+My mind is filled with peace,
+And I am released.
+
+The past and the present,
+My thoughts create a pleasant sentiment.
+My heart is full of joy,
+My soul soars like a toy.
+
+I reflect on my life,
+And the choices I have made.
+My struggles and my strife,
+The lessons I have paid.
+
+The future is a mystery,
+But I am ready to take the leap.
+I am ready to take the lead,
+And to create my own destiny.
+```
+
+### 2. 与聊天模型一起使用
+
+```python
+from langchain.messages import HumanMessage, SystemMessage
+from langchain_openai import ChatOpenAI
+```
+
+```python
+chat_llm = ChatOpenAI(
+    callbacks=[
+        TrubricsCallbackHandler(
+            project="default",
+            tags=["chat model"],
+            user_id="user-id-1234",
+            some_metadata={"hello": [1, 2]},
+        )
+    ]
+)
+```
+
+```python
+chat_res = chat_llm.invoke(
+    [
+        SystemMessage(content="Every answer of yours must be about OpenAI."),
+        HumanMessage(content="Tell me a joke"),
+    ]
+)
+```
+
+```text
+2023-09-26 11:30:10.550 | INFO     | trubrics.platform:log_prompt:102 - User prompt saved to Trubrics.
+```
+
+```python
+print(chat_res.content)
+```
+
+```text
+Why did the OpenAI computer go to the party?
+
+Because it wanted to meet its AI friends and have a byte of fun!
+```
+
+```python
+
+```

@@ -1,0 +1,181 @@
+---
+title: Google Lens
+---
+本笔记本将介绍如何使用 Google Lens 工具来获取图像信息。
+
+首先，您需要在 [serpapi.com/users/sign_up](https://serpapi.com/users/sign_up) 注册一个 `SerpApi key`。
+
+然后，您必须使用以下命令安装 `requests`：
+
+`pip install requests`
+
+接着，您需要将环境变量 `SERPAPI_API_KEY` 设置为您的 `SerpApi key`。
+
+[或者，您可以将密钥作为参数传递给包装器 `serp_api_key="your secret key"`]
+
+## 使用该工具
+
+```python
+pip install -qU  requests langchain-community
+```
+
+```text
+Requirement already satisfied: requests in /opt/anaconda3/envs/langchain/lib/python3.10/site-packages (2.31.0)
+Requirement already satisfied: charset-normalizer<4,>=2 in /opt/anaconda3/envs/langchain/lib/python3.10/site-packages (from requests) (3.3.2)
+Requirement already satisfied: idna<4,>=2.5 in /opt/anaconda3/envs/langchain/lib/python3.10/site-packages (from requests) (3.4)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /opt/anaconda3/envs/langchain/lib/python3.10/site-packages (from requests) (2.1.0)
+Requirement already satisfied: certifi>=2017.4.17 in /opt/anaconda3/envs/langchain/lib/python3.10/site-packages (from requests) (2023.11.17)
+```
+
+```python
+import os
+
+from langchain_community.tools.google_lens import GoogleLensQueryRun
+from langchain_community.utilities.google_lens import GoogleLensAPIWrapper
+
+os.environ["SERPAPI_API_KEY"] = ""
+tool = GoogleLensQueryRun(api_wrapper=GoogleLensAPIWrapper())
+```
+
+```python
+# 对一张 Danny Devito 的图片运行 Google Lens
+tool.run("https://i.imgur.com/HBrB8p0.png")
+```
+
+```text
+Subject:Danny DeVito(American actor and comedian)
+Link to subject:https://www.google.com/search?q=Danny+DeVito&kgmid=/m/0q9kd&hl=en-US&gl=US
+
+Related Images:
+
+Title: Danny DeVito - Simple English Wikipedia, the free encyclopedia
+Source(Wikipedia): https://simple.wikipedia.org/wiki/Danny_DeVito
+Image: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSm5zQhimRYYgKPVf16viNFoDSsZmGrH09dthR6cpL1DXEdzmQu
+
+Title: File:Danny DeVito by Gage Skidmore.jpg - Wikipedia
+Source(Wikipedia): https://en.m.wikipedia.org/wiki/File:Danny_DeVito_by_Gage_Skidmore.jpg
+Image: https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTRFc3mD4mzd3VHQFwNRK2WfFOQ38_GkzJTNbDxd1cYcN8JAc_D
+
+Title: Danny DeVito — Wikipèdia
+Source(Wikipedia): https://oc.wikipedia.org/wiki/Danny_DeVito
+Image: https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQNl_2mCz1tAHs_w-zkIm40bhHiuGFMOqJv9uZcxTQm9qCqC4F_
+
+Title: US Rep. says adult animated sitcom with Danny DeVito as voice of Satan is ‘evil’
+Source(wbay.com): https://www.wbay.com/2022/09/08/us-rep-adult-animated-sitcom-with-danny-devito-voice-satan-is-evil/
+Image: https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRgymQFiSXGHKtHMx6m7I1bMfOoJiihKGAtFENZyPvgw-nE3Lfo
+
+Title: Danny DeVito gets his own day in his native New Jersey
+Source(WOWT): https://www.wowt.com/content/news/Danny-DeVito-gets-his-own-day-in-his-native-New-Jersey-481195051.html
+Image: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzIs4DyN1N8osg_qzlN9Jx7yqJj29Gu38PeCvE5yJ_I1w18r0O
+
+Title: Danny DaVito Keeps it Real When Asked about the Oscar's Diversity "We Are a Bunch of Racist" - Z 107.9
+Source(Z 107.9): https://zhiphopcleveland.com/4536378/danny-davito-keeps-it-real-when-asked-about-the-oscars-diversity-we-are-a-bunch-of-racist/
+Image: https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTfx196gqV2xENDnNttzSCI9r7S-XO3ML8cs_TVd5HdGhv_GgAO
+
+Title: Danny DeVito | Smash Bros Lawl Stadium Wiki | Fandom
+Source(Fandom): https://lawl-stadium.fandom.com/wiki/Danny_DeVito
+Image: https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRQOGbzgLP-49b9c1SSEo2ObAvRoCM0WtgOR8-E2FHDry_d-S03
+
+Title: Mad ☆ on X: "Gavin told me I look like Danny DeVito and I can’t unsee it https://t.co/UZuUbr0QBq" / X
+Source(Twitter): https://twitter.com/mfrench98/status/1062726668337496065
+Image: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMNYrgw_ish0CEuimZ3SxU2ReJrMcEb1NVGsHNfUFy2_0v0FRM
+
+Title: Steam Community :: Guide :: danny devito
+Source(Steam Community): https://steamcommunity.com/sharedfiles/filedetails/?id=923751585
+Image: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-vOaIRRxi1xC7CgFUymyLzhwhnvB5evGgCNo5LlUJDiWeTlN9
+
+Title: Danny DeVito gets his own day in his native New Jersey | News | khq.com
+Source(KHQ.com): https://www.khq.com/news/danny-devito-gets-his-own-day-in-his-native-new-jersey/article_514fbbf4-7f6f-5051-b06b-0f127c82439c.html
+Image: https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSYN29NVlBV6L-hFKA7E2Zi32hqkItUyDUA-BtTt2fmJjwGK_Bg
+
+Title: Danny De Vito Meme Funny Pewdiepie Sticker | Redbubble
+Source(Redbubble): https://www.redbubble.com/i/sticker/Danny-de-Vito-Meme-Funny-by-nattdrws/96554839.EJUG5
+Image: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrIbb_rf6dK7ChbDyk5xCGTMPkNtis76m_vUYvvB_Uc3GMWqxm
+
+Title: here me out…danny devito as william afton : r/fivenightsatfreddys
+Source(Reddit): https://www.reddit.com/r/fivenightsatfreddys/comments/11eslz7/here_me_outdanny_devito_as_william_afton/
+Image: https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQGIpa0_hmKbYzIfdI9xZoft0UhXv2MxRKSIj00dfipVQTunSyA
+
+Title: Sammy DeVito (@TheDailySammy) / X
+Source(X): https://twitter.com/thedailysammy
+Image: https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcR9QqGf3cANXHgRGB11HZduZpQXqeWxOHQkxfJVoWeQcfPBoyxf
+
+Title: Danny Devito Fan Club | Facebook
+Source(Facebook): https://www.facebook.com/groups/685975094811949/
+Image: https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTOnDji-j-hq0K5a3K1NpXmVcBGH7N5-IYeECi77WwfipechO3p
+
+Title: Danny DeVito - Wikiwand
+Source(Wikiwand): https://www.wikiwand.com/simple/Danny_DeVito
+Image: https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcS4xQ_wZhK6OMttSuxsv2fjscM6la3DPNQcJt5dnWWbvQLP3CuZ
+
+Title: These fancasts are horrible, we all know who’d be the perfect Doomguy. : r/Doom
+Source(Reddit): https://www.reddit.com/r/Doom/comments/tal459/these_fancasts_are_horrible_we_all_know_whod_be/
+Image: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZGcTAtkMxowoR4RjkPVFHQE4iyOkgj6DtUdWBSnG_eT4s3rNY
+
+Title: File:Danny DeVito (4842584969).jpg - Wikimedia Commons
+Source(Wikimedia): https://commons.wikimedia.org/wiki/File:Danny_DeVito_(4842584969).jpg
+Image: https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSdhlDQUOJT21B_k0WQVx--7IOzDASv3yIl0zJ3oRnzgdpV99cs
+
+Title: Could this be the perfect actor for older Lottie? : r/Yellowjackets
+Source(Reddit): https://www.reddit.com/r/Yellowjackets/comments/s5xkhp/could_this_be_the_perfect_actor_for_older_lottie/
+Image: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTaCefSusoOR5hP0pQsR3U-Ep3JVjYdr3HPjkUdut2fa1wjxHHj
+
+Title: Danny DeVito | Jerma Lore Wiki | Fandom
+Source(Fandom): https://jerma-lore.fandom.com/wiki/Danny_DeVito
+Image: https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQCtnv6vR_9mQBWq1Xu268e1DeGPMRSKBJEuDWz7bLUaCofMoUI
+
+Title: File:Danny DeVito (4843205008).jpg - Wikipedia
+Source(Wikipedia): https://en.wikipedia.org/wiki/File:Danny_DeVito_(4843205008).jpg
+Image: https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTf07CdhFNSUJ9zRsbFRDj76piDdhOfJiGUzldmUi58iiu2CNoV
+
+Title: The Man. The Legend. : r/IASIP
+Source(Reddit): https://www.reddit.com/r/IASIP/comments/h08t4n/the_man_the_legend/
+Image: https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSoqVN3Zd4gbZ2RdFTKy4IJnJSve_ZPmbIJOg3o5hBH5frNv3NZ
+
+Title: Can You Match These Celebrities To Their "Simpsons" Character?
+Source(BuzzFeed): https://www.buzzfeed.com/jemimaskelley/match-the-simpsons-guest-stars
+Image: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTWkP5BwFmYmovl8ptvm1-amrhEeYPTXh19g00GKebQsuvIkkl
+
+Title: Pinterest
+Source(Pinterest): https://www.pinterest.com/pin/pinterest--239887117643637901/
+Image: https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcT1zZUmv4GNlIFA0c7WyhUU9_8kzqxq7rR4hR9Y3Pstkau0uQ9y
+
+Title: Goodnight everyone thank you all for your support 1 by Pyrobeam - Tuna
+Source(Voicemod): https://tuna.voicemod.net/sound/31a1d43e-8424-4f5c-9114-934505ddd867
+Image: https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRWDLoBqqy_OKnj8HRpu5P-3gGEMbdW_grYmfy3otFEeSWktMMc
+
+Title: Uploading Images of People That Reddit Loves Day 2 : r/memes
+Source(Reddit): https://www.reddit.com/r/memes/comments/l0k5oo/uploading_images_of_people_that_reddit_loves_day_2/
+Image: https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRdKRC-1iyxkdHHaVEaVSkI29iMS4Ig6BBRkgX77YnsNRc8RHow
+
+Title: Danny DeVito | Monmouth Timeline
+Source(Monmouth Timeline): https://monmouthtimeline.org/timeline/danny-devito/
+Image: https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTBtx5UevFxJn2ZKlp2Fx-NWFbHaiuB6L4xKPUjjGthNP938BzO
+
+Title: So if a gnome and a human had a baby - General Discussion - World of Warcraft Forums
+Source(Blizzard Entertainment): https://us.forums.blizzard.com/en/wow/t/so-if-a-gnome-and-a-human-had-a-baby/195408
+Image: https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSVBmf4Bom0cKG0WYLkB7CK18DR91K1eytaG28T6EMmA-ZEWOi9
+
+Title: Steam Community :: Guide :: 10 Second Cheat Sheet for Party Builds
+Source(Steam Community): https://steamcommunity.com/sharedfiles/filedetails/?id=2535074354
+Image: https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQ3cGOljsmEAcP5XwQKIP3ukJSb_wDwTSWuihNjWBPX7Ojzma2K
+
+Title: New man under center for the G-Men : r/NFCEastMemeWar
+Source(Reddit): https://www.reddit.com/r/NFCEastMemeWar/comments/17j8z7f/new_man_under_center_for_the_gmen/
+Image: https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTe2ym5Q6qlMJlcWO6ppJp3EMo3Lzl_45V-SFFh_2DZdmfaGD6k
+
+Title: Autonomous F/X - It's Always Sunny In Philadelphia
+Source(Autonomous F/X): https://autonomousfx.com/fx-galleries/realism/bald-cap-prosthetics/its-always-sunny-in-philadelphia/
+Image: https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTjxIfJfVTQZoL9gEmk5Og6pL7FgAAqSizUsZ1IUzQwbcNVRwUB
+
+Title: Fallout TV show cast. Which actor do you see in what role? I'll start with Vic. : r/Fallout
+Source(Reddit): https://www.reddit.com/r/Fallout/comments/hn3g89/fallout_tv_show_cast_which_actor_do_you_see_in/
+Image: https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSFZrjQ04AzDpIb-GslenEiGAn9TU4QslJnJIbKCqAhYUv6M7G5
+
+Title: Danny Devito | Danny devito, Trending shoes, People
+Source(Pinterest): https://www.pinterest.ca/amp/pin/64880050852543359/
+Image: https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTkKAfROeFjUj-xJuGtrkYgZI48qAQlYu2lHIUBJPHipr2pbRLz
+
+Title: The Stunning Rosa Bianca Salazar at Comic-Con, Variety Studio, San Diego. : r/ALITA_ARMY
+Source(Reddit): https://www.reddit.com/r/ALITA_ARMY/comments/1168osm/the_stunning_rosa_bianca_salazar_at_comiccon/
+Image: https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRqwRaaFu

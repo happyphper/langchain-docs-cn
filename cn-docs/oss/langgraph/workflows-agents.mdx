@@ -1,0 +1,567 @@
+---
+title: 工作流与智能体
+sidebarTitle: Workflows + agents
+---
+本指南回顾了常见的工作流和智能体模式。
+
+- 工作流具有预定的代码路径，并设计为按特定顺序运行。
+- 智能体是动态的，并定义自己的流程和工具使用方式。
+
+![智能体工作流](/oss/images/agent_workflow.png)
+
+在构建智能体和工作流时，LangGraph 提供了多项优势，包括[持久化](/oss/langgraph/persistence)、[流式处理](/oss/langgraph/streaming)、调试支持以及[部署](/oss/langgraph/deploy)。
+
+## 设置
+
+要构建工作流或智能体，您可以使用任何支持结构化输出和工具调用的[聊天模型](/oss/integrations/chat)。以下示例使用 Anthropic：
+
+:::python
+1. 安装依赖项：
+```bash
+pip install langchain_core langchain-anthropic langgraph
+```
+
+2. 初始化 LLM：
+
+```python
+import os
+import getpass
+
+from langchain_anthropic import ChatAnthropic
+
+def _set_env(var: str):
+    if not os.environ.get(var):
+        os.environ[var] = getpass.getpass(f"{var}: ")
+
+
+_set_env("ANTHROPIC_API_KEY")
+
+llm = ChatAnthropic(model="claude-sonnet-4-5-20250929")
+```
+:::
+
+:::js
+1. 安装依赖项
+<CodeGroup>
+```bash npm
+npm install @langchain/langgraph @langchain/core
+```
+
+```bash pnpm
+pnpm add @langchain/langgraph @langchain/core
+```
+
+```bash yarn
+yarn add @langchain/langgraph @langchain/core
+```
+
+```bash bun
+bun add @langchain/langgraph @langchain/core
+```
+</CodeGroup>
+
+2. 初始化 LLM：
+
+```typescript
+import { ChatAnthropic } from "@langchain/anthropic";
+
+const llm = new ChatAnthropic({
+  model: "claude-sonnet-4-5-20250929",
+  apiKey: "<your_anthropic_key>"
+});
+```
+:::
+
+## LLM 与增强功能
+
+工作流和智能体系统基于 LLM 以及您为其添加的各种增强功能。[工具调用](/oss/langchain/tools)、[结构化输出](/oss/langchain/structured-output) 和 [短期记忆](/oss/langchain/short-term-memory) 是几种根据您的需求定制 LLM 的选项。
+
+![LLM 增强功能](/oss/images/augmented_llm.png)
+
+:::python
+```python
+# 结构化输出的模式
+from pydantic import BaseModel, Field
+
+
+class SearchQuery(BaseModel):
+    search_query: str = Field(None, description="针对网络搜索优化的查询。")
+    justification: str = Field(
+        None, description="此查询与用户请求相关的原因。"
+    )
+
+
+# 使用结构化输出模式增强 LLM
+structured_llm = llm.with_structured_output(SearchQuery)
+
+# 调用增强后的 LLM
+output = structured_llm.invoke("钙 CT 评分与高胆固醇有何关联？")
+
+# 定义一个工具
+def multiply(a: int, b: int) -> int:
+    return a * b
+
+# 使用工具增强 LLM
+llm_with_tools = llm.bind_tools([multiply])
+
+# 调用 LLM，输入触发工具调用
+msg = llm_with_tools.invoke("2 乘以 3 等于多少？")
+
+# 获取工具调用
+msg.tool_calls
+```
+:::
+:::js
+```typescript
+
+import * as z from "zod";
+import { tool } from "langchain";
+
+// 结构化输出的模式
+const SearchQuery = z.object({
+  search_query: z.string().describe("针对网络搜索优化的查询。"),
+  justification: z
+    .string()
+    .describe("此查询与用户请求相关的原因。"),
+});
+
+// 使用结构化输出模式增强 LLM
+const structuredLlm = llm.withStructuredOutput(SearchQuery);
+
+// 调用增强后的 LLM
+const output = await structuredLlm.invoke(
+  "钙 CT 评分与高胆固醇有何关联？"
+);
+
+// 定义一个工具
+const multiply = tool(
+  ({ a, b }) => {
+    return a * b;
+  },
+  {
+    name: "multiply",
+    description: "将两个数字相乘",
+    schema: z.object({
+      a: z.number(),
+      b: z.number(),
+    }),
+  }
+);
+
+// 使用工具增强 LLM
+const llmWithTools = llm.bindTools([multiply]);
+
+// 调用 LLM，输入触发工具调用
+const msg = await llmWithTools.invoke("2 乘以 3 等于多少？");
+
+// 获取工具调用
+console.log(msg.tool_calls);
+```
+:::
+
+## 提示链
+
+提示链是指每个 LLM 调用处理前一个调用的输出。它通常用于执行可以分解为更小、可验证步骤的明确定义的任务。一些例子包括：
+
+- 将文档翻译成不同的语言
+- 验证生成内容的一致性
+
+![提示链](/oss/images/prompt_chain.png)
+
+:::python
+<CodeGroup>
+```python Graph API
+from typing_extensions import TypedDict
+from langgraph.graph import StateGraph, START, END
+from IPython.display import Image, display
+
+
+# 图状态
+class State(TypedDict):
+    topic: str
+    joke: str
+    improved_joke: str
+    final_joke: str
+
+
+# 节点
+def generate_joke(state: State):
+    """第一个 LLM 调用，生成初始笑话"""
+
+    msg = llm.invoke(f"写一个关于 {state['topic']} 的短笑话")
+    return {"joke": msg.content}
+
+
+def check_punchline(state: State):
+    """检查笑话是否有笑点的门控函数"""
+
+    # 简单检查 - 笑话是否包含 "?" 或 "!"
+    if "?" in state["joke"] or "!" in state["joke"]:
+        return "Pass"
+    return "Fail"
+
+
+def improve_joke(state: State):
+    """第二个 LLM 调用，改进笑话"""
+
+    msg = llm.invoke(f"通过添加文字游戏让这个笑话更有趣：{state['joke']}")
+    return {"improved_joke": msg.content}
+
+
+def polish_joke(state: State):
+    """第三个 LLM 调用，进行最终润色"""
+    msg = llm.invoke(f"为这个笑话添加一个意想不到的转折：{state['improved_joke']}")
+    return {"final_joke": msg.content}
+
+
+# 构建工作流
+workflow = StateGraph(State)
+
+# 添加节点
+workflow.add_node("generate_joke", generate_joke)
+workflow.add_node("improve_joke", improve_joke)
+workflow.add_node("polish_joke", polish_joke)
+
+# 添加边以连接节点
+workflow.add_edge(START, "generate_joke")
+workflow.add_conditional_edges(
+    "generate_joke", check_punchline, {"Fail": "improve_joke", "Pass": END}
+)
+workflow.add_edge("improve_joke", "polish_joke")
+workflow.add_edge("polish_joke", END)
+
+# 编译
+chain = workflow.compile()
+
+# 显示工作流
+display(Image(chain.get_graph().draw_mermaid_png()))
+
+# 调用
+state = chain.invoke({"topic": "cats"})
+print("初始笑话：")
+print(state["joke"])
+print("\n--- --- ---\n")
+if "improved_joke" in state:
+    print("改进后的笑话：")
+    print(state["improved_joke"])
+    print("\n--- --- ---\n")
+
+    print("最终笑话：")
+    print(state["final_joke"])
+else:
+    print("最终笑话：")
+    print(state["joke"])
+```
+```python Functional API
+from langgraph.func import entrypoint, task
+
+
+# 任务
+@task
+def generate_joke(topic: str):
+    """第一个 LLM 调用，生成初始笑话"""
+    msg = llm.invoke(f"写一个关于 {topic} 的短笑话")
+    return msg.content
+
+
+def check_punchline(joke: str):
+    """检查笑话是否有笑点的门控函数"""
+    # 简单检查 - 笑话是否包含 "?" 或 "!"
+    if "?" in joke or "!" in joke:
+        return "Fail"
+
+    return "Pass"
+
+
+@task
+def improve_joke(joke: str):
+    """第二个 LLM 调用，改进笑话"""
+    msg = llm.invoke(f"通过添加文字游戏让这个笑话更有趣：{joke}")
+    return msg.content
+
+
+@task
+def polish_joke(joke: str):
+    """第三个 LLM 调用，进行最终润色"""
+    msg = llm.invoke(f"为这个笑话添加一个意想不到的转折：{joke}")
+    return msg.content
+
+
+@entrypoint()
+def prompt_chaining_workflow(topic: str):
+    original_joke = generate_joke(topic).result()
+    if check_punchline(original_joke) == "Pass":
+        return original_joke
+
+    improved_joke = improve_joke(original_joke).result()
+    return polish_joke(improved_joke).result()
+
+# 调用
+for step in prompt_chaining_workflow.stream("cats", stream_mode="updates"):
+    print(step)
+    print("\n")
+```
+</CodeGroup>
+:::
+
+:::js
+<CodeGroup>
+```typescript Graph API
+import { StateGraph, Annotation } from "@langchain/langgraph";
+
+// 图状态
+const StateAnnotation = Annotation.Root({
+  topic: Annotation<string>,
+  joke: Annotation<string>,
+  improvedJoke: Annotation<string>,
+  finalJoke: Annotation<string>,
+});
+
+// 定义节点函数
+
+// 第一个 LLM 调用，生成初始笑话
+async function generateJoke(state: typeof StateAnnotation.State) {
+  const msg = await llm.invoke(`写一个关于 ${state.topic} 的短笑话`);
+  return { joke: msg.content };
+}
+
+// 检查笑话是否有笑点的门控函数
+function checkPunchline(state: typeof StateAnnotation.State) {
+  // 简单检查 - 笑话是否包含 "?" 或 "!"
+  if (state.joke?.includes("?") || state.joke?.includes("!")) {
+    return "Pass";
+  }
+  return "Fail";
+}
+
+  // 第二个 LLM 调用，改进笑话
+async function improveJoke(state: typeof StateAnnotation.State) {
+  const msg = await llm.invoke(
+    `通过添加文字游戏让这个笑话更有趣：${state.joke}`
+  );
+  return { improvedJoke: msg.content };
+}
+
+// 第三个 LLM 调用，进行最终润色
+async function polishJoke(state: typeof StateAnnotation.State) {
+  const msg = await llm.invoke(
+    `为这个笑话添加一个意想不到的转折：${state.improvedJoke}`
+  );
+  return { finalJoke: msg.content };
+}
+
+// 构建工作流
+const chain = new StateGraph(StateAnnotation)
+  .addNode("generateJoke", generateJoke)
+  .addNode("improveJoke", improveJoke)
+  .addNode("polishJoke", polishJoke)
+  .addEdge("__start__", "generateJoke")
+  .addConditionalEdges("generateJoke", checkPunchline, {
+    Pass: "improveJoke",
+    Fail: "__end__"
+  })
+  .addEdge("improveJoke", "polishJoke")
+  .addEdge("polishJoke", "__end__")
+  .compile();
+
+// 调用
+const state = await chain.invoke({ topic: "cats" });
+console.log("初始笑话：");
+console.log(state.joke);
+console.log("\n--- --- ---\n");
+if (state.improvedJoke !== undefined) {
+  console.log("改进后的笑话：");
+  console.log(state.improvedJoke);
+  console.log("\n--- --- ---\n");
+
+  console.log("最终笑话：");
+  console.log(state.finalJoke);
+} else {
+  console.log("笑话未通过质量门控 - 未检测到笑点！");
+}
+```
+```typescript Functional API
+import { task, entrypoint } from "@langchain/langgraph";
+
+// 任务
+
+// 第一个 LLM 调用，生成初始笑话
+const generateJoke = task("generateJoke", async (topic: string) => {
+  const msg = await llm.invoke(`写一个关于 ${topic} 的短笑话`);
+  return msg.content;
+});
+
+// 检查笑话是否有笑点的门控函数
+function checkPunchline(joke: string) {
+  // 简单检查 - 笑话是否包含 "?" 或 "!"
+  if (joke.includes("?") || joke.includes("!")) {
+    return "Pass";
+  }
+  return "Fail";
+}
+
+  // 第二个 LLM 调用，改进笑话
+const improveJoke = task("improveJoke", async (joke: string) => {
+  const msg = await llm.invoke(
+    `通过添加文字游戏让这个笑话更有趣：${joke}`
+  );
+  return msg.content;
+});
+
+// 第三个 LLM 调用，进行最终润色
+const polishJoke = task("polishJoke", async (joke: string) => {
+  const msg = await llm.invoke(
+    `为这个笑话添加一个意想不到的转折：${joke}`
+  );
+  return msg.content;
+});
+
+const workflow = entrypoint(
+  "jokeMaker",
+  async (topic: string) => {
+    const originalJoke = await generateJoke(topic);
+    if (checkPunchline(originalJoke) === "Pass") {
+      return originalJoke;
+    }
+    const improvedJoke = await improveJoke(originalJoke);
+    const polishedJoke = await polishJoke(improvedJoke);
+    return polishedJoke;
+  }
+);
+
+const stream = await workflow.stream("cats", {
+  streamMode: "updates",
+});
+
+for await (const step of stream) {
+  console.log(step);
+}
+```
+</CodeGroup>
+:::
+
+## 并行化
+
+通过并行化，LLM 可以同时处理一个任务。这可以通过同时运行多个独立的子任务，或者多次运行同一任务以检查不同的输出来实现。并行化通常用于：
+
+- 拆分子任务并并行运行，以提高速度
+- 多次运行任务以检查不同的输出，以增加置信度
+
+一些例子包括：
+
+- 运行一个处理文档关键词的子任务，以及第二个检查格式错误的子任务
+- 多次运行一个根据不同标准（如引用数量、使用的来源数量、来源质量）对文档准确性进行评分的任务
+
+![parallelization.png](/oss/images/parallelization.png)
+
+:::python
+<CodeGroup>
+```python Graph API
+# 图状态
+class State(TypedDict):
+    topic: str
+    joke: str
+    story: str
+    poem: str
+    combined_output: str
+
+
+# 节点
+def call_llm_1(state: State):
+    """第一个 LLM 调用，生成初始笑话"""
+
+    msg = llm.invoke(f"写一个关于 {state['topic']} 的笑话")
+    return {"joke": msg.content}
+
+
+def call_llm_2(state: State):
+    """第二个 LLM 调用，生成故事"""
+
+    msg = llm.invoke(f"写一个关于 {state['topic']} 的故事")
+    return {"story": msg.content}
+
+
+def call_llm_3(state: State):
+    """第三个 LLM 调用，生成诗歌"""
+
+    msg = llm.invoke(f"写一首关于 {state['topic']} 的诗")
+    return {"poem": msg.content}
+
+
+def aggregator(state: State):
+    """将笑话、故事和诗歌合并为单个输出"""
+
+    combined = f"这是关于 {state['topic']} 的故事、笑话和诗歌！\n\n"
+    combined += f"故事：\n{state['story']}\n\n"
+    combined += f"笑话：\n{state['joke']}\n\n"
+    combined += f"诗歌：\n{state['poem']}"
+    return {"combined_output": combined}
+
+
+# 构建工作流
+parallel_builder = StateGraph(State)
+
+# 添加节点
+parallel_builder.add_node("call_llm_1", call_llm_1)
+parallel_builder.add_node("call_llm_2", call_llm_2)
+parallel_builder.add_node("call_llm_3", call_llm_3)
+parallel_builder.add_node("aggregator", aggregator)
+
+# 添加边以连接节点
+parallel_builder.add_edge(START, "call_llm_1")
+parallel_builder.add_edge(START, "call_llm_2")
+parallel_builder.add_edge(START, "call_llm_3")
+parallel_builder.add_edge("call_llm_1", "aggregator")
+parallel_builder.add_edge("call_llm_2", "aggregator")
+parallel_builder.add_edge("call_llm_3", "aggregator")
+parallel_builder.add_edge("aggregator", END)
+parallel_workflow = parallel_builder.compile()
+
+# 显示工作流
+display(Image(parallel_workflow.get_graph().draw_mermaid_png()))
+
+# 调用
+state = parallel_workflow.invoke({"topic": "cats"})
+print(state["combined_output"])
+```
+```python Functional API
+@task
+def call_llm_1(topic: str):
+    """第一个 LLM 调用，生成初始笑话"""
+    msg = llm.invoke(f"写一个关于 {topic} 的笑话")
+    return msg.content
+
+
+@task
+def call_llm_2(topic: str):
+    """第二个 LLM 调用，生成故事"""
+    msg = llm.invoke(f"写一个关于 {topic} 的故事")
+    return msg.content
+
+
+@task
+def call_llm_3(topic):
+    """第三个 LLM 调用，生成诗歌"""
+    msg = llm.invoke(f"写一首关于 {topic} 的诗")
+    return msg.content
+
+
+@task
+def aggregator(topic, joke, story, poem):
+    """将笑话和故事合并为单个输出"""
+
+    combined = f"这是关于 {topic} 的故事、笑话和诗歌！\n\n"
+    combined += f"故事：\n{story}\n\n"
+    combined += f"笑话：\n{joke}\n\n"
+    combined += f"诗歌：\n{poem}"
+    return combined
+
+
+# 构建工作流
+@entrypoint()
+def parallel_workflow(topic: str):
+    joke_fut = call_llm_1(topic)
+    story_fut = call_llm_2(topic)
+    poem_fut = call_llm_3(topic)
+    return aggregator(
+       

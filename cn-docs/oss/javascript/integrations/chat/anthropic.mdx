@@ -1,0 +1,433 @@
+---
+title: ChatAnthropic
+---
+[Anthropic](https://www.anthropic.com/) 是一家专注于 AI 安全与研究的公司，也是 Claude 的创造者。
+
+本文将帮助您开始使用 Anthropic 的[聊天模型](/oss/langchain/models)。有关 `ChatAnthropic` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_anthropic.ChatAnthropic.html)。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | [PY 支持](https://python.langchain.com/docs/integrations/chat/anthropic/) | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| [ChatAnthropic](https://api.js.langchain.com/classes/langchain_thropic.ChatAnthropic.html) | [`@langchain/anthropic`](https://www.npmjs.com/package/@langchain/anthropic) | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/anthropic?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/anthropic?style=flat-square&label=%20&) |
+
+### 模型特性
+
+有关如何使用特定功能的指南，请参阅下表标题中的链接。
+
+| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
+
+## 设置
+
+您需要注册并获取一个 [Anthropic API 密钥](https://www.anthropic.com/)，并安装 `@langchain/anthropic` 集成包。
+
+### 凭证
+
+前往 [Anthropic 官网](https://www.anthropic.com/) 注册 Anthropic 并生成 API 密钥。完成后，设置 `ANTHROPIC_API_KEY` 环境变量：
+
+```bash
+export ANTHROPIC_API_KEY="your-api-key"
+```
+
+如果您希望自动追踪模型调用，还可以通过取消注释以下内容来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```bash
+# export LANGSMITH_TRACING="true"
+# export LANGSMITH_API_KEY="your-api-key"
+```
+
+### 安装
+
+LangChain 的 `ChatAnthropic` 集成位于 `@langchain/anthropic` 包中：
+
+<CodeGroup>
+```bash npm
+npm install @langchain/anthropic @langchain/core
+```
+```bash yarn
+yarn add @langchain/anthropic @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/anthropic @langchain/core
+```
+</CodeGroup>
+
+## 实例化
+
+现在我们可以实例化模型对象并生成聊天补全：
+
+```typescript
+import { ChatAnthropic } from "@langchain/anthropic"
+
+const llm = new ChatAnthropic({
+    model: "claude-haiku-4-5-20251001",
+    temperature: 0,
+    maxTokens: undefined,
+    maxRetries: 2,
+    // other params...
+});
+```
+
+## 调用
+
+```typescript
+const aiMsg = await llm.invoke([
+    [
+        "system",
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+    ],
+    ["human", "I love programming."],
+])
+aiMsg
+```
+
+```text
+AIMessage {
+  "id": "msg_013WBXXiggy6gMbAUY6NpsuU",
+  "content": "Voici la traduction en français :\n\nJ'adore la programmation.",
+  "additional_kwargs": {
+    "id": "msg_013WBXXiggy6gMbAUY6NpsuU",
+    "type": "message",
+    "role": "assistant",
+    "model": "claude-haiku-4-5-20251001",
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "usage": {
+      "input_tokens": 29,
+      "output_tokens": 20
+    }
+  },
+  "response_metadata": {
+    "id": "msg_013WBXXiggy6gMbAUY6NpsuU",
+    "model": "claude-haiku-4-5-20251001",
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "usage": {
+      "input_tokens": 29,
+      "output_tokens": 20
+    },
+    "type": "message",
+    "role": "assistant"
+  },
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 29,
+    "output_tokens": 20,
+    "total_tokens": 49
+  }
+}
+```
+
+```typescript
+console.log(aiMsg.content)
+```
+
+```text
+Voici la traduction en français :
+
+J'adore la programmation.
+```
+
+## 内容块
+
+Anthropic 模型与大多数其他模型的一个关键区别是，单个 Anthropic @[`AIMessage`] 的内容可以是单个字符串，也可以是**内容块列表**。例如，当 Anthropic 模型[调用工具](/oss/langchain/tools)时，工具调用是消息内容的一部分（同时也在标准化的 `AIMessage.tool_calls` 字段中公开）：
+
+```typescript
+import { ChatAnthropic } from "@langchain/anthropic";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import * as z from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
+
+const calculatorSchema = z.object({
+  operation: z
+    .enum(["add", "subtract", "multiply", "divide"])
+    .describe("The type of operation to execute."),
+  number1: z.number().describe("The first number to operate on."),
+  number2: z.number().describe("The second number to operate on."),
+});
+
+const calculatorTool = {
+  name: "calculator",
+  description: "A simple calculator tool",
+  input_schema: zodToJsonSchema(calculatorSchema),
+};
+
+const toolCallingLlm = new ChatAnthropic({
+  model: "claude-haiku-4-5-20251001",
+}).bindTools([calculatorTool]);
+
+const toolPrompt = ChatPromptTemplate.fromMessages([
+  [
+    "system",
+    "You are a helpful assistant who always needs to use a calculator.",
+  ],
+  ["human", "{input}"],
+]);
+
+// Chain your prompt and model together
+const toolCallChain = toolPrompt.pipe(toolCallingLlm);
+
+await toolCallChain.invoke({
+  input: "What is 2 + 2?",
+});
+```
+
+```text
+AIMessage {
+  "id": "msg_01DZGs9DyuashaYxJ4WWpWUP",
+  "content": [
+    {
+      "type": "text",
+      "text": "Here is the calculation for 2 + 2:"
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01SQXBamkBr6K6NdHE7GWwF8",
+      "name": "calculator",
+      "input": {
+        "number1": 2,
+        "number2": 2,
+        "operation": "add"
+      }
+    }
+  ],
+  "additional_kwargs": {
+    "id": "msg_01DZGs9DyuashaYxJ4WWpWUP",
+    "type": "message",
+    "role": "assistant",
+    "model": "claude-haiku-4-5-20251001",
+    "stop_reason": "tool_use",
+    "stop_sequence": null,
+    "usage": {
+      "input_tokens": 449,
+      "output_tokens": 100
+    }
+  },
+  "response_metadata": {
+    "id": "msg_01DZGs9DyuashaYxJ4WWpWUP",
+    "model": "claude-haiku-4-5-20251001",
+    "stop_reason": "tool_use",
+    "stop_sequence": null,
+    "usage": {
+      "input_tokens": 449,
+      "output_tokens": 100
+    },
+    "type": "message",
+    "role": "assistant"
+  },
+  "tool_calls": [
+    {
+      "name": "calculator",
+      "args": {
+        "number1": 2,
+        "number2": 2,
+        "operation": "add"
+      },
+      "id": "toolu_01SQXBamkBr6K6NdHE7GWwF8",
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 449,
+    "output_tokens": 100,
+    "total_tokens": 549
+  }
+}
+```
+
+## 自定义请求头
+
+您可以像这样在请求中传递自定义请求头：
+
+```typescript
+import { ChatAnthropic } from "@langchain/anthropic";
+
+const llmWithCustomHeaders = new ChatAnthropic({
+  model: "claude-sonnet-4-5-20250929",
+  maxTokens: 1024,
+  clientOptions: {
+    defaultHeaders: {
+      "X-Api-Key": process.env.ANTHROPIC_API_KEY,
+    },
+  },
+});
+
+await llmWithCustomHeaders.invoke("Why is the sky blue?");
+```
+
+```text
+AIMessage {
+  "id": "msg_019z4nWpShzsrbSHTWXWQh6z",
+  "content": "The sky appears blue due to a phenomenon called Rayleigh scattering. Here's a brief explanation:\n\n1) Sunlight is made up of different wavelengths of visible light, including all the colors of the rainbow.\n\n2) As sunlight passes through the atmosphere, the gases (mostly nitrogen and oxygen) cause the shorter wavelengths of light, such as violet and blue, to be scattered more easily than the longer wavelengths like red and orange.\n\n3) This scattering of the shorter blue wavelengths occurs in all directions by the gas molecules in the atmosphere.\n\n4) Our eyes are more sensitive to the scattered blue light than the scattered violet light, so we perceive the sky as having a blue color.\n\n5) The scattering is more pronounced for light traveling over longer distances through the atmosphere. This is why the sky appears even darker blue when looking towards the horizon.\n\nSo in essence, the selective scattering of the shorter blue wavelengths of sunlight by the gases in the atmosphere is what causes the sky to appear blue to our eyes during the daytime.",
+  "additional_kwargs": {
+    "id": "msg_019z4nWpShzsrbSHTWXWQh6z",
+    "type": "message",
+    "role": "assistant",
+    "model": "claude-3-sonnet-20240229",
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "usage": {
+      "input_tokens": 13,
+      "output_tokens": 236
+    }
+  },
+  "response_metadata": {
+    "id": "msg_019z4nWpShzsrbSHTWXWQh6z",
+    "model": "claude-3-sonnet-20240229",
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "usage": {
+      "input_tokens": 13,
+      "output_tokens": 236
+    },
+    "type": "message",
+    "role": "assistant"
+  },
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 13,
+    "output_tokens": 236,
+    "total_tokens": 249
+  }
+}
+```
+
+## 提示词缓存
+
+<Warning>
+**兼容性**：此功能目前处于测试阶段。
+</Warning>
+
+Anthropic 支持[缓存部分提示词](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)，以降低需要长上下文的用例的成本。您可以缓存工具、整个消息以及单个内容块。
+
+包含一个或多个带有 `"cache_control": { "type": "ephemeral" }` 字段的内容块或工具定义的初始请求将自动缓存该部分提示词。此初始缓存步骤会产生额外费用，但后续请求将按降低的费率计费。缓存有效期为 5 分钟，但每次命中缓存时都会刷新。
+
+目前还存在一个可缓存提示词的最小长度，该长度因模型而异。您可以在此处查看此信息。
+
+这目前要求您使用测试版请求头初始化模型。以下是一个缓存包含 LangChain [概念文档](/oss/concepts/) 的部分系统消息的示例：
+
+```typescript
+let CACHED_TEXT = "...";
+```
+
+```typescript
+// @lc-docs-hide-cell
+
+CACHED_TEXT = `## Components
+
+LangChain provides standard, extendable interfaces and external integrations for various components useful for building with LLMs.
+Some components LangChain implements, some components we rely on third-party integrations for, and others are a mix.
+
+### Chat models
+
+<span data-heading-keywords="chat model,chat models"></span>
+
+Language models that use a sequence of messages as inputs and return chat messages as outputs (as opposed to using plain text).
+These are generally newer models (older models are generally \`LLMs\`, see below).
+Chat models support the assignment of distinct roles to conversation messages, helping to distinguish messages from the AI, users, and instructions such as system messages.
+
+Although the underlying models are messages in, message out, the LangChain wrappers also allow these models to take a string as input.
+This gives them the same interface as LLMs (and simpler to use).
+When a string is passed in as input, it will be converted to a \`HumanMessage\` under the hood before being passed to the underlying model.
+
+LangChain does not host any Chat Models, rather we rely on third party integrations.
+
+We have some standardized parameters when constructing ChatModels:
+
+- \`model\`: the name of the model
+
+Chat Models also accept other parameters that are specific to that integration.
+
+<Warning>
+**Some chat models have been fine-tuned for **tool calling** and provide a dedicated API for it.**
+
+Generally, such models are better at tool calling than non-fine-tuned models, and are recommended for use cases that require tool calling.
+Please see the [tool calling section](/oss/langchain/tools) for more information.
+</Warning>
+
+For specifics on how to use chat models, see the [relevant how-to guides here](/oss/langchain/models).
+
+#### Multimodality
+
+Some chat models are multimodal, accepting images, audio and even video as inputs.
+These are still less common, meaning model providers haven't standardized on the "best" way to define the API.
+Multimodal outputs are even less common. As such, we've kept our multimodal abstractions fairly light weight
+and plan to further solidify the multimodal APIs and interaction patterns as the field matures.
+
+In LangChain, most chat models that support multimodal inputs also accept those values in OpenAI's content blocks format.
+So far this is restricted to image inputs. For models like Gemini which support video and other bytes input, the APIs also support the native, model-specific representations.
+
+For specifics on how to use multimodal models, see the [relevant how-to guides here](/oss/how-to/#multimodal).
+
+### LLMs
+
+<span data-heading-keywords="llm,llms"></span>
+
+<Warning>
+**Pure text-in/text-out LLMs tend to be older or lower-level. Many popular models are best used as [chat completion models](/oss/langchain/models),**
+
+even for non-chat use cases.
+
+You are probably looking for [the section above instead](/oss/langchain/models).
+</Warning>
+
+Language models that takes a string as input and returns a string.
+These are traditionally older models (newer models generally are [Chat Models](/oss/langchain/models), see above).
+
+Although the underlying models are string in, string out, the LangChain wrappers also allow these models to take messages as input.
+This gives them the same interface as [Chat Models](/oss/langchain/models).
+When messages are passed in as input, they will be formatted into a string under the hood before being passed to the underlying model.
+
+LangChain does not host any LLMs, rather we rely on third party integrations.
+
+For specifics on how to use LLMs, see the [relevant how-to guides here](/oss/langchain/models).
+
+### Message types
+
+Some language models take an array of messages as input and return a message.
+There are a few different types of messages.
+All messages have a \`role\`, \`content\`, and \`response_metadata\` property.
+
+The \`role\` describes WHO is saying the message.
+LangChain has different message classes for different roles.
+
+The \`content\` property describes the content of the message.
+This can be a few different things:
+
+- A string (most models deal this type of content)
+- A List of objects (this is used for multi-modal input, where the object contains information about that input type and that input location)
+
+#### HumanMessage
+
+This represents a message from the user.
+
+#### AIMessage
+
+This represents a message from the model. In addition to the \`content\` property, these messages also have:
+
+**\`response_metadata\`**
+
+The \`response_metadata\` property contains additional metadata about the response. The data here is often specific to each model provider.
+This is where information like log-probs and token usage may be stored.
+
+**\`tool_calls\`**
+
+These represent a decision from an language model to call a tool. They are included as part of an \`AIMessage\` output.
+They can be accessed from there with the \`.tool_calls\` property.
+
+This property returns a list of \`ToolCall\`s. A \`ToolCall\` is an object with the following arguments:
+
+- \`name\`: The name of the tool that should be called.
+- \`args\`: The arguments to that tool.
+- \`id\`: The id of that tool call.
+
+#### SystemMessage
+
+This represents a system message,

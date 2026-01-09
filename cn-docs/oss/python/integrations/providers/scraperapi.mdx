@@ -1,0 +1,35 @@
+---
+title: ScraperAPI
+---
+[ScraperAPI](https://www.scraperapi.com/) 提供网页抓取 API，可从任何公共网站收集数据，无需担心代理、浏览器或验证码处理问题。[langchain-scraperapi](https://github.com/scraperapi/langchain-scraperapi) 封装了此服务，使 AI 代理能够轻松浏览网页并从中抓取数据。
+
+## 安装与设置
+
+<CodeGroup>
+```bash pip
+pip install langchain-scraperapi
+```
+
+```bash uv
+uv add langchain-scraperapi
+```
+</CodeGroup>
+
+从 [ScraperAPI](https://www.scraperapi.com/) 获取 API 密钥，并将其设置为环境变量：
+
+```python
+import os
+
+os.environ["SCRAPERAPI_API_KEY"] = "your-api-key"
+```
+
+## 工具
+
+该包提供了 3 个工具，分别用于抓取任何网站、获取结构化的 Google 搜索结果以及获取结构化的亚马逊搜索结果。
+
+查看每个工具的详细文档：
+- [ScraperAPITool](/oss/integrations/tools/scraperapi) - 浏览并抓取任何网站
+- ScraperAPIGoogleSearchTool - 获取结构化的 Google 搜索 SERP 数据
+- ScraperAPIAmazonSearchTool - 获取结构化的亚马逊产品搜索数据
+
+更详细的教程，请参阅[官方仓库](https://github.com/scraperapi/langchain-scraperapi)。

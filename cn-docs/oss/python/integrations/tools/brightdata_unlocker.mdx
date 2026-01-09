@@ -1,0 +1,151 @@
+---
+title: BrightDataUnlocker
+---
+[Bright Data](https://brightdata.com/) 提供了一个强大的 Web Unlocker API，允许您访问可能受反机器人措施、地理限制或其他访问限制保护的网站，这对于需要可靠网络内容提取的 AI 智能体特别有用。
+
+## 概述
+
+### 集成详情
+
+|类|包|可序列化|JS 支持|版本|
+|:--|:--|:-:|:-:|:-:|
+|[BrightDataUnlocker](https://pypi.org/project/langchain-brightdata/)|[langchain-brightdata](https://pypi.org/project/langchain-brightdata/)|✅|❌|![PyPI - Version](https://img.shields.io/pypi/v/langchain-brightdata?style=flat-square&label=%20)|
+
+### 工具特性
+
+|原生异步|返回工件|返回数据|定价|
+|:-:|:-:|:--|:-:|
+|❌|❌|网页的 HTML、Markdown 或截图|需要 Bright Data 账户|
+
+## 设置
+
+该集成位于 `langchain-brightdata` 包中。
+
+```python
+pip install langchain-brightdata
+```
+
+您需要一个 Bright Data API 密钥才能使用此工具。您可以将其设置为环境变量：
+
+```python
+import os
+
+os.environ["BRIGHT_DATA_API_KEY"] = "your-api-key"
+```
+
+或者在初始化工具时直接传入：
+
+```python
+from langchain_brightdata import BrightDataUnlocker
+
+unlocker_tool = BrightDataUnlocker(bright_data_api_key="your-api-key")
+```
+
+## 实例化
+
+这里我们展示如何实例化 BrightDataUnlocker 工具。该工具允许您使用 Bright Data 的 Web Unlocker 服务访问可能受反机器人措施、地理限制或其他访问限制保护的网站。
+
+该工具在实例化时接受各种参数：
+
+- `bright_data_api_key` (必需, str): 用于身份验证的 Bright Data API 密钥。
+- `format` (可选, Literal["raw"]): 响应内容的格式。默认为 "raw"。
+- `country` (可选, str): 用于特定地理位置访问的两个字母的国家代码（例如 "us"、"gb"、"de"、"jp"）。当您需要像从特定国家访问一样查看网站时设置此参数。默认为 None。
+- `zone` (可选, str): 用于请求的 Bright Data 区域。"unlocker" 区域针对访问可能阻止常规请求的网站进行了优化。默认为 "unlocker"。
+- `data_format` (可选, Literal["html", "markdown", "screenshot"]): 检索内容的输出格式。选项包括：
+  - "html" - 返回标准 HTML 内容（默认）
+  - "markdown" - 返回转换为 markdown 格式的内容
+  - "screenshot" - 返回渲染页面的 PNG 截图
+
+## 调用
+
+### 基本用法
+
+```python
+from langchain_brightdata import BrightDataUnlocker
+
+# 初始化工具
+unlocker_tool = BrightDataUnlocker(
+    bright_data_api_key="your-api-key"  # 如果在环境变量中设置，则为可选
+)
+
+# 访问网页
+result = unlocker_tool.invoke("https://example.com")
+
+print(result)
+```
+
+### 带参数的高级用法
+
+```python
+from langchain_brightdata import BrightDataUnlocker
+
+unlocker_tool = BrightDataUnlocker(
+    bright_data_api_key="your-api-key",
+)
+
+# 使用特定参数访问网页
+result = unlocker_tool.invoke(
+    {
+        "url": "https://example.com/region-restricted-content",
+        "country": "gb",  # 模拟从英国访问
+        "data_format": "html",  # 以 markdown 格式获取内容
+        "zone": "unlocker",  # 使用解锁器区域
+    }
+)
+
+print(result)
+```
+
+## 自定义选项
+
+BrightDataUnlocker 工具接受多个参数进行自定义：
+
+|参数|类型|描述|
+|:--|:--|:--|
+|`url`|str|要访问的 URL|
+|`format`|str|响应内容的格式（默认："raw"）|
+|`country`|str|用于特定地理位置访问的两个字母的国家代码（例如 "us"、"gb"）|
+|`zone`|str|要使用的 Bright Data 区域（默认："unlocker"）|
+|`data_format`|str|输出格式：None (HTML)、"markdown" 或 "screenshot"|
+
+## 数据格式选项
+
+`data_format` 参数允许您指定内容的返回方式：
+
+- `None` 或 `"html"` (默认): 返回页面的标准 HTML 内容
+- `"markdown"`: 返回转换为 markdown 格式的内容，这对于直接输入给 LLM 很有用
+- `"screenshot"`: 返回渲染页面的 PNG 截图，适用于视觉分析
+
+## 在智能体中使用
+
+```python
+from langchain_brightdata import BrightDataUnlocker
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.agents import create_agent
+
+
+# 初始化 LLM
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key="your-api-key")
+
+# 初始化工具
+bright_data_tool = BrightDataUnlocker(bright_data_api_key="your-api-key")
+
+# 创建智能体
+agent = create_agent(llm, [bright_data_tool])
+
+# 输入 URL 或提示
+user_input = "从 https://example.com/region-restricted-page 获取内容 - 从英国访问它"
+
+# 逐步流式传输智能体的输出
+for step in agent.stream(
+    {"messages": user_input},
+    stream_mode="values",
+):
+    step["messages"][-1].pretty_print()
+```
+
+---
+
+## API 参考
+
+- [Bright Data API 文档](https://docs.brightdata.com/scraping-automation/web-unlocker/introduction)

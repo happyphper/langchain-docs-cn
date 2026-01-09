@@ -1,0 +1,72 @@
+---
+title: Dria
+---
+>[Dria](https://dria.co/) 是一个公共 RAG 模型中心，供开发者贡献和使用共享的嵌入湖。本笔记本演示了如何使用 `Dria API` 进行数据检索任务。
+
+# 安装
+
+确保已安装 `dria` 包。你可以使用 pip 安装：
+
+```python
+pip install -qU dria
+```
+
+# 配置 API 密钥
+
+设置你的 Dria API 密钥以获取访问权限。
+
+```python
+import os
+
+os.environ["DRIA_API_KEY"] = "DRIA_API_KEY"
+```
+
+# 初始化 Dria 检索器
+
+创建 `DriaRetriever` 的实例。
+
+```python
+from langchain_community.retrievers import DriaRetriever
+
+api_key = os.getenv("DRIA_API_KEY")
+retriever = DriaRetriever(api_key=api_key)
+```
+
+# **创建知识库**
+
+在 [Dria 的知识中心](https://dria.co/knowledge) 创建一个知识库。
+
+```python
+contract_id = retriever.create_knowledge_base(
+    name="France's AI Development",
+    embedding=DriaRetriever.models.jina_embeddings_v2_base_en.value,
+    category="Artificial Intelligence",
+    description="Explore the growth and contributions of France in the field of Artificial Intelligence.",
+)
+```
+
+# 添加数据
+
+将数据加载到你的 Dria 知识库中。
+
+```python
+texts = [
+    "The first text to add to Dria.",
+    "Another piece of information to store.",
+    "More data to include in the Dria knowledge base.",
+]
+
+ids = retriever.add_texts(texts)
+print("Data added with IDs:", ids)
+```
+
+# 检索数据
+
+使用检索器根据查询查找相关文档。
+
+```python
+query = "Find information about Dria."
+result = retriever.invoke(query)
+for doc in result:
+    print(doc)
+```

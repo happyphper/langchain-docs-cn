@@ -1,0 +1,101 @@
+---
+title: 以编程方式使用文档
+description: 将 LangChain 文档连接到您的 AI 工具和工作流
+---
+我们希望让我们的文档尽可能易于访问。我们提供了多种方式，让你可以通过 AI 助手、代码编辑器和直接集成（例如模型上下文协议 (Model Context Protocol, MCP)）以编程方式使用这些文档。
+
+## 快速访问选项
+
+在我们的文档的任何页面上，你都会在右上角找到一个上下文菜单下拉框：
+
+<img
+    className="block dark:hidden"
+    src="/images/copy-page-light.png"
+    alt="浅色模式下的复制页面选项"
+/>
+
+<img
+    className="hidden dark:block"
+    src="/images/copy-page-dark.png"
+    alt="深色模式下的复制页面选项"
+/>
+
+其中包含我们的 `llms.txt`、MCP 服务器连接以及其他快速访问选项，例如 ChatGPT 和 Claude。
+
+## 使用我们的 MCP 服务器
+
+我们的文档包含一个内置的**模型上下文协议 (Model Context Protocol, MCP) 服务器**，允许 AI 应用程序实时查询最新的文档。
+
+LangChain 文档的 MCP 服务器地址是：
+
+```txt
+https://docs.langchain.com/mcp
+```
+
+连接后，你可以向你的 AI 助手询问关于 LangChain、LangGraph 和 LangSmith 的问题，它将搜索我们的文档以提供准确、最新的答案。
+
+### 与 Claude Code 连接
+
+如果你正在使用 Claude Code，请在终端中运行以下命令，将服务器添加到你的当前项目中：
+
+```bash
+claude mcp add --transport http docs-langchain https://docs.langchain.com/mcp
+```
+
+<Note>
+    **项目（本地）作用域**
+
+    上述命令仅将 MCP 服务器添加到你的当前项目/工作目录。要全局添加 MCP 服务器并在所有项目中访问它，请在命令中添加用户作用域 `--scope user`：
+
+    ```bash
+    claude mcp add --transport http docs-langchain --scope user https://docs.langchain.com/mcp
+    ```
+</Note>
+
+### 与 Claude Desktop 连接
+
+1.  打开 Claude Desktop
+2.  转到 设置 > 连接器
+3.  添加我们的 MCP 服务器 URL：`https://docs.langchain.com/mcp`
+
+### 与 Codex CLI 连接
+
+如果你正在使用 OpenAI Codex CLI，请在终端中运行以下命令以全局添加服务器：
+
+```sh
+codex mcp add langchain-docs --url https://docs.langchain.com/mcp
+```
+
+### 与 Cursor 或 VS Code 连接
+
+将以下内容添加到你的 MCP 设置配置文件中：
+
+```json
+{
+  "mcpServers": {
+    "docs-langchain": {
+      "url": "https://docs.langchain.com/mcp"
+    }
+  }
+}
+```
+
+### 与 Antigravity 连接
+
+将以下内容添加到你的 MCP 设置配置文件中：
+
+```json
+{
+  "mcpServers": {
+    "docs-langchain": {
+      "serverUrl": "https://docs.langchain.com/mcp"
+    }
+  }
+}
+```
+
+## 了解更多
+
+有关使用 Mintlify 的 MCP 服务器的更多信息，请参阅 [Mintlify 官方文档](https://www.mintlify.com/docs/ai/model-context-protocol)。
+
+有问题或反馈吗？请在我们的[社区论坛](https://forum.langchain.com/)中告诉我们。

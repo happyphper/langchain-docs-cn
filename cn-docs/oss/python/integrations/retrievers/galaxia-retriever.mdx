@@ -1,0 +1,101 @@
+---
+title: 银河
+---
+Galaxia 是一个 GraphRAG 解决方案，它自动化了文档处理、知识库（Graph Language Model）的创建和检索过程：
+[galaxia-rag](https://smabbler.gitbook.io/smabbler/api-rag/smabblers-api-rag)
+
+要使用 Galaxia，首先需要在此处上传您的文本并创建一个 Graph Language Model：[smabbler-cloud](https://beta.cloud.smabbler.com)
+
+模型构建并激活后，您将能够使用此集成来检索所需内容。
+
+该模块的仓库位于：[github](https://github.com/rrozanski-smabbler/galaxia-langchain)
+
+### 集成详情
+
+| 检索器 | 自托管 | 云服务 | 包 |
+| :--- | :--- | :---: | :---: |
+[Galaxia Retriever](https://github.com/rrozanski-smabbler/galaxia-langchain) | ❌ | ✅ | __langchain-galaxia-retriever__ |
+
+## 设置
+
+在您能够检索任何内容之前，需要先在此处创建您的 Graph Language Model：[smabbler-cloud](https://beta.cloud.smabbler.com)
+
+只需遵循以下三个简单步骤：[rag-instruction](https://smabbler.gitbook.io/smabbler/api-rag/build-rag-model-in-3-steps)
+
+构建模型后，别忘了激活它！
+
+### 安装
+
+该检索器在以下包中实现：[pypi](https://pypi.org/project/langchain-galaxia-retriever/)
+
+```python
+pip install -qU langchain-galaxia-retriever
+```
+
+## 实例化
+
+```python
+from langchain_galaxia_retriever.retriever import GalaxiaRetriever
+
+gr = GalaxiaRetriever(
+    api_url="beta.api.smabbler.com",
+    api_key="<key>",  # 您可以在此处找到：https://beta.cloud.smabbler.com/user/account
+    knowledge_base_id="<knowledge_base_id>",  # 您可以在 https://beta.cloud.smabbler.com 的模型表中找到
+    n_retries=10,
+    wait_time=5,
+)
+```
+
+## 使用
+
+```python
+result = gr.invoke("<test question>")
+print(result)
+```
+
+## 在链中使用
+
+```python
+# | output: false
+# | echo: false
+
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0)
+```
+
+```python
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+
+prompt = ChatPromptTemplate.from_template(
+    """仅根据提供的上下文回答问题。
+
+上下文：{context}
+
+问题：{question}"""
+)
+
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+
+chain = (
+    {"context": gr | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | StrOutputParser()
+)
+```
+
+```python
+chain.invoke("<test question>")
+```
+
+---
+
+## API 参考
+
+有关 Galaxia Retriever 的更多信息，请查看其在 GitHub 上的实现：[github](https://github.com/rrozanski-smabbler/galaxia-langchain)

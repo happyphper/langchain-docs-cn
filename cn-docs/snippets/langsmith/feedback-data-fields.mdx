@@ -1,0 +1,16 @@
+| 字段名称                  | 类型     | 描述                                                                                                   |
+| ------------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `id`                      | UUID     | 记录本身的唯一标识符                                                                                   |
+| `created_at`              | datetime | 记录创建时的时间戳                                                                                     |
+| `modified_at`             | datetime | 记录最后修改时的时间戳                                                                                 |
+| `session_id`              | UUID     | 运行所属的实验或追踪项目的唯一标识符                                                                   |
+| `run_id`                  | UUID     | 会话中特定运行（run）的唯一标识符                                                                      |
+| `key`                     | string   | 描述反馈标准的键，例如 `'correctness'`                                                                 |
+| `score`                   | number   | 与反馈键关联的数值分数                                                                                 |
+| `value`                   | string   | 保留用于存储与分数关联的值。适用于分类反馈。                                                           |
+| `comment`                 | string   | 与记录关联的任何评论或注释。这可以是给出分数的理由。                                                   |
+| `correction`              | object   | 保留用于存储修正详情（如果有）                                                                         |
+| `feedback_source`         | object   | 包含反馈来源信息的对象                                                                                 |
+| `feedback_source.type`    | string   | 反馈来源的类型，例如 `'api'`、`'app'`、`'evaluator'`                                                   |
+| `feedback_source.metadata`| object   | 保留用于额外的元数据，当前                                                                             |
+| `feedback_source.user_id` | UUID     | 提供反馈的用户的唯一标识符                                                                             |

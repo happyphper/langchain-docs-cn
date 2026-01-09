@@ -1,0 +1,50 @@
+---
+title: S3文件加载器
+---
+<Tip>
+**兼容性说明**
+
+仅适用于 Node.js 环境。
+</Tip>
+
+本文档介绍如何从 S3 文件对象加载文档对象。
+
+## 环境配置
+
+要运行此索引，您需要已经设置好 Unstructured 服务，并确保其在一个可访问的 URL 端点可用。也可以配置为在本地运行。
+
+关于如何设置，请参阅[此文档](/oss/integrations/document_loaders/file_loaders/unstructured)。
+
+您还需要安装官方的 AWS SDK：
+
+```bash npm
+npm install @langchain/community @langchain/core @aws-sdk/client-s3
+```
+
+## 使用方法
+
+配置好 Unstructured 后，您就可以使用 S3 加载器来加载文件，并将其转换为 Document 对象。
+
+您可以选择性地提供一个 `s3Config` 参数来指定您的存储桶区域、访问密钥和秘密访问密钥。如果未提供这些信息，您需要将其设置在环境变量中（例如，通过运行 `aws configure` 命令）。
+
+```typescript
+import { S3Loader } from "@langchain/community/document_loaders/web/s3";
+
+const loader = new S3Loader({
+  bucket: "my-document-bucket-123",
+  key: "AccountingOverview.pdf",
+  s3Config: {
+    region: "us-east-1",
+    credentials: {
+      accessKeyId: "AKIAIOSFODNN7EXAMPLE",
+      secretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    },
+  },
+  unstructuredAPIURL: "http://localhost:8000/general/v0/general",
+  unstructuredAPIKey: "", // 此参数很快将变为必填项
+});
+
+const docs = await loader.load();
+
+console.log(docs);
+```

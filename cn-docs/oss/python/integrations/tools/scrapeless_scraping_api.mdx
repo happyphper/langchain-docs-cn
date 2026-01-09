@@ -1,0 +1,167 @@
+---
+title: 无代码网页抓取 API
+---
+**Scrapeless** 提供灵活且功能丰富的数据获取服务，支持广泛的参数自定义和多格式导出。这些能力使 LangChain 能够更有效地集成和利用外部数据。核心功能模块包括：
+
+**DeepSerp**
+
+- **Google 搜索**：支持全面提取所有结果类型的 Google SERP 数据。
+  - 支持选择本地化的 Google 域名（例如 `google.com`、`google.ad`）以获取特定区域的搜索结果。
+  - 支持分页，可获取第一页之后的结果。
+  - 支持搜索结果过滤开关，用于控制是否排除重复或相似内容。
+- **Google 趋势**：从 Google 检索关键词趋势数据，包括随时间变化的流行度、区域兴趣度和相关搜索。
+  - 支持多关键词比较。
+  - 支持多种数据类型：`interest_over_time`、`interest_by_region`、`related_queries` 和 `related_topics`。
+  - 允许按特定 Google 属性（网页、YouTube、新闻、购物）进行过滤，以进行特定来源的趋势分析。
+
+**通用抓取**
+
+- 专为现代、JavaScript 密集的网站设计，允许提取动态内容。
+  - 支持全球优质代理，用于绕过地理限制并提高可靠性。
+
+**爬虫**
+
+- **爬取**：递归爬取网站及其链接页面，以提取全站内容。
+  - 支持可配置的爬取深度和限定范围的 URL 目标。
+- **抓取**：高精度地从单个网页提取内容。
+  - 支持“仅主要内容”提取，以排除广告、页脚和其他非必要元素。
+  - 允许批量抓取多个独立的 URL。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | JS 支持 | 版本 |
+| :--- | :--- | :---: | :---: | :---: |
+| [ScrapelessDeepSerpGoogleSearchTool](https://pypi.org/project/langchain-scrapeless/) | [langchain-scrapeless](https://pypi.org/project/langchain-scrapeless/) | ✅ | ❌ |  ![PyPI - Version](https://img.shields.io/pypi/v/langchain-scrapeless?style=flat-square&label=%20) |
+| [ScrapelessDeepSerpGoogleTrendsTool](https://pypi.org/project/langchain-scrapeless/) | [langchain-scrapeless](https://pypi.org/project/langchain-scrapeless/) | ✅ | ❌ |  ![PyPI - Version](https://img.shields.io/pypi/v/langchain-scrapeless?style=flat-square&label=%20) |
+
+### 工具特性
+
+|原生异步|返回工件|返回数据|
+|:-:|:-:|:-:|
+|✅|❌|基于工具的搜索结果|
+
+## 设置
+
+该集成位于 `langchain-scrapeless` 包中。
+!pip install langchain-scrapeless
+
+### 凭证
+
+您需要一个 Scrapeless API 密钥才能使用此工具。您可以将其设置为环境变量：
+
+```python
+import os
+
+os.environ["SCRAPELESS_API_KEY"] = "your-api-key"
+```
+
+## 实例化
+
+### ScrapelessDeepSerpGoogleSearchTool
+
+这里我们展示如何实例化 `ScrapelessDeepSerpGoogleSearchTool`。这个通用的信息搜索引擎允许您检索任何数据信息。
+
+- 检索任何数据信息。
+- 处理解释性查询（例如，“为什么”、“如何”）。
+- 支持比较分析请求。
+
+该工具接受以下参数：
+
+- `q`：(str) 搜索查询字符串。支持高级 Google 语法，如 `inurl:`、`site:`、`intitle:`、`as_eq` 等。
+- `hl`：(str) 结果内容的语言代码，例如 `en`、`es`、`fr`。默认值：`'en'`。
+- `gl`：(str) 针对特定地理区域结果的国家代码，例如 `us`、`uk`、`de`。默认值：`'us'`。
+- `google_domain`：(str) 使用哪个 Google 域名（例如 `'google.com'`、`'google.co.jp'`）。默认值：`'google.com'`。
+- `start`：(int) 定义结果偏移量。它跳过给定数量的结果。用于分页。示例：
+  - `0`（默认）：第一页结果
+  - `10`：第二页
+  - `20`：第三页
+- `num`：(int) 定义要返回的最大结果数。示例：
+  - `10`（默认）：返回 10 个结果
+  - `40`：返回 40 个结果
+  - `100`：返回 100 个结果
+- `ludocid`：(str) 定义您要抓取的 Google 我的商家列表的 ID (CID)。也称为 Google 地点 ID。
+- `kgmid`：(str) 定义您要抓取的 Google 知识图谱列表的 ID (KGMID)。也称为 Google 知识图谱 ID。使用 `kgmid` 参数的搜索将返回原始加密搜索参数的结果。对于某些搜索，`kgmid` 可能会覆盖除 `start` 和 `num` 之外的所有其他参数。
+- `ibp`：(str) 负责渲染某些元素的布局和扩展。示例：gwp;0,7 用于扩展带有 ludocid 的搜索以获取扩展的知识图谱。
+- `cr`：(str) 定义一个或多个国家以限制搜索范围。使用格式 `country{两位国家代码}`，用 `|` 分隔。示例：
+  - `countryFR|countryDE` 仅搜索法国和德国页面。
+- `lr`：(str) 定义一个或多个语言以限制搜索范围。使用格式 `lang_{两位语言代码}`，用 `|` 分隔。示例：
+  - `lang_fr|lang_de` 仅搜索法语和德语页面。
+- `tbs`：(str) 定义常规查询字段中无法实现的高级搜索参数。示例包括对以下内容的高级搜索：
+  - `patents`
+  - `dates`
+  - `news`
+  - `videos`
+  - `images`
+  - `apps`
+  - `text` 内容
+- `safe`：(str) 定义成人内容的过滤级别。值：
+  - `active`：模糊化显式内容
+  - `off`：不过滤
+- `nfpr`：(str) 定义当原始查询拼写错误时，是否排除自动更正查询的结果。值：
+  - `1`：排除这些结果
+  - `0`（默认）：包含它们
+  - 注意：如果没有其他可用结果，这可能无法阻止 Google 返回自动更正的结果。
+- `filter`：(str) 定义是否开启 `'相似结果'` 和 `'已省略结果'` 过滤器。值：
+  - `1`（默认）：启用过滤器
+  - `0`：禁用过滤器
+- `tbm`：(str) 定义要执行的搜索类型。值：
+  - `none`：常规 Google 搜索
+  - `isch`：Google 图片
+  - `lcl`：Google 本地
+  - `vid`：Google 视频
+  - `nws`：Google 新闻
+  - `shop`：Google 购物
+  - `pts`：Google 专利
+  - `jobs`：Google 职位
+
+### ScrapelessDeepSerpGoogleTrendsTool
+
+这里我们展示如何实例化 `ScrapelessDeepSerpGoogleTrendsTool`。该工具允许您使用 Scrapeless API 查询 Google 趋势的实时或历史趋势数据，并精细控制语言环境、类别和结果类型。
+
+该工具接受以下参数：
+
+- `q`（必需，str）：参数定义您要搜索的查询。您可以使用常规 Google 趋势搜索中使用的任何内容。每次搜索的最大查询数为 **5**。（这仅适用于 `interest_over_time` 和 `compared_breakdown_by_region` 数据类型。）其他类型的数据每次搜索仅接受 **1 个查询**。
+- `data_type`（可选，str）：要检索的数据类型。默认值为 `'interest_over_time'`。选项包括：
+  - `autocomplete`
+  - `interest_over_time`
+  - `compared_breakdown_by_region`
+  - `interest_by_subregion`
+  - `related_queries`
+  - `related_topics`
+- `date`（可选，str）：定义要获取数据的日期范围。默认值为 `'today 1-m'`。支持的格式：
+  - 相对：`'now 1-H'`、`'now 7-d'`、`'today 12-m'`、`'today 5-y'`、`'all'`
+  - 自定义日期范围：`'2023-01-01 2023-12-31'`
+  - 带小时：`'2023-07-01T10 2023-07-03T22'`
+- `hl`（可选，str）：搜索中使用的语言代码。默认值为 `'en'`。示例：
+  - `'es'`（西班牙语）
+  - `'fr'`（法语）
+- `tz`（可选，str）：时区偏移量。默认值为 `'420'`（PST）。
+- `geo`（可选，str）：两位国家代码，用于定义搜索的地理来源。示例包括：
+  - `'US'`（美国）
+  - `'GB'`（英国）
+  - `'JP'`（日本）
+  - 留空或 `None` 表示全球搜索。
+- `cat`（可选，`CategoryEnum`）：类别 ID，用于缩小搜索上下文。默认值为 `'all_categories'` (0)。类别可以包括：
+  - `'0'` – 所有类别
+  - 其他如 `'3'` – 新闻、`'29'` – 体育等。
+
+## 调用
+
+### ScrapelessDeepSerpGoogleSearchTool
+
+#### 基本用法
+
+```python
+from langchain_scrapeless import ScrapelessDeepSerpGoogleSearchTool
+
+tool = ScrapelessDeepSerpGoogleSearchTool()
+
+# Basic usage
+result = tool.invoke("I want to know Scrapeless")
+print(result)
+```
+
+```python
+{'inline_images': [{'position': 1, 'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyTSMoVoK_U4eIL_sta9g-jpa0WkrHb8g4Ww&s', 'related_content_id': 'W25Uu31q8mmB1M,IdsKzFwOrIHamM', 'related_content_link': 'https://www.google.com/search/about-this-image?img=H4sIAAAAAAAA_wEXAOj_ChUIobar4MzLg9aBARDb3NHa28-a-WmbHuN1FwAAAA%3D%3D&q=https://www.parsehub.com/blog/web-scraping-examples/&ctx=iv&hl=en-US', 'source': 'www.parsehub.com', 'source_logo': '', 'title': 'Web Scraping Examples: How are Businesses Using Web Scraping ...', 'link': 'https://www.parsehub.com/blog/web-scraping-examples/', 'original': 'https://www.parsehub.com/blog/content/images/2019/10/web-scraping-examples.jpg', 'original_width': 800, 'original_height': 400, 'in_stock': False, 'is_product': False}], 'inline_videos': [{'position': 1, 'title': 'How This AI Tool Makes Web Scraping Cheaper & 10x ...', 'link': 'https://www.youtube.com/watch?v=4xQ1UVxW0Pc', 'channel': 'SkillCurb', 'duration': '7:44', 'platform': 'YouTube', 'key_moments': [{'time': '00:00', 'title': 'Introduction', 'link': 'https://www.youtube.com/watch?v=4xQ1UVxW0Pc&t=0', 'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa-iXYOifpWDZZJLq8V45waX8C_mRTvar2rFgKASqipA&s'}, {'time': '00:20', 'title': 'Overview', 'link': 'https://www.youtube.com/watch?v=4xQ1UVxW0Pc&t=20', 'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2I1-L6_cnRoz_nbhUYcLsG8KOjJL8aM2tMZAez_zigg&s'}, {'time': '01:20', 'title': 'How to Use SERP API', 'link': 'https://www.youtube.com/watch?v=4xQ1UVxW0Pc&t=80', 'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRettKVpkN7yFSzZBeYPNhmhTdhzmjSJ3p4vTP9oY5VmA&s'}, {'time': '03:30', 'title': 'Additional Features', 'link': 'https://www.youtube.com/watch?v=4xQ1UVxW0Pc&t=210', 'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBSPraPiDau9kIyxZbygn_csUKH3q8Eop_E8jzYTyBOg&s'}, {'time': '07:05', 'title': 'Final Thoughts', 'link': 'https://www.youtube.com/watch?v=4xQ1UVxW0Pc&t=425', 'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiSXSUSq3hJH7XOukFzMfXWj7iVcb-F2b9Lwug0KjXHQ&s'}]}, {'position': 2, 'title': 'Finally! Web Scraping Without Code That ACTUALLY Works ...', 'link': 'https://www.youtube.com/watch?v=bQTxINH9GbI', 'channel': 'Execute Automation', 'duration': '15:44', 'platform': 'YouTube'}, {'position': 3, 'title': 'Web Scraping 101: How To Scrape 99% of Sites', 'link': 'https://www.youtube.com/watch?v=WYp0dmZOHXM&pp=0gcJCdgAo7VqN5tD', 'channel': 'Dorian Develops', 'duration': '18:58', 'platform': 'YouTube'}], 'metadata': {'engine': 'google.search', 'rawUrl': 'https://api.scrapeless.com/storage/scrapeless.scraper.google.search/806ff29bc59caf4b65eaaca9aea80740/b4b20ee690f50282a5919181c2d72ae5_1754948945.html'}, 'organic_results': [{'position': 1, 'title': 'Scrapeless: Effortless Web Scraping Toolkit', 'link': 'https://www.scrapeless.com/', 'redirect_link': 'https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.scrapeless.com/&ved=2ahUKEwiLzOej3oOPAxXGhIkEHcj2AT4QFnoECB0QAQ', 'favicon': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAeFBMVEVHcEwXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcWFRUUDxAXFxcXFxcOBgcBAAAkKyo1OTgaISBQWVensa/Q0NDg4ODs7Oy9vb1tbW3///+SkpJqkIlTeXK77+VvsaaH0MOl1cx/x7sblIYRppUVSUMVf3IVYVcMP61GAAAADnRSTlMAG1KVxev/kqPk//8tzGl2sbwAAAHRSURBVHgBZJMHlsIwDEQTIAIsYqf3Xu9/w9VgNrt5DJ35kdXi/Mm9XG8ekXe7X1znW+7jSYeejy/kSpBSrJRlrif75cPVhoIwiIwBQ/7rn++JbUycpFmepUWpNRDvdfbLtBLlRV0nRRycCB9+DTsryUBxGYHwj/yUKeAn8JqmDTSH6sjUPa4v2IRJl8RRpJAFhGofRKaEn8vlXdfG/TAMfUsM4CEBnhIgA1CbcOwa2FBPIJ6uczkChKbpBvh9P+EdedJFUlQmAZBGZuz6oZ/nZVlmQRotwN25kYrSN6DMOE5NpHmdheiHKWSim+MRBxmALDTj0CJ7ZgTpEYI8R36HeQWVphntqHhdRFNP8ksARLBZcqvYMMmh70P6AID3yQFEGRHVsRC8SYR2EsCTJMlWYRm04wNsKPTm3Il0XB36D7Sk6I5GEUZ1qNQ2h2VHmRdpNdJMDz9h9aliZUKrMSzS0W+MQrP8xAkzWv2w48bAwySVbYsNGrX/BiD3WGhFxkTaaEVKywHbstlJvOUDiNZAs0gHm/jbhi76x9JaYtvXdcfx+7rDP621iKN9m+d52yOO2PrnG4cUqyiKCOb5xoHuZKXgft96P8OfeRHZnx1L9gcAbGI4jTD1e4oAAAAASUVORK5CYII=', 'snippet': 'Scrapeless offers AI-powered, robust, and scalable web scraping and automation services trusted by leading enterprises. Our enterprise-grade solutions

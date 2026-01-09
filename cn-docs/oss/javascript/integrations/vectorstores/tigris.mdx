@@ -1,0 +1,118 @@
+---
+title: Tigris
+---
+Tigris 让使用向量嵌入构建 AI 应用变得简单。
+它是一个完全托管的云原生数据库，允许您存储和索引文档及向量嵌入，以实现快速且可扩展的向量搜索。
+
+<Tip>
+**兼容性**
+
+仅适用于 Node.js。
+</Tip>
+
+## 设置
+
+### 1. 安装 Tigris SDK
+
+按如下方式安装 SDK
+
+```bash npm
+npm install -S @tigrisdata/vector
+```
+### 2. 获取 Tigris API 凭证
+
+您可以在此处[注册](https://www.tigrisdata.com/)一个免费的 Tigris 账户。
+
+注册 Tigris 账户后，创建一个名为 `vectordemo` 的新项目。
+接下来，记下 `clientId` 和 `clientSecret`，您可以从项目的应用密钥部分获取这些信息。
+
+## 索引文档
+
+<Tip>
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+</Tip>
+
+```bash npm
+npm install -S @langchain/openai
+```
+```typescript
+import { VectorDocumentStore } from "@tigrisdata/vector";
+import { Document } from "@langchain/classic/document";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { TigrisVectorStore } from "@langchain/classic/vectorstores/tigris";
+
+const index = new VectorDocumentStore({
+  connection: {
+    serverUrl: "api.preview.tigrisdata.cloud",
+    projectName: process.env.TIGRIS_PROJECT,
+    clientId: process.env.TIGRIS_CLIENT_ID,
+    clientSecret: process.env.TIGRIS_CLIENT_SECRET,
+  },
+  indexName: "examples_index",
+  numDimensions: 1536, // 匹配 OpenAI 嵌入维度
+});
+
+const docs = [
+  new Document({
+    metadata: { foo: "bar" },
+    pageContent: "tigris is a cloud-native vector db",
+  }),
+  new Document({
+    metadata: { foo: "bar" },
+    pageContent: "the quick brown fox jumped over the lazy dog",
+  }),
+  new Document({
+    metadata: { baz: "qux" },
+    pageContent: "lorem ipsum dolor sit amet",
+  }),
+  new Document({
+    metadata: { baz: "qux" },
+    pageContent: "tigris is a river",
+  }),
+];
+
+await TigrisVectorStore.fromDocuments(docs, new OpenAIEmbeddings(), { index });
+```
+
+## 查询文档
+
+```typescript
+import { VectorDocumentStore } from "@tigrisdata/vector";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { TigrisVectorStore } from "@langchain/classic/vectorstores/tigris";
+
+const index = new VectorDocumentStore({
+  connection: {
+    serverUrl: "api.preview.tigrisdata.cloud",
+    projectName: process.env.TIGRIS_PROJECT,
+    clientId: process.env.TIGRIS_CLIENT_ID,
+    clientSecret: process.env.TIGRIS_CLIENT_SECRET,
+  },
+  indexName: "examples_index",
+  numDimensions: 1536, // 匹配 OpenAI 嵌入维度
+});
+
+const vectorStore = await TigrisVectorStore.fromExistingIndex(
+  new OpenAIEmbeddings(),
+  { index }
+);
+
+/* 使用元数据过滤器独立搜索向量数据库 */
+const results = await vectorStore.similaritySearch("tigris", 1, {
+  "metadata.foo": "bar",
+});
+console.log(JSON.stringify(results, null, 2));
+/*
+[
+  Document {
+    pageContent: 'tigris is a cloud-native vector db',
+    metadata: { foo: 'bar' }
+  }
+]
+*/
+```
+
+## 相关链接
+
+- 向量存储[概念指南](/oss/integrations/vectorstores)
+- 向量存储[操作指南](/oss/integrations/vectorstores)

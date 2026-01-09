@@ -1,0 +1,91 @@
+---
+title: BM25
+---
+>[BM25 (Wikipedia)](https://en.wikipedia.org/wiki/Okapi_BM25)，也称为 `Okapi BM25`，是一种用于信息检索系统的排序函数，用于估计文档与给定搜索查询的相关性。
+>
+>`BM25Retriever` 检索器使用 [`rank_bm25`](https://github.com/dorianbrown/rank_bm25) 包。
+
+```python
+pip install -qU  rank_bm25
+```
+
+```python
+from langchain_community.retrievers import BM25Retriever
+```
+
+## 使用文本创建新的检索器
+
+```python
+retriever = BM25Retriever.from_texts(["foo", "bar", "world", "hello", "foo bar"])
+```
+
+## 使用文档创建新的检索器
+
+现在，您可以使用创建的文档来创建新的检索器。
+
+```python
+from langchain_core.documents import Document
+
+retriever = BM25Retriever.from_documents(
+    [
+        Document(page_content="foo"),
+        Document(page_content="bar"),
+        Document(page_content="world"),
+        Document(page_content="hello"),
+        Document(page_content="foo bar"),
+    ]
+)
+```
+
+## 使用检索器
+
+我们现在可以使用这个检索器了！
+
+```python
+result = retriever.invoke("foo")
+```
+
+```python
+result
+```
+
+```text
+[Document(metadata={}, page_content='foo'),
+ Document(metadata={}, page_content='foo bar'),
+ Document(metadata={}, page_content='hello'),
+ Document(metadata={}, page_content='world')]
+```
+
+## 预处理函数
+
+向检索器传递一个自定义的预处理函数可以改善搜索结果。在单词级别对文本进行分词可以增强检索效果，尤其是在使用像 Chroma、Pinecone 或 Faiss 这样的向量数据库来处理分块文档时。
+
+```python
+import nltk
+
+nltk.download("punkt_tab")
+```
+
+```python
+from nltk.tokenize import word_tokenize
+
+retriever = BM25Retriever.from_documents(
+    [
+        Document(page_content="foo"),
+        Document(page_content="bar"),
+        Document(page_content="world"),
+        Document(page_content="hello"),
+        Document(page_content="foo bar"),
+    ],
+    k=2,
+    preprocess_func=word_tokenize,
+)
+
+result = retriever.invoke("bar")
+result
+```
+
+```text
+[Document(metadata={}, page_content='bar'),
+ Document(metadata={}, page_content='foo bar')]
+```

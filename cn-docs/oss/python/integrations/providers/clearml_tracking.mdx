@@ -1,0 +1,105 @@
+---
+title: ClearML
+---
+> [ClearML](https://github.com/allegroai/clearml) 是一个 ML/DL 开发与生产套件，包含 5 个主要模块：
+>
+> - `Experiment Manager` - 自动化的实验跟踪、环境和结果管理
+> - `MLOps` - 面向 ML/DL 作业（K8s / 云 / 裸机）的编排、自动化与流水线解决方案
+> - `Data-Management` - 基于对象存储（S3 / GS / Azure / NAS）的完全可微分数据管理与版本控制解决方案
+> - `Model-Serving` - 云就绪的可扩展模型服务解决方案！
+    在 5 分钟内部署新的模型端点
+    包含由 Nvidia-Triton 支持的优化 GPU 服务
+    提供开箱即用的模型监控
+> - `Fire Reports` - 创建和分享支持嵌入式在线内容的丰富 MarkDown 文档
+
+为了妥善跟踪您的 LangChain 实验及其结果，您可以启用 `ClearML` 集成。我们使用 `ClearML Experiment Manager` 来整洁地跟踪和组织您的所有实验运行。
+
+## 安装与设置
+
+```python
+pip install -qU  clearml
+pip install -qU  pandas
+pip install -qU  textstat
+pip install -qU  spacy
+!python -m spacy download en_core_web_sm
+```
+
+### 获取 API 凭证
+
+我们将在此笔记本中使用相当多的 API，以下是列表及其获取位置：
+
+- ClearML: [app.clear.ml/settings/workspace-configuration](https://app.clear.ml/settings/workspace-configuration)
+- OpenAI: [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
+- SerpApi (谷歌搜索): [serpapi.com/dashboard](https://serpapi.com/dashboard)
+
+```python
+import os
+
+os.environ["CLEARML_API_ACCESS_KEY"] = ""
+os.environ["CLEARML_API_SECRET_KEY"] = ""
+
+os.environ["OPENAI_API_KEY"] = ""
+os.environ["SERPAPI_API_KEY"] = ""
+```
+
+## 回调函数
+
+```python
+from langchain_community.callbacks import ClearMLCallbackHandler
+```
+
+```python
+from langchain_core.callbacks import StdOutCallbackHandler
+from langchain_openai import OpenAI
+
+# 设置并使用 ClearML 回调
+clearml_callback = ClearMLCallbackHandler(
+    task_type="inference",
+    project_name="langchain_callback_demo",
+    task_name="llm",
+    tags=["test"],
+    # 根据您希望跟踪的详细程度更改以下参数
+    visualize=True,
+    complexity_metrics=True,
+    stream_logs=True,
+)
+callbacks = [StdOutCallbackHandler(), clearml_callback]
+# 准备 OpenAI 模型
+llm = OpenAI(temperature=0, callbacks=callbacks)
+```
+
+```text
+clearml 回调目前处于测试阶段，可能会根据 `langchain` 的更新而更改。如有任何问题，请报告至 https://github.com/allegroai/clearml/issues 并标记 `langchain`。
+```
+
+### 场景 1：仅使用 LLM
+
+首先，让我们仅运行一个 LLM 几次，并在 ClearML 中捕获生成的提示-答案对话
+
+```python
+# 场景 1 - LLM
+llm_result = llm.generate(["Tell me a joke", "Tell me a poem"] * 3)
+# 每次生成运行后，使用 flush 确保所有指标、提示和其他输出都正确单独保存
+clearml_callback.flush_tracker(langchain_asset=llm, name="simple_sequential")
+```
+
+```python
+{'action': 'on_llm_start', 'name': 'OpenAI', 'step': 3, 'starts': 2, 'ends': 1, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 1, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'prompts': 'Tell me a joke'}
+{'action': 'on_llm_start', 'name': 'OpenAI', 'step': 3, 'starts': 2, 'ends': 1, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 1, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'prompts': 'Tell me a poem'}
+{'action': 'on_llm_start', 'name': 'OpenAI', 'step': 3, 'starts': 2, 'ends': 1, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 1, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'prompts': 'Tell me a joke'}
+{'action': 'on_llm_start', 'name': 'OpenAI', 'step': 3, 'starts': 2, 'ends': 1, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 1, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'prompts': 'Tell me a poem'}
+{'action': 'on_llm_start', 'name': 'OpenAI', 'step': 3, 'starts': 2, 'ends': 1, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 1, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'prompts': 'Tell me a joke'}
+{'action': 'on_llm_start', 'name': 'OpenAI', 'step': 3, 'starts': 2, 'ends': 1, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 1, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'prompts': 'Tell me a poem'}
+{'action': 'on_llm_end', 'token_usage_prompt_tokens': 24, 'token_usage_completion_tokens': 138, 'token_usage_total_tokens': 162, 'model_name': 'text-davinci-003', 'step': 4, 'starts': 2, 'ends': 2, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 2, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'text': '\n\nQ: What did the fish say when it hit the wall?\nA: Dam!', 'generation_info_finish_reason': 'stop', 'generation_info_logprobs': None, 'flesch_reading_ease': 109.04, 'flesch_kincaid_grade': 1.3, 'smog_index': 0.0, 'coleman_liau_index': -1.24, 'automated_readability_index': 0.3, 'dale_chall_readability_score': 5.5, 'difficult_words': 0, 'linsear_write_formula': 5.5, 'gunning_fog': 5.2, 'text_standard': '5th and 6th grade', 'fernandez_huerta': 133.58, 'szigriszt_pazos': 131.54, 'gutierrez_polini': 62.3, 'crawford': -0.2, 'gulpease_index': 79.8, 'osman': 116.91}
+{'action': 'on_llm_end', 'token_usage_prompt_tokens': 24, 'token_usage_completion_tokens': 138, 'token_usage_total_tokens': 162, 'model_name': 'text-davinci-003', 'step': 4, 'starts': 2, 'ends': 2, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 2, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'text': '\n\nRoses are red,\nViolets are blue,\nSugar is sweet,\nAnd so are you.', 'generation_info_finish_reason': 'stop', 'generation_info_logprobs': None, 'flesch_reading_ease': 83.66, 'flesch_kincaid_grade': 4.8, 'smog_index': 0.0, 'coleman_liau_index': 3.23, 'automated_readability_index': 3.9, 'dale_chall_readability_score': 6.71, 'difficult_words': 2, 'linsear_write_formula': 6.5, 'gunning_fog': 8.28, 'text_standard': '6th and 7th grade', 'fernandez_huerta': 115.58, 'szigriszt_pazos': 112.37, 'gutierrez_polini': 54.83, 'crawford': 1.4, 'gulpease_index': 72.1, 'osman': 100.17}
+{'action': 'on_llm_end', 'token_usage_prompt_tokens': 24, 'token_usage_completion_tokens': 138, 'token_usage_total_tokens': 162, 'model_name': 'text-davinci-003', 'step': 4, 'starts': 2, 'ends': 2, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 2, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'text': '\n\nQ: What did the fish say when it hit the wall?\nA: Dam!', 'generation_info_finish_reason': 'stop', 'generation_info_logprobs': None, 'flesch_reading_ease': 109.04, 'flesch_kincaid_grade': 1.3, 'smog_index': 0.0, 'coleman_liau_index': -1.24, 'automated_readability_index': 0.3, 'dale_chall_readability_score': 5.5, 'difficult_words': 0, 'linsear_write_formula': 5.5, 'gunning_fog': 5.2, 'text_standard': '5th and 6th grade', 'fernandez_huerta': 133.58, 'szigriszt_pazos': 131.54, 'gutierrez_polini': 62.3, 'crawford': -0.2, 'gulpease_index': 79.8, 'osman': 116.91}
+{'action': 'on_llm_end', 'token_usage_prompt_tokens': 24, 'token_usage_completion_tokens': 138, 'token_usage_total_tokens': 162, 'model_name': 'text-davinci-003', 'step': 4, 'starts': 2, 'ends': 2, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 2, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'text': '\n\nRoses are red,\nViolets are blue,\nSugar is sweet,\nAnd so are you.', 'generation_info_finish_reason': 'stop', 'generation_info_logprobs': None, 'flesch_reading_ease': 83.66, 'flesch_kincaid_grade': 4.8, 'smog_index': 0.0, 'coleman_liau_index': 3.23, 'automated_readability_index': 3.9, 'dale_chall_readability_score': 6.71, 'difficult_words': 2, 'linsear_write_formula': 6.5, 'gunning_fog': 8.28, 'text_standard': '6th and 7th grade', 'fernandez_huerta': 115.58, 'szigriszt_pazos': 112.37, 'gutierrez_polini': 54.83, 'crawford': 1.4, 'gulpease_index': 72.1, 'osman': 100.17}
+{'action': 'on_llm_end', 'token_usage_prompt_tokens': 24, 'token_usage_completion_tokens': 138, 'token_usage_total_tokens': 162, 'model_name': 'text-davinci-003', 'step': 4, 'starts': 2, 'ends': 2, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 2, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'text': '\n\nQ: What did the fish say when it hit the wall?\nA: Dam!', 'generation_info_finish_reason': 'stop', 'generation_info_logprobs': None, 'flesch_reading_ease': 109.04, 'flesch_kincaid_grade': 1.3, 'smog_index': 0.0, 'coleman_liau_index': -1.24, 'automated_readability_index': 0.3, 'dale_chall_readability_score': 5.5, 'difficult_words': 0, 'linsear_write_formula': 5.5, 'gunning_fog': 5.2, 'text_standard': '5th and 6th grade', 'fernandez_huerta': 133.58, 'szigriszt_pazos': 131.54, 'gutierrez_polini': 62.3, 'crawford': -0.2, 'gulpease_index': 79.8, 'osman': 116.91}
+{'action': 'on_llm_end', 'token_usage_prompt_tokens': 24, 'token_usage_completion_tokens': 138, 'token_usage_total_tokens': 162, 'model_name': 'text-davinci-003', 'step': 4, 'starts': 2, 'ends': 2, 'errors': 0, 'text_ctr': 0, 'chain_starts': 0, 'chain_ends': 0, 'llm_starts': 2, 'llm_ends': 2, 'llm_streams': 0, 'tool_starts': 0, 'tool_ends': 0, 'agent_ends': 0, 'text': '\n\nRoses are red,\nViolets are blue,\nSugar is sweet,\nAnd so are you.', 'generation_info_finish_reason': 'stop', 'generation_info_logprobs': None, 'flesch_reading_ease': 83.66, 'flesch_kincaid_grade': 4.8, 'smog_index': 0.0, 'coleman_liau_index': 3.23, 'automated_readability_index': 3.9, 'dale_chall_readability_score': 6.71, 'difficult_words': 2, 'linsear_write_formula': 6.5, 'gunning_fog': 8.28, 'text_standard': '6th and 7th grade', 'fernandez_huerta': 115.58, 'szigriszt_pazos': 112.37, 'gutierrez_polini': 54.83, 'crawford': 1.4, 'gulpease_index': 72.1, 'osman': 100.17}
+{'action_records':           action    name  step  starts  ends  errors  text_ctr  chain_starts  \
+0   on_llm_start  OpenAI     1       1     0       0         0             0
+1   on_llm_start  OpenAI     1       1     0       0         0             0
+2   on_llm_start  OpenAI     1       1     0       0         0             0
+3   on_llm_start  OpenAI     1       1     0       0         0             0
+4   on_llm_start  OpenAI     1       1     0       0         0             0
+5   on_llm_start  OpenAI     1       1     0       

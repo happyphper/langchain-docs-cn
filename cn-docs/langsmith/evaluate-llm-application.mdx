@@ -1,0 +1,407 @@
+---
+title: 如何评估 LLM 应用
+sidebarTitle: With the SDK
+---
+本指南将展示如何使用 LangSmith SDK 对 LLM 应用程序进行评估。
+
+<Info>
+[评估](/langsmith/evaluation-concepts#applying-evaluations) | [评估器](/langsmith/evaluation-concepts#evaluators) | [数据集](/langsmith/evaluation-concepts#datasets)
+</Info>
+
+在本指南中，我们将介绍如何使用 LangSmith SDK 中的 [evaluate()](https://docs.smith.langchain.com/reference/python/evaluation/langsmith.evaluation._runner.evaluate) 方法来评估一个应用程序。
+
+<Check>
+对于 Python 中较大的评估任务，我们推荐使用 [aevaluate()](https://docs.smith.langchain.com/reference/python/evaluation/langsmith.evaluation._arunner.aevaluate)，它是 [evaluate()](https://docs.smith.langchain.com/reference/python/evaluation/langsmith.evaluation._runner.evaluate) 的异步版本。仍然值得先阅读本指南，因为两者接口相同，然后再阅读关于[异步运行评估](/langsmith/evaluation-async)的操作指南。
+
+在 JS/TS 中，evaluate() 已经是异步的，因此不需要单独的方法。
+
+在运行大型任务时，配置 `max_concurrency`/`maxConcurrency` 参数也很重要。这通过将数据集有效地分配到多个线程来实现评估的并行化。
+</Check>
+
+## 定义应用程序
+
+首先，我们需要一个要评估的应用程序。让我们为这个示例创建一个简单的毒性分类器。
+
+<CodeGroup>
+
+```python Python
+from langsmith import traceable, wrappers
+from openai import OpenAI
+
+# 可选：包装 OpenAI 客户端以追踪所有模型调用。
+oai_client = wrappers.wrap_openai(OpenAI())
+
+# 可选：添加 'traceable' 装饰器以追踪此函数的输入/输出。
+@traceable
+def toxicity_classifier(inputs: dict) -> dict:
+    instructions = (
+      "Please review the user query below and determine if it contains any form of toxic behavior, "
+      "such as insults, threats, or highly negative comments. Respond with 'Toxic' if it does "
+      "and 'Not toxic' if it doesn't."
+    )
+    messages = [
+        {"role": "system", "content": instructions},
+        {"role": "user", "content": inputs["text"]},
+    ]
+    result = oai_client.chat.completions.create(
+        messages=messages, model="gpt-4o-mini", temperature=0
+    )
+    return {"class": result.choices[0].message.content}
+```
+
+```typescript TypeScript
+import { OpenAI } from "openai";
+import { wrapOpenAI } from "langsmith/wrappers";
+import { traceable } from "langsmith/traceable";
+
+// 可选：包装 OpenAI 客户端以追踪所有模型调用。
+const oaiClient = wrapOpenAI(new OpenAI());
+
+// 可选：添加 'traceable' 包装器以追踪此函数的输入/输出。
+const toxicityClassifier = traceable(
+  async (text: string) => {
+    const result = await oaiClient.chat.completions.create({
+      messages: [
+        {
+           role: "system",
+          content: "Please review the user query below and determine if it contains any form of toxic behavior, such as insults, threats, or highly negative comments. Respond with 'Toxic' if it does, and 'Not toxic' if it doesn't.",
+        },
+        { role: "user", content: text },
+      ],
+      model: "gpt-4o-mini",
+      temperature: 0,
+    });
+
+    return result.choices[0].message.content;
+  },
+  { name: "toxicityClassifier" }
+);
+```
+
+</CodeGroup>
+
+我们可选地启用了追踪功能，以捕获流水线中每个步骤的输入和输出。要了解如何为代码添加追踪注释，请参考[本指南](/langsmith/annotate-code)。
+
+## 创建或选择数据集
+
+我们需要一个[数据集](/langsmith/evaluation-concepts#datasets)来评估我们的应用程序。我们的数据集将包含有毒和无毒文本的带标签[示例](/langsmith/evaluation-concepts#examples)。
+
+需要 `langsmith>=0.3.13`
+
+<CodeGroup>
+
+```python Python
+from langsmith import Client
+ls_client = Client()
+
+examples = [
+  {
+    "inputs": {"text": "Shut up, idiot"},
+    "outputs": {"label": "Toxic"},
+  },
+  {
+    "inputs": {"text": "You're a wonderful person"},
+    "outputs": {"label": "Not toxic"},
+  },
+  {
+    "inputs": {"text": "This is the worst thing ever"},
+    "outputs": {"label": "Toxic"},
+  },
+  {
+    "inputs": {"text": "I had a great day today"},
+    "outputs": {"label": "Not toxic"},
+  },
+  {
+    "inputs": {"text": "Nobody likes you"},
+    "outputs": {"label": "Toxic"},
+  },
+  {
+    "inputs": {"text": "This is unacceptable. I want to speak to the manager."},
+    "outputs": {"label": "Not toxic"},
+  },
+]
+
+dataset = ls_client.create_dataset(dataset_name="Toxic Queries")
+ls_client.create_examples(
+  dataset_id=dataset.id,
+  examples=examples,
+)
+```
+
+```typescript TypeScript
+import { Client } from "langsmith";
+
+const langsmith = new Client();
+
+// 创建一个数据集
+const labeledTexts = [
+  ["Shut up, idiot", "Toxic"],
+  ["You're a wonderful person", "Not toxic"],
+  ["This is the worst thing ever", "Toxic"],
+  ["I had a great day today", "Not toxic"],
+  ["Nobody likes you", "Toxic"],
+  ["This is unacceptable. I want to speak to the manager.", "Not toxic"],
+];
+
+const [inputs, outputs] = labeledTexts.reduce<
+  [Array<{ input: string }>, Array<{ outputs: string }>]
+>(
+  ([inputs, outputs], item) => [
+    [...inputs, { input: item[0] }],
+    [...outputs, { outputs: item[1] }],
+  ],
+  [[], []]
+);
+
+const datasetName = "Toxic Queries";
+const toxicDataset = await langsmith.createDataset(datasetName);
+await langsmith.createExamples({ inputs, outputs, datasetId: toxicDataset.id });
+```
+
+</CodeGroup>
+
+有关数据集的更多详细信息，请参阅[管理数据集](/langsmith/manage-datasets)页面。
+
+## 定义评估器
+
+<Check>
+你也可以查看 LangChain 的开源评估包 [openevals](https://github.com/langchain-ai/openevals)，其中包含常见的预构建评估器。
+</Check>
+
+[评估器](/langsmith/evaluation-concepts#evaluators)是用于为应用程序输出评分的函数。它们接收示例输入、实际输出，以及（如果存在）参考输出。由于此任务有标签，我们的评估器可以直接检查实际输出是否与参考输出匹配。
+
+- Python: 需要 `langsmith>=0.3.13`
+- TypeScript: 需要 `langsmith>=0.2.9`
+
+<CodeGroup>
+
+```python Python
+def correct(inputs: dict, outputs: dict, reference_outputs: dict) -> bool:
+    return outputs["class"] == reference_outputs["label"]
+```
+
+```typescript TypeScript
+import type { EvaluationResult } from "langsmith/evaluation";
+
+function correct({
+  outputs,
+  referenceOutputs,
+}: {
+  outputs: Record<string, any>;
+  referenceOutputs?: Record<string, any>;
+}): EvaluationResult {
+  const score = outputs.output === referenceOutputs?.outputs;
+  return { key: "correct", score };
+}
+```
+
+</CodeGroup>
+
+## 运行评估
+
+我们将使用 [evaluate()](https://docs.smith.langchain.com/reference/python/evaluation/langsmith.evaluation._runner.evaluate) / [aevaluate()](https://docs.smith.langchain.com/reference/python/evaluation/langsmith.evaluation._arunner.aevaluate) 方法来运行评估。
+
+关键参数是：
+
+* 一个目标函数，它接收一个输入字典并返回一个输出字典。每个[示例](/langsmith/example-data-format)的 `example.inputs` 字段会被传递给目标函数。在本例中，我们的 `toxicity_classifier` 已经设置为接收示例输入，因此我们可以直接使用它。
+* `data` - 要评估的 LangSmith 数据集的名称或 UUID，或者一个示例迭代器
+* `evaluators` - 用于为函数输出评分的评估器列表
+
+Python: 需要 `langsmith>=0.3.13`
+
+<CodeGroup>
+
+```python Python
+# 也可以直接使用 'evaluate' 函数：
+# from langsmith import evaluate; evaluate(...)
+results = ls_client.evaluate(
+    toxicity_classifier,
+    data=dataset.name,
+    evaluators=[correct],
+    experiment_prefix="gpt-4o-mini, baseline",  # 可选，实验名称前缀
+    description="Testing the baseline system.",  # 可选，实验描述
+    max_concurrency=4, # 可选，添加并发
+)
+```
+
+```typescript TypeScript
+import { evaluate } from "langsmith/evaluation";
+
+await evaluate((inputs) => toxicityClassifier(inputs["input"]), {
+  data: datasetName,
+  evaluators: [correct],
+  experimentPrefix: "gpt-4o-mini, baseline",  // 可选，实验名称前缀
+  maxConcurrency: 4, // 可选，添加并发
+});
+```
+
+</CodeGroup>
+
+## 查看结果[​](#explore-the-results "Direct link to Explore the results")
+
+每次调用 `evaluate()` 都会创建一个[实验](/langsmith/evaluation-concepts#experiments)，可以在 LangSmith UI 中查看或通过 SDK 查询。评估分数会作为反馈存储在每个实际输出上。
+
+*如果你已为代码添加了追踪注释，你可以在侧面板视图中打开每一行的追踪记录。*
+
+![查看实验](/langsmith/images/view-experiment.gif)
+
+## 参考代码[​](#reference-code "Direct link to Reference code")
+
+<Accordion title="点击查看整合后的代码片段">
+    <CodeGroup>
+
+```python Python
+from langsmith import Client, traceable, wrappers
+from openai import OpenAI
+
+# 步骤 1. 定义一个应用程序
+oai_client = wrappers.wrap_openai(OpenAI())
+
+@traceable
+def toxicity_classifier(inputs: dict) -> str:
+    system = (
+      "Please review the user query below and determine if it contains any form of toxic behavior, "
+      "such as insults, threats, or highly negative comments. Respond with 'Toxic' if it does "
+      "and 'Not toxic' if it doesn't."
+    )
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": inputs["text"]},
+    ]
+    result = oai_client.chat.completions.create(
+        messages=messages, model="gpt-4o-mini", temperature=0
+    )
+    return result.choices[0].message.content
+
+# 步骤 2. 创建一个数据集
+ls_client = Client()
+dataset = ls_client.create_dataset(dataset_name="Toxic Queries")
+examples = [
+  {
+    "inputs": {"text": "Shut up, idiot"},
+    "outputs": {"label": "Toxic"},
+  },
+  {
+    "inputs": {"text": "You're a wonderful person"},
+    "outputs": {"label": "Not toxic"},
+  },
+  {
+    "inputs": {"text": "This is the worst thing ever"},
+    "outputs": {"label": "Toxic"},
+  },
+  {
+    "inputs": {"text": "I had a great day today"},
+    "outputs": {"label": "Not toxic"},
+  },
+  {
+    "inputs": {"text": "Nobody likes you"},
+    "outputs": {"label": "Toxic"},
+  },
+  {
+    "inputs": {"text": "This is unacceptable. I want to speak to the manager."},
+    "outputs": {"label": "Not toxic"},
+  },
+]
+ls_client.create_examples(
+  dataset_id=dataset.id,
+  examples=examples,
+)
+
+# 步骤 3. 定义一个评估器
+def correct(inputs: dict, outputs: dict, reference_outputs: dict) -> bool:
+    return outputs["output"] == reference_outputs["label"]
+
+# 步骤 4. 运行评估
+# Client.evaluate() 和 evaluate() 行为相同。
+results = ls_client.evaluate(
+    toxicity_classifier,
+    data=dataset.name,
+    evaluators=[correct],
+    experiment_prefix="gpt-4o-mini, simple",  # 可选，实验名称前缀
+    description="Testing the baseline system.",  # 可选，实验描述
+    max_concurrency=4,  # 可选，添加并发
+)
+```
+
+```typescript TypeScript
+import { OpenAI } from "openai";
+import { Client } from "langsmith";
+import { evaluate, EvaluationResult } from "langsmith/evaluation";
+import type { Run, Example } from "langsmith/schemas";
+import { traceable } from "langsmith/traceable";
+import { wrapOpenAI } from "langsmith/wrappers";
+
+const oaiClient = wrapOpenAI(new OpenAI());
+
+const toxicityClassifier = traceable(
+  async (text: string) => {
+    const result = await oaiClient.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "Please review the user query below and determine if it contains any form of toxic behavior, such as insults, threats, or highly negative comments. Respond with 'Toxic' if it does, and 'Not toxic' if it doesn't.",
+        },
+        { role: "user", content: text },
+      ],
+      model: "gpt-4o-mini",
+      temperature: 0,
+    });
+    return result.choices[0].message.content;
+  },
+  { name: "toxicityClassifier" }
+);
+
+const langsmith = new Client();
+
+// 创建一个数据集
+const labeledTexts = [
+  ["Shut up, idiot", "Toxic"],
+  ["You're a wonderful person", "Not toxic"],
+  ["This is the worst thing ever", "Toxic"],
+  ["I had a great day today", "Not toxic"],
+  ["Nobody likes you", "Toxic"],
+  ["This is unacceptable. I want to speak to the manager.", "Not toxic"],
+];
+
+const [inputs, outputs] = labeledTexts.reduce<
+  [Array<{ input: string }>, Array<{ outputs: string }>]
+>(
+  ([inputs, outputs], item) => [
+    [...inputs, { input: item[0] }],
+    [...outputs, { outputs: item[1] }],
+  ],
+  [[], []]
+);
+
+const datasetName = "Toxic Queries";
+const toxicDataset = await langsmith.createDataset(datasetName);
+await langsmith.createExamples({ inputs, outputs, datasetId: toxicDataset.id });
+
+// 行级评估器
+function correct({
+  outputs,
+  referenceOutputs,
+}: {
+  outputs: Record<string, any>;
+  referenceOutputs?: Record<string, any>;
+}): EvaluationResult {
+  const score = outputs.output === referenceOutputs?.outputs;
+  return { key: "correct", score };
+}
+
+await evaluate((inputs) => toxicityClassifier(inputs["input"]), {
+  data: datasetName,
+  evaluators: [correct],
+  experimentPrefix: "gpt-4o-mini, simple",  // 可选，实验名称前缀
+  maxConcurrency: 4, // 可选，添加并发
+});
+```
+
+</CodeGroup>
+</Accordion>
+
+## 相关链接[​](#related "Direct link to Related")
+
+* [异步运行评估](/langsmith/evaluation-async)
+* [通过 REST API 运行评估](/langsmith/run-evals-api-only)
+* [从提示词游乐场运行评估](/langsmith/run-evaluation-from-prompt-playground)

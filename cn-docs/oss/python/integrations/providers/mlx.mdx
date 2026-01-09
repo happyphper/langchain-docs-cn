@@ -1,0 +1,38 @@
+---
+title: MLX
+---
+>[MLX](https://ml-explore.github.io/mlx/build/html/index.html) 是一个类似 `NumPy` 的数组框架，
+> 专为在 `Apple` 芯片上进行高效灵活的机器学习而设计，
+> 由 `Apple machine learning research` 团队推出。
+
+## 安装与设置
+
+安装以下 Python 包：
+
+<CodeGroup>
+```bash pip
+pip install mlx-lm transformers huggingface_hub
+```
+
+```bash uv
+uv add mlx-lm transformers huggingface_hub
+```
+</CodeGroup>
+
+## 聊天模型
+
+查看[使用示例](/oss/integrations/chat/mlx)。
+
+```python
+from langchain_community.chat_models.mlx import ChatMLX
+```
+
+## 大语言模型
+
+### MLX 本地流水线
+
+查看[使用示例](/oss/integrations/llms/mlx_pipelines)。
+
+```python
+from langchain_community.llms.mlx_pipeline import MLXPipeline
+```

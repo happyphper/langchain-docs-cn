@@ -1,0 +1,518 @@
+---
+title: 内存
+---
+AI 应用需要[记忆](/oss/concepts/memory)来在多次交互间共享上下文。在 LangGraph 中，你可以添加两种类型的记忆：
+
+* [添加短期记忆](#add-short-term-memory)作为智能体[状态](/oss/langgraph/graph-api#state)的一部分，以实现多轮对话。
+* [添加长期记忆](#add-long-term-memory)来跨会话存储用户特定或应用级别的数据。
+
+## 添加短期记忆
+
+**短期**记忆（线程级[持久化](/oss/langgraph/persistence)）使智能体能够跟踪多轮对话。要添加短期记忆：
+
+:::python
+```python
+from langgraph.checkpoint.memory import InMemorySaver  # [!code highlight]
+from langgraph.graph import StateGraph
+
+checkpointer = InMemorySaver()  # [!code highlight]
+
+builder = StateGraph(...)
+graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
+
+graph.invoke(
+    {"messages": [{"role": "user", "content": "hi! i am Bob"}]},
+    {"configurable": {"thread_id": "1"}},  # [!code highlight]
+)
+```
+:::
+
+:::js
+```typescript
+import { MemorySaver, StateGraph } from "@langchain/langgraph";
+
+const checkpointer = new MemorySaver();
+
+const builder = new StateGraph(...);
+const graph = builder.compile({ checkpointer });
+
+await graph.invoke(
+  { messages: [{ role: "user", content: "hi! i am Bob" }] },
+  { configurable: { thread_id: "1" } }
+);
+```
+:::
+
+### 在生产环境中使用
+
+在生产环境中，使用由数据库支持的检查点保存器：
+
+:::python
+```python
+from langgraph.checkpoint.postgres import PostgresSaver
+
+DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable"
+with PostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
+    builder = StateGraph(...)
+    graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
+```
+:::
+
+:::js
+```typescript
+import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
+
+const DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable";
+const checkpointer = PostgresSaver.fromConnString(DB_URI);
+
+const builder = new StateGraph(...);
+const graph = builder.compile({ checkpointer });
+```
+:::
+
+<Accordion title="示例：使用 Postgres 检查点保存器">
+  :::python
+  ```
+  pip install -U "psycopg[binary,pool]" langgraph langgraph-checkpoint-postgres
+  ```
+
+    <Tip>
+    首次使用 Postgres 检查点保存器时，需要调用 `checkpointer.setup()`
+    </Tip>
+
+    <Tabs>
+        <Tab title="同步">
+      ```python
+      from langchain.chat_models import init_chat_model
+      from langgraph.graph import StateGraph, MessagesState, START
+      from langgraph.checkpoint.postgres import PostgresSaver  # [!code highlight]
+
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
+
+      DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable"
+      with PostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
+          # checkpointer.setup()
+
+          def call_model(state: MessagesState):
+              response = model.invoke(state["messages"])
+              return {"messages": response}
+
+          builder = StateGraph(MessagesState)
+          builder.add_node(call_model)
+          builder.add_edge(START, "call_model")
+
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
+
+          config = {
+              "configurable": {
+                  "thread_id": "1"  # [!code highlight]
+              }
+          }
+
+          for chunk in graph.stream(
+              {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+
+          for chunk in graph.stream(
+              {"messages": [{"role": "user", "content": "what's my name?"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+```
+        </Tab>
+        <Tab title="异步">
+      ```python
+      from langchain.chat_models import init_chat_model
+      from langgraph.graph import StateGraph, MessagesState, START
+      from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver  # [!code highlight]
+
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
+
+      DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable"
+      async with AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
+          # await checkpointer.setup()
+
+          async def call_model(state: MessagesState):
+              response = await model.ainvoke(state["messages"])
+              return {"messages": response}
+
+          builder = StateGraph(MessagesState)
+          builder.add_node(call_model)
+          builder.add_edge(START, "call_model")
+
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
+
+          config = {
+              "configurable": {
+                  "thread_id": "1"  # [!code highlight]
+              }
+          }
+
+          async for chunk in graph.astream(
+              {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+
+          async for chunk in graph.astream(
+              {"messages": [{"role": "user", "content": "what's my name?"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+```
+        </Tab>
+    </Tabs>
+  :::
+
+  :::js
+  ```
+  npm install @langchain/langgraph-checkpoint-postgres
+  ```
+
+    <Tip>
+    首次使用 Postgres 检查点保存器时，需要调用 `checkpointer.setup()`
+    </Tip>
+
+  ```typescript
+  import { ChatAnthropic } from "@langchain/anthropic";
+  import { StateGraph, MessagesZodMeta, START } from "@langchain/langgraph";
+  import { BaseMessage } from "@langchain/core/messages";
+  import { registry } from "@langchain/langgraph/zod";
+  import * as z from "zod";
+  import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres";
+
+  const MessagesZodState = z.object({
+    messages: z
+      .array(z.custom<BaseMessage>())
+      .register(registry, MessagesZodMeta),
+  });
+
+  const model = new ChatAnthropic({ model: "claude-haiku-4-5-20251001" });
+
+  const DB_URI = "postgresql://postgres:postgres@localhost:5442/postgres?sslmode=disable";
+  const checkpointer = PostgresSaver.fromConnString(DB_URI);
+  // await checkpointer.setup();
+
+  const builder = new StateGraph(MessagesZodState)
+    .addNode("call_model", async (state) => {
+      const response = await model.invoke(state.messages);
+      return { messages: [response] };
+    })
+    .addEdge(START, "call_model");
+
+  const graph = builder.compile({ checkpointer });
+
+  const config = {
+    configurable: {
+      thread_id: "1"
+    }
+  };
+
+  for await (const chunk of await graph.stream(
+    { messages: [{ role: "user", content: "hi! I'm bob" }] },
+    { ...config, streamMode: "values" }
+  )) {
+    console.log(chunk.messages.at(-1)?.content);
+  }
+
+  for await (const chunk of await graph.stream(
+    { messages: [{ role: "user", content: "what's my name?" }] },
+    { ...config, streamMode: "values" }
+  )) {
+    console.log(chunk.messages.at(-1)?.content);
+  }
+  ```
+  :::
+</Accordion>
+
+:::python
+<Accordion title="示例：使用 MongoDB 检查点保存器">
+  ```
+  pip install -U pymongo langgraph langgraph-checkpoint-mongodb
+  ```
+
+    <Note>
+    **设置**
+    要使用 [MongoDB 检查点保存器](https://pypi.org/project/langgraph-checkpoint-mongodb/)，你需要一个 MongoDB 集群。如果你还没有，请按照[本指南](https://www.mongodb.com/docs/guides/atlas/cluster/)创建一个集群。
+    </Note>
+
+    <Tabs>
+        <Tab title="同步">
+      ```python
+      from langchain.chat_models import init_chat_model
+      from langgraph.graph import StateGraph, MessagesState, START
+      from langgraph.checkpoint.mongodb import MongoDBSaver  # [!code highlight]
+
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
+
+      DB_URI = "localhost:27017"
+      with MongoDBSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
+
+          def call_model(state: MessagesState):
+              response = model.invoke(state["messages"])
+              return {"messages": response}
+
+          builder = StateGraph(MessagesState)
+          builder.add_node(call_model)
+          builder.add_edge(START, "call_model")
+
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
+
+          config = {
+              "configurable": {
+                  "thread_id": "1"  # [!code highlight]
+              }
+          }
+
+          for chunk in graph.stream(
+              {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+
+          for chunk in graph.stream(
+              {"messages": [{"role": "user", "content": "what's my name?"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+```
+        </Tab>
+        <Tab title="异步">
+      ```python
+      from langchain.chat_models import init_chat_model
+      from langgraph.graph import StateGraph, MessagesState, START
+      from langgraph.checkpoint.mongodb.aio import AsyncMongoDBSaver  # [!code highlight]
+
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
+
+      DB_URI = "localhost:27017"
+      async with AsyncMongoDBSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
+
+          async def call_model(state: MessagesState):
+              response = await model.ainvoke(state["messages"])
+              return {"messages": response}
+
+          builder = StateGraph(MessagesState)
+          builder.add_node(call_model)
+          builder.add_edge(START, "call_model")
+
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
+
+          config = {
+              "configurable": {
+                  "thread_id": "1"  # [!code highlight]
+              }
+          }
+
+          async for chunk in graph.astream(
+              {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+
+          async for chunk in graph.astream(
+              {"messages": [{"role": "user", "content": "what's my name?"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+```
+        </Tab>
+    </Tabs>
+</Accordion>
+
+<Accordion title="示例：使用 Redis 检查点保存器">
+  ```
+  pip install -U langgraph langgraph-checkpoint-redis
+  ```
+
+    <Tip>
+    首次使用 Redis 检查点保存器时，需要调用 `checkpointer.setup()`。
+    </Tip>
+
+    <Tabs>
+        <Tab title="同步">
+      ```python
+      from langchain.chat_models import init_chat_model
+      from langgraph.graph import StateGraph, MessagesState, START
+      from langgraph.checkpoint.redis import RedisSaver  # [!code highlight]
+
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
+
+      DB_URI = "redis://localhost:6379"
+      with RedisSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
+          # checkpointer.setup()
+
+          def call_model(state: MessagesState):
+              response = model.invoke(state["messages"])
+              return {"messages": response}
+
+          builder = StateGraph(MessagesState)
+          builder.add_node(call_model)
+          builder.add_edge(START, "call_model")
+
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
+
+          config = {
+              "configurable": {
+                  "thread_id": "1"  # [!code highlight]
+              }
+          }
+
+          for chunk in graph.stream(
+              {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+
+          for chunk in graph.stream(
+              {"messages": [{"role": "user", "content": "what's my name?"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+```
+        </Tab>
+        <Tab title="异步">
+      ```python
+      from langchain.chat_models import init_chat_model
+      from langgraph.graph import StateGraph, MessagesState, START
+      from langgraph.checkpoint.redis.aio import AsyncRedisSaver  # [!code highlight]
+
+      model = init_chat_model(model="claude-haiku-4-5-20251001")
+
+      DB_URI = "redis://localhost:6379"
+      async with AsyncRedisSaver.from_conn_string(DB_URI) as checkpointer:  # [!code highlight]
+          # await checkpointer.asetup()
+
+          async def call_model(state: MessagesState):
+              response = await model.ainvoke(state["messages"])
+              return {"messages": response}
+
+          builder = StateGraph(MessagesState)
+          builder.add_node(call_model)
+          builder.add_edge(START, "call_model")
+
+          graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
+
+          config = {
+              "configurable": {
+                  "thread_id": "1"  # [!code highlight]
+              }
+          }
+
+          async for chunk in graph.astream(
+              {"messages": [{"role": "user", "content": "hi! I'm bob"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+
+          async for chunk in graph.astream(
+              {"messages": [{"role": "user", "content": "what's my name?"}]},
+              config,  # [!code highlight]
+              stream_mode="values"
+          ):
+              chunk["messages"][-1].pretty_print()
+```
+        </Tab>
+    </Tabs>
+</Accordion>
+:::
+
+### 在子图中使用
+
+如果你的图包含[子图](/oss/langgraph/use-subgraphs)，你只需要在编译父图时提供检查点保存器。LangGraph 会自动将检查点保存器传播到子图。
+
+:::python
+```python
+from langgraph.graph import START, StateGraph
+from langgraph.checkpoint.memory import InMemorySaver
+from typing import TypedDict
+
+class State(TypedDict):
+    foo: str
+
+# 子图
+
+def subgraph_node_1(state: State):
+    return {"foo": state["foo"] + "bar"}
+
+subgraph_builder = StateGraph(State)
+subgraph_builder.add_node(subgraph_node_1)
+subgraph_builder.add_edge(START, "subgraph_node_1")
+subgraph = subgraph_builder.compile()  # [!code highlight]
+
+# 父图
+
+builder = StateGraph(State)
+builder.add_node("node_1", subgraph)  # [!code highlight]
+builder.add_edge(START, "node_1")
+
+checkpointer = InMemorySaver()
+graph = builder.compile(checkpointer=checkpointer)  # [!code highlight]
+```
+:::
+
+:::js
+```typescript
+import { StateGraph, START, MemorySaver } from "@langchain/langgraph";
+import * as z from "zod";
+
+const State = z.object({ foo: z.string() });
+
+const subgraphBuilder = new StateGraph(State)
+  .addNode("subgraph_node_1", (state) => {
+    return { foo: state.foo + "bar" };
+  })
+  .addEdge(START, "subgraph_node_1");
+const subgraph = subgraphBuilder.compile();
+
+const builder = new StateGraph(State)
+  .addNode("node_1", subgraph)
+  .addEdge(START, "node_1");
+
+const checkpointer = new MemorySaver();
+const graph = builder.compile({ checkpointer });
+```
+:::
+
+如果你希望子图拥有自己的记忆，可以使用适当的检查点保存器选项来编译它。这在[多智能体](/oss/langchain/multi-agent)系统中很有用，如果你希望智能体跟踪其内部消息历史记录。
+
+:::python
+```python
+subgraph_builder = StateGraph(...)
+subgraph = subgraph_builder.compile(checkpointer=True)  # [!code highlight]
+```
+:::
+
+:::js
+```typescript
+const subgraphBuilder = new StateGraph(...);
+const subgraph = subgraphBuilder.compile({ checkpointer: true });  // [!code highlight]
+```
+:::
+
+## 添加长期记忆
+
+使用长期记忆来跨对话存储用户特定或应用特定的数据。
+
+:::python
+```python
+from langgraph.store.memory import InMemoryStore  # [!code highlight]
+from langgraph.graph import StateGraph
+
+store = InMemoryStore()  # [!code highlight]
+
+builder = StateGraph(...)
+graph = builder.compile(store=store) 

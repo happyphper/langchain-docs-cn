@@ -1,0 +1,485 @@
+---
+title: 内置中间件
+description: 适用于常见智能体用例的预构建中间件
+---
+LangChain 为常见用例提供了预构建的中间件。每个中间件都是生产就绪的，并且可以根据您的具体需求进行配置。
+
+## 与提供商无关的中间件
+
+以下中间件适用于任何 LLM 提供商：
+
+:::python
+
+| 中间件 | 描述 |
+|------------|-------------|
+| [Summarization](#summarization) | 在接近令牌限制时自动总结对话历史。 |
+| [Human-in-the-loop](#human-in-the-loop) | 暂停执行以等待人工批准工具调用。 |
+| [Model call limit](#model-call-limit) | 限制模型调用次数以防止成本过高。 |
+| [Tool call limit](#tool-call-limit) | 通过限制调用次数来控制工具执行。 |
+| [Model fallback](#model-fallback) | 当主模型失败时自动回退到备用模型。 |
+| [PII detection](#pii-detection) | 检测和处理个人身份信息 (PII)。 |
+| [To-do list](#to-do-list) | 为智能体配备任务规划和跟踪能力。 |
+| [LLM tool selector](#llm-tool-selector) | 在调用主模型之前使用 LLM 选择相关工具。 |
+| [Tool retry](#tool-retry) | 使用指数退避自动重试失败的工具调用。 |
+| [Model retry](#model-retry) | 使用指数退避自动重试失败的模型调用。 |
+| [LLM tool emulator](#llm-tool-emulator) | 使用 LLM 模拟工具执行以进行测试。 |
+| [Context editing](#context-editing) | 通过修剪或清除工具使用来管理对话上下文。 |
+| [Shell tool](#shell-tool) | 向智能体暴露一个持久的 shell 会话以执行命令。 |
+| [File search](#file-search) | 提供对文件系统文件的 Glob 和 Grep 搜索工具。 |
+
+:::
+
+:::js
+
+| 中间件 | 描述 |
+|------------|-------------|
+| [Summarization](#summarization) | 在接近令牌限制时自动总结对话历史。 |
+| [Human-in-the-loop](#human-in-the-loop) | 暂停执行以等待人工批准工具调用。 |
+| [Model call limit](#model-call-limit) | 限制模型调用次数以防止成本过高。 |
+| [Tool call limit](#tool-call-limit) | 通过限制调用次数来控制工具执行。 |
+| [Model fallback](#model-fallback) | 当主模型失败时自动回退到备用模型。 |
+| [PII detection](#pii-detection) | 检测和处理个人身份信息 (PII)。 |
+| [To-do list](#to-do-list) | 为智能体配备任务规划和跟踪能力。 |
+| [LLM tool selector](#llm-tool-selector) | 在调用主模型之前使用 LLM 选择相关工具。 |
+| [Tool retry](#tool-retry) | 使用指数退避自动重试失败的工具调用。 |
+| [Model retry](#model-retry) | 使用指数退避自动重试失败的模型调用。 |
+| [LLM tool emulator](#llm-tool-emulator) | 使用 LLM 模拟工具执行以进行测试。 |
+| [Context editing](#context-editing) | 通过修剪或清除工具使用来管理对话上下文。 |
+
+:::
+
+### Summarization
+
+在接近令牌限制时自动总结对话历史，保留最近的消息同时压缩较早的上下文。总结功能在以下场景中很有用：
+- 超出上下文窗口的长时间运行对话。
+- 具有大量历史记录的多轮对话。
+- 需要保留完整对话上下文的应用。
+
+:::python
+**API 参考：** @[`SummarizationMiddleware`]
+
+```python
+from langchain.agents import create_agent
+from langchain.agents.middleware import SummarizationMiddleware
+
+agent = create_agent(
+    model="gpt-4o",
+    tools=[your_weather_tool, your_calculator_tool],
+    middleware=[
+        SummarizationMiddleware(
+            model="gpt-4o-mini",
+            trigger=("tokens", 4000),
+            keep=("messages", 20),
+        ),
+    ],
+)
+```
+:::
+
+:::js
+```typescript
+import { createAgent, summarizationMiddleware } from "langchain";
+
+const agent = createAgent({
+  model: "gpt-4o",
+  tools: [weatherTool, calculatorTool],
+  middleware: [
+    summarizationMiddleware({
+      model: "gpt-4o-mini",
+      trigger: { tokens: 4000 },
+      keep: { messages: 20 },
+    }),
+  ],
+});
+```
+:::
+
+<Accordion title="配置选项">
+
+:::python
+
+<Tip>
+    如果使用 `langchain>=1.1`，`trigger` 和 `keep` 的 `fraction` 条件依赖于聊天模型的[配置文件数据](/oss/langchain/models#model-profiles)。如果数据不可用，请使用其他条件或手动指定：
+
+    ```python
+    from langchain.chat_models import init_chat_model
+
+    custom_profile = {
+        "max_input_tokens": 100_000,
+        # ...
+    }
+    model = init_chat_model("gpt-4o", profile=custom_profile)
+    ```
+</Tip>
+
+<ParamField body="model" type="string | BaseChatModel" required>
+    用于生成摘要的模型。可以是模型标识符字符串（例如 `'openai:gpt-4o-mini'`）或 `BaseChatModel` 实例。更多信息请参见 @[`init_chat_model`][init_chat_model(model)]。
+</ParamField>
+
+<ParamField body="trigger" type="ContextSize | list[ContextSize] | None">
+    触发总结的条件。可以是：
+
+    - 单个 @[`ContextSize`] 元组（必须满足指定条件）
+    - @[`ContextSize`] 元组列表（必须满足任一条件 - OR 逻辑）
+
+    条件应为以下之一：
+
+    - `fraction` (float)：模型上下文大小的比例 (0-1)
+    - `tokens` (int)：绝对令牌数
+    - `messages` (int)：消息数量
+
+    必须至少指定一个条件。如果未提供，总结将不会自动触发。
+
+    更多信息请参见 @[`ContextSize`] 的 API 参考。
+</ParamField>
+
+<ParamField body="keep" type="ContextSize" default="('messages', 20)">
+    总结后要保留多少上下文。请指定以下之一：
+
+    - `fraction` (float)：要保留的模型上下文大小比例 (0-1)
+    - `tokens` (int)：要保留的绝对令牌数
+    - `messages` (int)：要保留的最近消息数量
+
+    更多信息请参见 @[`ContextSize`] 的 API 参考。
+</ParamField>
+
+<ParamField body="token_counter" type="function">
+    自定义令牌计数函数。默认为基于字符的计数。
+</ParamField>
+
+<ParamField body="summary_prompt" type="string">
+    用于总结的自定义提示模板。如果未指定，则使用内置模板。模板应包含 `{messages}` 占位符，对话历史将插入此处。
+</ParamField>
+
+<ParamField body="trim_tokens_to_summarize" type="number" default="4000">
+    生成摘要时要包含的最大令牌数。在总结之前，消息将被修剪以适应此限制。
+</ParamField>
+
+<ParamField body="summary_prefix" type="string">
+    添加到摘要消息的前缀。如果未提供，则使用默认前缀。
+</ParamField>
+
+<ParamField body="max_tokens_before_summary" type="number" deprecated>
+    **已弃用：** 请改用 `trigger: {"tokens": value}`。触发总结的令牌阈值。
+</ParamField>
+
+<ParamField body="messages_to_keep" type="number" deprecated>
+    **已弃用：** 请改用 `keep: {"messages": value}`。要保留的最近消息数量。
+</ParamField>
+:::
+
+:::js
+<Tip>
+    如果使用 `langchain@1.1.0`，`trigger` 和 `keep` 的 `fraction` 条件依赖于聊天模型的[配置文件数据](/oss/langchain/models#model-profiles)。如果数据不可用，请使用其他条件或手动指定：
+    ```typescript
+    const customProfile: ModelProfile = {
+        maxInputTokens: 100_000,
+        // ...
+    }
+    model = await initChatModel("...", {
+        profile: customProfile,
+    });
+    ```
+</Tip>
+
+<ParamField body="model" type="string | BaseChatModel" required>
+    用于生成摘要的模型。可以是模型标识符字符串（例如 `'openai:gpt-4o-mini'`）或 `BaseChatModel` 实例。
+</ParamField>
+
+<ParamField body="trigger" type="object | object[]">
+    触发总结的条件。可以是：
+
+    - 单个条件对象（必须满足所有属性 - AND 逻辑）
+    - 条件对象数组（必须满足任一条件 - OR 逻辑）
+
+    每个条件可以包括：
+    - `fraction` (number)：模型上下文大小的比例 (0-1)
+    - `tokens` (number)：绝对令牌数
+    - `messages` (number)：消息数量
+
+    每个条件必须至少指定一个属性。如果未提供，总结将不会自动触发。
+</ParamField>
+
+<ParamField body="keep" type="object" default="{messages: 20}">
+    总结后要保留多少上下文。请指定以下之一：
+
+    - `fraction` (number)：要保留的模型上下文大小比例 (0-1)
+    - `tokens` (number)：要保留的绝对令牌数
+    - `messages` (number)：要保留的最近消息数量
+</ParamField>
+
+<ParamField body="tokenCounter" type="function">
+    自定义令牌计数函数。默认为基于字符的计数。
+</ParamField>
+
+<ParamField body="summaryPrompt" type="string">
+    用于总结的自定义提示模板。如果未指定，则使用内置模板。模板应包含 `{messages}` 占位符，对话历史将插入此处。
+</ParamField>
+
+<ParamField body="trimTokensToSummarize" type="number" default="4000">
+    生成摘要时要包含的最大令牌数。在总结之前，消息将被修剪以适应此限制。
+</ParamField>
+
+<ParamField body="summaryPrefix" type="string">
+    添加到摘要消息的前缀。如果未提供，则使用默认前缀。
+</ParamField>
+
+<ParamField body="maxTokensBeforeSummary" type="number" deprecated>
+    **已弃用：** 请改用 `trigger: { tokens: value }`。触发总结的令牌阈值。
+</ParamField>
+
+<ParamField body="messagesToKeep" type="number" deprecated>
+    **已弃用：** 请改用 `keep: { messages: value }`。要保留的最近消息数量。
+</ParamField>
+:::
+
+</Accordion>
+
+<Accordion title="完整示例">
+
+总结中间件监控消息令牌计数，并在达到阈值时自动总结较早的消息。
+
+**触发条件** 控制何时运行总结：
+- 单个条件对象（必须满足指定条件）
+- 条件数组（必须满足任一条件 - OR 逻辑）
+- 每个条件可以使用 `fraction`（模型上下文大小的比例）、`tokens`（绝对计数）或 `messages`（消息数量）
+
+**保留条件** 控制要保留多少上下文（请指定以下之一）：
+- `fraction` - 要保留的模型上下文大小比例
+- `tokens` - 要保留的绝对令牌数
+- `messages` - 要保留的最近消息数量
+
+:::python
+```python
+from langchain.agents import create_agent
+from langchain.agents.middleware import SummarizationMiddleware
+
+
+# 单个条件：如果令牌数 >= 4000 则触发
+agent = create_agent(
+    model="gpt-4o",
+    tools=[your_weather_tool, your_calculator_tool],
+    middleware=[
+        SummarizationMiddleware(
+            model="gpt-4o-mini",
+            trigger=("tokens", 4000),
+            keep=("messages", 20),
+        ),
+    ],
+)
+
+# 多个条件：如果令牌数 >= 3000 或消息数 >= 6 则触发
+agent2 = create_agent(
+    model="gpt-4o",
+    tools=[your_weather_tool, your_calculator_tool],
+    middleware=[
+        SummarizationMiddleware(
+            model="gpt-4o-mini",
+            trigger=[
+                ("tokens", 3000),
+                ("messages", 6),
+            ],
+            keep=("messages", 20),
+        ),
+    ],
+)
+
+# 使用比例限制
+agent3 = create_agent(
+    model="gpt-4o",
+    tools=[your_weather_tool, your_calculator_tool],
+    middleware=[
+        SummarizationMiddleware(
+            model="gpt-4o-mini",
+            trigger=("fraction", 0.8),
+            keep=("fraction", 0.3),
+        ),
+    ],
+)
+```
+:::
+
+:::js
+```typescript
+import { createAgent, summarizationMiddleware } from "langchain";
+
+// 单个条件
+const agent = createAgent({
+  model: "gpt-4o",
+  tools: [weatherTool, calculatorTool],
+  middleware: [
+    summarizationMiddleware({
+      model: "gpt-4o-mini",
+      trigger: { tokens: 4000, messages: 10 },
+      keep: { messages: 20 },
+    }),
+  ],
+});
+
+// 多个条件
+const agent2 = createAgent({
+  model: "gpt-4o",
+  tools: [weatherTool, calculatorTool],
+  middleware: [
+    summarizationMiddleware({
+      model: "gpt-4o-mini",
+      trigger: [
+        { tokens: 3000, messages: 6 },
+      ],
+      keep: { messages: 20 },
+    }),
+  ],
+});
+
+// 使用比例限制
+const agent3 = createAgent({
+  model: "gpt-4o",
+  tools: [weatherTool, calculatorTool],
+  middleware: [
+    summarizationMiddleware({
+      model: "gpt-4o-mini",
+      trigger: { fraction: 0.8 },
+      keep: { fraction: 0.3 },
+    }),
+  ],
+});
+```
+:::
+
+</Accordion>
+
+### Human-in-the-loop
+
+在工具调用执行之前暂停智能体执行，等待人工批准、编辑或拒绝。 [Human-in-the-loop](/oss/langchain/human-in-the-loop) 在以下场景中很有用：
+
+- 需要人工批准的高风险操作（例如数据库写入、金融交易）。
+- 需要人工监督的合规工作流。
+- 需要人工反馈指导智能体的长时间运行对话。
+
+:::python
+**API 参考：** @[`HumanInTheLoopMiddleware`]
+:::
+
+<Warning>
+    人机交互中间件需要一个[检查点器](/oss/langgraph/persistence#checkpoints)来在中断期间维护状态。
+</Warning>
+
+:::python
+```python
+from langchain.agents import create_agent
+from langchain.agents.middleware import HumanInTheLoopMiddleware
+from langgraph.checkpoint.memory import InMemorySaver
+
+
+def read_email_tool(email_id: str) -> str:
+    """模拟通过 ID 读取电子邮件的函数。"""
+    return f"Email content for ID: {email_id}"
+
+def send_email_tool(recipient: str, subject: str, body: str) -> str:
+    """模拟发送电子邮件的函数。"""
+    return f"Email sent to {recipient} with subject '{subject}'"
+
+agent = create_agent(
+    model="gpt-4o",
+    tools=[your_read_email_tool, your_send_email_tool],
+    checkpointer=InMemorySaver(),
+    middleware=[
+        HumanInTheLoopMiddleware(
+            interrupt_on={
+                "your_send_email_tool": {
+                    "allowed_decisions": ["approve", "edit", "reject"],
+                },
+                "your_read_email_tool": False,
+            }
+        ),
+    ],
+)
+```
+:::
+
+:::js
+```typescript
+import { createAgent, humanInTheLoopMiddleware } from "langchain";
+
+function readEmailTool(emailId: string): string {
+  /** 模拟通过 ID 读取电子邮件的函数。 */
+  return `Email content for ID: ${emailId}`;
+}
+
+function sendEmailTool(recipient: string, subject: string, body: string): string {
+  /** 模拟发送电子邮件的函数。 */
+  return `Email sent to ${recipient} with subject '${subject}'`;
+}
+
+const agent = createAgent({
+  model: "gpt-4o",
+  tools: [readEmailTool, sendEmailTool],
+  middleware: [
+    humanInTheLoopMiddleware({
+      interruptOn: {
+        sendEmailTool: {
+          allowedDecisions: ["approve", "edit", "reject"],
+        },
+        readEmailTool: false,
+      }
+    })
+  ]
+});
+```
+:::
+
+<Tip>
+    有关完整示例、配置选项和集成模式，请参阅 [Human-in-the-loop 文档](/oss/langchain/human-in-the-loop)。
+</Tip>
+
+:::python
+<Callout icon="circle-play" iconType="solid">
+    观看此[视频指南](https://www.youtube.com/watch?v=SpfT6-YAVPk)，了解 Human-in-the-loop 中间件的行为。
+</Callout>
+:::
+
+:::js
+<Callout icon="circle-play" iconType="solid">
+    观看此[视频指南](https://www.youtube.com/watch?v=tdOeUVERukA)，了解 Human-in-the-loop 中间件的行为。
+</Callout>
+:::
+
+### Model call limit
+
+限制模型调用次数以防止无限循环或成本过高。模型调用限制在以下场景中很有用：
+
+- 防止失控的智能体进行过多的 API 调用。
+- 在生产部署中强制执行成本控制。
+- 在特定调用预算内测试智能体行为。
+
+:::python
+**API 参考：** @[`ModelCallLimitMiddleware`]
+
+```python
+from langchain.agents import create_agent
+from langchain.agents.middleware import ModelCallLimitMiddleware
+from langgraph.checkpoint.memory import InMemorySaver
+
+agent = create_agent(
+    model="gpt-4o",
+    checkpointer=InMemorySaver(),  # 线程限制必需
+    tools=[],
+    middleware=[
+        ModelCallLimitMiddleware(
+            thread_limit=10,
+            run_limit=5,
+            exit_behavior="end",
+        ),
+    ],
+)
+```
+:::
+
+:::js
+```typescript
+import { createAgent, modelCallLimitMiddleware } from "langchain";
+import { MemorySaver } from "@langchain/langgraph";
+
+const agent = createAgent({
+  model: "gpt-4o",
+  checkpointer: new MemorySaver(), // 线程限制必需

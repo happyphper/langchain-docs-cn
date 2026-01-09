@@ -1,0 +1,76 @@
+---
+title: 如何异步运行评估
+sidebarTitle: Run an evaluation asynchronously
+---
+<Info>
+[评估](/langsmith/evaluation-concepts#applying-evaluations) | [评估器](/langsmith/evaluation-concepts#evaluators) | [数据集](/langsmith/evaluation-concepts#datasets) | [实验](/langsmith/evaluation-concepts#experiments)
+</Info>
+
+我们可以通过 SDK 使用 [aevaluate()](https://docs.smith.langchain.com/reference/python/evaluation/langsmith.evaluation._arunner.aevaluate) 异步运行评估，它接受与 [evaluate()](https://docs.smith.langchain.com/reference/python/evaluation/langsmith.evaluation._runner.evaluate) 相同的所有参数，但期望应用程序函数是异步的。你可以[在此处](/langsmith/evaluate-llm-application)了解更多关于如何使用 `evaluate()` 函数的信息。
+
+<Info>
+本指南仅在使用 Python SDK 时相关。在 JS/TS 中，`evaluate()` 函数已经是异步的。你可以[在此处](/langsmith/evaluate-llm-application)查看如何使用它。
+</Info>
+
+## 使用 `aevaluate()`
+
+* Python
+
+需要 `langsmith>=0.3.13`
+
+```python
+from langsmith import wrappers, Client
+from openai import AsyncOpenAI
+
+# 可选：包装 OpenAI 客户端以追踪所有模型调用。
+oai_client = wrappers.wrap_openai(AsyncOpenAI())
+
+# 可选：添加 'traceable' 装饰器以追踪此函数的输入/输出。
+@traceable
+async def researcher_app(inputs: dict) -> str:
+    instructions = """You are an excellent researcher. Given a high-level research idea, \
+list 5 concrete questions that should be investigated to determine if the idea is worth pursuing."""
+
+    response = await oai_client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": instructions},
+            {"role": "user", "content": inputs["idea"]},
+        ],
+    )
+    return response.choices[0].message.content
+
+# 评估器函数可以是同步或异步的
+def concise(inputs: dict, outputs: dict) -> bool:
+    return len(outputs["output"]) < 3 * len(inputs["idea"])
+
+ls_client = Client()
+ideas = [
+    "universal basic income",
+    "nuclear fusion",
+    "hyperloop",
+    "nuclear powered rockets",
+]
+dataset = ls_client.create_dataset("research ideas")
+ls_client.create_examples(
+    dataset_name=dataset.name,
+    examples=[{"inputs": {"idea": i}} for i in ideas],
+)
+
+# 可以等价地直接使用 'aevaluate' 函数：
+# from langsmith import aevaluate
+# await aevaluate(...)
+results = await ls_client.aevaluate(
+    researcher_app,
+    data=dataset,
+    evaluators=[concise],
+    # 可选，添加并发。
+    max_concurrency=2,  # 可选，添加并发。
+    experiment_prefix="gpt-4o-mini-baseline"  # 可选，默认为随机。
+)
+```
+
+## 相关链接
+
+* [（同步）运行评估](/langsmith/evaluate-llm-application)
+* [处理模型速率限制](/langsmith/rate-limiting)

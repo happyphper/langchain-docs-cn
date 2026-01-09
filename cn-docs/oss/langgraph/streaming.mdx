@@ -1,0 +1,487 @@
+---
+title: 流式传输
+---
+LangGraph 实现了一套流式系统，用于实时推送更新。流式处理对于提升基于 LLM 构建的应用程序的响应能力至关重要。通过逐步显示输出，甚至在完整响应准备就绪之前，流式处理能显著改善用户体验（UX），尤其是在处理 LLM 的延迟时。
+
+LangGraph 流式处理可以实现的功能：
+
+* <Icon icon="share-nodes" size={16} /> [**流式传输图状态**](#stream-graph-state) — 通过 `updates` 和 `values` 模式获取状态更新/值。
+* <Icon icon="square-poll-horizontal" size={16} /> [**流式传输子图输出**](#stream-subgraph-outputs) — 包含父图和任何嵌套子图的输出。
+* <Icon icon="square-binary" size={16} /> [**流式传输 LLM 令牌**](#messages) — 从节点、子图或工具内部捕获令牌流。
+* <Icon icon="table" size={16} /> [**流式传输自定义数据**](#stream-custom-data) — 直接从工具函数发送自定义更新或进度信号。
+* <Icon icon="layer-plus" size={16} /> [**使用多种流式模式**](#stream-multiple-modes) — 从 `values`（完整状态）、`updates`（状态增量）、`messages`（LLM 令牌 + 元数据）、`custom`（任意用户数据）或 `debug`（详细跟踪）中选择。
+
+## 支持的流式模式
+
+:::python
+将一个或多个以下流式模式作为列表传递给 @[`stream`][CompiledStateGraph.stream] 或 @[`astream`][CompiledStateGraph.astream] 方法：
+:::
+
+:::js
+将一个或多个以下流式模式作为列表传递给 @[`stream`][CompiledStateGraph.stream] 方法：
+:::
+
+| 模式       | 描述                                                                                                                                                                         |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `values`   | 在图执行的每一步之后流式传输状态的完整值。                                                                                                                   |
+| `updates`  | 在图执行的每一步之后流式传输状态的更新。如果在同一步骤中进行了多次更新（例如，运行了多个节点），这些更新会分别流式传输。 |
+| `custom`   | 从图节点内部流式传输自定义数据。                                                                                                                                   |
+| `messages` | 从调用 LLM 的任何图节点流式传输 2 元组（LLM 令牌，元数据）。                                                                                                |
+| `debug`    | 在图执行过程中流式传输尽可能多的信息。                                                                                                      |
+
+## 基本用法示例
+
+:::python
+LangGraph 图暴露了 @[`stream`][Pregel.stream]（同步）和 @[`astream`][Pregel.astream]（异步）方法，以迭代器的形式产生流式输出。
+
+```python
+for chunk in graph.stream(inputs, stream_mode="updates"):
+    print(chunk)
+```
+
+:::
+
+:::js
+LangGraph 图暴露了 @[`stream`][Pregel.stream] 方法，以迭代器的形式产生流式输出。
+
+```typescript
+for await (const chunk of await graph.stream(inputs, {
+  streamMode: "updates",
+})) {
+  console.log(chunk);
+}
+```
+:::
+
+<Accordion title="扩展示例：流式传输更新">
+  :::python
+  ```python
+  from typing import TypedDict
+  from langgraph.graph import StateGraph, START, END
+
+  class State(TypedDict):
+      topic: str
+      joke: str
+
+  def refine_topic(state: State):
+      return {"topic": state["topic"] + " and cats"}
+
+  def generate_joke(state: State):
+      return {"joke": f"This is a joke about {state['topic']}"}
+
+  graph = (
+      StateGraph(State)
+      .add_node(refine_topic)
+      .add_node(generate_joke)
+      .add_edge(START, "refine_topic")
+      .add_edge("refine_topic", "generate_joke")
+      .add_edge("generate_joke", END)
+      .compile()
+  )
+
+  # stream() 方法返回一个迭代器，产生流式输出
+  for chunk in graph.stream(  # [!code highlight]
+      {"topic": "ice cream"},
+      # 设置 stream_mode="updates" 以仅流式传输每个节点后图状态的更新
+      # 其他流式模式也可用。详情请参阅支持的流式模式
+      stream_mode="updates",  # [!code highlight]
+  ):
+      print(chunk)
+```
+  :::
+
+  :::js
+  ```typescript
+  import { StateGraph, START, END } from "@langchain/langgraph";
+  import * as z from "zod";
+
+  const State = z.object({
+    topic: z.string(),
+    joke: z.string(),
+  });
+
+  const graph = new StateGraph(State)
+    .addNode("refineTopic", (state) => {
+      return { topic: state.topic + " and cats" };
+    })
+    .addNode("generateJoke", (state) => {
+      return { joke: `This is a joke about ${state.topic}` };
+    })
+    .addEdge(START, "refineTopic")
+    .addEdge("refineTopic", "generateJoke")
+    .addEdge("generateJoke", END)
+    .compile();
+
+  for await (const chunk of await graph.stream(
+    { topic: "ice cream" },
+    // 设置 streamMode: "updates" 以仅流式传输每个节点后图状态的更新
+    // 其他流式模式也可用。详情请参阅支持的流式模式
+    { streamMode: "updates" }
+  )) {
+    console.log(chunk);
+  }
+  ```
+  :::
+
+  ```python
+  {'refineTopic': {'topic': 'ice cream and cats'}}
+  {'generateJoke': {'joke': 'This is a joke about ice cream and cats'}}
+  ```
+</Accordion>
+
+## 流式传输多种模式
+
+:::python
+你可以传递一个列表作为 `stream_mode` 参数，以同时流式传输多种模式。
+
+流式输出将是 `(mode, chunk)` 元组，其中 `mode` 是流式模式的名称，`chunk` 是该模式流式传输的数据。
+
+```python
+for mode, chunk in graph.stream(inputs, stream_mode=["updates", "custom"]):
+    print(chunk)
+```
+:::
+
+:::js
+你可以传递一个数组作为 `streamMode` 参数，以同时流式传输多种模式。
+
+流式输出将是 `[mode, chunk]` 元组，其中 `mode` 是流式模式的名称，`chunk` 是该模式流式传输的数据。
+
+```typescript
+for await (const [mode, chunk] of await graph.stream(inputs, {
+  streamMode: ["updates", "custom"],
+})) {
+  console.log(chunk);
+}
+```
+:::
+
+## 流式传输图状态
+
+使用流式模式 `updates` 和 `values` 在图执行时流式传输其状态。
+
+* `updates` 流式传输图每一步之后状态的**更新**。
+* `values` 流式传输图每一步之后状态的**完整值**。
+
+:::python
+```python
+from typing import TypedDict
+from langgraph.graph import StateGraph, START, END
+
+
+class State(TypedDict):
+  topic: str
+  joke: str
+
+
+def refine_topic(state: State):
+    return {"topic": state["topic"] + " and cats"}
+
+
+def generate_joke(state: State):
+    return {"joke": f"This is a joke about {state['topic']}"}
+
+graph = (
+  StateGraph(State)
+  .add_node(refine_topic)
+  .add_node(generate_joke)
+  .add_edge(START, "refine_topic")
+  .add_edge("refine_topic", "generate_joke")
+  .add_edge("generate_joke", END)
+  .compile()
+)
+```
+:::
+
+:::js
+```typescript
+import { StateGraph, START, END } from "@langchain/langgraph";
+import * as z from "zod";
+
+const State = z.object({
+  topic: z.string(),
+  joke: z.string(),
+});
+
+const graph = new StateGraph(State)
+  .addNode("refineTopic", (state) => {
+    return { topic: state.topic + " and cats" };
+  })
+  .addNode("generateJoke", (state) => {
+    return { joke: `This is a joke about ${state.topic}` };
+  })
+  .addEdge(START, "refineTopic")
+  .addEdge("refineTopic", "generateJoke")
+  .addEdge("generateJoke", END)
+  .compile();
+```
+:::
+
+<Tabs>
+    <Tab title="updates">
+    使用此模式仅流式传输每个步骤后节点返回的**状态更新**。流式输出包括节点名称和更新内容。
+
+    :::python
+    ```python
+    for chunk in graph.stream(
+        {"topic": "ice cream"},
+        stream_mode="updates",  # [!code highlight]
+    ):
+        print(chunk)
+    ```
+    :::
+
+    :::js
+    ```typescript
+    for await (const chunk of await graph.stream(
+      { topic: "ice cream" },
+      { streamMode: "updates" }
+    )) {
+      console.log(chunk);
+    }
+    ```
+    :::
+    </Tab>
+    <Tab title="values">
+    使用此模式流式传输每个步骤后图的**完整状态**。
+
+    :::python
+    ```python
+    for chunk in graph.stream(
+        {"topic": "ice cream"},
+        stream_mode="values",  # [!code highlight]
+    ):
+        print(chunk)
+    ```
+    :::
+
+    :::js
+    ```typescript
+    for await (const chunk of await graph.stream(
+      { topic: "ice cream" },
+      { streamMode: "values" }
+    )) {
+      console.log(chunk);
+    }
+    ```
+    :::
+    </Tab>
+</Tabs>
+
+## 流式传输子图输出
+
+:::python
+要在流式输出中包含[子图](/oss/langgraph/use-subgraphs)的输出，你可以在父图的 `.stream()` 方法中设置 `subgraphs=True`。这将同时流式传输父图和任何子图的输出。
+
+输出将作为元组 `(namespace, data)` 流式传输，其中 `namespace` 是一个包含调用子图的节点路径的元组，例如 `("parent_node:<task_id>", "child_node:<task_id>")`。
+
+```python
+for chunk in graph.stream(
+    {"foo": "foo"},
+    # 设置 subgraphs=True 以流式传输子图的输出
+    subgraphs=True,  # [!code highlight]
+    stream_mode="updates",
+):
+    print(chunk)
+```
+:::
+
+:::js
+要在流式输出中包含[子图](/oss/langgraph/use-subgraphs)的输出，你可以在父图的 `.stream()` 方法中设置 `subgraphs: true`。这将同时流式传输父图和任何子图的输出。
+
+输出将作为元组 `[namespace, data]` 流式传输，其中 `namespace` 是一个包含调用子图的节点路径的元组，例如 `["parent_node:<task_id>", "child_node:<task_id>"]`。
+
+```typescript
+for await (const chunk of await graph.stream(
+  { foo: "foo" },
+  {
+    // 设置 subgraphs: true 以流式传输子图的输出
+    subgraphs: true,
+    streamMode: "updates",
+  }
+)) {
+  console.log(chunk);
+}
+```
+:::
+
+<Accordion title="扩展示例：从子图流式传输">
+  :::python
+  ```python
+  from langgraph.graph import START, StateGraph
+  from typing import TypedDict
+
+  # 定义子图
+  class SubgraphState(TypedDict):
+      foo: str  # 注意此键与父图状态共享
+      bar: str
+
+  def subgraph_node_1(state: SubgraphState):
+      return {"bar": "bar"}
+
+  def subgraph_node_2(state: SubgraphState):
+      return {"foo": state["foo"] + state["bar"]}
+
+  subgraph_builder = StateGraph(SubgraphState)
+  subgraph_builder.add_node(subgraph_node_1)
+  subgraph_builder.add_node(subgraph_node_2)
+  subgraph_builder.add_edge(START, "subgraph_node_1")
+  subgraph_builder.add_edge("subgraph_node_1", "subgraph_node_2")
+  subgraph = subgraph_builder.compile()
+
+  # 定义父图
+  class ParentState(TypedDict):
+      foo: str
+
+  def node_1(state: ParentState):
+      return {"foo": "hi! " + state["foo"]}
+
+  builder = StateGraph(ParentState)
+  builder.add_node("node_1", node_1)
+  builder.add_node("node_2", subgraph)
+  builder.add_edge(START, "node_1")
+  builder.add_edge("node_1", "node_2")
+  graph = builder.compile()
+
+  for chunk in graph.stream(
+      {"foo": "foo"},
+      stream_mode="updates",
+      # 设置 subgraphs=True 以流式传输子图的输出
+      subgraphs=True,  # [!code highlight]
+  ):
+      print(chunk)
+  ```
+  :::
+
+  :::js
+  ```typescript
+  import { StateGraph, START } from "@langchain/langgraph";
+  import * as z from "zod";
+
+  // 定义子图
+  const SubgraphState = z.object({
+    foo: z.string(), // 注意此键与父图状态共享
+    bar: z.string(),
+  });
+
+  const subgraphBuilder = new StateGraph(SubgraphState)
+    .addNode("subgraphNode1", (state) => {
+      return { bar: "bar" };
+    })
+    .addNode("subgraphNode2", (state) => {
+      return { foo: state.foo + state.bar };
+    })
+    .addEdge(START, "subgraphNode1")
+    .addEdge("subgraphNode1", "subgraphNode2");
+  const subgraph = subgraphBuilder.compile();
+
+  // 定义父图
+  const ParentState = z.object({
+    foo: z.string(),
+  });
+
+  const builder = new StateGraph(ParentState)
+    .addNode("node1", (state) => {
+      return { foo: "hi! " + state.foo };
+    })
+    .addNode("node2", subgraph)
+    .addEdge(START, "node1")
+    .addEdge("node1", "node2");
+  const graph = builder.compile();
+
+  for await (const chunk of await graph.stream(
+    { foo: "foo" },
+    {
+      streamMode: "updates",
+      // 设置 subgraphs: true 以流式传输子图的输出
+      subgraphs: true,
+    }
+  )) {
+    console.log(chunk);
+  }
+  ```
+  :::
+
+  :::python
+  ```
+  ((), {'node_1': {'foo': 'hi! foo'}})
+  (('node_2:dfddc4ba-c3c5-6887-5012-a243b5b377c2',), {'subgraph_node_1': {'bar': 'bar'}})
+  (('node_2:dfddc4ba-c3c5-6887-5012-a243b5b377c2',), {'subgraph_node_2': {'foo': 'hi! foobar'}})
+  ((), {'node_2': {'foo': 'hi! foobar'}})
+  ```
+  :::
+
+  :::js
+  ```
+  [[], {'node1': {'foo': 'hi! foo'}}]
+  [['node2:dfddc4ba-c3c5-6887-5012-a243b5b377c2'], {'subgraphNode1': {'bar': 'bar'}}]
+  [['node2:dfddc4ba-c3c5-6887-5012-a243b5b377c2'], {'subgraphNode2': {'foo': 'hi! foobar'}}]
+  [[], {'node2': {'foo': 'hi! foobar'}}]
+  ```
+  :::
+
+  **注意**，我们接收到的不仅是节点更新，还包括命名空间，它告诉我们正在从哪个图（或子图）流式传输。
+</Accordion>
+
+<a id="debug"></a>
+### 调试
+
+使用 `debug` 流式模式在图执行过程中流式传输尽可能多的信息。流式输出包括节点名称和完整状态。
+
+:::python
+```python
+for chunk in graph.stream(
+    {"topic": "ice cream"},
+    stream_mode="debug",  # [!code highlight]
+):
+    print(chunk)
+```
+:::
+
+:::js
+```typescript
+for await (const chunk of await graph.stream(
+  { topic: "ice cream" },
+  { streamMode: "debug" }
+)) {
+  console.log(chunk);
+}
+```
+:::
+
+<a id="messages"></a>
+## LLM 令牌
+
+使用 `messages` 流式模式从图的任何部分（包括节点、工具、子图或任务）**逐令牌**流式传输大语言模型（LLM）的输出。
+
+:::python
+[`messages` 模式](#supported-stream-modes)的流式输出是一个元组 `(message_chunk, metadata)`，其中：
+
+* `message_chunk`：来自 LLM 的令牌或消息片段。
+* `metadata`：一个字典，包含有关图节点和 LLM 调用的详细信息。
+
+> 如果你的 LLM 不作为 LangChain 集成提供，你可以使用 `custom` 模式来流式传输其输出。详情请参阅[与任何 LLM 一起使用](#use-with-any-llm)。
+
+<Warning>
+**Python < 3.11 异步代码需要手动配置**
+当在 Python < 3.11 中使用异步代码时，你必须显式地将 @[`RunnableConfig`] 传递给 `ainvoke()` 以启用正确的流式传输。详情请参阅[Python < 3.11 异步](#async)或升级到 Python 3.11+。
+</Warning>
+
+```python
+from dataclasses import dataclass
+
+from langchain.chat_models import init_chat_model
+from langgraph.graph import StateGraph, START
+
+
+@dataclass
+class MyState:
+    topic: str
+    joke: str = ""
+
+
+model = init_chat_model(model="gpt-4o-mini")
+
+def call_model(state: MyState):
+    """调用 LLM 生成关于某个主题的笑话"""
+    # 注意，即使 LLM 使用 .invoke 而不是

@@ -1,0 +1,397 @@
+---
+title: 持久化
+---
+LangGraph 内置了一个通过检查点器（checkpointer）实现的持久化层。当你使用检查点器编译一个图时，检查点器会在每个超级步骤（super-step）保存图状态的`检查点`。这些检查点被保存到一个`线程`中，可以在图执行后访问。因为`线程`允许在执行后访问图的状态，所以包括人在回路（human-in-the-loop）、记忆（memory）、时间旅行（time travel）和容错（fault-tolerance）在内的几个强大功能都成为可能。下面，我们将更详细地讨论这些概念。
+
+![检查点](/oss/images/checkpoints.jpg)
+
+<Info>
+**Agent Server 自动处理检查点**
+当使用 [Agent Server](/langsmith/agent-server) 时，你不需要手动实现或配置检查点器。服务器会在后台为你处理所有的持久化基础设施。
+</Info>
+
+## 线程
+
+线程是检查点器为每个保存的检查点分配的唯一 ID 或线程标识符。它包含一系列[运行](/langsmith/assistants#execution)的累积状态。当运行执行时，助手底层图的[状态](/oss/langgraph/graph-api#state)将被持久化到线程中。
+
+当使用检查点器调用图时，你**必须**在配置的`可配置`部分指定一个`thread_id`：
+
+:::python
+```python
+{"configurable": {"thread_id": "1"}}
+```
+:::
+
+:::js
+```typescript
+{
+  configurable: {
+    thread_id: "1";
+  }
+}
+```
+:::
+
+可以检索线程的当前和历史状态。为了持久化状态，必须在执行运行之前创建线程。LangSmith API 提供了几个用于创建和管理线程及线程状态的端点。更多详情请参阅 [API 参考](https://reference.langchain.com/python/langsmith/)。
+
+检查点器使用`thread_id`作为存储和检索检查点的主键。没有它，检查点器无法保存状态或在[中断](/oss/langgraph/interrupts)后恢复执行，因为检查点器使用`thread_id`来加载保存的状态。
+
+## 检查点
+
+线程在特定时间点的状态称为检查点。检查点是每个超级步骤保存的图状态快照，由`StateSnapshot`对象表示，具有以下关键属性：
+
+* `config`：与此检查点关联的配置。
+* `metadata`：与此检查点关联的元数据。
+* `values`：此时状态通道的值。
+* `next`：图中接下来要执行的节点名称的元组。
+* `tasks`：包含要执行的下一个任务信息的`PregelTask`对象元组。如果该步骤之前尝试过，它将包含错误信息。如果图是从节点内部[动态中断](/oss/langgraph/interrupts#pause-using-interrupt)的，任务将包含与中断相关的额外数据。
+
+检查点被持久化，并可用于在以后恢复线程的状态。
+
+让我们看看当调用一个简单的图时保存了哪些检查点：
+
+:::python
+```python
+from langgraph.graph import StateGraph, START, END
+from langgraph.checkpoint.memory import InMemorySaver
+from langchain_core.runnables import RunnableConfig
+from typing import Annotated
+from typing_extensions import TypedDict
+from operator import add
+
+class State(TypedDict):
+    foo: str
+    bar: Annotated[list[str], add]
+
+def node_a(state: State):
+    return {"foo": "a", "bar": ["a"]}
+
+def node_b(state: State):
+    return {"foo": "b", "bar": ["b"]}
+
+
+workflow = StateGraph(State)
+workflow.add_node(node_a)
+workflow.add_node(node_b)
+workflow.add_edge(START, "node_a")
+workflow.add_edge("node_a", "node_b")
+workflow.add_edge("node_b", END)
+
+checkpointer = InMemorySaver()
+graph = workflow.compile(checkpointer=checkpointer)
+
+config: RunnableConfig = {"configurable": {"thread_id": "1"}}
+graph.invoke({"foo": "", "bar":[]}, config)
+```
+:::
+
+:::js
+```typescript
+import { StateGraph, START, END, MemorySaver } from "@langchain/langgraph";
+import { registry } from "@langchain/langgraph/zod";
+import * as z from "zod";
+
+const State = z.object({
+  foo: z.string(),
+  bar: z.array(z.string()).register(registry, {
+    reducer: {
+      fn: (x, y) => x.concat(y),
+    },
+    default: () => [] as string[],
+  }),
+});
+
+const workflow = new StateGraph(State)
+  .addNode("nodeA", (state) => {
+    return { foo: "a", bar: ["a"] };
+  })
+  .addNode("nodeB", (state) => {
+    return { foo: "b", bar: ["b"] };
+  })
+  .addEdge(START, "nodeA")
+  .addEdge("nodeA", "nodeB")
+  .addEdge("nodeB", END);
+
+const checkpointer = new MemorySaver();
+const graph = workflow.compile({ checkpointer });
+
+const config = { configurable: { thread_id: "1" } };
+await graph.invoke({ foo: "", bar: [] }, config);
+```
+:::
+
+:::js
+```typescript
+import { StateGraph, START, END, MemorySaver } from "@langchain/langgraph";
+import { registry } from "@langchain/langgraph/zod";
+import * as z from "zod";
+
+const State = z.object({
+  foo: z.string(),
+  bar: z.array(z.string()).register(registry, {
+    reducer: {
+      fn: (x, y) => x.concat(y),
+    },
+    default: () => [] as string[],
+  }),
+});
+
+const workflow = new StateGraph(State)
+  .addNode("nodeA", (state) => {
+    return { foo: "a", bar: ["a"] };
+  })
+  .addNode("nodeB", (state) => {
+    return { foo: "b", bar: ["b"] };
+  })
+  .addEdge(START, "nodeA")
+  .addEdge("nodeA", "nodeB")
+  .addEdge("nodeB", END);
+
+const checkpointer = new MemorySaver();
+const graph = workflow.compile({ checkpointer });
+
+const config = { configurable: { thread_id: "1" } };
+await graph.invoke({ foo: "" }, config);
+```
+:::
+
+:::python
+运行图后，我们预计会看到恰好 4 个检查点：
+
+* 空检查点，@[`START`] 作为下一个要执行的节点
+* 包含用户输入 `{'foo': '', 'bar': []}` 且 `node_a` 作为下一个要执行节点的检查点
+* 包含 `node_a` 输出 `{'foo': 'a', 'bar': ['a']}` 且 `node_b` 作为下一个要执行节点的检查点
+* 包含 `node_b` 输出 `{'foo': 'b', 'bar': ['a', 'b']}` 且没有下一个要执行节点的检查点
+
+请注意，`bar` 通道的值包含两个节点的输出，因为我们为 `bar` 通道定义了一个归约器（reducer）。
+:::
+
+:::js
+运行图后，我们预计会看到恰好 4 个检查点：
+
+* 空检查点，@[`START`] 作为下一个要执行的节点
+* 包含用户输入 `{'foo': '', 'bar': []}` 且 `nodeA` 作为下一个要执行节点的检查点
+* 包含 `nodeA` 输出 `{'foo': 'a', 'bar': ['a']}` 且 `nodeB` 作为下一个要执行节点的检查点
+* 包含 `nodeB` 输出 `{'foo': 'b', 'bar': ['a', 'b']}` 且没有下一个要执行节点的检查点
+
+请注意，`bar` 通道的值包含两个节点的输出，因为我们为 `bar` 通道定义了一个归约器（reducer）。
+:::
+
+### 获取状态
+
+:::python
+与保存的图状态交互时，你**必须**指定一个[线程标识符](#threads)。你可以通过调用 `graph.get_state(config)` 来查看图的*最新*状态。这将返回一个 `StateSnapshot` 对象，该对象对应于配置中提供的线程 ID 关联的最新检查点，或者如果提供了，则对应于该线程的特定检查点 ID 关联的检查点。
+
+```python
+# 获取最新的状态快照
+config = {"configurable": {"thread_id": "1"}}
+graph.get_state(config)
+
+# 获取特定 checkpoint_id 的状态快照
+config = {"configurable": {"thread_id": "1", "checkpoint_id": "1ef663ba-28fe-6528-8002-5a559208592c"}}
+graph.get_state(config)
+```
+:::
+
+:::js
+与保存的图状态交互时，你**必须**指定一个[线程标识符](#threads)。你可以通过调用 `graph.getState(config)` 来查看图的*最新*状态。这将返回一个 `StateSnapshot` 对象，该对象对应于配置中提供的线程 ID 关联的最新检查点，或者如果提供了，则对应于该线程的特定检查点 ID 关联的检查点。
+
+```typescript
+// 获取最新的状态快照
+const config = { configurable: { thread_id: "1" } };
+await graph.getState(config);
+
+// 获取特定 checkpoint_id 的状态快照
+const config = {
+  configurable: {
+    thread_id: "1",
+    checkpoint_id: "1ef663ba-28fe-6528-8002-5a559208592c",
+  },
+};
+await graph.getState(config);
+```
+:::
+
+:::python
+在我们的示例中，`get_state` 的输出将如下所示：
+
+```
+StateSnapshot(
+    values={'foo': 'b', 'bar': ['a', 'b']},
+    next=(),
+    config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28fe-6528-8002-5a559208592c'}},
+    metadata={'source': 'loop', 'writes': {'node_b': {'foo': 'b', 'bar': ['b']}}, 'step': 2},
+    created_at='2024-08-29T19:19:38.821749+00:00',
+    parent_config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28f9-6ec4-8001-31981c2c39f8'}}, tasks=()
+)
+```
+:::
+
+:::js
+在我们的示例中，`getState` 的输出将如下所示：
+
+```
+StateSnapshot {
+  values: { foo: 'b', bar: ['a', 'b'] },
+  next: [],
+  config: {
+    configurable: {
+      thread_id: '1',
+      checkpoint_ns: '',
+      checkpoint_id: '1ef663ba-28fe-6528-8002-5a559208592c'
+    }
+  },
+  metadata: {
+    source: 'loop',
+    writes: { nodeB: { foo: 'b', bar: ['b'] } },
+    step: 2
+  },
+  createdAt: '2024-08-29T19:19:38.821749+00:00',
+  parentConfig: {
+    configurable: {
+      thread_id: '1',
+      checkpoint_ns: '',
+      checkpoint_id: '1ef663ba-28f9-6ec4-8001-31981c2c39f8'
+    }
+  },
+  tasks: []
+}
+```
+:::
+
+### 获取状态历史
+
+:::python
+你可以通过调用 @[`graph.get_state_history(config)`][get_state_history] 来获取给定线程的图执行完整历史。这将返回与配置中提供的线程 ID 关联的 `StateSnapshot` 对象列表。重要的是，检查点将按时间顺序排列，最新的检查点 / `StateSnapshot` 位于列表首位。
+
+```python
+config = {"configurable": {"thread_id": "1"}}
+list(graph.get_state_history(config))
+```
+:::
+
+:::js
+你可以通过调用 `graph.getStateHistory(config)` 来获取给定线程的图执行完整历史。这将返回与配置中提供的线程 ID 关联的 `StateSnapshot` 对象列表。重要的是，检查点将按时间顺序排列，最新的检查点 / `StateSnapshot` 位于列表首位。
+
+```typescript
+const config = { configurable: { thread_id: "1" } };
+for await (const state of graph.getStateHistory(config)) {
+  console.log(state);
+}
+```
+:::
+
+:::python
+在我们的示例中，@[`get_state_history`] 的输出将如下所示：
+
+```
+[
+    StateSnapshot(
+        values={'foo': 'b', 'bar': ['a', 'b']},
+        next=(),
+        config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28fe-6528-8002-5a559208592c'}},
+        metadata={'source': 'loop', 'writes': {'node_b': {'foo': 'b', 'bar': ['b']}}, 'step': 2},
+        created_at='2024-08-29T19:19:38.821749+00:00',
+        parent_config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28f9-6ec4-8001-31981c2c39f8'}},
+        tasks=(),
+    ),
+    StateSnapshot(
+        values={'foo': 'a', 'bar': ['a']},
+        next=('node_b',),
+        config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28f9-6ec4-8001-31981c2c39f8'}},
+        metadata={'source': 'loop', 'writes': {'node_a': {'foo': 'a', 'bar': ['a']}}, 'step': 1},
+        created_at='2024-08-29T19:19:38.819946+00:00',
+        parent_config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28f4-6b4a-8000-ca575a13d36a'}},
+        tasks=(PregelTask(id='6fb7314f-f114-5413-a1f3-d37dfe98ff44', name='node_b', error=None, interrupts=()),),
+    ),
+    StateSnapshot(
+        values={'foo': '', 'bar': []},
+        next=('node_a',),
+        config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28f4-6b4a-8000-ca575a13d36a'}},
+        metadata={'source': 'loop', 'writes': None, 'step': 0},
+        created_at='2024-08-29T19:19:38.817813+00:00',
+        parent_config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28f0-6c66-bfff-6723431e8481'}},
+        tasks=(PregelTask(id='f1b14528-5ee5-579c-949b-23ef9bfbed58', name='node_a', error=None, interrupts=()),),
+    ),
+    StateSnapshot(
+        values={'bar': []},
+        next=('__start__',),
+        config={'configurable': {'thread_id': '1', 'checkpoint_ns': '', 'checkpoint_id': '1ef663ba-28f0-6c66-bfff-6723431e8481'}},
+        metadata={'source': 'input', 'writes': {'foo': ''}, 'step': -1},
+        created_at='2024-08-29T19:19:38.816205+00:00',
+        parent_config=None,
+        tasks=(PregelTask(id='6d27aa2e-d72b-5504-a36f-8620e54a76dd', name='__start__', error=None, interrupts=()),),
+    )
+]
+```
+:::
+
+:::js
+在我们的示例中，`getStateHistory` 的输出将如下所示：
+
+```
+[
+  StateSnapshot {
+    values: { foo: 'b', bar: ['a', 'b'] },
+    next: [],
+    config: {
+      configurable: {
+        thread_id: '1',
+        checkpoint_ns: '',
+        checkpoint_id: '1ef663ba-28fe-6528-8002-5a559208592c'
+      }
+    },
+    metadata: {
+      source: 'loop',
+      writes: { nodeB: { foo: 'b', bar: ['b'] } },
+      step: 2
+    },
+    createdAt: '2024-08-29T19:19:38.821749+00:00',
+    parentConfig: {
+      configurable: {
+        thread_id: '1',
+        checkpoint_ns: '',
+        checkpoint_id: '1ef663ba-28f9-6ec4-8001-31981c2c39f8'
+      }
+    },
+    tasks: []
+  },
+  StateSnapshot {
+    values: { foo: 'a', bar: ['a'] },
+    next: ['nodeB'],
+    config: {
+      configurable: {
+        thread_id: '1',
+        checkpoint_ns: '',
+        checkpoint_id: '1ef663ba-28f9-6ec4-8001-31981c2c39f8'
+      }
+    },
+    metadata: {
+      source: 'loop',
+      writes: { nodeA: { foo: 'a', bar: ['a'] } },
+      step: 1
+    },
+    createdAt: '2024-08-29T19:19:38.819946+00:00',
+    parentConfig: {
+      configurable: {
+        thread_id: '1',
+        checkpoint_ns: '',
+        checkpoint_id: '1ef663ba-28f4-6b4a-8000-ca575a13d36a'
+      }
+    },
+    tasks: [
+      PregelTask {
+        id: '6fb7314f-f114-5413-a1f3-d37dfe98ff44',
+        name: 'nodeB',
+        error: null,
+        interrupts: []
+      }
+    ]
+  },
+  StateSnapshot {
+    values: { foo: '', bar: [] },
+    next: ['node_a'],
+    config: {
+      configurable: {
+        thread_id: '1',
+        checkpoint_ns:

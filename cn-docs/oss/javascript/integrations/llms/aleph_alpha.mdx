@@ -1,0 +1,36 @@
+---
+title: AlephAlpha
+---
+LangChain.js 支持 AlephAlpha 的 Luminous 系列模型。您需要[在其网站上](https://www.aleph-alpha.com/)注册一个 API 密钥。
+
+以下是一个示例：
+
+<Tip>
+关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/langchain/install)。
+</Tip>
+
+```bash npm
+npm install @langchain/community @langchain/core
+```
+
+```typescript
+import { AlephAlpha } from "@langchain/community/llms/aleph_alpha";
+
+const model = new AlephAlpha({
+  aleph_alpha_api_key: "YOUR_ALEPH_ALPHA_API_KEY", // 或者设置为 process.env.ALEPH_ALPHA_API_KEY
+});
+
+const res = await model.invoke(`Is cereal soup?`);
+
+console.log({ res });
+
+/*
+  {
+    res: "\nIs soup a cereal? I don’t think so, but it is delicious."
+  }
+ */
+```
+
+## 相关链接
+
+- [模型指南](/oss/langchain/models)

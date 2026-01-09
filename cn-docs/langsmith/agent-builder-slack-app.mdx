@@ -1,0 +1,73 @@
+---
+title: LangSmith 代理构建器应用（Slack版）
+description: 将 LangSmith Agent Builder 连接到您的 Slack 工作区，以驱动 AI 智能体。
+sidebarTitle: Slack app
+---
+LangSmith Agent Builder Slack 应用可将您的智能体与 Slack 集成，在您的 Slack 工作区内实现安全、上下文感知的通信。
+
+安装后，您的智能体将能够：
+
+- 发送直接消息。
+- 在频道中发布消息。
+- 读取线程消息。
+- 在线程中回复。
+- 读取对话历史记录。
+
+## 如何安装
+
+要安装 LangSmith Agent Builder for Slack：
+
+1. 在您的 [LangSmith 工作区](https://smith.langchain.com) 中导航到 Agent Builder。
+2. 创建或编辑一个智能体。
+3. 添加 Slack 作为触发器或启用 Slack 工具。
+4. 根据提示，授权 Slack 连接。
+5. 按照 OAuth 流程授予对您 Slack 工作区的权限。
+
+完成授权后，应用将自动安装，_但_您仍需要将应用邀请到您希望使用它的特定频道中。
+
+要邀请 Slack 机器人，您可以发送以下消息：
+```txt
+/invite @LangSmith Agent Builder
+```
+
+## 权限
+
+LangSmith Agent Builder 需要对您的 Slack 工作区拥有以下权限：
+
+- **发送消息** - 发送直接消息并在频道中发布消息
+- **读取消息** - 读取频道历史记录和线程消息
+- **查看频道** - 访问基本的频道信息
+- **查看用户** - 查找用户信息以进行消息传递
+
+这些权限使智能体能够在您的 Slack 工作区内进行有效通信。
+
+## 隐私政策
+
+LangSmith Agent Builder Slack 应用根据我们的隐私政策收集、管理和存储第三方数据。有关数据处理方式的完整详细信息，请参阅 [我们的隐私政策](https://www.langchain.com/privacy-policy)。
+
+## AI 组件与免责声明
+
+LangSmith Agent Builder 使用大型语言模型 (LLMs) 来驱动在 Slack 中与用户交互的 AI 智能体。虽然这些模型功能强大，但它们有可能生成不准确的响应、摘要或其他输出。
+
+### 您需要了解的事项
+
+- **AI 生成的内容**：智能体的所有响应均由 AI 生成，可能包含错误或不准确之处。请务必核实重要信息。
+- **数据使用**：Slack 数据不用于训练 LLMs。您的工作区数据保持私密，仅用于提供智能体功能。
+- **透明度**：如上文权限部分所述，Agent Builder 对其添加到您的工作区后将采取的操作是透明的。
+
+### 技术细节
+
+Agent Builder 采用以下 AI 方法：
+
+- **模型**：使用通过 LangSmith 平台提供的 LLMs
+- **数据保留**：用户数据根据 LangSmith 的数据保留政策保留
+- **数据租户**：数据根据您的 LangSmith 组织设置进行处理
+- **数据驻留**：数据驻留遵循您的 LangSmith 配置
+
+有关 AI 安全性和最佳实践的更多信息，请参阅 [Agent Builder 文档](/langsmith/agent-builder)。
+
+## 定价
+
+LangSmith Agent Builder Slack 应用本身没有直接定价。但是，智能体运行和追踪会根据您组织的计划通过 [LangSmith 平台](https://smith.langchain.com) 计费。
+
+有关当前定价信息，请参阅 [LangSmith 定价页面](https://www.langchain.com/pricing)。

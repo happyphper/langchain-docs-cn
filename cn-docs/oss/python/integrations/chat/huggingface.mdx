@@ -1,0 +1,246 @@
+---
+title: ChatHuggingFace
+---
+这将帮助你开始使用 `langchain_huggingface` [聊天模型](/oss/langchain/models)。有关 `ChatHuggingFace` 所有功能和配置的详细文档，请前往 [API 参考](https://python.langchain.com/api_reference/huggingface/chat_models/langchain_huggingface.chat_models.huggingface.ChatHuggingFace.html)。有关 Hugging Face 支持的模型列表，请查看[此页面](https://huggingface.co/models)。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | JS 支持 | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| [ChatHuggingFace](https://python.langchain.com/api_reference/huggingface/chat_models/langchain_huggingface.chat_models.huggingface.ChatHuggingFace.html) | [langchain-huggingface](https://python.langchain.com/api_reference/huggingface/index.html) | beta | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain_huggingface?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain_huggingface?style=flat-square&label=%20) |
+
+### 模型特性
+
+| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+
+## 设置
+
+要访问 Hugging Face 模型，你需要创建一个 Hugging Face 账户，获取一个 API 密钥，并安装 `langchain-huggingface` 集成包。
+
+### 凭证
+
+生成一个 [Hugging Face 访问令牌](https://huggingface.co/docs/hub/security-tokens) 并将其存储为环境变量：`HUGGINGFACEHUB_API_TOKEN`。
+
+```python
+import getpass
+import os
+
+if not os.getenv("HUGGINGFACEHUB_API_TOKEN"):
+    os.environ["HUGGINGFACEHUB_API_TOKEN"] = getpass.getpass("Enter your token: ")
+```
+
+### 安装
+
+| 类 | 包 | 可序列化 | JS 支持 | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| [ChatHuggingFace](https://python.langchain.com/api_reference/huggingface/chat_models/langchain_huggingface.chat_models.huggingface.ChatHuggingFace.html) | [langchain-huggingface](https://python.langchain.com/api_reference/huggingface/index.html) | ❌ | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain_huggingface?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain_huggingface?style=flat-square&label=%20) |
+
+### 模型特性
+
+| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+## 设置
+
+要访问 `langchain_huggingface` 模型，你需要创建一个 `Hugging Face` 账户，获取一个 API 密钥，并安装 `langchain-huggingface` 集成包。
+
+### 凭证
+
+你需要将 [Hugging Face 访问令牌](https://huggingface.co/docs/hub/security-tokens) 保存为环境变量：`HUGGINGFACEHUB_API_TOKEN`。
+
+```python
+import getpass
+import os
+
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = getpass.getpass(
+    "Enter your Hugging Face API key: "
+)
+```
+
+```python
+pip install -qU  langchain-huggingface text-generation transformers google-search-results numexpr langchainhub sentencepiece jinja2 bitsandbytes accelerate
+```
+
+## 实例化
+
+你可以通过两种不同的方式实例化 `ChatHuggingFace` 模型，要么通过 `HuggingFaceEndpoint`，要么通过 `HuggingFacePipeline`。
+
+### `HuggingFaceEndpoint`
+
+```python
+from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+
+llm = HuggingFaceEndpoint(
+    repo_id="deepseek-ai/DeepSeek-R1-0528",
+    task="text-generation",
+    max_new_tokens=512,
+    do_sample=False,
+    repetition_penalty=1.03,
+    provider="auto",  # let Hugging Face choose the best provider for you
+)
+
+chat_model = ChatHuggingFace(llm=llm)
+```
+
+```text
+The token has not been saved to the git credentials helper. Pass `add_to_git_credential=True` in this function directly or `--add-to-git-credential` if using via `huggingface-cli` if you want to set the git credential as well.
+Token is valid (permission: fineGrained).
+Your token has been saved to /Users/isaachershenson/.cache/huggingface/token
+Login successful
+```
+
+现在让我们利用 [推理提供商](https://huggingface.co/docs/inference-providers) 在特定的第三方提供商上运行模型
+
+```python
+llm = HuggingFaceEndpoint(
+    repo_id="deepseek-ai/DeepSeek-R1-0528",
+    task="text-generation",
+    provider="hyperbolic",  # set your provider here
+    # provider="nebius",
+    # provider="together",
+)
+
+chat_model = ChatHuggingFace(llm=llm)
+```
+
+### `HuggingFacePipeline`
+
+```python
+from langchain_huggingface import ChatHuggingFace, HuggingFacePipeline
+
+llm = HuggingFacePipeline.from_model_id(
+    model_id="HuggingFaceH4/zephyr-7b-beta",
+    task="text-generation",
+    pipeline_kwargs=dict(
+        max_new_tokens=512,
+        do_sample=False,
+        repetition_penalty=1.03,
+    ),
+)
+
+chat_model = ChatHuggingFace(llm=llm)
+```
+
+```text
+config.json:   0%|          | 0.00/638 [00:00<?, ?B/s]
+```
+
+```text
+model.safetensors.index.json:   0%|          | 0.00/23.9k [00:00<?, ?B/s]
+```
+
+```text
+Downloading shards:   0%|          | 0/8 [00:00<?, ?it/s]
+```
+
+```text
+model-00001-of-00008.safetensors:   0%|          | 0.00/1.89G [00:00<?, ?B/s]
+```
+
+```text
+model-00002-of-00008.safetensors:   0%|          | 0.00/1.95G [00:00<?, ?B/s]
+```
+
+```text
+model-00003-of-00008.safetensors:   0%|          | 0.00/1.98G [00:00<?, ?B/s]
+```
+
+```text
+model-00004-of-00008.safetensors:   0%|          | 0.00/1.95G [00:00<?, ?B/s]
+```
+
+```text
+model-00005-of-00008.safetensors:   0%|          | 0.00/1.98G [00:00<?, ?B/s]
+```
+
+```text
+model-00006-of-00008.safetensors:   0%|          | 0.00/1.95G [00:00<?, ?B/s]
+```
+
+```text
+model-00007-of-00008.safetensors:   0%|          | 0.00/1.98G [00:00<?, ?B/s]
+```
+
+```text
+model-00008-of-00008.safetensors:   0%|          | 0.00/816M [00:00<?, ?B/s]
+```
+
+```text
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]
+```
+
+```text
+generation_config.json:   0%|          | 0.00/111 [00:00<?, ?B/s]
+```
+
+### 使用量化实例化
+
+要运行模型的量化版本，你可以指定一个 `bitsandbytes` 量化配置，如下所示：
+
+```python
+from transformers import BitsAndBytesConfig
+
+quantization_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype="float16",
+    bnb_4bit_use_double_quant=True,
+)
+```
+
+并将其作为 `model_kwargs` 的一部分传递给 `HuggingFacePipeline`：
+
+```python
+llm = HuggingFacePipeline.from_model_id(
+    model_id="HuggingFaceH4/zephyr-7b-beta",
+    task="text-generation",
+    pipeline_kwargs=dict(
+        max_new_tokens=512,
+        do_sample=False,
+        repetition_penalty=1.03,
+        return_full_text=False,
+    ),
+    model_kwargs={"quantization_config": quantization_config},
+)
+
+chat_model = ChatHuggingFace(llm=llm)
+```
+
+## 调用
+
+```python
+from langchain.messages import (
+    HumanMessage,
+    SystemMessage,
+)
+
+messages = [
+    SystemMessage(content="You're a helpful assistant"),
+    HumanMessage(
+        content="What happens when an unstoppable force meets an immovable object?"
+    ),
+]
+
+ai_msg = chat_model.invoke(messages)
+```
+
+```python
+print(ai_msg.content)
+```
+
+```text
+According to the popular phrase and hypothetical scenario, when an unstoppable force meets an immovable object, a paradoxical situation arises as both forces are seemingly contradictory. On one hand, an unstoppable force is an entity that cannot be stopped or prevented from moving forward, while on the other hand, an immovable object is something that cannot be moved or displaced from its position.
+
+In this scenario, it is un
+```
+
+---
+
+## API 参考
+
+有关 `ChatHuggingFace` 所有功能和配置的详细文档，请前往 API 参考：[python.langchain.com/api_reference/huggingface/chat_models/langchain_huggingface.chat_models.huggingface.ChatHuggingFace.html](https://python.langchain.com/api_reference/huggingface/chat_models/langchain_huggingface.chat_models.huggingface.ChatHuggingFace.html)

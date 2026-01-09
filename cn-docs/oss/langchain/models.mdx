@@ -1,0 +1,426 @@
+---
+title: 模型
+---
+import ChatModelTabsPy from '/snippets/chat-model-tabs.mdx';
+import ChatModelTabsJS from '/snippets/chat-model-tabs-js.mdx';
+
+[大语言模型 (LLMs)](https://en.wikipedia.org/wiki/Large_language_model) 是强大的人工智能工具，能够像人类一样理解和生成文本。它们功能多样，足以编写内容、翻译语言、总结信息以及回答问题，而无需为每项任务进行专门训练。
+
+除了文本生成，许多模型还支持：
+
+* <Icon icon="hammer" size={16} /> [工具调用](#tool-calling) - 调用外部工具（如数据库查询或 API 调用）并在其响应中使用结果。
+* <Icon icon="shapes" size={16} /> [结构化输出](#structured-output) - 模型的响应被约束为遵循定义的格式。
+* <Icon icon="image" size={16} /> [多模态](#multimodal) - 处理和返回文本以外的数据，如图像、音频和视频。
+* <Icon icon="brain" size={16} /> [推理](#reasoning) - 模型执行多步推理以得出结论。
+
+模型是 [智能体 (agents)](/oss/langchain/agents) 的推理引擎。它们驱动智能体的决策过程，决定调用哪些工具、如何解释结果以及何时提供最终答案。
+
+您选择的模型的质量和能力直接影响智能体的基线可靠性和性能。不同的模型擅长不同的任务——有些更擅长遵循复杂指令，有些更擅长结构化推理，还有一些支持更大的上下文窗口以处理更多信息。
+
+LangChain 的标准模型接口让您可以访问许多不同的提供商集成，这使得您可以轻松地试验模型并在模型之间切换，以找到最适合您用例的模型。
+
+<Info>
+    有关特定于提供商（provider-specific）的集成信息和功能，请参阅提供商的 [聊天模型页面](/oss/integrations/chat)。
+</Info>
+
+## 基本用法
+
+模型可以通过两种方式使用：
+
+1.  **与智能体一起使用** - 在创建 [智能体 (agent)](/oss/langchain/agents#model) 时可以动态指定模型。
+2.  **独立使用** - 模型可以直接调用（在智能体循环之外），用于文本生成、分类或提取等任务，而无需智能体框架。
+
+相同的模型接口在这两种上下文中都有效，这为您提供了灵活性，可以从简单开始，并根据需要扩展到更复杂的基于智能体的工作流。
+
+### 初始化模型
+
+:::python
+在 LangChain 中开始使用独立模型的最简单方法是使用 @[`init_chat_model`] 从您选择的聊天模型提供商初始化一个模型（示例如下）：
+
+<ChatModelTabsPy />
+```python
+response = model.invoke("Why do parrots talk?")
+```
+
+有关更多详细信息，包括如何传递模型 [参数](#parameters) 的信息，请参阅 @[`init_chat_model`][init_chat_model]。
+:::
+:::js
+在 LangChain 中开始使用独立模型的最简单方法是使用 `initChatModel` 从您选择的 [聊天模型提供商](/oss/integrations/chat) 初始化一个模型（示例如下）：
+
+<ChatModelTabsJS />
+```typescript
+const response = await model.invoke("Why do parrots talk?");
+```
+有关更多详细信息，包括如何传递模型 [参数](#parameters) 的信息，请参阅 @[`initChatModel`][initChatModel]。
+:::
+
+### 支持的模型
+
+LangChain 支持所有主要的模型提供商，包括 OpenAI、Anthropic、Google、Azure、AWS Bedrock 等。每个提供商都提供具有不同功能的各种模型。有关 LangChain 中支持的模型的完整列表，请参阅 [集成页面](/oss/integrations/providers/overview)。
+
+### 关键方法
+
+<Card title="Invoke" href="#invoke" icon="paper-plane" arrow="true" horizontal>
+    模型接收消息作为输入，并在生成完整响应后输出消息。
+</Card>
+<Card title="Stream" href="#stream" icon="tower-broadcast" arrow="true" horizontal>
+    调用模型，但实时流式传输生成的输出。
+</Card>
+<Card title="Batch" href="#batch" icon="grip" arrow="true" horizontal>
+    批量向模型发送多个请求以提高处理效率。
+</Card>
+
+<Info>
+    除了聊天模型，LangChain 还支持其他相关技术，例如嵌入模型和向量存储。详情请参阅 [集成页面](/oss/integrations/providers/overview)。
+</Info>
+
+## 参数
+
+聊天模型接收可用于配置其行为的参数。支持的完整参数集因模型和提供商而异，但标准参数包括：
+
+<ParamField body="model" type="string" required>
+   您希望与提供商一起使用的特定模型的名称或标识符。您也可以使用 `{model_provider}:{model}` 格式在单个参数中同时指定模型及其提供商，例如 `'openai:o1'`。
+</ParamField>
+
+:::python
+<ParamField body="api_key" type="string">
+    用于向模型提供商进行身份验证所需的密钥。通常在您注册访问模型时颁发。通常通过设置 <Tooltip tip="一个其值在程序外部设置的变量，通常通过操作系统或微服务的内置功能实现。">环境变量</Tooltip> 来访问。
+</ParamField>
+:::
+:::js
+<ParamField body="apiKey" type="string">
+    用于向模型提供商进行身份验证所需的密钥。通常在您注册访问模型时颁发。通常通过设置 <Tooltip tip="一个其值在程序外部设置的变量，通常通过操作系统或微服务的内置功能实现。">环境变量</Tooltip> 来访问。
+</ParamField>
+:::
+
+<ParamField body="temperature" type="number">
+    控制模型输出的随机性。数值越高，响应越有创意；数值越低，响应越确定。
+</ParamField>
+
+:::python
+<ParamField body="max_tokens" type="number">
+    限制响应中的 <Tooltip tip="模型读取和生成的基本单位。提供商可能以不同方式定义它们，但通常它们可以表示一个完整的词或词的一部分。">令牌 (tokens)</Tooltip> 总数，有效控制输出的长度。
+</ParamField>
+:::
+:::js
+<ParamField body="maxTokens" type="number">
+    限制响应中的 <Tooltip tip="模型读取和生成的基本单位。提供商可能以不同方式定义它们，但通常它们可以表示一个完整的词或词的一部分。">令牌 (tokens)</Tooltip> 总数，有效控制输出的长度。
+</ParamField>
+:::
+
+<ParamField body="timeout" type="number">
+    在取消请求之前等待模型响应的最长时间（以秒为单位）。
+</ParamField>
+
+:::python
+<ParamField body="max_retries" type="number">
+    如果请求因网络超时或速率限制等问题而失败，系统将尝试重新发送请求的最大次数。
+</ParamField>
+:::
+:::js
+<ParamField body="maxRetries" type="number">
+    如果请求因网络超时或速率限制等问题而失败，系统将尝试重新发送请求的最大次数。
+</ParamField>
+:::
+
+:::python
+使用 @[`init_chat_model`]，将这些参数作为内联的 <Tooltip tip="任意关键字参数" cta="了解更多" href="https://www.w3schools.com/python/python_args_kwargs.asp">`**kwargs`</Tooltip> 传递：
+
+```python 使用模型参数初始化
+model = init_chat_model(
+    "claude-sonnet-4-5-20250929",
+    # 传递给模型的 Kwargs：
+    temperature=0.7,
+    timeout=30,
+    max_tokens=1000,
+)
+```
+:::
+:::js
+使用 `initChatModel`，将这些参数作为内联参数传递：
+
+```typescript 使用模型参数初始化
+const model = await initChatModel(
+    "claude-sonnet-4-5-20250929",
+    { temperature: 0.7, timeout: 30, max_tokens: 1000 }
+)
+```
+:::
+
+<Info>
+    每个聊天模型集成可能具有用于控制特定于提供商功能的额外参数。
+
+    例如，@[`ChatOpenAI`] 具有 `use_responses_api` 参数，用于指示是使用 OpenAI Responses API 还是 Completions API。
+
+    要查找给定聊天模型支持的所有参数，请前往 [聊天模型集成](/oss/integrations/chat) 页面。
+</Info>
+
+---
+
+## 调用
+
+必须调用聊天模型才能生成输出。有三种主要的调用方法，每种适用于不同的用例。
+
+### Invoke
+
+调用模型最直接的方法是使用 @[`invoke()`][BaseChatModel.invoke] 并传入单个消息或消息列表。
+
+:::python
+```python 单条消息
+response = model.invoke("Why do parrots have colorful feathers?")
+print(response)
+```
+:::
+
+:::js
+```typescript 单条消息
+const response = await model.invoke("Why do parrots have colorful feathers?");
+console.log(response);
+```
+:::
+
+可以向聊天模型提供消息列表以表示对话历史记录。每条消息都有一个角色，模型使用该角色来指示对话中是谁发送了消息。
+
+有关角色、类型和内容的更多详细信息，请参阅 [消息 (messages)](/oss/langchain/messages) 指南。
+
+:::python
+```python 字典格式
+conversation = [
+    {"role": "system", "content": "You are a helpful assistant that translates English to French."},
+    {"role": "user", "content": "Translate: I love programming."},
+    {"role": "assistant", "content": "J'adore la programmation."},
+    {"role": "user", "content": "Translate: I love building applications."}
+]
+
+response = model.invoke(conversation)
+print(response)  # AIMessage("J'adore créer des applications.")
+```
+```python 消息对象
+from langchain.messages import HumanMessage, AIMessage, SystemMessage
+
+conversation = [
+    SystemMessage("You are a helpful assistant that translates English to French."),
+    HumanMessage("Translate: I love programming."),
+    AIMessage("J'adore la programmation."),
+    HumanMessage("Translate: I love building applications.")
+]
+
+response = model.invoke(conversation)
+print(response)  # AIMessage("J'adore créer des applications.")
+```
+:::
+
+:::js
+```typescript 对象格式
+const conversation = [
+  { role: "system", content: "You are a helpful assistant that translates English to French." },
+  { role: "user", content: "Translate: I love programming." },
+  { role: "assistant", content: "J'adore la programmation." },
+  { role: "user", content: "Translate: I love building applications." },
+];
+
+const response = await model.invoke(conversation);
+console.log(response);  // AIMessage("J'adore créer des applications.")
+```
+```typescript 消息对象
+import { HumanMessage, AIMessage, SystemMessage } from "langchain";
+
+const conversation = [
+  new SystemMessage("You are a helpful assistant that translates English to French."),
+  new HumanMessage("Translate: I love programming."),
+  new AIMessage("J'adore la programmation."),
+  new HumanMessage("Translate: I love building applications."),
+];
+
+const response = await model.invoke(conversation);
+console.log(response);  // AIMessage("J'adore créer des applications.")
+```
+:::
+
+<Info>
+    如果您的调用返回类型是字符串，请确保您使用的是聊天模型，而不是 LLM。传统的文本补全 LLM 直接返回字符串。LangChain 的聊天模型以 "Chat" 为前缀，例如 @[`ChatOpenAI`](/oss/integrations/chat/openai)。
+</Info>
+
+### Stream
+
+大多数模型可以在生成输出内容时流式传输。通过逐步显示输出，流式传输显著改善了用户体验，特别是对于较长的响应。
+
+调用 @[`stream()`][BaseChatModel.stream] 会返回一个 <Tooltip tip="一个逐步提供对集合中每个项目访问的对象，按顺序进行。">迭代器 (iterator)</Tooltip>，该迭代器在输出块生成时产生它们。您可以使用循环实时处理每个块：
+
+:::python
+<CodeGroup>
+    ```python 基本文本流式传输
+    for chunk in model.stream("Why do parrots have colorful feathers?"):
+        print(chunk.text, end="|", flush=True)
+    ```
+
+    ```python 流式传输工具调用、推理和其他内容
+    for chunk in model.stream("What color is the sky?"):
+        for block in chunk.content_blocks:
+            if block["type"] == "reasoning" and (reasoning := block.get("reasoning")):
+                print(f"Reasoning: {reasoning}")
+            elif block["type"] == "tool_call_chunk":
+                print(f"Tool call chunk: {block}")
+            elif block["type"] == "text":
+                print(block["text"])
+            else:
+                ...
+    ```
+</CodeGroup>
+:::
+:::js
+<CodeGroup>
+    ```typescript 基本文本流式传输
+    const stream = await model.stream("Why do parrots have colorful feathers?");
+    for await (const chunk of stream) {
+      console.log(chunk.text)
+    }
+    ```
+
+    ```typescript 流式传输工具调用、推理和其他内容
+    const stream = await model.stream("What color is the sky?");
+    for await (const chunk of stream) {
+      for (const block of chunk.contentBlocks) {
+        if (block.type === "reasoning") {
+          console.log(`Reasoning: ${block.reasoning}`);
+        } else if (block.type === "tool_call_chunk") {
+          console.log(`Tool call chunk: ${block}`);
+        } else if (block.type === "text") {
+          console.log(block.text);
+        } else {
+          ...
+        }
+      }
+    }
+    ```
+</CodeGroup>
+:::
+
+与 [`invoke()`](#invoke)（在模型完成生成其完整响应后返回单个 @[`AIMessage`][AIMessage]）不同，`stream()` 返回多个 @[`AIMessageChunk`][AIMessageChunk] 对象，每个对象包含输出文本的一部分。重要的是，流中的每个块都设计为可以通过求和聚合成完整的消息：
+
+:::python
+```python 构建 AIMessage
+full = None  # None | AIMessageChunk
+for chunk in model.stream("What color is the sky?"):
+    full = chunk if full is None else full + chunk
+    print(full.text)
+
+# The
+# The sky
+# The sky is
+# The sky is typically
+# The sky is typically blue
+# ...
+
+print(full.content_blocks)
+# [{"type": "text", "text": "The sky is typically blue..."}]
+```
+:::
+
+:::js
+```typescript 构建 AIMessage
+let full: AIMessageChunk | null = null;
+for await (const chunk of stream) {
+  full = full ? full.concat(chunk) : chunk;
+  console.log(full.text);
+}
+
+// The
+// The sky
+// The sky is
+// The sky is typically
+// The sky is typically blue
+// ...
+
+console.log(full.contentBlocks);
+// [{"type": "text", "text": "The sky is typically blue..."}]
+```
+:::
+
+生成的消息可以像使用 [`invoke()`](#invoke) 生成的消息一样对待——例如，它可以聚合到消息历史记录中，并作为对话上下文传递回模型。
+
+<Warning>
+    仅当程序中的所有步骤都知道如何处理块流时，流式传输才有效。例如，一个需要在处理之前将整个输出存储在内存中的应用程序就不具备流式传输能力。
+</Warning>
+
+<Accordion title="高级流式传输主题">
+    <Accordion title="流式传输事件">
+        :::python
+        LangChain 聊天模型还可以使用 `astream_events()` 流式传输语义事件。
+
+        这简化了基于事件类型和其他元数据的过滤，并将在后台聚合完整的消息。请参阅下面的示例。
+
+        ```python
+        async for event in model.astream_events("Hello"):
+
+            if event["event"] == "on_chat_model_start":
+                print(f"Input: {event['data']['input']}")
+
+            elif event["event"] == "on_chat_model_stream":
+                print(f"Token: {event['data']['chunk'].text}")
+
+            elif event["event"] == "on_chat_model_end":
+                print(f"Full message: {event['data']['output'].text}")
+
+            else:
+                pass
+        ```
+        ```txt
+        Input: Hello
+        Token: Hi
+        Token:  there
+        Token: !
+        Token:  How
+        Token:  can
+        Token:  I
+        ...
+        Full message: Hi there! How can I help today?
+        ```
+
+        <Tip>
+            有关事件类型和其他详细信息，请参阅 @[`astream_events()`][BaseChatModel.astream_events] 参考。
+        </Tip>
+        :::
+
+        :::js
+        LangChain 聊天模型还可以使用 [`streamEvents()`][BaseChatModel.streamEvents] 流式传输语义事件。
+
+        这简化了基于事件类型和其他元数据的过滤，并将在后台聚合完整的消息。请参阅下面的示例。
+
+        ```typescript
+        const stream = await model.streamEvents("Hello");
+        for await (const event of stream) {
+            if (event.event === "on_chat_model_start") {
+                console.log(`Input: ${event.data.input}`);
+            }
+            if (event.event === "on_chat_model_stream") {
+                console.log(`Token: ${event.data.chunk.text}`);
+            }
+            if (event.event === "on_chat_model_end") {
+                console.log(`Full message: ${event.data.output.text}`);
+            }
+        }
+        ```
+        ```txt
+        Input: Hello
+        Token: Hi
+        Token:  there
+        Token: !
+        Token:  How
+        Token:  can
+        Token:  I
+        ...
+        Full message: Hi there! How can I help today?
+        ```
+
+        有关事件类型和其他详细信息，请参阅 @[`streamEvents()`][BaseChatModel.streamEvents] 参考。
+        :::
+    </Accordion>
+    <Accordion title='"自动流式传输"聊天模型'>
+        LangChain 通过在某些情况下自动启用流式传输模式来简化从聊天模型进行流式传输，即使您没有显式调用流式传输方法。当您使用非流式调用的 invoke 方法但仍希望流式传输整个应用程序（包括来自聊天模型的中间结果）时，这尤其有用。
+
+        例如，在 [LangGraph 智能体](/oss/langchain/agents) 中，您可以在节点内调用 `model.invoke()`，但如果以流式模式运行，LangChain 将自动委托给流式传输。
+
+        #### 工作原理
+
+        当您 `invoke()` 一个聊天模型时，如果 LangChain 检测到您正尝试流式传输整个应用程序，它将自动切换到内部流式传输模式。就使用 invoke 的代码而言，调用的结果将是相同的；

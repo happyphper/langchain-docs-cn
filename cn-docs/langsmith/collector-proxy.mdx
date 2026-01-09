@@ -1,0 +1,172 @@
+---
+title: Beta LangSmith 收集器-代理
+sidebarTitle: Beta LangSmith Collector-Proxy
+---
+<Note>
+这是一个测试版功能。API 可能在未来的版本中发生变化。
+</Note>
+
+LangSmith Collector-Proxy 是一个轻量级、高性能的代理服务器，部署在您的应用程序和 LangSmith 后端之间。它会在将追踪数据发送到 LangSmith 之前进行批处理和压缩，从而减少网络开销并提升性能。
+
+## 何时使用 Collector-Proxy
+
+Collector-Proxy 在以下情况下特别有价值：
+
+* 您并行运行多个应用程序实例，需要高效地聚合追踪数据。
+* 您希望获得比直接通过 OTEL API 调用 LangSmith 更高效的追踪（收集器优化了批处理和压缩）。
+* 您使用的编程语言没有原生的 LangSmith SDK。
+
+## 主要特性
+
+* **高效数据传输**：将多个跨度（span）批量合并为更少、更大的上传批次。
+* **压缩**：使用 zstd 来最小化负载大小。
+* **OTLP 支持**：通过 HTTP POST 接受 OTLP JSON 和 Protobuf 格式。
+* **语义转换**：将 GenAI/OpenInference 约定映射到 LangSmith 的运行（Run）模型。
+* **灵活的批处理**：按跨度数量或时间间隔进行刷新。
+
+## 配置
+
+通过环境变量进行配置：
+
+| 变量                  | 描述                               | 默认值                            |
+| --------------------- | ---------------------------------- | --------------------------------- |
+| `HTTP_PORT`           | 代理服务器运行的端口               | `4318`                            |
+| `LANGSMITH_ENDPOINT`  | LangSmith 后端 URL                 | `https://api.smith.langchain.com` |
+| `LANGSMITH_API_KEY`   | LangSmith 的 API 密钥              | **必需**（环境变量或请求头）      |
+| `LANGSMITH_PROJECT`   | 默认的追踪项目                     | 未指定时使用默认项目              |
+| `BATCH_SIZE`          | 每个上传批次的跨度数量             | `100`                             |
+| `FLUSH_INTERVAL_MS`   | 刷新间隔（毫秒）                   | `1000`                            |
+| `MAX_BUFFER_BYTES`    | 最大未压缩缓冲区大小               | `10485760` (10 MB)                |
+| `MAX_BODY_BYTES`      | 最大传入请求体大小                 | `209715200` (200 MB)              |
+| `MAX_RETRIES`         | 上传失败的重试次数                 | `3`                               |
+| `RETRY_BACKOFF_MS`    | 初始退避时间（毫秒）               | `100`                             |
+
+### 项目配置
+
+Collector-Proxy 支持 LangSmith 项目配置，优先级如下：
+
+1. 如果请求头中指定了项目 (`Langsmith-Project`)，则使用该项目。
+2. 如果请求头中未指定项目，则使用 `LANGSMITH_PROJECT` 环境变量中设置的项目。
+3. 如果两者均未设置，则将追踪数据发送到 `default` 项目。
+
+### 认证
+
+API 密钥可以通过以下方式提供：
+
+* 作为环境变量 (`LANGSMITH_API_KEY`)
+* 在请求头中 (`X-API-Key`)
+
+## 部署 (Docker)
+
+您可以使用 Docker 部署 Collector-Proxy：
+
+1. **构建镜像**
+
+   ```bash
+   docker build \
+     -t langsmith-collector-proxy:beta .
+   ```
+
+2. **运行容器**
+
+   ```bash
+   docker run -d \
+     -p 4318:4318 \
+     -e LANGSMITH_API_KEY=<your_api_key> \
+     -e LANGSMITH_PROJECT=<your_project> \
+     langsmith-collector-proxy:beta
+   ```
+
+## 使用
+
+将任何兼容 OTLP 的客户端或 OpenTelemetry Collector 导出器指向：
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://<host>:4318/v1/traces
+export OTEL_EXPORTER_OTLP_HEADERS="X-API-Key=<your_api_key>,Langsmith-Project=<your_project>"
+```
+
+发送测试追踪：
+
+```bash
+curl -X POST http://localhost:4318/v1/traces \
+  -H "Content-Type: application/json" \
+  --data '{
+    "resourceSpans": [
+      {
+        "resource": {
+          "attributes": [
+            {
+              "key": "service.name",
+              "value": { "stringValue": "test-service" }
+            }
+          ]
+        },
+        "scopeSpans": [
+          {
+            "scope": {
+              "name": "example/instrumentation",
+              "version": "1.0.0"
+            },
+            "spans": [
+              {
+                "traceId": "T6nh/mMkIONaoHewS9UWIw==",
+                "spanId": "0tEqJwCpvU0=",
+                "name": "parent-span",
+                "kind": "SPAN_KIND_INTERNAL",
+                "startTimeUnixNano": 1747675155185223936,
+                "endTimeUnixNano":   1747675156185223936,
+                "attributes": [
+                  {
+                    "key": "gen_ai.prompt",
+                    "value": {
+                      "stringValue": "{\"text\":\"Hello, world!\"}"
+                    }
+                  },
+                  {
+                    "key": "gen_ai.usage.input_tokens",
+                    "value": {
+                      "intValue": "5"
+                    }
+                  },
+                  {
+                    "key": "gen_ai.completion",
+                    "value": {
+                      "stringValue": "{\"text\":\"Hi there!\"}"
+                    }
+                  },
+                  {
+                    "key": "gen_ai.usage.output_tokens",
+                    "value": {
+                      "intValue": "3"
+                    }
+                  }
+                ],
+                "droppedAttributesCount": 0,
+                "events": [],
+                "links": [],
+                "status": {}
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }'
+```
+
+## 健康检查与扩展
+
+* **存活探针**：`GET /live` → 200
+* **就绪探针**：`GET /ready` → 200
+
+## 水平扩展
+
+为确保完整的追踪被正确批处理，请将具有相同追踪 ID（trace ID）的跨度路由到同一个实例（例如，通过一致性哈希）。
+
+## 分叉与扩展
+
+分叉 [GitHub 上的 Collector-Proxy 仓库](https://github.com/langchain-ai/langsmith-collector-proxy) 并实现您自己的转换器：
+
+* 创建一个自定义的 `GenAiConverter` 或修改 `internal/translator/otel_converter.go` 中现有的转换器。
+* 在 `internal/translator/translator.go` 中注册自定义转换器。

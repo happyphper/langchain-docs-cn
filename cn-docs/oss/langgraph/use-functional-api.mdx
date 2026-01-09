@@ -1,0 +1,527 @@
+---
+title: 使用函数式 API
+sidebarTitle: Use the Functional API
+---
+[**功能 API**](/oss/langgraph/functional-api) 允许您以最小的代码改动，为您的应用程序添加 LangGraph 的核心功能——[持久化](/oss/langgraph/persistence)、[记忆](/oss/langgraph/add-memory)、[人在回路](/oss/langgraph/interrupts) 和 [流式传输](/oss/langgraph/streaming)。
+
+<Tip>
+关于功能 API 的概念性信息，请参阅 [功能 API](/oss/langgraph/functional-api)。
+</Tip>
+
+## 创建简单工作流
+
+定义 `entrypoint` 时，输入被限制为函数的第一个参数。要传递多个输入，可以使用字典。
+
+:::python
+```python
+@entrypoint(checkpointer=checkpointer)
+def my_workflow(inputs: dict) -> int:
+    value = inputs["value"]
+    another_value = inputs["another_value"]
+    ...
+
+my_workflow.invoke({"value": 1, "another_value": 2})
+```
+:::
+
+:::js
+```typescript
+const checkpointer = new MemorySaver();
+
+const myWorkflow = entrypoint(
+  { checkpointer, name: "myWorkflow" },
+  async (inputs: { value: number; anotherValue: number }) => {
+    const value = inputs.value;
+    const anotherValue = inputs.anotherValue;
+    // ...
+  }
+);
+
+await myWorkflow.invoke({ value: 1, anotherValue: 2 });
+```
+:::
+
+<Accordion title="扩展示例：简单工作流">
+  :::python
+  ```python
+  import uuid
+  from langgraph.func import entrypoint, task
+  from langgraph.checkpoint.memory import InMemorySaver
+
+  # 检查数字是否为偶数的任务
+  @task
+  def is_even(number: int) -> bool:
+      return number % 2 == 0
+
+  # 格式化消息的任务
+  @task
+  def format_message(is_even: bool) -> str:
+      return "The number is even." if is_even else "The number is odd."
+
+  # 创建用于持久化的检查点保存器
+  checkpointer = InMemorySaver()
+
+  @entrypoint(checkpointer=checkpointer)
+  def workflow(inputs: dict) -> str:
+      """对数字进行分类的简单工作流。"""
+      even = is_even(inputs["number"]).result()
+      return format_message(even).result()
+
+  # 使用唯一的线程 ID 运行工作流
+  config = {"configurable": {"thread_id": str(uuid.uuid4())}}
+  result = workflow.invoke({"number": 7}, config=config)
+  print(result)
+  ```
+  :::
+
+  :::js
+  ```typescript
+  import { v4 as uuidv4 } from "uuid";
+  import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
+
+  // 检查数字是否为偶数的任务
+  const isEven = task("isEven", async (number: number) => {
+    return number % 2 === 0;
+  });
+
+  // 格式化消息的任务
+  const formatMessage = task("formatMessage", async (isEven: boolean) => {
+    return isEven ? "The number is even." : "The number is odd.";
+  });
+
+  // 创建用于持久化的检查点保存器
+  const checkpointer = new MemorySaver();
+
+  const workflow = entrypoint(
+    { checkpointer, name: "workflow" },
+    async (inputs: { number: number }) => {
+      // 对数字进行分类的简单工作流
+      const even = await isEven(inputs.number);
+      return await formatMessage(even);
+    }
+  );
+
+  // 使用唯一的线程 ID 运行工作流
+  const config = { configurable: { thread_id: uuidv4() } };
+  const result = await workflow.invoke({ number: 7 }, config);
+  console.log(result);
+  ```
+  :::
+</Accordion>
+
+<Accordion title="扩展示例：使用 LLM 撰写文章">
+  此示例演示了如何语法上使用 `@task` 和 `@entrypoint` 装饰器。由于提供了检查点保存器，工作流结果将被持久化。
+
+  :::python
+  ```python
+  import uuid
+  from langchain.chat_models import init_chat_model
+  from langgraph.func import entrypoint, task
+  from langgraph.checkpoint.memory import InMemorySaver
+
+  model = init_chat_model('gpt-3.5-turbo')
+
+  # 任务：使用 LLM 生成文章
+  @task
+  def compose_essay(topic: str) -> str:
+      """生成关于给定主题的文章。"""
+      return model.invoke([
+          {"role": "system", "content": "You are a helpful assistant that writes essays."},
+          {"role": "user", "content": f"Write an essay about {topic}."}
+      ]).content
+
+  # 创建用于持久化的检查点保存器
+  checkpointer = InMemorySaver()
+
+  @entrypoint(checkpointer=checkpointer)
+  def workflow(topic: str) -> str:
+      """使用 LLM 生成文章的简单工作流。"""
+      return compose_essay(topic).result()
+
+  # 执行工作流
+  config = {"configurable": {"thread_id": str(uuid.uuid4())}}
+  result = workflow.invoke("the history of flight", config=config)
+  print(result)
+  ```
+  :::
+
+  :::js
+  ```typescript
+  import { v4 as uuidv4 } from "uuid";
+  import { ChatOpenAI } from "@langchain/openai";
+  import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
+
+  const model = new ChatOpenAI({ model: "gpt-3.5-turbo" });
+
+  // 任务：使用 LLM 生成文章
+  const composeEssay = task("composeEssay", async (topic: string) => {
+    // 生成关于给定主题的文章
+    const response = await model.invoke([
+      { role: "system", content: "You are a helpful assistant that writes essays." },
+      { role: "user", content: `Write an essay about ${topic}.` }
+    ]);
+    return response.content as string;
+  });
+
+  // 创建用于持久化的检查点保存器
+  const checkpointer = new MemorySaver();
+
+  const workflow = entrypoint(
+    { checkpointer, name: "workflow" },
+    async (topic: string) => {
+      // 使用 LLM 生成文章的简单工作流
+      return await composeEssay(topic);
+    }
+  );
+
+  // 执行工作流
+  const config = { configurable: { thread_id: uuidv4() } };
+  const result = await workflow.invoke("the history of flight", config);
+  console.log(result);
+  ```
+  :::
+</Accordion>
+
+## 并行执行
+
+可以通过并发调用任务并等待结果来实现并行执行。这对于提高 I/O 密集型任务（例如，调用 LLM 的 API）的性能非常有用。
+
+:::python
+```python
+@task
+def add_one(number: int) -> int:
+    return number + 1
+
+@entrypoint(checkpointer=checkpointer)
+def graph(numbers: list[int]) -> list[str]:
+    futures = [add_one(i) for i in numbers]
+    return [f.result() for f in futures]
+```
+:::
+
+:::js
+```typescript
+const addOne = task("addOne", async (number: number) => {
+  return number + 1;
+});
+
+const graph = entrypoint(
+  { checkpointer, name: "graph" },
+  async (numbers: number[]) => {
+    return await Promise.all(numbers.map(addOne));
+  }
+);
+```
+:::
+
+<Accordion title="扩展示例：并行 LLM 调用">
+  此示例演示了如何使用 `@task` 并行运行多个 LLM 调用。每个调用生成一个关于不同主题的段落，然后将结果合并为单个文本输出。
+
+  :::python
+  ```python
+  import uuid
+  from langchain.chat_models import init_chat_model
+  from langgraph.func import entrypoint, task
+  from langgraph.checkpoint.memory import InMemorySaver
+
+  # 初始化 LLM 模型
+  model = init_chat_model("gpt-3.5-turbo")
+
+  # 生成关于给定主题段落的任务
+  @task
+  def generate_paragraph(topic: str) -> str:
+      response = model.invoke([
+          {"role": "system", "content": "You are a helpful assistant that writes educational paragraphs."},
+          {"role": "user", "content": f"Write a paragraph about {topic}."}
+      ])
+      return response.content
+
+  # 创建用于持久化的检查点保存器
+  checkpointer = InMemorySaver()
+
+  @entrypoint(checkpointer=checkpointer)
+  def workflow(topics: list[str]) -> str:
+      """并行生成多个段落并组合它们。"""
+      futures = [generate_paragraph(topic) for topic in topics]
+      paragraphs = [f.result() for f in futures]
+      return "\n\n".join(paragraphs)
+
+  # 运行工作流
+  config = {"configurable": {"thread_id": str(uuid.uuid4())}}
+  result = workflow.invoke(["quantum computing", "climate change", "history of aviation"], config=config)
+  print(result)
+  ```
+  :::
+
+  :::js
+  ```typescript
+  import { v4 as uuidv4 } from "uuid";
+  import { ChatOpenAI } from "@langchain/openai";
+  import { entrypoint, task, MemorySaver } from "@langchain/langgraph";
+
+  // 初始化 LLM 模型
+  const model = new ChatOpenAI({ model: "gpt-3.5-turbo" });
+
+  // 生成关于给定主题段落的任务
+  const generateParagraph = task("generateParagraph", async (topic: string) => {
+    const response = await model.invoke([
+      { role: "system", content: "You are a helpful assistant that writes educational paragraphs." },
+      { role: "user", content: `Write a paragraph about ${topic}.` }
+    ]);
+    return response.content as string;
+  });
+
+  // 创建用于持久化的检查点保存器
+  const checkpointer = new MemorySaver();
+
+  const workflow = entrypoint(
+    { checkpointer, name: "workflow" },
+    async (topics: string[]) => {
+      // 并行生成多个段落并组合它们
+      const paragraphs = await Promise.all(topics.map(generateParagraph));
+      return paragraphs.join("\n\n");
+    }
+  );
+
+  // 运行工作流
+  const config = { configurable: { thread_id: uuidv4() } };
+  const result = await workflow.invoke(["quantum computing", "climate change", "history of aviation"], config);
+  console.log(result);
+  ```
+  :::
+
+  此示例利用 LangGraph 的并发模型来提高执行时间，特别是在涉及 I/O（如 LLM 补全）的任务中。
+</Accordion>
+
+## 调用图
+
+**功能 API** 和 [**图 API**](/oss/langgraph/graph-api) 可以在同一个应用程序中一起使用，因为它们共享相同的底层运行时。
+
+:::python
+```python
+from langgraph.func import entrypoint
+from langgraph.graph import StateGraph
+
+builder = StateGraph()
+...
+some_graph = builder.compile()
+
+@entrypoint()
+def some_workflow(some_input: dict) -> int:
+    # 调用使用图 API 定义的图
+    result_1 = some_graph.invoke(...)
+    # 调用另一个使用图 API 定义的图
+    result_2 = another_graph.invoke(...)
+    return {
+        "result_1": result_1,
+        "result_2": result_2
+    }
+```
+:::
+
+:::js
+```typescript
+import { entrypoint } from "@langchain/langgraph";
+import { StateGraph } from "@langchain/langgraph";
+
+const builder = new StateGraph(/* ... */);
+// ...
+const someGraph = builder.compile();
+
+const someWorkflow = entrypoint(
+  { name: "someWorkflow" },
+  async (someInput: Record<string, any>) => {
+    // 调用使用图 API 定义的图
+    const result1 = await someGraph.invoke(/* ... */);
+    // 调用另一个使用图 API 定义的图
+    const result2 = await anotherGraph.invoke(/* ... */);
+    return {
+      result1,
+      result2,
+    };
+  }
+);
+```
+:::
+
+<Accordion title="扩展示例：从功能 API 调用简单图">
+  :::python
+  ```python
+  import uuid
+  from typing import TypedDict
+  from langgraph.func import entrypoint
+  from langgraph.checkpoint.memory import InMemorySaver
+  from langgraph.graph import StateGraph
+
+  # 定义共享状态类型
+  class State(TypedDict):
+      foo: int
+
+  # 定义一个简单的转换节点
+  def double(state: State) -> State:
+      return {"foo": state["foo"] * 2}
+
+  # 使用图 API 构建图
+  builder = StateGraph(State)
+  builder.add_node("double", double)
+  builder.set_entry_point("double")
+  graph = builder.compile()
+
+  # 定义功能 API 工作流
+  checkpointer = InMemorySaver()
+
+  @entrypoint(checkpointer=checkpointer)
+  def workflow(x: int) -> dict:
+      result = graph.invoke({"foo": x})
+      return {"bar": result["foo"]}
+
+  # 执行工作流
+  config = {"configurable": {"thread_id": str(uuid.uuid4())}}
+  print(workflow.invoke(5, config=config))  # 输出: {'bar': 10}
+  ```
+  :::
+
+  :::js
+  ```typescript
+  import { v4 as uuidv4 } from "uuid";
+  import { entrypoint, MemorySaver } from "@langchain/langgraph";
+  import { StateGraph } from "@langchain/langgraph";
+  import * as z from "zod";
+
+  // 定义共享状态类型
+  const State = z.object({
+    foo: z.number(),
+  });
+
+  // 使用图 API 构建图
+  const builder = new StateGraph(State)
+    .addNode("double", (state) => {
+      return { foo: state.foo * 2 };
+    })
+    .addEdge("__start__", "double");
+  const graph = builder.compile();
+
+  // 定义功能 API 工作流
+  const checkpointer = new MemorySaver();
+
+  const workflow = entrypoint(
+    { checkpointer, name: "workflow" },
+    async (x: number) => {
+      const result = await graph.invoke({ foo: x });
+      return { bar: result.foo };
+    }
+  );
+
+  // 执行工作流
+  const config = { configurable: { thread_id: uuidv4() } };
+  console.log(await workflow.invoke(5, config)); // 输出: { bar: 10 }
+  ```
+  :::
+</Accordion>
+
+## 调用其他入口点
+
+您可以从一个 **entrypoint** 或 **task** 内部调用其他 **entrypoints**。
+
+:::python
+```python
+@entrypoint() # 将自动使用父入口点的检查点保存器
+def some_other_workflow(inputs: dict) -> int:
+    return inputs["value"]
+
+@entrypoint(checkpointer=checkpointer)
+def my_workflow(inputs: dict) -> int:
+    value = some_other_workflow.invoke({"value": 1})
+    return value
+```
+:::
+
+:::js
+```typescript
+// 将自动使用父入口点的检查点保存器
+const someOtherWorkflow = entrypoint(
+  { name: "someOtherWorkflow" },
+  async (inputs: { value: number }) => {
+    return inputs.value;
+  }
+);
+
+const myWorkflow = entrypoint(
+  { checkpointer, name: "myWorkflow" },
+  async (inputs: { value: number }) => {
+    const value = await someOtherWorkflow.invoke({ value: 1 });
+    return value;
+  }
+);
+```
+:::
+
+<Accordion title="扩展示例：调用另一个入口点">
+  :::python
+  ```python
+  import uuid
+  from langgraph.func import entrypoint
+  from langgraph.checkpoint.memory import InMemorySaver
+
+  # 初始化检查点保存器
+  checkpointer = InMemorySaver()
+
+  # 一个可重用的子工作流，用于将数字相乘
+  @entrypoint()
+  def multiply(inputs: dict) -> int:
+      return inputs["a"] * inputs["b"]
+
+  # 调用子工作流的主工作流
+  @entrypoint(checkpointer=checkpointer)
+  def main(inputs: dict) -> dict:
+      result = multiply.invoke({"a": inputs["x"], "b": inputs["y"]})
+      return {"product": result}
+
+  # 执行主工作流
+  config = {"configurable": {"thread_id": str(uuid.uuid4())}}
+  print(main.invoke({"x": 6, "y": 7}, config=config))  # 输出: {'product': 42}
+  ```
+  :::
+
+  :::js
+  ```typescript
+  import { v4 as uuidv4 } from "uuid";
+  import { entrypoint, MemorySaver } from "@langchain/langgraph";
+
+  // 初始化检查点保存器
+  const checkpointer = new MemorySaver();
+
+  // 一个可重用的子工作流，用于将数字相乘
+  const multiply = entrypoint(
+    { name: "multiply" },
+    async (inputs: { a: number; b: number }) => {
+      return inputs.a * inputs.b;
+    }
+  );
+
+  // 调用子工作流的主工作流
+  const main = entrypoint(
+    { checkpointer, name: "main" },
+    async (inputs: { x: number; y: number }) => {
+      const result = await multiply.invoke({ a: inputs.x, b: inputs.y });
+      return { product: result };
+    }
+  );
+
+  // 执行主工作流
+  const config = { configurable: { thread_id: uuidv4() } };
+  console.log(await main.invoke({ x: 6, y: 7 }, config)); // 输出: { product: 42 }
+  ```
+  :::
+</Accordion>
+
+## 流式传输
+
+**功能 API** 使用与 **图 API** 相同的流式传输机制。请阅读 [**流式传输指南**](/oss/langgraph/streaming) 部分以获取更多详细信息。
+
+使用流式 API 来流式传输更新和自定义数据的示例。
+
+:::python
+```python
+from langgraph.func import entrypoint
+from langgraph

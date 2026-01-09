@@ -1,0 +1,207 @@
+---
+title: Kuzu
+---
+> [Kùzu](https://kuzudb.com/) 是一个可嵌入、可扩展、速度极快的图数据库。
+> 它采用宽松的 MIT 许可证，您可以在[这里](https://github.com/kuzudb/kuzu)查看其源代码。
+
+> Kùzu 的主要特点：
+>
+>- **性能和可扩展性**：实现了现代、最先进的图连接算法。
+>- **易用性**：由于没有服务器（嵌入式架构），设置和入门非常容易。
+>- **互操作性**：可以方便地从外部列式格式、CSV、JSON 和关系数据库中扫描和复制数据。
+>- **结构化属性图模型**：实现了属性图模型，并增加了结构。
+>- **Cypher 支持**：允许使用声明式查询语言 Cypher 方便地查询图。
+
+> 访问 Kùzu 的[文档](https://docs.kuzudb.com/)开始使用。
+
+## 设置
+
+Kùzu 是一个嵌入式数据库（它在进程中运行），因此无需管理服务器。安装以下依赖项即可开始：
+
+```bash
+pip install -U langchain-kuzu langchain-openai langchain-experimental
+```
+
+这将安装 Kùzu 及其 LangChain 集成，以及 OpenAI Python 包，以便我们可以使用 OpenAI 的 LLM。如果您想使用其他 LLM 提供商，可以安装 LangChain 附带的相应 Python 包。
+
+以下是如何在本地机器上创建 Kùzu 数据库并连接到它：
+
+```python
+import kuzu
+
+db = kuzu.Database("test_db")
+conn = kuzu.Connection(db)
+```
+
+## 创建 `KuzuGraph`
+
+Kùzu 与 LangChain 的集成使得从非结构化文本创建和更新图变得方便，并且还可以通过利用 LangChain LLM 链能力的 Text2Cypher 管道来查询图。首先，我们创建一个 `KuzuGraph` 对象，该对象使用我们上面创建的数据库对象与 `KuzuGraph` 构造函数结合。
+
+```python
+from langchain_kuzu.graphs.kuzu_graph import KuzuGraph
+
+graph = KuzuGraph(db, allow_dangerous_requests=True)
+```
+
+假设我们想将以下文本转换为图：
+
+```python
+text = "Tim Cook is the CEO of Apple. Apple has its headquarters in California."
+```
+
+我们将使用 `LLMGraphTransformer` 来利用 LLM 从文本中提取节点和关系。
+为了使图更有用，我们将定义以下模式，这样 LLM 将只提取符合该模式的节点和关系。
+
+```python
+# 定义模式
+allowed_nodes = ["Person", "Company", "Location"]
+allowed_relationships = [
+    ("Person", "IS_CEO_OF", "Company"),
+    ("Company", "HAS_HEADQUARTERS_IN", "Location"),
+]
+```
+
+`LLMGraphTransformer` 类提供了一种方便的方法将文本转换为图文档列表。
+
+```python
+from langchain_core.documents import Document
+from langchain_experimental.graph_transformers import LLMGraphTransformer
+from langchain_openai import ChatOpenAI
+
+# 定义 LLMGraphTransformer
+llm_transformer = LLMGraphTransformer(
+    llm=ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=OPENAI_API_KEY),
+    allowed_nodes=allowed_nodes,
+    allowed_relationships=allowed_relationships,
+)
+
+documents = [Document(page_content=text)]
+graph_documents = llm_transformer.convert_to_graph_documents(documents)
+```
+
+```python
+graph_documents[:2]
+```
+
+```text
+[GraphDocument(nodes=[Node(id='Tim Cook', type='Person', properties={}), Node(id='Apple', type='Company', properties={}), Node(id='California', type='Location', properties={})], relationships=[Relationship(source=Node(id='Tim Cook', type='Person', properties={}), target=Node(id='Apple', type='Company', properties={}), type='IS_CEO_OF', properties={}), Relationship(source=Node(id='Apple', type='Company', properties={}), target=Node(id='California', type='Location', properties={}), type='HAS_HEADQUARTERS_IN', properties={})], source=Document(metadata={}, page_content='Tim Cook is the CEO of Apple. Apple has its headquarters in California.'))]
+```
+
+然后，我们可以调用上面定义的 `KuzuGraph` 对象的 `add_graph_documents` 方法，将图文档摄取到 Kùzu 数据库中。
+`include_source` 参数设置为 `True`，以便我们还在每个实体节点与其来源的源文档之间创建关系。
+
+```python
+# 将图文档添加到图中
+graph.add_graph_documents(
+    graph_documents,
+    include_source=True,
+)
+```
+
+## 创建 `KuzuQAChain`
+
+要通过 Text2Cypher 管道查询图，我们可以定义一个 `KuzuQAChain` 对象。然后，通过连接到存储在之前定义的 `test_db` 目录中的现有数据库，我们可以使用查询来调用该链。
+
+```python
+from langchain_kuzu.chains.graph_qa.kuzu import KuzuQAChain
+
+# 创建 KuzuQAChain，启用详细模式以查看生成的 Cypher 查询
+chain = KuzuQAChain.from_llm(
+    llm=ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=OPENAI_API_KEY),
+    graph=graph,
+    verbose=True,
+    allow_dangerous_requests=True,
+)
+```
+
+请注意，我们将温度设置为略高于零，以避免 LLM 在响应中过于简洁。
+
+让我们使用 QA 链问一些问题。
+
+```python
+chain.invoke("Who is the CEO of Apple?")
+```
+
+```text
+> Entering new KuzuQAChain chain...
+Generated Cypher:
+MATCH (p:Person)-[:IS_CEO_OF]->(c:Company {id: 'Apple'}) RETURN p
+Full Context:
+[{'p': {'_id': {'offset': 0, 'table': 1}, '_label': 'Person', 'id': 'Tim Cook', 'type': 'entity'}}]
+
+> Finished chain.
+```
+
+```text
+{'query': 'Who is the CEO of Apple?',
+ 'result': 'Tim Cook is the CEO of Apple.'}
+```
+
+```python
+chain.invoke("Where is Apple headquartered?")
+```
+
+```text
+> Entering new KuzuQAChain chain...
+Generated Cypher:
+MATCH (c:Company {id: 'Apple'})-[:HAS_HEADQUARTERS_IN]->(l:Location) RETURN l
+Full Context:
+[{'l': {'_id': {'offset': 0, 'table': 2}, '_label': 'Location', 'id': 'California', 'type': 'entity'}}]
+
+> Finished chain.
+```
+
+```text
+{'query': 'Where is Apple headquartered?',
+ 'result': 'Apple is headquartered in California.'}
+```
+
+## 刷新图模式
+
+如果您修改或更新了图，可以检查 Text2Cypher 链用于生成 Cypher 语句的刷新后的模式信息。
+您不需要每次都手动调用 `refresh_schema()`，因为在调用链时会自动调用它。
+
+```python
+graph.refresh_schema()
+
+print(graph.get_schema)
+```
+
+```text
+Node properties: [{'properties': [('id', 'STRING'), ('type', 'STRING')], 'label': 'Person'}, {'properties': [('id', 'STRING'), ('type', 'STRING')], 'label': 'Location'}, {'properties': [('id', 'STRING'), ('text', 'STRING'), ('type', 'STRING')], 'label': 'Chunk'}, {'properties': [('id', 'STRING'), ('type', 'STRING')], 'label': 'Company'}]
+Relationships properties: [{'properties': [], 'label': 'HAS_HEADQUARTERS_IN'}, {'properties': [('label', 'STRING'), ('triplet_source_id', 'STRING')], 'label': 'MENTIONS_Chunk_Person'}, {'properties': [('label', 'STRING'), ('triplet_source_id', 'STRING')], 'label': 'MENTIONS_Chunk_Location'}, {'properties': [], 'label': 'IS_CEO_OF'}, {'properties': [('label', 'STRING'), ('triplet_source_id', 'STRING')], 'label': 'MENTIONS_Chunk_Company'}]
+Relationships: ['(:Company)-[:HAS_HEADQUARTERS_IN]->(:Location)', '(:Chunk)-[:MENTIONS_Chunk_Person]->(:Person)', '(:Chunk)-[:MENTIONS_Chunk_Location]->(:Location)', '(:Person)-[:IS_CEO_OF]->(:Company)', '(:Chunk)-[:MENTIONS_Chunk_Company]->(:Company)']
+```
+
+## 为 Cypher 和答案生成使用不同的 LLM
+
+您可以分别指定 `cypher_llm` 和 `qa_llm`，以便为 Cypher 生成和答案生成使用不同的 LLM。
+
+```python
+chain = KuzuQAChain.from_llm(
+    cypher_llm=ChatOpenAI(temperature=0, model="gpt-4o-mini"),
+    qa_llm=ChatOpenAI(temperature=0, model="gpt-4"),
+    graph=graph,
+    verbose=True,
+    allow_dangerous_requests=True,
+)
+```
+
+```python
+chain.invoke("Who is the CEO of Apple?")
+```
+
+```text
+> Entering new KuzuQAChain chain...
+Generated Cypher:
+MATCH (p:Person)-[:IS_CEO_OF]->(c:Company {id: 'Apple'}) RETURN p.id, p.type
+Full Context:
+[{'p.id': 'Tim Cook', 'p.type': 'entity'}]
+
+> Finished chain.
+```
+
+```text
+{'query': 'Who is the CEO of Apple?',
+ 'result': 'Tim Cook is the CEO of Apple.'}
+```

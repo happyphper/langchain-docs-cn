@@ -1,0 +1,110 @@
+---
+title: 从代码中调用代理
+description: 使用 LangGraph SDK 从 Python 或 JavaScript 调用 Agent Builder 代理。
+sidebarTitle: Call from code
+---
+你可以使用 [LangGraph SDK](/langsmith/sdk) 从你的应用程序中调用 Agent Builder 智能体。Agent Builder 智能体运行在 [Agent Server](/langsmith/agent-server) 上，因此你可以使用与任何其他 [LangSmith 部署](/langsmith/deployments) 相同的 API 方法。
+
+## 前提条件
+
+- 拥有一个包含 Agent Builder 智能体的 LangSmith 账户
+- 用于身份验证的 [个人访问令牌 (PAT)](/langsmith/create-account-api-key)
+- 已安装 [LangGraph SDK](/langsmith/sdk)：
+
+<CodeGroup>
+    ```bash Python
+    pip install langgraph-sdk python-dotenv
+    ```
+
+    ```bash TypeScript
+    yarn add @langchain/langgraph-sdk
+    ```
+</CodeGroup>
+
+## 身份验证
+要对你智能体的 Agent Builder 部署进行身份验证，请在实例化 LangGraph SDK 客户端时，向 `api_key` 参数提供 LangSmith [个人访问令牌 (PAT)](/langsmith/create-account-api-key)，或通过 `X-API-Key` 请求头提供。如果使用 `X-API-Key`，你还必须将 `X-Auth-Scheme` 请求头设置为 `langsmith-api-key`。
+
+如果你传递的 PAT 不属于该智能体的所有者，你的请求将被拒绝并返回 `404 Not Found` 错误。
+
+如果你尝试调用的智能体是一个 <Tooltip tip="与 LangSmith 工作空间所有成员共享的智能体。私有智能体仅对创建者可见。" cta="了解更多" href="/langsmith/agent-builder-workspace-vs-private">工作空间智能体</Tooltip> 并且你不是所有者，你可以执行与在 UI 中相同的所有操作（只读）。
+
+## 示例
+
+要获取你智能体的 `agent_id` 和 `api_url`：
+
+1.  在 Agent Builder 中导航到该智能体。
+2.  点击右上角的 <Icon icon="gear" /> 设置图标。
+3.  点击 **查看代码片段** 以查看你智能体的预填充值。
+
+复制下面的代码，并将 `agent_id` 和 `api_url` 替换为你智能体代码片段中的值。
+
+在你的项目根目录下创建一个 `.env` 文件，并填入你的 [个人访问令牌](/langsmith/create-account-api-key)：
+
+```bash .env
+LANGGRAPH_API_KEY=your-personal-access-token
+```
+
+<Tabs>
+    <Tab title="Python">
+```python
+import os
+from dotenv import load_dotenv
+from langgraph_sdk.client import get_client
+
+load_dotenv()
+
+agent_id = "your-agent-id"
+
+# This must be a PAT tied to your LangSmith account
+api_key = os.getenv("LANGGRAPH_API_KEY")
+api_url = "https://prod-agent-builder-5ccea139413e5ef289ab8e5d04688e11.us.langgraph.app"
+
+client = get_client(
+    url=api_url,
+    api_key=api_key,
+    headers={
+        "X-Auth-Scheme": "langsmith-api-key",
+    },
+)
+
+async def get_assistant(agent_id: str):
+    agent = await client.assistants.get(agent_id)
+    print(agent)
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(get_assistant(agent_id))
+```
+    </Tab>
+    <Tab title="TypeScript">
+```ts
+import "dotenv/config";
+import { Client } from "@langchain/langgraph-sdk";
+
+const agentId = "your-agent-id";
+
+// This must be a PAT tied to your LangSmith account
+const apiKey = process.env.LANGGRAPH_API_KEY;
+const apiUrl = "https://prod-agent-builder-5ccea139413e5ef289ab8e5d04688e11.us.langgraph.app";
+
+const client = new Client({
+  apiUrl,
+  apiKey,
+  defaultHeaders: {
+    "X-Auth-Scheme": "langsmith-api-key",
+  },
+});
+
+async function main(agentId: string) {
+  const agent = await client.assistants.get(agentId);
+  console.log(agent);
+}
+
+main(agentId).catch(console.error);
+```
+    </Tab>
+</Tabs>
+
+<Callout icon="key" color="#FEF3C7" iconType="regular">
+    使用与你 LangSmith 账户关联的 [个人访问令牌 (PAT)](/langsmith/create-account-api-key)。将 `X-Auth-Scheme` 请求头设置为 `langsmith-api-key` 以进行身份验证。如果你实现了自定义身份验证，请在请求头中传递用户的令牌，以便智能体可以使用用户作用域的工具。请参阅 [添加自定义身份验证](/langsmith/custom-auth)。
+</Callout>

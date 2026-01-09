@@ -1,0 +1,289 @@
+---
+title: Kinetica 向量存储 API
+---
+>[Kinetica](https://www.kinetica.com/) 是一个内置支持向量相似性搜索的数据库。
+
+它支持：
+
+- 精确和近似最近邻搜索
+- L2 距离、内积和余弦距离
+
+本笔记本展示了如何使用 Kinetica 向量存储 (`Kinetica`)。
+
+这需要一个 Kinetica 实例，可以按照此处给出的说明轻松设置 - [安装指南](https://www.kinetica.com/developer-edition/)。
+
+```python
+# 安装必要的包
+pip install -qU  langchain-openai langchain-community
+pip install "gpudb>=7.2.2.0"
+pip install -qU  tiktoken
+```
+
+我们想使用 `OpenAIEmbeddings`，所以必须获取 OpenAI API 密钥。
+
+```python
+import getpass
+import os
+
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("OpenAI API Key:")
+```
+
+```python
+## 加载环境变量
+from dotenv import load_dotenv
+
+load_dotenv()
+```
+
+```text
+False
+```
+
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_community.vectorstores import (
+    Kinetica,
+    KineticaSettings,
+)
+from langchain_openai import OpenAIEmbeddings
+```
+
+```python
+embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+```
+
+```python
+# Kinetica 需要连接到数据库。
+# 这是设置方法。
+HOST = os.getenv("KINETICA_HOST", "http://127.0.0.1:9191")
+USERNAME = os.getenv("KINETICA_USERNAME", "")
+PASSWORD = os.getenv("KINETICA_PASSWORD", "")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+
+
+def create_config() -> KineticaSettings:
+    return KineticaSettings(host=HOST, username=USERNAME, password=PASSWORD)
+```
+
+```python
+from uuid import uuid4
+
+from langchain_core.documents import Document
+
+document_1 = Document(
+    page_content="I had chocolate chip pancakes and scrambled eggs for breakfast this morning.",
+    metadata={"source": "tweet"},
+)
+
+document_2 = Document(
+    page_content="The weather forecast for tomorrow is cloudy and overcast, with a high of 62 degrees.",
+    metadata={"source": "news"},
+)
+
+document_3 = Document(
+    page_content="Building an exciting new project with LangChain - come check it out!",
+    metadata={"source": "tweet"},
+)
+
+document_4 = Document(
+    page_content="Robbers broke into the city bank and stole $1 million in cash.",
+    metadata={"source": "news"},
+)
+
+document_5 = Document(
+    page_content="Wow! That was an amazing movie. I can't wait to see it again.",
+    metadata={"source": "tweet"},
+)
+
+document_6 = Document(
+    page_content="Is the new iPhone worth the price? Read this review to find out.",
+    metadata={"source": "website"},
+)
+
+document_7 = Document(
+    page_content="The top 10 soccer players in the world right now.",
+    metadata={"source": "website"},
+)
+
+document_8 = Document(
+    page_content="LangGraph is the best framework for building stateful, agentic applications!",
+    metadata={"source": "tweet"},
+)
+
+document_9 = Document(
+    page_content="The stock market is down 500 points today due to fears of a recession.",
+    metadata={"source": "news"},
+)
+
+document_10 = Document(
+    page_content="I have a bad feeling I am going to get deleted :(",
+    metadata={"source": "tweet"},
+)
+
+documents = [
+    document_1,
+    document_2,
+    document_3,
+    document_4,
+    document_5,
+    document_6,
+    document_7,
+    document_8,
+    document_9,
+    document_10,
+]
+uuids = [str(uuid4()) for _ in range(len(documents))]
+```
+
+## 使用欧几里得距离进行相似性搜索（默认）
+
+```python
+# Kinetica 模块将尝试创建一个以集合名称为名的表。
+# 因此，请确保集合名称唯一，并且用户有创建表的权限。
+
+COLLECTION_NAME = "langchain_example"
+connection = create_config()
+
+db = Kinetica(
+    connection,
+    embeddings,
+    collection_name=COLLECTION_NAME,
+)
+
+db.add_documents(documents=documents, ids=uuids)
+```
+
+```python
+['05e5a484-0273-49d1-90eb-1276baca31de',
+ 'd98b808f-dc0b-4328-bdbf-88f6b2ab6040',
+ 'ba0968d4-e344-4285-ae0f-f5199b56f9d6',
+ 'a25393b8-6539-45b5-993e-ea16d01941ec',
+ '804a37e3-1278-4b60-8b02-36b159ee8c1a',
+ '9688b594-3dc6-41d2-a937-babf8ff24c2f',
+ '40f7b8fe-67c7-489a-a5a5-7d3965e33bba',
+ 'b4fc1376-c113-41e9-8f16-f9320517bedd',
+ '4d94d089-fdde-442b-84ab-36d9fe0670c8',
+ '66fdb79d-49ce-4b06-901a-fda6271baf2a']
+```
+
+```python
+# query = "What did the president say about Ketanji Brown Jackson"
+# docs_with_score = db.similarity_search_with_score(query)
+```
+
+```python
+print()
+print("相似性搜索")
+results = db.similarity_search(
+    "LangChain provides abstractions to make working with LLMs easy",
+    k=2,
+    filter={"source": "tweet"},
+)
+for res in results:
+    print(f"* {res.page_content} [{res.metadata}]")
+
+print()
+print("带分数的相似性搜索")
+results = db.similarity_search_with_score(
+    "Will it be hot tomorrow?", k=1, filter={"source": "news"}
+)
+for res, score in results:
+    print(f"* [SIM={score:3f}] {res.page_content} [{res.metadata}]")
+```
+
+```text
+相似性搜索
+* Building an exciting new project with LangChain - come check it out! [{'source': 'tweet'}]
+* LangGraph is the best framework for building stateful, agentic applications! [{'source': 'tweet'}]
+
+带分数的相似性搜索
+* [SIM=0.945397] The weather forecast for tomorrow is cloudy and overcast, with a high of 62 degrees. [{'source': 'news'}]
+```
+
+## 使用向量存储
+
+上面，我们从零开始创建了一个向量存储。然而，我们通常希望使用现有的向量存储。
+为此，我们可以直接初始化它。
+
+```python
+store = Kinetica(
+    collection_name=COLLECTION_NAME,
+    config=connection,
+    embedding_function=embeddings,
+)
+```
+
+### 添加文档
+
+我们可以向现有的向量存储添加文档。
+
+```python
+store.add_documents([Document(page_content="foo")])
+```
+
+```python
+['68c4c679-c4d9-4f2d-bf01-f6c4f2181503']
+```
+
+```python
+docs_with_score = db.similarity_search_with_score("foo")
+```
+
+```python
+docs_with_score[0]
+```
+
+```text
+(Document(metadata={}, page_content='foo'), 0.0015394920483231544)
+```
+
+```python
+docs_with_score[1]
+```
+
+```text
+(Document(metadata={'source': 'tweet'}, page_content='Building an exciting new project with LangChain - come check it out!'),
+ 1.2609431743621826)
+```
+
+### 覆盖向量存储
+
+如果你有一个现有的集合，可以通过执行 `from_documents` 并设置 `pre_delete_collection` = True 来覆盖它。
+
+```python
+db = Kinetica.from_documents(
+    documents=documents,
+    embedding=embeddings,
+    collection_name=COLLECTION_NAME,
+    config=connection,
+    pre_delete_collection=True,
+)
+```
+
+```python
+docs_with_score = db.similarity_search_with_score("foo")
+```
+
+```python
+docs_with_score[0]
+```
+
+```text
+(Document(metadata={'source': 'tweet'}, page_content='Building an exciting new project with LangChain - come check it out!'),
+ 1.260920763015747)
+```
+
+### 将 VectorStore 用作检索器
+
+```python
+retriever = store.as_retriever()
+```
+
+```python
+print(retriever)
+```
+
+```text
+tags=['Kinetica', 'OpenAIEmbeddings'] vectorstore=<langchain_community.vectorstores.kinetica.Kinetica object at 0x7a48142b2230> search_kwargs={}
+```

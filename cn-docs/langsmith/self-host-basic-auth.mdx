@@ -1,0 +1,62 @@
+---
+title: 使用邮箱和密码进行基本身份验证
+sidebarTitle: Set up basic authentication
+---
+LangSmith 支持通过用户名/密码登录，但存在一些限制：
+
+* 您无法将现有安装从基础认证模式更改为 OAuth with PKCE（已弃用），反之亦然——安装必须是其中一种模式。**基础认证安装需要完全重新安装，包括单独的 PostgreSQL 数据库/模式，除非是从现有的 `None` 类型安装迁移而来（见下文）。**
+* 用户在被邀请后必须获得其初始自动生成的密码。此密码之后可由任何组织管理员更改。
+* 您不能同时使用基础认证和带有客户端密钥的 OAuth。
+
+## 要求与特性
+
+* 在初始安装期间会预置一个单一的 `Default` 组织，不支持创建额外的组织。
+* 您的初始密码（如下配置）必须至少 12 个字符长，并且至少包含一个小写字母、一个大写字母和一个符号。
+* 用于签名 JWT 的密钥没有严格的要求，但我们建议安全地生成一个至少 32 个字符的字符串。例如：`openssl rand -base64 32`
+
+### 从 None 认证迁移
+
+**仅支持 0.7 及以上版本。**
+
+从 [None](/langsmith/authentication-methods#none) 认证模式迁移安装，会将单一的“默认”用户替换为具有配置凭据的用户，并保留所有现有资源。迁移后，单一预存在的工作空间 ID 仍为 `00000000-0000-0000-0000-000000000000`，但迁移后安装的其他方面均符合基础认证安装的标准。
+
+要进行迁移，只需按如下所示更新您的配置，并照常运行 `helm upgrade`（或 `docker-compose up`）。
+
+### 配置
+
+<Note>
+更改 JWT 密钥将使您的用户退出登录
+</Note>
+
+<CodeGroup>
+
+```yaml Helm
+config:
+  authType: mixed
+  basicAuth:
+    enabled: true
+    initialOrgAdminEmail: <您的邮箱地址>
+    initialOrgAdminPassword: <密码> # 必须至少 12 个字符长，并且至少包含一个小写字母、一个大写字母和一个符号
+    jwtSecret: <密钥>
+```
+
+```bash Docker
+# 在您的 .env 文件中
+AUTH_TYPE=mixed
+BASIC_AUTH_ENABLED=true
+INITIAL_ORG_ADMIN_EMAIL=<您的邮箱地址>
+INITIAL_ORG_ADMIN_PASSWORD=<密码> # 必须至少 12 个字符长，并且至少包含一个小写字母、一个大写字母和一个符号
+BASIC_AUTH_JWT_SECRET=<密钥>
+```
+
+</CodeGroup>
+
+此外，在 docker-compose 中，您需要运行引导命令来创建初始组织和用户：
+
+```bash
+docker-compose exec langchain-backend python hooks/auth_bootstrap.pyc
+```
+
+配置完成后，您将看到如下所示的登录界面。您应该能够使用 `initialOrgAdminEmail` 和 `initialOrgAdminPassword` 的值登录，您的用户将自动被预置为 `Organization Admin` 角色。有关组织角色的更多详细信息，请参阅[管理员指南](/langsmith/administration-overview#organization-roles)。
+
+![LangSmith UI with basic auth](/langsmith/images/langsmith-ui-basic-auth.png)

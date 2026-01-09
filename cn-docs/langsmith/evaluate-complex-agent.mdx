@@ -1,0 +1,442 @@
+---
+title: 评估一个复杂代理
+sidebarTitle: Evaluate a complex agent
+---
+<Info>
+[智能体评估](/langsmith/evaluation-concepts#agents) | [评估器](/langsmith/evaluation-concepts#evaluators) | [LLM 作为裁判的评估器](/langsmith/evaluation-concepts#llm-as-judge)
+</Info>
+
+在本教程中，我们将构建一个客户支持机器人，帮助用户浏览一家数字音乐商店。然后，我们将介绍对聊天机器人进行的最有效的三种评估类型：
+
+* [最终响应](/langsmith/evaluation-concepts#evaluating-an-agents-final-response)：评估智能体的最终响应。
+* [轨迹](/langsmith/evaluation-concepts#evaluating-an-agents-trajectory)：评估智能体是否采取了预期的路径（例如，工具调用序列）来得出最终答案。
+* [单步](/langsmith/evaluation-concepts#evaluating-a-single-step-of-an-agent)：独立评估智能体的任何步骤（例如，对于给定步骤，它是否选择了合适的第一个工具）。
+
+我们将使用 [LangGraph](https://github.com/langchain-ai/langgraph) 来构建我们的智能体，但这里展示的技术和 LangSmith 功能是与框架无关的。
+
+## 设置
+
+### 配置环境
+
+让我们安装所需的依赖项：
+
+<CodeGroup>
+```bash pip
+pip install -U langgraph "langchain[openai]"
+```
+
+```bash uv
+uv add langgraph "langchain[openai]"
+```
+</CodeGroup>
+
+让我们为 OpenAI 和 [LangSmith](https://smith.langchain.com) 设置环境变量：
+
+```python
+import getpass
+import os
+
+def _set_env(var: str) -> None:
+    if not os.environ.get(var):
+        os.environ[var] = getpass.getpass(f"Set {var}: ")
+
+os.environ["LANGSMITH_TRACING"] = "true"
+_set_env("LANGSMITH_API_KEY")
+_set_env("OPENAI_API_KEY")
+```
+
+### 下载数据库
+
+我们将为本教程创建一个 SQLite 数据库。SQLite 是一个轻量级数据库，易于设置和使用。我们将加载 `chinook` 数据库，这是一个代表数字媒体商店的示例数据库。有关该数据库的更多信息，请参见[此处](https://www.sqlitetutorial.net/sqlite-sample-database/)。
+
+为了方便起见，我们已将数据库托管在一个公共的 GCS 存储桶中：
+
+```python
+import requests
+
+url = "https://storage.googleapis.com/benchmarks-artifacts/chinook/Chinook.db"
+response = requests.get(url)
+
+if response.status_code == 200:
+    # Open a local file in binary write mode
+    with open("chinook.db", "wb") as file:
+        # Write the content of the response (the file) to the local file
+        file.write(response.content)
+    print("File downloaded and saved as Chinook.db")
+else:
+    print(f"Failed to download the file. Status code: {response.status_code}")
+```
+
+以下是数据库中的数据示例：
+
+```python
+import sqlite3
+# ... database connection and query code
+```
+
+```
+[(1, 'AC/DC'), (2, 'Accept'), (3, 'Aerosmith'), (4, 'Alanis Morissette'), (5, 'Alice In Chains'), (6, 'Antônio Carlos Jobim'), (7, 'Apocalyptica'), (8, 'Audioslave'), (9, 'BackBeat'), (10, 'Billy Cobham')]
+```
+
+以下是数据库模式图（图片来自 [https://github.com/lerocha/chinook-database](https://github.com/lerocha/chinook-database)）：
+
+![Chinook DB](/langsmith/images/chinook-diagram.png)
+
+### 定义客户支持智能体
+
+我们将创建一个 [LangGraph](https://langchain-ai.github.io/langgraph/) 智能体，并限制其对数据库的访问权限。出于演示目的，我们的智能体将支持两种基本类型的请求：
+
+* 查询：客户可以根据其他标识信息查找歌曲标题、艺术家姓名和专辑。例如："你们有哪些 Jimi Hendrix 的歌曲？"
+* 退款：客户可以要求对过去的购买进行退款。例如："我叫 Claude Shannon，我想对我上周的购买进行退款，你能帮我吗？"
+
+为了简化演示，我们将通过删除相应的数据库记录来实现退款。我们将跳过用户身份验证和其他生产环境安全措施的实现。
+
+智能体的逻辑将构建为两个独立的子图（一个用于查询，一个用于退款），并由一个父图将请求路由到适当的子图。
+
+#### 退款智能体
+
+让我们构建退款处理智能体。该智能体需要：
+
+1.  在数据库中查找客户的购买记录
+2.  删除相关的 Invoice 和 InvoiceLine 记录以处理退款
+
+我们将创建两个 SQL 辅助函数：
+
+1.  一个通过删除记录来执行退款的函数
+2.  一个用于查找客户购买历史的函数
+
+为了方便测试，我们将为这些函数添加一个“模拟”模式。当启用模拟模式时，这些函数将模拟数据库操作，而不会实际修改任何数据。
+
+```python
+import sqlite3
+
+def _refund(invoice_id: int | None, invoice_line_ids: list[int] | None, mock: bool = False) -> float:
+    ...
+
+def _lookup( ...
+```
+
+现在让我们定义我们的图。我们将使用一个简单的架构，包含三个主要路径：
+
+1.  从对话中提取客户和购买信息
+
+2.  将请求路由到以下三个路径之一：
+
+   * 退款路径：如果我们有足够的购买详细信息（发票 ID 或发票行 ID）来处理退款
+   * 查询路径：如果我们有足够的客户信息（姓名和电话）来搜索他们的购买历史
+   * 响应路径：如果我们需要更多信息，则向用户响应，请求提供所需的特定详细信息
+
+图的状态将跟踪：
+
+* 对话历史记录（用户和智能体之间的消息）
+* 从对话中提取的所有客户和购买信息
+* 要发送给用户的下一条消息（后续文本）
+
+```python
+from typing import Literal
+import json
+
+from langchain.chat_models import init_chat_model
+from langchain_core.runnables import RunnableConfig
+from langgraph.graph import END, StateGraph
+from langgraph.graph.message import AnyMessage, add_messages
+from langgraph.types import Command, interrupt
+from tabulate import tabulate
+from typing_extensions import Annotated, TypedDict
+
+# Graph state.
+class State(TypedDict):
+    """Agent state."""
+    messages: Annotated[list[AnyMessage], add_messages]
+    followup: str | None
+
+    invoice_id: int | None
+    invoice_line_ids: list[int] | None
+    customer_first_name: str | None
+    customer_last_name: str | None
+    customer_phone: str | None
+    track_name: str | None
+    album_title: str | None
+    artist_name: str | None
+    purchase_date_iso_8601: str | None
+
+# Instructions for extracting the user/purchase info from the conversation.
+gather_info_instructions = """You are managing an online music store that sells song tracks. \
+Customers can buy multiple tracks at a time and these purchases are recorded in a database as \
+an Invoice per purchase and an associated set of Invoice Lines for each purchased track.
+
+Your task is to help customers who would like a refund for one or more of the tracks they've \
+purchased. In order for you to be able refund them, the customer must specify the Invoice ID \
+to get a refund on all the tracks they bought in a single transaction, or one or more Invoice \
+Line IDs if they would like refunds on individual tracks.
+
+Often a user will not know the specific Invoice ID(s) or Invoice Line ID(s) for which they \
+would like a refund. In this case you can help them look up their invoices by asking them to \
+specify:
+- Required: Their first name, last name, and phone number.
+- Optionally: The track name, artist name, album name, or purchase date.
+
+If the customer has not specified the required information (either Invoice/Invoice Line IDs \
+or first name, last name, phone) then please ask them to specify it."""
+
+# Extraction schema, mirrors the graph state.
+class PurchaseInformation(TypedDict):
+    """All of the known information about the invoice / invoice lines the customer would like refunded. Do not make up values, leave fields as null if you don't know their value."""
+
+    invoice_id: int | None
+    invoice_line_ids: list[int] | None
+    customer_first_name: str | None
+    customer_last_name: str | None
+    customer_phone: str | None
+    track_name: str | None
+    album_title: str | None
+    artist_name: str | None
+    purchase_date_iso_8601: str | None
+    followup: Annotated[
+        str | None,
+        ...,
+        "If the user hasn't enough identifying information, please tell them what the required information is and ask them to specify it.",
+    ]
+
+# Model for performing extraction.
+info_llm = init_chat_model("gpt-4o-mini").with_structured_output(
+    PurchaseInformation, method="json_schema", include_raw=True
+)
+
+# Graph node for extracting user info and routing to lookup/refund/END.
+async def gather_info(state: State) -> Command[Literal["lookup", "refund", END]]:
+    info = await info_llm.ainvoke(
+        [
+            {"role": "system", "content": gather_info_instructions},
+            *state["messages"],
+        ]
+    )
+    parsed = info["parsed"]
+    if any(parsed[k] for k in ("invoice_id", "invoice_line_ids")):
+        goto = "refund"
+    elif all(
+        parsed[k]
+        for k in ("customer_first_name", "customer_last_name", "customer_phone")
+    ):
+        goto = "lookup"
+    else:
+        goto = END
+    update = {"messages": [info["raw"]], **parsed}
+    return Command(update=update, goto=goto)
+
+# Graph node for executing the refund.
+# Note that here we inspect the runtime config for an "env" variable.
+# If "env" is set to "test", then we don't actually delete any rows from our database.
+# This will become important when we're running our evaluations.
+def refund(state: State, config: RunnableConfig) -> dict:
+    # Whether to mock the deletion. True if the configurable var 'env' is set to 'test'.
+    mock = config.get("configurable", {}).get("env", "prod") == "test"
+    refunded = _refund(
+        invoice_id=state["invoice_id"], invoice_line_ids=state["invoice_line_ids"], mock=mock
+    )
+    response = f"You have been refunded a total of: ${refunded:.2f}. Is there anything else I can help with?"
+    return {
+        "messages": [{"role": "assistant", "content": response}],
+        "followup": response,
+    }
+
+# Graph node for looking up the users purchases
+def lookup(state: State) -> dict:
+    args = (
+        state[k]
+        for k in (
+            "customer_first_name",
+            "customer_last_name",
+            "customer_phone",
+            "track_name",
+            "album_title",
+            "artist_name",
+            "purchase_date_iso_8601",
+        )
+    )
+    results = _lookup(*args)
+    if not results:
+        response = "We did not find any purchases associated with the information you've provided. Are you sure you've entered all of your information correctly?"
+        followup = response
+    else:
+        response = f"Which of the following purchases would you like to be refunded for?\n\n```json{json.dumps(results, indent=2)}\n```"
+        followup = f"Which of the following purchases would you like to be refunded for?\n\n{tabulate(results, headers='keys')}"
+    return {
+        "messages": [{"role": "assistant", "content": response}],
+        "followup": followup,
+        "invoice_line_ids": [res["invoice_line_id"] for res in results],
+    }
+
+# Building our graph
+graph_builder = StateGraph(State)
+
+graph_builder.add_node(gather_info)
+graph_builder.add_node(refund)
+graph_builder.add_node(lookup)
+
+graph_builder.set_entry_point("gather_info")
+graph_builder.add_edge("lookup", END)
+graph_builder.add_edge("refund", END)
+
+refund_graph = graph_builder.compile()
+```
+
+我们可以可视化我们的退款图：
+
+```
+# Assumes you're in an interactive Python environmentfrom IPython.display import Image, display ...
+```
+
+![Refund graph](/langsmith/images/refund-graph.png)
+
+#### 查询智能体
+
+对于查询（即问答）智能体，我们将使用一个简单的 ReACT 架构，并为智能体提供工具，用于根据各种过滤器查找曲目名称、艺术家名称和专辑名称。例如，您可以查找特定艺术家的专辑、发布具有特定名称歌曲的艺术家等。
+
+```python
+from langchain.embeddings import init_embeddings
+from langchain.tools import tool
+from langchain_core.vectorstores import InMemoryVectorStore
+from langchain.agents import create_agent
+
+
+# Our SQL queries will only work if we filter on the exact string values that are in the DB.
+# To ensure this, we'll create vectorstore indexes for all of the artists, tracks and albums
+# ahead of time and use those to disambiguate the user input. E.g. if a user searches for
+# songs by "prince" and our DB records the artist as "Prince", ideally when we query our
+# artist vectorstore for "prince" we'll get back the value "Prince", which we can then
+# use in our SQL queries.
+def index_fields() -> tuple[InMemoryVectorStore, InMemoryVectorStore, InMemoryVectorStore]: ...
+
+track_store, artist_store, album_store = index_fields()
+
+# Agent tools
+@tool
+def lookup_track( ...
+
+@tool
+def lookup_album( ...
+
+@tool
+def lookup_artist( ...
+
+# Agent model
+qa_llm = init_chat_model("claude-sonnet-4-5-20250929")
+# The prebuilt ReACT agent only expects State to have a 'messages' key, so the
+# state we defined for the refund agent can also be passed to our lookup agent.
+qa_graph = create_agent(qa_llm, tools=[lookup_track, lookup_artist, lookup_album])
+```
+
+```
+display(Image(qa_graph.get_graph(xray=True).draw_mermaid_png()))
+```
+
+![QA Graph](/langsmith/images/qa-graph.png)
+
+#### 父智能体
+
+现在让我们定义一个父智能体，它结合了我们两个特定任务的智能体。父智能体的唯一工作是通过对用户当前意图进行分类来路由到其中一个子智能体，并将输出编译成后续消息。
+
+```python
+# Schema for routing user intent.
+# We'll use structured output to enforce that the model returns only
+# the desired output.
+class UserIntent(TypedDict):
+    """The user's current intent in the conversation"""
+
+    intent: Literal["refund", "question_answering"]
+
+# Routing model with structured output
+router_llm = init_chat_model("gpt-4o-mini").with_structured_output(
+    UserIntent, method="json_schema", strict=True
+)
+
+# Instructions for routing.
+route_instructions = """You are managing an online music store that sells song tracks. \
+You can help customers in two types of ways: (1) answering general questions about \
+tracks sold at your store, (2) helping them get a refund on a purhcase they made at your store.
+
+Based on the following conversation, determine if the user is currently seeking general \
+information about song tracks or if they are trying to refund a specific purchase.
+
+Return 'refund' if they are trying to get a refund and 'question_answering' if they are \
+asking a general music question. Do NOT return anything else. Do NOT try to respond to \
+the user.
+"""
+
+# Node for routing.
+async def intent_classifier(
+    state: State,
+) -> Command[Literal["refund_agent", "question_answering_agent"]]:
+    response = router_llm.invoke(
+        [{"role": "system", "content": route_instructions}, *state["messages"]]
+    )
+    return Command(goto=response["intent"] + "_agent")
+
+# Node for making sure the 'followup' key is set before our agent run completes.
+def compile_followup(state: State) -> dict:
+    """Set the followup to be the last message if it hasn't explicitly been set."""
+    if not state.get("followup"):
+        return {"followup": state["messages"][-1].content}
+    return {}
+
+# Agent definition
+graph_builder = StateGraph(State)
+graph_builder.add_node(intent_classifier)
+# Since all of our subagents have compatible state,
+# we can add them as nodes directly.
+graph_builder.add_node("refund_agent", refund_graph)
+graph_builder.add_node("question_answering_agent", qa_graph)
+graph_builder.add_node(compile_followup)
+
+graph_builder.set_entry_point("intent_classifier")
+graph_builder.add_edge("refund_agent", "compile_followup")
+graph_builder.add_edge("question_answering_agent", "compile_followup")
+graph_builder.add_edge("compile_followup", END)
+
+graph = graph_builder.compile()
+```
+
+我们可以可视化我们编译的父图，包括其所有子图：
+
+```python
+display(Image(graph.get_graph().draw_mermaid_png()))
+```
+
+![graph](/langsmith/images/agent-tutorial-graph.png)
+
+#### 试运行
+
+让我们试试我们的客户支持智能体！
+
+```python
+state = await graph.ainvoke(
+    {"messages": [{"role": "user", "content": "what james brown songs do you have"}]}
+)
+print(state["followup"])
+```
+```
+I found 20 James Brown songs in the database, all from the album "Sex Machine". Here they are: ...
+```
+
+```python
+state = await graph.ainvoke({"messages": [
+    {
+        "role": "user",
+        "content": "my name is Aaron Mitchell and my number is +1 (204) 452-6452. I bought some songs by Led Zeppelin that i'd like refunded",
+    }
+]})
+print(state["followup"])
+```
+
+```
+Which of the following purchases would you like to be refunded for? ...
+```
+
+## 评估
+
+现在我们有了一个可测试的智能体版本，让我们运行一些评估。智能体评估可以至少关注三个方面：
+
+* [最终响应](/langsmith/evaluation-concepts#evaluating-an-agents-final-response)：输入是一个提示（prompt）和一个可选的工具列表。输出是智能体的最终响应。
+* [轨迹](/langsmith/evaluation-concepts#evaluating-an-agents-trajectory)：与之前一样，输入是一个提示和一个可选的工具列表。输出是工具调用列表。
+* [

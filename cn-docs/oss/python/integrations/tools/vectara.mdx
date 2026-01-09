@@ -1,0 +1,191 @@
+---
+title: Vectara
+---
+[Vectara](https://vectara.com/) 是一个值得信赖的 AI 助手和智能体平台，专注于为关键任务应用提供企业级就绪能力。更多[详情](../providers/vectara.ipynb)。
+
+[Vectara](https://vectara.com/) 提供了多个可与 LangChain 结合使用的工具。
+
+- **VectaraSearch**: 用于在语料库上进行语义搜索
+- **VectaraRAG**: 用于使用 RAG 生成摘要
+- **VectaraIngest**: 用于将文档摄取到语料库中
+- **VectaraAddFiles**: 用于上传文件
+
+## 设置
+
+要使用 `Vectara 工具`，首先需要安装合作伙伴包。
+
+```python
+!uv pip install -U pip && uv pip install -qU langchain-vectara langgraph
+```
+
+# 快速开始
+
+请按照以下步骤开始使用：
+
+1.  如果您还没有账户，请[注册](https://www.vectara.com/integrations/langchain)免费试用 Vectara。
+2.  在您的账户内，可以创建一个或多个语料库。每个语料库代表一个存储从输入文档摄取文本数据的区域。要创建语料库，请使用 **"创建语料库"** 按钮。然后为语料库提供名称和描述。您可以选择定义过滤属性并应用一些高级选项。点击您创建的语料库，可以在顶部看到其名称和语料库 ID。
+3.  接下来，您需要创建 API 密钥来访问语料库。在语料库视图中点击 **"访问控制"** 选项卡，然后点击 **"创建 API 密钥"** 按钮。为您的密钥命名，并选择是希望密钥仅用于查询还是查询+索引。点击"创建"，您现在就有了一个活跃的 API 密钥。请妥善保管此密钥。
+
+要将 LangChain 与 Vectara 结合使用，您需要这两个值：`corpus_key` 和 `api_key`。
+您可以通过两种方式向 LangChain 提供 `VECTARA_API_KEY`：
+
+## 实例化
+
+1.  在您的环境中包含这两个变量：`VECTARA_API_KEY`。
+
+    例如，您可以使用 os.environ 和 getpass 设置这些变量，如下所示：
+
+```python
+import os
+import getpass
+
+os.environ["VECTARA_API_KEY"] = getpass.getpass("Vectara API Key:")
+```
+
+2.  将它们添加到 `Vectara` 向量存储构造函数中：
+
+```python
+vectara = Vectara(
+    vectara_api_key=vectara_api_key
+)
+```
+
+在本笔记本中，我们假设它们已在环境中提供。
+
+```python
+import os
+
+os.environ["VECTARA_API_KEY"] = "<VECTARA_API_KEY>"
+os.environ["VECTARA_CORPUS_KEY"] = "<VECTARA_CORPUS_KEY>"
+os.environ["OPENAI_API_KEY"] = "<OPENAI_API_KEY>"
+
+from langchain_vectara import Vectara
+from langchain_vectara.tools import (
+    VectaraAddFiles,
+    VectaraIngest,
+    VectaraRAG,
+    VectaraSearch,
+)
+from langchain_vectara.vectorstores import (
+    ChainReranker,
+    CorpusConfig,
+    CustomerSpecificReranker,
+    File,
+    GenerationConfig,
+    MmrReranker,
+    SearchConfig,
+    VectaraQueryConfig,
+)
+
+vectara = Vectara(vectara_api_key=os.getenv("VECTARA_API_KEY"))
+```
+
+首先，我们将国情咨文文本加载到 Vectara 中。
+
+请注意，我们使用了 `VectaraAddFiles` 工具，它不需要任何本地处理或分块 - Vectara 接收文件内容并执行所有必要的预处理、分块和嵌入，将文件存入其知识库。
+
+本例中使用的是 .txt 文件，但同样适用于许多其他[文件类型](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload-filetypes)。
+
+```python
+corpus_key = os.getenv("VECTARA_CORPUS_KEY")
+
+add_files_tool = VectaraAddFiles(
+    name="add_files_tool",
+    description="Upload files about state of the union",
+    vectorstore=vectara,
+    corpus_key=corpus_key,
+)
+
+file_obj = File(
+    file_path="../document_loaders/example_data/state_of_the_union.txt",
+    metadata={"source": "text_file"},
+)
+add_files_tool.run({"files": [file_obj]})
+```
+
+```text
+'Successfully uploaded 1 files to Vectara corpus test-langchain with IDs: state_of_the_union.txt'
+```
+
+## Vectara RAG (检索增强生成)
+
+我们现在创建一个 `VectaraQueryConfig` 对象来控制检索和摘要生成选项：
+- 我们启用摘要生成，指定希望 LLM 选取前 7 个匹配的文本块并用英语进行回复
+
+使用此配置，让我们创建一个封装完整 Vectara RAG 流程的 LangChain 工具 `VectaraRAG` 对象：
+
+```python
+generation_config = GenerationConfig(
+    max_used_search_results=7,
+    response_language="eng",
+    generation_preset_name="vectara-summary-ext-24-05-med-omni",
+    enable_factual_consistency_score=True,
+)
+search_config = SearchConfig(
+    corpora=[CorpusConfig(corpus_key=corpus_key)],
+    limit=25,
+    reranker=ChainReranker(
+        rerankers=[
+            CustomerSpecificReranker(reranker_id="rnk_272725719", limit=100),
+            MmrReranker(diversity_bias=0.2, limit=100),
+        ]
+    ),
+)
+
+config = VectaraQueryConfig(
+    search=search_config,
+    generation=generation_config,
+)
+
+query_str = "what did Biden say?"
+
+vectara_rag_tool = VectaraRAG(
+    name="rag-tool",
+    description="Get answers about state of the union",
+    vectorstore=vectara,
+    corpus_key=corpus_key,
+    config=config,
+)
+```
+
+## 调用
+
+```python
+vectara_rag_tool.run(query_str)
+```
+
+```text
+'{\n  "summary": "President Biden discussed several key topics in his recent statements. He emphasized the importance of keeping schools open and noted that with a high vaccination rate and reduced hospitalizations, most Americans can safely return to normal activities [1]. He addressed the need to hold social media platforms accountable for their impact on children and called for stronger privacy protections and mental health services [2]. Biden also announced measures against Russia, including preventing its central bank from defending the Ruble and targeting Russian oligarchs\' assets, as well as closing American airspace to Russian flights [3], [7]. Additionally, he reaffirmed the need to protect women\'s rights, particularly the right to choose as affirmed in Roe v. Wade [5].",\n  "factual_consistency_score": 0.5415039\n}'
+```
+
+## Vectara 作为 LangChain 检索器
+
+`VectaraSearch` 工具可以仅用作检索器。
+
+在这种情况下，它的行为与任何其他 LangChain 检索器一样。此模式的主要用途是进行语义搜索，并且在这种情况下我们禁用摘要生成：
+
+```python
+search_config = SearchConfig(
+    corpora=[CorpusConfig(corpus_key=corpus_key)],
+    limit=25,
+    reranker=ChainReranker(
+        rerankers=[
+            CustomerSpecificReranker(reranker_id="rnk_272725719", limit=100),
+            MmrReranker(diversity_bias=0.2, limit=100),
+        ]
+    ),
+)
+
+search_tool = VectaraSearch(
+    name="Search tool",
+    description="Search for information about state of the union",
+    vectorstore=vectara,
+    corpus_key=corpus_key,
+    search_config=search_config,
+)
+
+search_tool.run({"query": "What did Biden say?"})
+```
+
+```text
+'[\n  {\n    "index": 0,\n    "content": "The vast majority of federal workers will once again work in person. Our schools are open. Let\\u2019s keep it that way. Our kids need to be in school. And with 75% of adult Americans fully vaccinated and hospitalizations down by 77%, most Americans can remove their masks, return to work, stay in the classroom, and move forward safely.",\n    "source": "text_file",\n    "metadata": {\n      "X-TIKA:Parsed-By": "org.apache.tika.parser.csv.TextAndCSVParser",\n      "Content-Encoding": "UTF-8",\n      "X-TIKA:detectedEncoding": "UTF-8",\n      "X-TIKA:encodingDetector": "UniversalEncodingDetector",\n      "Content-Type": "text/plain; charset=UTF-8",\n      "source": "text_file",\n      "framework": "langchain"\n    },\n    "score": 0.9988395571708679\n  },\n  {\n    "index": 1,\n    "content": "Children were also struggling before the pandemic. Bullying, violence, trauma, and the harms of social media. As Frances Haugen, who is here with us tonight, has shown, we must hold social media platforms accountable for the national experiment they\\u2019re conducting on our children for profit. It\\u2019s time to strengthen privacy protections, ban targeted advertising to children, demand tech companies stop collecting personal data on our children. And let\\u2019s get all Americans the mental health services they need.",\n    "source": "text_file",\n    "metadata": {\n      "X-TIKA:Parsed-By": "org.apache.tika.parser.csv.TextAndCSVParser",\n      "Content-Encoding": "UTF-8",\n      "X-TIKA:detectedEncoding": "UTF-8",\n      "X-TIKA:encodingDetector": "UniversalEncodingDetector",\n      "Content-Type": "text/plain; charset=UTF-8",\n      "source": "text_file",\n      "framework": "langchain"\n    },\n    "score": 0.6355851888656616\n  },\n  {\n    "index": 2,\n    "content": "Preventing Russia\\u2019s central bank from defending the Russian Ruble making Putin\\u2019s $630 Billion \\u201cwar fund\\u201d worthless. We are choking off Russia\\u2019s access to technology that will sap its economic strength and weaken its military for years to come. Tonight I say to the Russian oligarchs and corrupt leaders who have bilked billions of dollars off this violent regime no more. The U.S. Department of Justice is assembling a dedicated task force to go after the crimes of Russian oligarchs. We are joining with our European allies to find and seize your yachts your luxury apartments your private jets.",\n    "source": "text_file",\n    "metadata": {\n      "X-TIKA:Parsed-By": "org.apache.tika.parser.csv.TextAndCSVParser",\n      "Content-Encoding": "UTF-8",\n      "X-TIKA:detectedEncoding": "UTF-8",\n      "X-TIKA:encodingDetector": "UniversalEncodingDetector",\n      "Content-Type": "text/plain; charset=UTF-8",\n      "source": "text_file",\n      "framework": "langchain"\n    },\n    "score": 0.6353664994239807\n  },\n  {\n    "index": 3,\n    "content": "When they came home, many of the world\\u2019s fittest and best trained warriors were never the same. Dizziness. \\n\\nA cancer that would put them in a flag-draped coffin. I know. \\n\\nOne of those soldiers was my son Major Beau Biden. We don\\u2019t know for sure if a burn pit was the cause of his brain cancer, or the diseases of so many of our troops. But I\\u2019m committed to finding out everything we can.",\n    "source": "text_file",\n    "metadata": {\n      "X-TIKA:Parsed-By": "org.apache.tika.parser.csv.TextAndCSVParser",\n      "Content-Encoding": "UTF-8",\n      "X-TIKA:detectedEncoding": "UTF-8",\n      "X-TIKA:encodingDetector": "UniversalEncodingDetector",\n      "Content-Type": "text/plain; charset=UTF-8",\n      "source": "text_file",\n      "framework": "langchain"\n    },\n    "score": 0.6315145492553711\n  },\n  {\n    "index": 4,\n    "content": "Let\\u2019s get it done once and for all. Advancing liberty and justice also requires protecting the rights of women. The constitutional right affirmed in Roe v. Wade\\u2014standing precedent for half a century\\u2014is under attack as never before. If we want to go forward\\u2014not backward\\u2014we must protect access to health care. Preserve a woman\\u2019s right to choose.",\n    "source": "text_file",\n    "metadata": {\n      "X-TIKA:Parsed-By": "org.apache.tika.parser.csv.TextAndCSVParser",\n      "Content-Encoding": "UTF-8",\n      "X-TIKA:detectedEncoding": "UTF-8",\n      "X-TIKA:encodingDetector": "UniversalEncodingDetector",\n      "Content-Type": "text/plain; charset=UTF-8",\n      "source": "text_file",\n      "framework": "langchain"\n    },\n    "score": 0.6307355165481567\n  },\n  {\n    "index": 5,\n    "content": "That\\u2019s why the Justice Department required body cameras, banned chokeholds, and restricted no-knock warrants for its officers. That\\u2019s why the American Rescue Plan provided $350 Billion that cities, states, and counties can use to hire more police and invest in proven strategies like community violence interruption\\u2014trusted messengers breaking the cycle of violence and trauma and giving young people hope. We should all agree: The answer is not to Defund the police. The answer is to FUND the police with the resources and training they need to protect our communities. I ask Democrats and Republicans alike: Pass my budget and keep our neighborhoods safe.",\n    "source": "text_file",\n    "metadata": {\n      "X-TIKA:Parsed-By": "org.apache.tika.parser.csv.TextAndCSVParser",\n      "Content-Encoding": "UTF-8",\n      "X-TIKA:detectedEncoding": "UTF-8",\n      "X-TIKA:encodingDetector": "UniversalEncodingDetector",\n      "Content-Type": "text/plain; charset=UTF-8",\n      "source": "text_file",\n      "framework": "langchain"\n    },\n    "score": 0.6283233761787415\n  },\n  {\n    "index": 6,\n    "content": "The U.S. Department of Justice is assembling a dedicated task force to go after the crimes of Russian oligarchs. We are joining with our European allies to find and seize your yachts your luxury apartments your private jets. We are coming for your ill-begotten gains. And tonight I am announcing that we will join our allies in closing off American air space to all Russian flights \\u2013 further isolating Russia \\u2013 and adding an additional squeeze \\u2013on their economy. The Ruble has lost 30% of its value.",\n    "source": "text_file",\n    "metadata": {\n      "X-TIKA:Parsed-By": "org.apache.tika.parser.csv.TextAndCSVParser",\n      "Content-Encoding": "UTF-8",\n      "X-TIKA:detectedEncoding": "UTF-8",\n      "X-TIKA:encodingDetector": "UniversalEncodingDetector",\n      "Content-Type": "text/plain; charset=UTF-8",\n      "source": "text_file",\n      "framework": "langchain"\n    },\n    "score": 0.6250241994857788\n  },\n  {\n    "index": 7,\n    "content": "Tonight, I can announce that the United States has worked with 30 other countries to release 60 Million barrels of oil from reserves around the world. America will lead that effort, releasing 30 Million barrels from our own Strategic Petroleum Reserve. And we stand ready to do more if necessary, unified with our allies. These steps will help blunt gas prices here at home. And I know the news about what\\u2019s happening can seem alarming.",\n    "source": "text_file",\n    "metadata": {\n      "X-TIKA:Parsed-By": "org.apache.tika.parser.csv.TextAndCSVParser",\n      "Content-Encoding": "UTF-8",\n      "X-TIKA:detectedEncoding": "UTF-8",\n      "X-TIKA:encodingDetector": "UniversalEncodingDetector",\n      "Content-Type": "text/plain; charset=UTF-8",\n      "source": "text_file",\n      "framework": "langchain"\n    },\n    "score": 0.6240909099578857\n  },\n  {\n    "index": 8,\n    "content": "So tonight I\\u2019m offering a Unity Agenda for the Nation. Four big things we can do together. First, beat the opioid epidemic. There is so much we can do. Increase funding for prevention, treatment, harm reduction, and recovery.",\n    "source": "text_file",\n    "metadata": {\n      "X-TIKA:Parsed-By": "org.apache.tika.parser.csv.TextAndCSVParser",\n      "Content

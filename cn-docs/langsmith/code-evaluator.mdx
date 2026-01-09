@@ -1,0 +1,229 @@
+---
+title: 如何定义代码评估器
+sidebarTitle: Code evaluator
+---
+<Info>
+* [评估器](/langsmith/evaluation-concepts#evaluators)
+</Info>
+
+代码评估器本质上是一些函数，它们接收数据集示例和应用程序的输出结果，并返回一个或多个指标。这些函数可以直接传递给 [evaluate()](https://docs.smith.langchain.com/reference/python/evaluation/langsmith.evaluation._runner.evaluate) / [aevaluate()](https://docs.smith.langchain.com/reference/python/evaluation/langsmith.evaluation._arunner.aevaluate)。
+
+## 基础示例
+
+<CodeGroup>
+
+```python Python
+from langsmith import evaluate
+
+def correct(outputs: dict, reference_outputs: dict) -> bool:
+    """检查答案是否与预期答案完全匹配。"""
+    return outputs["answer"] == reference_outputs["answer"]
+
+def dummy_app(inputs: dict) -> dict:
+    return {"answer": "hmm i'm not sure", "reasoning": "i didn't understand the question"}
+
+results = evaluate(
+    dummy_app,
+    data="dataset_name",
+    evaluators=[correct]
+)
+```
+
+```typescript TypeScript
+import type { EvaluationResult } from "langsmith/evaluation";
+
+const correct = async ({ outputs, referenceOutputs }: {
+  outputs: Record<string, any>;
+  referenceOutputs?: Record<string, any>;
+}): Promise<EvaluationResult> => {
+  const score = outputs?.answer === referenceOutputs?.answer;
+  return { key: "correct", score };
+}
+```
+
+</CodeGroup>
+
+## 评估器参数
+
+代码评估器函数必须使用特定的参数名称。它们可以接受以下参数的任意子集：
+
+* `run: Run`: 应用程序在给定示例上生成的完整 [Run](/langsmith/run-data-format) 对象。
+* `example: Example`: 完整的数据集 [Example](/langsmith/example-data-format)，包括示例输入、输出（如果可用）和元数据（如果可用）。
+* `inputs: dict`: 与数据集中单个示例对应的输入字典。
+* `outputs: dict`: 应用程序在给定 `inputs` 上生成的输出字典。
+* `reference_outputs/referenceOutputs: dict`: 与示例关联的参考输出字典（如果可用）。
+
+对于大多数用例，你只需要 `inputs`、`outputs` 和 `reference_outputs`。`run` 和 `example` 仅在你需要应用程序实际输入和输出之外的一些额外追踪信息或示例元数据时才有用。
+
+在使用 JS/TS 时，这些参数都应作为单个对象参数的一部分传入。
+
+## 评估器输出
+
+代码评估器应返回以下类型之一：
+
+Python 和 JS/TS
+
+* `dict`: 形式为 `{"score" | "value": ..., "key": ...}` 的字典允许你自定义指标类型（"score" 表示数值型，"value" 表示分类型）和指标名称。例如，如果你想将一个整数记录为分类型指标，这很有用。
+
+仅限 Python
+
+* `int | float | bool`: 这被解释为可以求平均值、排序等的连续型指标。函数名被用作指标的名称。
+* `str`: 这被解释为分类型指标。函数名被用作指标的名称。
+* `list[dict]`: 使用单个函数返回多个指标。
+
+## 更多示例
+
+需要 `langsmith>=0.2.0`
+
+<CodeGroup>
+
+```python Python
+from langsmith import evaluate, wrappers
+from langsmith.schemas import Run, Example
+from openai import AsyncOpenAI
+# 假设已安装 pydantic。
+from pydantic import BaseModel
+
+# 如果我们愿意，仍然可以传入 Run 和 Example 对象
+def correct_old_signature(run: Run, example: Example) -> dict:
+    """检查答案是否与预期答案完全匹配。"""
+    return {"key": "correct", "score": run.outputs["answer"] == example.outputs["answer"]}
+
+# 仅评估实际输出
+def concision(outputs: dict) -> int:
+    """评估答案的简洁程度。1 表示最简洁，5 表示最不简洁。"""
+    return min(len(outputs["answer"]) // 1000, 4) + 1
+
+# 使用 LLM 作为评判器
+oai_client = wrappers.wrap_openai(AsyncOpenAI())
+
+async def valid_reasoning(inputs: dict, outputs: dict) -> bool:
+    """使用 LLM 判断推理过程和答案是否一致。"""
+    instructions = """
+给定以下问题、答案和推理过程，判断该答案的推理过程在逻辑上是否有效，并且与问题和答案保持一致。"""
+
+    class Response(BaseModel):
+        reasoning_is_valid: bool
+
+    msg = f"Question: {inputs['question']}\nAnswer: {outputs['answer']}\nReasoning: {outputs['reasoning']}"
+    response = await oai_client.beta.chat.completions.parse(
+        model="gpt-4o-mini",
+        messages=[{"role": "system", "content": instructions,}, {"role": "user", "content": msg}],
+        response_format=Response
+    )
+    return response.choices[0].message.parsed.reasoning_is_valid
+
+def dummy_app(inputs: dict) -> dict:
+    return {"answer": "hmm i'm not sure", "reasoning": "i didn't understand the question"}
+
+results = evaluate(
+    dummy_app,
+    data="dataset_name",
+    evaluators=[correct_old_signature, concision, valid_reasoning]
+)
+```
+
+```typescript TypeScript
+import { Client } from "langsmith";
+import { evaluate } from "langsmith/evaluation";
+import { Run, Example } from "langsmith/schemas";
+import OpenAI from "openai";
+
+// 类型定义
+interface AppInputs {
+    question: string;
+}
+
+interface AppOutputs {
+    answer: string;
+    reasoning: string;
+}
+
+interface Response {
+    reasoning_is_valid: boolean;
+}
+
+// 旧签名评估器
+function correctOldSignature(run: Run, example: Example) {
+    return {
+        key: "correct",
+        score: run.outputs?.["answer"] === example.outputs?.["answer"],
+    };
+}
+
+// 仅输出评估器
+function concision({ outputs }: { outputs: AppOutputs }) {
+    return {
+        key: "concision",
+        score: Math.min(Math.floor(outputs.answer.length / 1000), 4) + 1,
+    };
+}
+
+// LLM 作为评判器评估器
+const openai = new OpenAI();
+
+async function validReasoning({
+    inputs,
+    outputs
+}: {
+    inputs: AppInputs;
+    outputs: AppOutputs;
+}) {
+    const instructions = `\
+  Given the following question, answer, and reasoning, determine if the reasoning for the \
+  answer is logically valid and consistent with question and the answer.`;
+
+    const msg = `Question: ${inputs.question}
+Answer: ${outputs.answer}
+Reasoning: ${outputs.reasoning}`;
+
+    const response = await openai.chat.completions.create({
+        model: "gpt-4",
+        messages: [
+            { role: "system", content: instructions },
+            { role: "user", content: msg }
+        ],
+        response_format: { type: "json_object" },
+        functions: [{
+            name: "parse_response",
+            parameters: {
+                type: "object",
+                properties: {
+                    reasoning_is_valid: {
+                        type: "boolean",
+                        description: "Whether the reasoning is valid"
+                    }
+                },
+                required: ["reasoning_is_valid"]
+            }
+        }]
+    });
+
+    const parsed = JSON.parse(response.choices[0].message.content ?? "{}") as Response;
+    return {
+        key: "valid_reasoning",
+        score: parsed.reasoning_is_valid ? 1 : 0
+    };
+}
+
+// 示例应用程序
+function dummyApp(inputs: AppInputs): AppOutputs {
+    return {
+        answer: "hmm i'm not sure",
+        reasoning: "i didn't understand the question"
+    };
+}
+
+const results = await evaluate(dummyApp, {
+    data: "dataset_name",
+    evaluators: [correctOldSignature, concision, validReasoning],
+    client: new Client()
+});
+```
+
+</CodeGroup>
+
+## 相关链接
+
+* [评估聚合实验结果](/langsmith/summary): 定义摘要评估器，为整个实验计算指标。
+* [运行比较两个实验的评估](/langsmith/evaluate-pairwise): 定义成对评估器，通过比较两个（或更多）实验来计算指标。

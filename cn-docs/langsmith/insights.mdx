@@ -1,0 +1,218 @@
+---
+title: 通过洞察代理发现错误和使用模式
+sidebarTitle: Insights
+---
+Insights Agent 会自动分析您的追踪数据，以检测使用模式、常见的智能体行为和故障模式——无需您手动审查成千上万条追踪记录。
+
+Insights 采用分层分类法来理解您的数据，并突出显示可操作的趋势。
+
+<Note>
+    Insights 功能适用于 LangSmith Plus 和企业版[套餐](https://www.langchain.com/pricing)，并且仅适用于 LangSmith SaaS 部署。
+</Note>
+
+## 前提条件
+
+- 一个 OpenAI API 密钥（在此[生成](https://platform.openai.com/account/api-keys)）或一个 Anthropic API 密钥（在此[生成](https://console.anthropic.com/settings/keys)）
+- 在 LangSmith 中创建规则的权限（生成新的 Insights 报告所需）
+- 在 LangSmith 中查看追踪项目的权限（查看现有 Insights 报告所需）
+
+## 生成您的第一份 Insights 报告
+
+<Frame caption="Insights Agent 的自动配置流程"><img src="/langsmith/images/insights-autogenerate-config.png" /> </Frame>
+
+#### 通过 [LangSmith UI](https://smith.langchain.com)
+
+1.  在左侧菜单中导航至 **Tracing Projects** 并选择一个追踪项目。
+2.  点击右上角的 **+New**，然后选择 **New Insights Report**，以生成针对该项目的新见解。
+3.  为您的任务输入一个名称。
+4.  点击任务创建窗格右上角的 <Icon icon="key" /> 图标，将您的 OpenAI（或 Anthropic）API 密钥设置为[工作区密钥](/langsmith/administration-overview#workspaces)。如果您的工区已设置了 OpenAI API 密钥，可以跳过此步骤。
+5.  回答引导性问题，以将您的 Insights 报告重点放在您想了解的智能体信息上，然后点击 **Run job**。
+
+<Tip>切换到手动模式以尝试常见用例的[预构建配置](#using-a-prebuilt-config)或[从头构建自己的配置](#building-a-config-from-scratch)。</Tip>
+
+这将启动一个后台 Insights 报告任务。报告可能需要长达 30 分钟才能完成。
+
+#### 通过 [LangSmith SDK](https://reference.langchain.com/python/langsmith/observability/sdk/client/#langsmith.client.Client)
+
+您可以使用 Python SDK 对存储在 LangSmith 之外的数据生成 Insights 报告。这允许您分析来自生产系统、日志或其他来源的聊天历史记录。
+
+当您调用 `generate_insights()` 时，SDK 将：
+1.  将您的聊天历史记录作为追踪数据上传到新的 LangSmith 项目
+2.  基于这些上传的追踪数据生成一份 Insights 报告
+3.  返回一个指向 LangSmith UI 中结果的链接
+
+<CodeGroup>
+
+```python Python
+import os
+from langsmith import Client
+
+client = Client()
+
+chat_histories = [
+    [
+        {"role": "user", "content": "how are you"},
+        {"role": "assistant", "content": "good!"},
+    ],
+    [
+        {"role": "user", "content": "do you like art"},
+        {"role": "assistant", "content": "only Tarkovsky"},
+    ],
+]
+
+report = client.generate_insights(
+    chat_histories=chat_histories,
+    name="Customer Support Topics - March 2024",
+    instructions="What are the main topics and questions users are asking about?",
+    openai_api_key=os.environ["OPENAI_API_KEY"],  # optional if already set as workspace secret
+)
+
+# client.poll_insights(report=report)
+```
+</CodeGroup>
+
+<Note>
+    使用 OpenAI 模型分析超过 1,000 个对话线程通常花费 \$1.00-\$2.00，使用当前的 Anthropic 模型花费 \$3.00-\$4.00。成本随采样的线程数量和每个线程的大小而增加。
+</Note>
+
+## 理解结果
+
+您的任务完成后，您可以导航到 **Insights** 选项卡，在那里您将看到一个 Insights 报告表格。每份报告都包含基于追踪项目中特定样本追踪数据生成的见解。
+
+<Frame caption="单个追踪项目的 Insights 报告"><img src="/langsmith/images/insights-job-results.png" /> </Frame>
+
+点击进入您的任务，查看按一组自动生成的类别组织的追踪数据。
+
+您可以深入查看类别和子类别，以查看底层的追踪数据、反馈和运行统计信息。
+
+<Frame caption="与 https://chat.langchain.com 聊天机器人的常见对话主题"><img src="/langsmith/images/insights-nav.gif" /> </Frame>
+
+### 执行摘要
+
+在每个报告的顶部，您会找到一个执行摘要，其中列出了在您的追踪数据中发现的最重要模式。这包括：
+
+-   关键发现，并附有显示每种模式出现频率的百分比。
+-   可点击的引用（例如，#1, #2, #3），指向智能体识别为与您的问题特别相关的追踪数据。
+
+<Frame caption="显示关键模式及追踪引用的执行摘要"><img src="/langsmith/images/insights-summary.png" /> </Frame>
+
+### 顶级类别
+
+您的追踪数据会自动分组到代表数据中最广泛模式的顶级类别中。
+
+分布条显示了每种模式出现的频率，便于发现比预期更多或更少发生的行为。
+
+每个类别都有一个简短的描述，并显示其包含的追踪数据的聚合指标，包括：
+
+-   典型的追踪统计信息（如错误率、延迟、成本）
+-   来自评估者的反馈分数
+-   作为任务一部分提取的[属性](#attributes)
+
+### 子类别
+
+点击任何类别会显示其细分为子类别，这使您能更细致地理解该类追踪数据中的交互模式。
+
+在上面图示的 [Chat Langchain](https://chat.langchain.com) 示例中，在"数据与检索"类别下，有像"向量存储"和"数据摄取"这样的子类别。
+
+### 单个追踪数据
+
+您可以通过点击查看追踪数据表，查看分配给每个类别或子类别的追踪数据。从那里，您可以点击任何追踪数据以查看完整的对话详情。
+
+## 配置任务
+
+您可以通过三种方式创建 Insights 报告。从自动生成的流程开始，建立一个基线，然后在优化时使用保存的或手动配置进行迭代。
+
+### 自动生成配置
+
+1.  打开 **New Insights** 并确保 **Auto** 切换开关处于活动状态。
+2.  回答关于您智能体目的、您想了解什么以及追踪数据如何组织的自然语言问题。Insights 会将您的答案转换为草稿配置（任务名称、摘要提示、属性和采样默认值）。
+3.  选择一个提供商，然后点击 **Generate config** 进行预览，或点击 **Run job** 立即启动。
+
+**提供有用的上下文**
+
+为了获得最佳结果，请为每个提示写一两句话，为智能体提供所需的上下文——您想了解什么、哪些信号或字段最重要，以及您已经知道哪些是无用的。您对智能体的功能和其追踪数据的结构描述得越清晰，Insights Agent 就越能以具体、可操作且与您对数据的思考方式一致的方式对示例进行分组。
+
+**描述您的追踪数据**
+
+解释您的数据是如何组织的——这些是单次运行还是多轮对话？哪些输入和输出包含关键信息？这有助于 Insights Agent 生成专注于重要内容的摘要提示和属性。如果需要，您也可以直接从[摘要提示](#summary-prompt)部分指定变量。
+
+### 选择模型提供商
+
+您可以选择 OpenAI 或 Anthropic 模型来驱动智能体。您必须为您选择的提供商设置相应的[工作区密钥](/langsmith/administration-overview#workspaces)（`OPENAI_API_KEY` 或 `ANTHROPIC_API_KEY`）。
+
+请注意，使用当前的 Anthropic 模型的成本大约是使用 OpenAI 模型的 3 倍。
+
+### 使用预构建配置
+
+<Frame caption="手动模式下的预构建配置"><img src="/langsmith/images/insights-manual-config.png" /> </Frame>
+
+使用 **Saved configurations** 下拉菜单加载常见任务（如**使用模式**或**错误分析**）的预设。直接运行它们以快速开始，或者在保存您的自定义版本之前调整过滤器、提示和提供商。要了解更多可以自定义的内容，请阅读下面的部分。
+
+### 从头构建配置
+
+当您需要更多控制时，构建自己的配置会很有帮助——例如，预定义您希望数据分组到的类别，或者针对匹配特定反馈分数和过滤器的追踪数据。
+
+#### 选择追踪数据
+
+-   **样本大小**：要分析的最大追踪数据数量。目前上限为 1,000
+-   **时间范围**：从此时间范围内采样追踪数据
+-   **过滤器**：额外的追踪数据过滤器。调整过滤器时，您会看到有多少追踪数据符合您的条件
+
+#### 类别
+
+默认情况下，顶级类别是根据底层追踪数据自下而上自动生成的。
+
+在某些情况下，您事先知道感兴趣的特定类别，并希望任务将追踪数据分桶到这些预定义的类别中。
+
+配置的 **Categories** 部分允许您通过枚举要使用的顶级类别的名称和描述来实现这一点。
+
+子类别仍然由算法在预定义的顶级类别内自动生成。
+
+#### 摘要提示
+
+任务的第一步是为每条追踪数据创建一个简短的摘要——正是这些摘要随后被分类。
+
+在摘要中提取正确的信息对于获得有用的类别至关重要。
+
+用于生成这些摘要的提示是可以编辑的。
+
+编辑提示时需要考虑的两点是：
+
+-   摘要说明：任何不在追踪摘要中的信息都不会影响生成的类别，因此请确保提供清晰的说明，说明从每条追踪数据中提取哪些重要信息。
+-   追踪内容：使用 mustache 格式来指定每条追踪数据的哪些部分传递给摘要生成器。包含大量输入和输出的大型追踪数据可能成本高昂且嘈杂。将提示减少到仅包含追踪数据中最相关的部分可以改善您的结果。
+
+Insights Agent 分析[线程](https://docs.langchain.com/langsmith/threads)——代表多轮对话的相关追踪数据组。您必须使用至少一个以下模板变量指定将线程的哪些部分发送给摘要生成器：
+
+| 变量 | 最适合 | 示例 |
+| --- | --- | --- |
+| `run.*` | 访问线程中最近一次根运行（即最后一轮）的数据 | `{{run.inputs}}` `{{run.outputs}}` `{{run.error}}`|
+
+您还可以使用点符号访问嵌套字段。例如，提示 `"Summarize this: {{run.inputs.foo.bar}}"` 将仅包含最后一次运行输入中 "foo" 值内的 "bar" 值。
+
+#### 属性
+
+除了摘要之外，您还可以定义要从每条追踪数据中提取的额外分类、数值和布尔属性。
+这些属性将影响分类步骤——具有相似属性值的追踪数据往往会被归类在一起。
+您还可以查看每个类别中这些属性的聚合。
+
+例如，您可能希望从每条追踪数据中提取属性 `user_satisfied: boolean`，以引导算法将正面和负面的用户体验分开的类别，并查看每个类别的平均用户满意度。
+
+#### 过滤属性
+
+您可以在布尔属性上使用 `filter_by` 参数，在生成见解之前预过滤追踪数据。启用后，只有属性评估为 `true` 的追踪数据才会包含在分析中。
+
+当您希望将 Insights 报告重点放在特定的追踪数据子集上时，这非常有用——例如，仅分析错误、仅检查英语对话，或仅包含符合特定质量标准的追踪数据。
+
+<Frame caption="使用过滤属性仅对包含智能体错误的追踪数据生成 Insights"><img src="/langsmith/images/insights-filter-by-attribute.png" /> </Frame>
+
+**工作原理：**
+-   为 Insights Agent 创建配置时，在任何布尔属性中添加 `"filter_by": true`
+-   LLM 在摘要生成过程中根据属性描述评估每条追踪数据
+-   在生成见解之前，属性为 `false` 或缺失的追踪数据将被排除
+
+## 保存您的配置
+
+您可以选择使用"另存为"按钮保存配置以供将来重用。
+如果您想比较不同时间的 Insights 报告以识别用户和智能体行为的变化，这尤其有用。
+
+在创建新的 Insights 报告时，从窗格左上角的下拉菜单中选择先前保存的配置。

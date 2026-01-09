@@ -1,0 +1,60 @@
+---
+title: NLP Cloud
+---
+[NLP Cloud](https://nlpcloud.io) 提供高性能的预训练或定制模型，用于命名实体识别（NER）、情感分析、分类、摘要、改写、语法和拼写纠正、关键词和关键短语提取、聊天机器人、产品描述和广告生成、意图分类、文本生成、图像生成、博客文章生成、代码生成、问答、自动语音识别、机器翻译、语言检测、语义搜索、语义相似度、分词、词性标注、嵌入和依存句法分析。它已为生产环境做好准备，通过 REST API 提供服务。
+
+本示例将介绍如何使用 LangChain 与 `NLP Cloud` 的[模型](https://docs.nlpcloud.com/#models)进行交互。
+
+```python
+pip install -qU  nlpcloud
+```
+
+```python
+# 获取令牌：https://docs.nlpcloud.com/#authentication
+
+from getpass import getpass
+
+NLPCLOUD_API_KEY = getpass()
+```
+
+```text
+ ········
+```
+
+```python
+import os
+
+os.environ["NLPCLOUD_API_KEY"] = NLPCLOUD_API_KEY
+```
+
+```python
+from langchain_classic.chains import LLMChain
+from langchain_community.llms import NLPCloud
+from langchain_core.prompts import PromptTemplate
+```
+
+```python
+template = """Question: {question}
+
+Answer: Let's think step by step."""
+
+prompt = PromptTemplate.from_template(template)
+```
+
+```python
+llm = NLPCloud()
+```
+
+```python
+llm_chain = LLMChain(prompt=prompt, llm=llm)
+```
+
+```python
+question = "What NFL team won the Super Bowl in the year Justin Beiber was born?"
+
+llm_chain.run(question)
+```
+
+```text
+' Justin Bieber was born in 1994, so the team that won the Super Bowl that year was the San Francisco 49ers.'
+```

@@ -1,0 +1,503 @@
+---
+title: LangChain v1 迁移指南
+sidebarTitle: LangChain v1
+---
+本指南概述了 [LangChain v1](/oss/releases/langchain-v1) 与之前版本之间的主要变更。
+
+## 简化的包
+
+在 v1 版本中，`langchain` 包的命名空间已大幅缩减，专注于智能体（agent）的核心构建模块。这个精简的包使得发现和使用核心功能变得更加容易。
+
+### 命名空间
+
+| 模块                  | 可用的内容                               | 说明                             |
+|-------------------------|------------------------------------------------|-----------------------------------|
+| @[`langchain.agents`]      | @[`create_agent`], @[`AgentState`]                   | 核心智能体创建功能 |
+| @[`langchain.messages`]    | 消息类型, @[内容块][ContentBlock], @[`trim_messages`] | 从 `langchain-core` 重新导出 |
+| @[`langchain.tools`]       | @[`@tool`], @[`BaseTool`], 注入辅助工具          | 从 `langchain-core` 重新导出 |
+| @[`langchain.chat_models`] | @[`init_chat_model`], @[`BaseChatModel`]             | 统一的模型初始化      |
+| @[`langchain.embeddings`]  | @[`init_embeddings`], @[`Embeddings`]                | 嵌入模型                  |
+
+### `langchain-classic`
+
+如果你之前使用了 `langchain` 包中的以下任何内容，你需要安装 [`langchain-classic`](https://pypi.org/project/langchain-classic/) 并更新你的导入语句：
+
+- 旧版链（`LLMChain`, `ConversationChain` 等）
+- 检索器（例如 `MultiQueryRetriever` 或之前 `langchain.retrievers` 模块中的任何内容）
+- 索引 API
+- Hub 模块（用于以编程方式管理提示词）
+- 嵌入模块（例如 `CacheBackedEmbeddings` 和社区嵌入）
+- [`langchain-community`](https://pypi.org/project/langchain-community) 的重新导出
+- 其他已弃用的功能
+
+<CodeGroup>
+    ```python v1 (新)
+    # 链
+    from langchain_classic.chains import LLMChain
+
+    # 检索器
+    from langchain_classic.retrievers import ...
+
+    # 索引
+    from langchain_classic.indexes import ...
+
+    # Hub
+    from langchain_classic import hub
+    ```
+
+    ```python v0 (旧)
+    # 链
+    from langchain_classic.chains import LLMChain
+
+    # 检索器
+    from langchain.retrievers import ...
+
+    # 索引
+    from langchain.indexes import ...
+
+    # Hub
+    from langchain import hub
+    ```
+</CodeGroup>
+
+安装方法：
+
+<CodeGroup>
+```bash pip
+pip install langchain-classic
+```
+
+```bash uv
+uv add langchain-classic
+```
+</CodeGroup>
+
+---
+
+## 迁移到 `create_agent`
+
+在 v1.0 之前，我们建议使用 @[`langgraph.prebuilt.create_react_agent`][create_react_agent] 来构建智能体。现在，我们建议你使用 @[`langchain.agents.create_agent`][create_agent] 来构建智能体。
+
+下表概述了从 @[`create_react_agent`] 到 @[`create_agent`] 的功能变化：
+
+| 部分 | TL;DR - 变更内容 |
+|---------|--------------|
+| [导入路径](#import-path) | 包从 `langgraph.prebuilt` 移动到 `langchain.agents` |
+| [提示词](#prompts) | 参数重命名为 @[`system_prompt`]，动态提示词使用中间件 |
+| [模型前钩子](#pre-model-hook) | 被带有 `before_model` 方法的中间件取代 |
+| [模型后钩子](#post-model-hook) | 被带有 `after_model` 方法的中间件取代 |
+| [自定义状态](#custom-state) | 仅支持 `TypedDict`，可通过 @[`state_schema`] 或中间件定义 |
+| [模型](#model) | 通过中间件动态选择，不再支持预绑定模型 |
+| [工具](#tools) | 工具错误处理移至带有 `wrap_tool_call` 的中间件 |
+| [结构化输出](#structured-output) | 移除了提示式输出，使用 `ToolStrategy`/`ProviderStrategy` |
+| [流式节点名称](#streaming-node-name-rename) | 节点名称从 `"agent"` 改为 `"model"` |
+| [运行时上下文](#runtime-context) | 通过 `context` 参数进行依赖注入，而非 `config["configurable"]` |
+| [命名空间](#simplified-package) | 精简以专注于智能体构建模块，旧版代码移至 `langchain-classic` |
+
+### 导入路径
+
+智能体预构建功能的导入路径已从 `langgraph.prebuilt` 更改为 `langchain.agents`。
+函数名称已从 @[`create_react_agent`] 更改为 @[`create_agent`]：
+
+```python
+from langgraph.prebuilt import create_react_agent # [!code --]
+from langchain.agents import create_agent # [!code ++]
+```
+
+更多信息，请参阅 [智能体](/oss/langchain/agents)。
+
+### 提示词
+
+#### 静态提示词重命名
+
+`prompt` 参数已重命名为 @[`system_prompt`]：
+
+<CodeGroup>
+```python v1 (新)
+from langchain.agents import create_agent
+
+agent = create_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=[check_weather],
+    system_prompt="You are a helpful assistant"  # [!code highlight]
+)
+```
+```python v0 (旧)
+from langgraph.prebuilt import create_react_agent
+
+agent = create_react_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=[check_weather],
+    prompt="You are a helpful assistant"  # [!code highlight]
+)
+```
+</CodeGroup>
+
+#### `SystemMessage` 转为字符串
+
+如果在系统提示词中使用 @[`SystemMessage`] 对象，请提取其字符串内容：
+
+<CodeGroup>
+```python v1 (新)
+from langchain.agents import create_agent
+
+agent = create_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=[check_weather],
+    system_prompt="You are a helpful assistant"  # [!code highlight]
+)
+```
+```python v0 (旧)
+from langchain.messages import SystemMessage
+from langgraph.prebuilt import create_react_agent
+
+agent = create_react_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=[check_weather],
+    prompt=SystemMessage(content="You are a helpful assistant")  # [!code highlight]
+)
+```
+</CodeGroup>
+
+#### 动态提示词
+
+动态提示词是一种核心的上下文工程模式——它们会根据当前的对话状态调整你告诉模型的内容。要实现这一点，请使用 @[`@dynamic_prompt`] 装饰器：
+
+<CodeGroup>
+```python v1 (新)
+from dataclasses import dataclass
+
+from langchain.agents import create_agent
+from langchain.agents.middleware import dynamic_prompt, ModelRequest
+from langgraph.runtime import Runtime
+
+
+@dataclass
+class Context:  # [!code highlight]
+    user_role: str = "user"
+
+@dynamic_prompt  # [!code highlight]
+def dynamic_prompt(request: ModelRequest) -> str:  # [!code highlight]
+    user_role = request.runtime.context.user_role
+    base_prompt = "You are a helpful assistant."
+
+    if user_role == "expert":
+        prompt = (
+            f"{base_prompt} Provide detailed technical responses."
+        )
+    elif user_role == "beginner":
+        prompt = (
+            f"{base_prompt} Explain concepts simply and avoid jargon."
+        )
+    else:
+        prompt = base_prompt
+
+    return prompt  # [!code highlight]
+
+agent = create_agent(
+    model="gpt-4o",
+    tools=tools,
+    middleware=[dynamic_prompt],  # [!code highlight]
+    context_schema=Context
+)
+
+# 使用上下文
+agent.invoke(
+    {"messages": [{"role": "user", "content": "Explain async programming"}]},
+    context=Context(user_role="expert")
+)
+```
+
+```python v0 (旧)
+from dataclasses import dataclass
+
+from langgraph.prebuilt import create_react_agent, AgentState
+from langgraph.runtime import get_runtime
+
+@dataclass
+class Context:
+    user_role: str
+
+def dynamic_prompt(state: AgentState) -> str:
+    runtime = get_runtime(Context)  # [!code highlight]
+    user_role = runtime.context.user_role
+    base_prompt = "You are a helpful assistant."
+
+    if user_role == "expert":
+        return f"{base_prompt} Provide detailed technical responses."
+    elif user_role == "beginner":
+        return f"{base_prompt} Explain concepts simply and avoid jargon."
+    return base_prompt
+
+agent = create_react_agent(
+    model="gpt-4o",
+    tools=tools,
+    prompt=dynamic_prompt,
+    context_schema=Context
+)
+
+# 使用上下文
+agent.invoke(
+    {"messages": [{"role": "user", "content": "Explain async programming"}]},
+    context=Context(user_role="expert")
+)
+```
+</CodeGroup>
+
+
+### 模型前钩子
+
+模型前钩子现在通过带有 `before_model` 方法的中间件来实现。
+这种新模式更具扩展性——你可以定义多个在模型调用前运行的中间件，在不同的智能体之间复用通用模式。
+
+常见用例包括：
+* 总结对话历史
+* 修剪消息
+* 输入护栏，如 PII 脱敏
+
+v1 现在内置了摘要中间件作为一个选项：
+
+<CodeGroup>
+```python v1 (新)
+from langchain.agents import create_agent
+from langchain.agents.middleware import SummarizationMiddleware
+
+agent = create_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=tools,
+    middleware=[
+        SummarizationMiddleware(  # [!code highlight]
+            model="claude-sonnet-4-5-20250929",  # [!code highlight]
+            trigger={"tokens": 1000}  # [!code highlight]
+        )  # [!code highlight]
+    ]  # [!code highlight]
+)
+```
+```python v0 (旧)
+from langgraph.prebuilt import create_react_agent, AgentState
+
+def custom_summarization_function(state: AgentState):
+    """Custom logic for message summarization."""
+    ...
+
+agent = create_react_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=tools,
+    pre_model_hook=custom_summarization_function
+)
+```
+</CodeGroup>
+
+### 模型后钩子
+
+模型后钩子现在通过带有 `after_model` 方法的中间件来实现。
+这种新模式更具扩展性——你可以定义多个在模型调用后运行的中间件，在不同的智能体之间复用通用模式。
+
+常见用例包括：
+* [人在回路](/oss/langchain/human-in-the-loop)
+* 输出护栏
+
+v1 内置了一个用于工具调用的人在回路审批中间件：
+
+<CodeGroup>
+```python v1 (新)
+from langchain.agents import create_agent
+from langchain.agents.middleware import HumanInTheLoopMiddleware
+
+agent = create_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=[read_email, send_email],
+    middleware=[
+        HumanInTheLoopMiddleware(
+            interrupt_on={
+                "send_email": {
+                    "description": "Please review this email before sending",
+                    "allowed_decisions": ["approve", "reject"]
+                }
+            }
+        )
+    ]
+)
+```
+
+```python v0 (旧)
+from langgraph.prebuilt import create_react_agent
+from langgraph.prebuilt import AgentState
+
+def custom_human_in_the_loop_hook(state: AgentState):
+    """Custom logic for human in the loop approval."""
+    ...
+
+agent = create_react_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=[read_email, send_email],
+    post_model_hook=custom_human_in_the_loop_hook
+)
+```
+</CodeGroup>
+
+### 自定义状态
+
+自定义状态使用额外的字段扩展了默认的智能体状态。你可以通过两种方式定义自定义状态：
+
+1. **通过 @[`create_agent`] 上的 @[`state_schema`]** - 适用于工具中使用的状态
+2. **通过中间件** - 适用于由特定中间件钩子管理的状态以及附加到该中间件的工具
+
+<Note>
+通过中间件定义自定义状态比通过 @[`create_agent`] 上的 @[`state_schema`] 定义更受推荐，因为它允许你将状态扩展概念上限定在相关的中间件和工具范围内。
+
+`state_schema` 在 `create_agent` 上仍然受支持以保持向后兼容性。
+</Note>
+
+#### 通过 `state_schema` 定义状态
+
+当你的自定义状态需要被工具访问时，使用 @[`state_schema`] 参数：
+
+<CodeGroup>
+```python v1 (新)
+from langchain.tools import tool, ToolRuntime
+from langchain.agents import create_agent, AgentState  # [!code highlight]
+
+
+# 定义扩展 AgentState 的自定义状态
+class CustomState(AgentState):
+    user_name: str
+
+@tool  # [!code highlight]
+def greet(
+    runtime: ToolRuntime[None, CustomState]
+) -> str:
+    """Use this to greet the user by name."""
+    user_name = runtime.state.get("user_name", "Unknown")  # [!code highlight]
+    return f"Hello {user_name}!"
+
+agent = create_agent(  # [!code highlight]
+    model="claude-sonnet-4-5-20250929",
+    tools=[greet],
+    state_schema=CustomState  # [!code highlight]
+)
+```
+```python v0 (旧)
+from typing import Annotated
+from langgraph.prebuilt import InjectedState, create_react_agent
+from langgraph.prebuilt.chat_agent_executor import AgentState
+
+class CustomState(AgentState):
+    user_name: str
+
+def greet(
+    state: Annotated[CustomState, InjectedState]
+) -> str:
+    """Use this to greet the user by name."""
+    user_name = state["user_name"]
+    return f"Hello {user_name}!"
+
+agent = create_react_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=[greet],
+    state_schema=CustomState
+)
+```
+</CodeGroup>
+
+#### 通过中间件定义状态
+
+中间件也可以通过设置 @[`state_schema`] 属性来定义自定义状态。
+这有助于将状态扩展概念上限定在相关的中间件和工具范围内。
+
+```python
+from langchain.agents.middleware import AgentState, AgentMiddleware
+from typing_extensions import NotRequired
+from typing import Any
+
+class CustomState(AgentState):
+    model_call_count: NotRequired[int]
+
+class CallCounterMiddleware(AgentMiddleware[CustomState]):
+    state_schema = CustomState  # [!code highlight]
+
+    def before_model(self, state: CustomState, runtime) -> dict[str, Any] | None:
+        count = state.get("model_call_count", 0)
+        if count > 10:
+            return {"jump_to": "end"}
+        return None
+
+    def after_model(self, state: CustomState, runtime) -> dict[str, Any] | None:
+        return {"model_call_count": state.get("model_call_count", 0) + 1}
+
+agent = create_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=[...],
+    middleware=[CallCounterMiddleware()]  # [!code highlight]
+)
+```
+
+有关通过中间件定义自定义状态的更多详细信息，请参阅 [中间件文档](/oss/langchain/middleware#custom-state-schema)。
+
+#### 状态类型限制
+
+@[`create_agent`] 仅支持 `TypedDict` 作为状态模式。不再支持 Pydantic 模型和数据类。
+
+<CodeGroup>
+```python v1 (新)
+from langchain.agents import AgentState, create_agent
+
+# AgentState 是一个 TypedDict
+class CustomAgentState(AgentState):  # [!code highlight]
+    user_id: str
+
+agent = create_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=tools,
+    state_schema=CustomAgentState  # [!code highlight]
+)
+```
+
+```python v0 (旧)
+from typing_extensions import Annotated
+
+from pydantic import BaseModel
+from langgraph.graph import StateGraph
+from langgraph.graph.messages import add_messages
+from langchain.messages import AnyMessage
+
+
+class AgentState(BaseModel):  # [!code highlight]
+    messages: Annotated[list[AnyMessage], add_messages]
+    user_id: str
+
+agent = create_react_agent(
+    model="claude-sonnet-4-5-20250929",
+    tools=tools,
+    state_schema=AgentState
+)
+```
+</CodeGroup>
+
+只需继承 `langchain.agents.AgentState` 而不是 `BaseModel` 或使用 `dataclass` 装饰。
+如果你需要进行验证，请在中间件钩子中处理。
+
+### 模型
+
+动态模型选择允许你根据运行时上下文（例如，任务复杂性、成本约束或用户偏好）选择不同的模型。在 [`langgraph-prebuilt`](https://pypi.org/project/langgraph-prebuilt) 的 v0.6 版本中发布的 @[`create_react_agent`] 支持通过传递给 `model` 参数的可调用对象进行动态模型和工具选择。
+
+此功能在 v1 中已移植到中间件接口。
+
+#### 动态模型选择
+
+<CodeGroup>
+```python v1 (新)
+from langchain.agents import create_agent
+from langchain.agents.middleware import (
+    AgentMiddleware, ModelRequest
+)
+from langchain.agents.middleware.types import ModelResponse
+from langchain_openai import ChatOpenAI
+from typing import Callable
+
+basic_model = ChatOpenAI(model="gpt-5-nano")
+advanced_model = ChatOpenAI(model="gpt-5")
+
+class DynamicModelMiddleware(AgentMiddleware):
+
+    def wrap_model_call(self, request: ModelRequest, handler: Callable[[ModelRequest],

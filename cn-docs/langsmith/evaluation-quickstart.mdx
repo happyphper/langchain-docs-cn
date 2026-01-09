@@ -1,0 +1,479 @@
+---
+title: 评估快速入门
+sidebarTitle: Quickstart
+---
+import WorkspaceSecret from '/snippets/langsmith/set-workspace-secrets.mdx';
+
+[_评估_](/langsmith/evaluation-concepts) 是衡量 LLM 应用程序性能的一种定量方法。LLM 的行为可能难以预测，即使是对提示词、模型或输入的微小更改也可能显著影响结果。评估提供了一种结构化的方式来识别故障、比较版本并构建更可靠的 AI 应用程序。
+
+在 LangSmith 中运行评估需要三个关键组件：
+
+- [_数据集_](/langsmith/evaluation-concepts#datasets)：一组测试输入（以及可选的预期输出）。
+- [_目标函数_](/langsmith/define-target-function)：您想要测试的应用程序部分——这可能是一个使用新提示词的单个 LLM 调用、一个模块或整个工作流。
+- [_评估器_](/langsmith/evaluation-concepts#evaluators)：为目标函数的输出进行评分的函数。
+
+本快速入门将指导您使用 LangSmith SDK 或 UI 运行一个入门评估，以检查 LLM 响应的正确性。
+
+<Tip>
+如果您更喜欢观看关于开始追踪的视频，请参阅数据集和评估的[视频指南](#video-guide)。
+</Tip>
+
+## 先决条件
+
+开始之前，请确保您已具备：
+
+- **一个 LangSmith 账户**：在 [smith.langchain.com](https://smith.langchain.com) 注册或登录。
+- **一个 LangSmith API 密钥**：请遵循[创建 API 密钥](/langsmith/create-account-api-key#create-an-api-key)指南。
+- **一个 OpenAI API 密钥**：从 [OpenAI 仪表板](https://platform.openai.com/account/api-keys)生成。
+
+**选择 UI 或 SDK 筛选器以查看说明：**
+
+<Tabs>
+<Tab title="UI" icon="window">
+
+## 1. 设置工作区密钥
+
+<WorkspaceSecret/>
+
+## 2. 创建提示词
+
+LangSmith 的[提示词游乐场](/langsmith/observability-concepts#prompt-playground)使得可以对不同的提示词、新模型或测试不同的模型配置运行评估。
+
+1. 在 [LangSmith UI](https://smith.langchain.com) 中，导航至 **Prompt Engineering** 下的 **Playground**。
+1. 在 **Prompts** 面板下，将 **system** 提示词修改为：
+
+    ```
+    Answer the following question accurately:
+    ```
+
+    保持 **Human** 消息不变：`{question}`。
+
+## 3. 创建数据集
+
+1. 点击 **Set up Evaluation**，这将在页面底部打开一个 **New Experiment** 表格。
+1. 在 **Select or create a new dataset** 下拉菜单中，点击 **+ New** 按钮创建一个新数据集。
+
+    <div style={{ textAlign: 'center' }}>
+    <img
+        className="block dark:hidden"
+        src="/langsmith/images/playground-system-prompt-light.png"
+        alt="Playground with the edited system prompt and new experiment with the dropdown for creating a new dataset."
+    />
+
+    <img
+        className="hidden dark:block"
+        src="/langsmith/images/playground-system-prompt-dark.png"
+        alt="Playground with the edited system prompt and new experiment with the dropdown for creating a new dataset."
+    />
+    </div>
+
+1. 将以下示例添加到数据集中：
+
+    | 输入                                                   | 参考输出                                 |
+    | -------------------------------------------------------- | ------------------------------------------------- |
+    | question: Which country is Mount Kilimanjaro located in? | output: Mount Kilimanjaro is located in Tanzania. |
+    | question: What is Earth's lowest point?                  | output: Earth's lowest point is The Dead Sea.     |
+
+1. 点击 **Save** 并输入名称以保存您新创建的数据集。
+
+## 4. 添加评估器
+
+1. 点击 **+ Evaluator** 并从 **Pre-built Evaluator** 选项中选择 **Correctness**。
+1. 在 **Correctness** 面板中，点击 **Save**。
+
+## 5. 运行评估
+
+1. 选择右上角的 <Icon icon="circle-play" /> **Start** 来运行您的评估。这将在 **New Experiment** 表格中创建一个带有预览的[_实验_](/langsmith/evaluation-concepts#experiment)。点击实验名称可以查看完整视图。
+
+    <div style={{ textAlign: 'center' }}>
+    <img
+        className="block dark:hidden"
+        src="/langsmith/images/full-experiment-view-light.png"
+        alt="Full experiment view of the results that used the example dataset."
+    />
+
+    <img
+        className="hidden dark:block"
+        src="/langsmith/images/full-experiment-view-dark.png"
+        alt="Full experiment view of the results that used the example dataset."
+    />
+    </div>
+
+## 后续步骤
+
+<Tip>
+要了解更多关于在 LangSmith 中运行实验的信息，请阅读[评估概念指南](/langsmith/evaluation-concepts)。
+</Tip>
+
+- 有关评估的更多详细信息，请参阅[评估文档](/langsmith/evaluation)。
+- 学习如何在 UI 中[创建和管理数据集](/langsmith/manage-datasets-in-application#set-up-your-dataset)。
+- 学习如何[从提示词游乐场运行评估](/langsmith/run-evaluation-from-prompt-playground)。
+
+</Tab>
+
+<Tab title="SDK" icon="code">
+
+<Tip>
+本指南使用来自开源 [`openevals`](https://github.com/langchain-ai/openevals) 包的预构建 LLM-as-judge 评估器。OpenEvals 包含一组常用的评估器，如果您是评估新手，这是一个很好的起点。如果您希望对评估应用程序的方式有更大的灵活性，也可以[定义完全自定义的评估器](/langsmith/code-evaluator)。
+</Tip>
+
+## 1. 安装依赖项
+
+在终端中，为您的项目创建一个目录并在您的环境中安装依赖项：
+
+<CodeGroup>
+
+```bash Python
+mkdir ls-evaluation-quickstart && cd ls-evaluation-quickstart
+python -m venv .venv && source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -U langsmith openevals openai
+```
+
+```bash TypeScript
+mkdir ls-evaluation-quickstart-ts && cd ls-evaluation-quickstart-ts
+npm init -y
+npm install langsmith openevals openai
+npx tsc --init
+```
+
+</CodeGroup>
+
+<Info>
+如果您使用 `yarn` 作为包管理器，您还需要手动安装 `@langchain/core` 作为 `openevals` 的对等依赖项。对于一般的 LangSmith 评估来说这不是必需的，您可以[使用任意自定义代码定义评估器](/langsmith/code-evaluator)。
+</Info>
+
+## 2. 设置环境变量
+
+设置以下环境变量：
+
+- `LANGSMITH_TRACING`
+- `LANGSMITH_API_KEY`
+- `OPENAI_API_KEY`（或您的 LLM 提供商的 API 密钥）
+- （可选）`LANGSMITH_WORKSPACE_ID`：如果您的 LangSmith API 密钥链接到多个[工作区](/langsmith/administration-overview#workspaces)，请设置此变量以指定要使用的工作区。
+
+``` bash
+export LANGSMITH_TRACING=true
+export LANGSMITH_API_KEY="<your-langsmith-api-key>"
+export OPENAI_API_KEY="<your-openai-api-key>"
+export LANGSMITH_WORKSPACE_ID="<your-workspace-id>"
+```
+<Note>
+如果您使用 Anthropic，请使用 [Anthropic 包装器](/langsmith/annotate-code#wrap-the-anthropic-client-python-only) 来追踪您的调用。对于其他提供商，请使用[可追踪包装器](/langsmith/annotate-code#use-%40traceable-%2F-traceable)。
+</Note>
+
+## 3. 创建数据集
+
+1. 创建一个文件并添加以下代码，它将：
+    - 导入 `Client` 以连接到 LangSmith。
+    - 创建一个数据集。
+    - 定义示例[_输入_和_输出_](/langsmith/evaluation-concepts#examples)。
+    - 在 LangSmith 中将输入和输出对与该数据集关联，以便它们可以在评估中使用。
+
+    <CodeGroup>
+
+    ```python Python
+    # dataset.py
+    from langsmith import Client
+
+    def main():
+        client = Client()
+
+        # Programmatically create a dataset in LangSmith
+        dataset = client.create_dataset(
+            dataset_name="Sample dataset",
+            description="A sample dataset in LangSmith."
+        )
+
+        # Create examples
+        examples = [
+            {
+                "inputs": {"question": "Which country is Mount Kilimanjaro located in?"},
+                "outputs": {"answer": "Mount Kilimanjaro is located in Tanzania."},
+            },
+            {
+                "inputs": {"question": "What is Earth's lowest point?"},
+                "outputs": {"answer": "Earth's lowest point is The Dead Sea."},
+            },
+        ]
+
+        # Add examples to the dataset
+        client.create_examples(dataset_id=dataset.id, examples=examples)
+        print("Created dataset:", dataset.name)
+
+    if __name__ == "__main__":
+        main()
+
+    ```
+
+    ```typescript TypeScript
+    // dataset.ts
+    import { Client } from "langsmith";
+
+    async function main() {
+    const client = new Client();
+
+    const dataset = await client.createDataset(
+        "Sample dataset",
+        { description: "A sample dataset in LangSmith." }
+    );
+
+    // Define examples
+    const inputs = [
+        { question: "Which country is Mount Kilimanjaro located in?" },
+        { question: "What is Earth's lowest point?" },
+    ];
+    const outputs = [
+        { answer: "Mount Kilimanjaro is located in Tanzania." },
+        { answer: "Earth's lowest point is The Dead Sea." },
+    ];
+
+    await client.createExamples({
+        datasetId: dataset.id,
+        inputs,
+        outputs,
+    });
+
+    console.log("Created dataset:", dataset.name);
+    }
+
+    if (require.main === module) {
+    main().catch((e) => {
+        console.error(e);
+        process.exit(1);
+    });
+    }
+    ```
+
+    </CodeGroup>
+
+1. 在终端中，运行 `dataset` 文件以创建将用于评估应用程序的数据集：
+
+    <CodeGroup>
+    ```bash Python
+    python dataset.py
+    ```
+    ```bash TypeScript
+    npx ts-node dataset.ts
+    ```
+
+    </CodeGroup>
+
+    您将看到以下输出：
+
+    ```bash
+    Created dataset: Sample dataset
+    ```
+
+## 4. 创建目标函数
+
+定义一个包含您要评估内容的[目标函数](/langsmith/define-target-function)。在本指南中，您将定义一个包含单个 LLM 调用来回答问题的目标函数。
+
+将以下内容添加到 `eval` 文件中：
+
+<CodeGroup>
+
+```python Python
+# eval.py
+from langsmith import Client, wrappers
+from openai import OpenAI
+
+# Wrap the OpenAI client for LangSmith tracing
+openai_client = wrappers.wrap_openai(OpenAI())
+
+# Define the application logic you want to evaluate inside a target function
+# The SDK will automatically send the inputs from the dataset to your target function
+def target(inputs: dict) -> dict:
+    response = openai_client.chat.completions.create(
+        model="gpt-5-mini",
+        messages=[
+            {"role": "system", "content": "Answer the following question accurately"},
+            {"role": "user", "content": inputs["question"]},
+        ],
+    )
+    return {"answer": response.choices[0].message.content.strip()}
+```
+
+```typescript TypeScript
+// eval.ts
+import { evaluate } from "langsmith/evaluation";
+import { wrapOpenAI } from "langsmith/wrappers/openai";
+import OpenAI from "openai";
+
+const openaiClient = wrapOpenAI(new OpenAI());
+
+async function target(inputs: Record<string, any>): Promise<Record<string, any>> {
+  const question = String(inputs.question ?? "");
+  const resp = await openaiClient.chat.completions.create({
+    model: "gpt-5-mini",
+    messages: [
+      { role: "system", content: "Answer the following question accurately" },
+      { role: "user", content: question },
+    ],
+  });
+  return { answer: resp.choices[0].message.content?.trim() ?? "" };
+}
+```
+
+</CodeGroup>
+
+
+## 5. 定义评估器
+
+在此步骤中，您将告诉 LangSmith 如何对应用程序生成的答案进行评分。
+
+从 [`openevals`](https://github.com/langchain-ai/openevals) 导入一个预构建的评估提示词 (`CORRECTNESS_PROMPT`) 和一个将其包装成 [_LLM-as-judge 评估器_](/langsmith/evaluation-concepts#llm-as-judge) 的辅助函数，该评估器将为应用程序的输出评分。
+
+<Info>
+`CORRECTNESS_PROMPT` 只是一个带有 `"inputs"`、`"outputs"` 和 `"reference_outputs"` 变量的 f-string。有关自定义 OpenEvals 提示词的更多信息，请参见[此处](https://github.com/langchain-ai/openevals#customizing-prompts)。
+</Info>
+
+评估器比较：
+
+- `inputs`：传递给目标函数的内容（例如，问题文本）。
+- `outputs`：目标函数返回的内容（例如，模型的答案）。
+- `reference_outputs`：您在[步骤 3](#3-create-a-dataset) 中附加到每个数据集示例的真实答案。
+
+将以下高亮代码添加到您的 `eval` 文件中：
+
+<CodeGroup>
+
+```python Python highlight={3,4,21-31}
+from langsmith import Client, wrappers
+from openai import OpenAI
+from openevals.llm import create_llm_as_judge
+from openevals.prompts import CORRECTNESS_PROMPT
+
+# Wrap the OpenAI client for LangSmith tracing
+openai_client = wrappers.wrap_openai(OpenAI())
+
+# Define the application logic you want to evaluate inside a target function
+# The SDK will automatically send the inputs from the dataset to your target function
+def target(inputs: dict) -> dict:
+    response = openai_client.chat.completions.create(
+        model="gpt-5-mini",
+        messages=[
+            {"role": "system", "content": "Answer the following question accurately"},
+            {"role": "user", "content": inputs["question"]},
+        ],
+    )
+    return {"answer": response.choices[0].message.content.strip()}
+
+def correctness_evaluator(inputs: dict, outputs: dict, reference_outputs: dict):
+    evaluator = create_llm_as_judge(
+        prompt=CORRECTNESS_PROMPT,
+        model="openai:o3-mini",
+        feedback_key="correctness",
+    )
+    return evaluator(
+        inputs=inputs,
+        outputs=outputs,
+        reference_outputs=reference_outputs
+    )
+```
+
+```typescript TypeScript highlight={4,20-37}
+import { evaluate } from "langsmith/evaluation";
+import { wrapOpenAI } from "langsmith/wrappers/openai";
+import OpenAI from "openai";
+import { createLLMAsJudge, CORRECTNESS_PROMPT } from "openevals";
+
+const openaiClient = wrapOpenAI(new OpenAI());
+
+async function target(inputs: Record<string, any>): Promise<Record<string, any>> {
+  const question = String(inputs.question ?? "");
+  const resp = await openaiClient.chat.completions.create({
+    model: "gpt-5-mini",
+    messages: [
+      { role: "system", content: "Answer the following question accurately" },
+      { role: "user", content: question },
+    ],
+  });
+  return { answer: resp.choices[0].message.content?.trim() ?? "" };
+}
+
+const judge = createLLMAsJudge({
+  prompt: CORRECTNESS_PROMPT,
+  model: "openai:o3-mini",
+  feedbackKey: "correctness",
+});
+
+async function correctnessEvaluator(run: {
+  inputs: Record<string, any>;
+  outputs: Record<string, any>;
+  referenceOutputs?: Record<string, any>;
+}) {
+  return judge({
+    inputs: run.inputs,
+    outputs: run.outputs,
+    // OpenEvals expects snake_case here:
+    reference_outputs: run.referenceOutputs,
+  });
+}
+```
+
+</CodeGroup>
+
+## 6. 运行并查看结果
+
+要运行评估实验，您将调用 `evaluate(...)`，它会：
+
+- 从您在[步骤 3](#3-create-a-dataset) 创建的数据集中拉取示例。
+- 将每个示例的输入发送到您在[步骤 4](#4-add-an-evaluator) 定义的目标函数。
+- 收集输出（模型的答案）。
+- 将输出与 `reference_outputs` 一起传递给您在[步骤 5](#5-define-an-evaluator) 定义的评估器。
+- 将所有结果作为实验记录在 LangSmith 中，以便您可以在 UI 中查看它们。
+
+1. 将高亮代码添加到您的 `eval` 文件中：
+
+    <CodeGroup>
+
+    ```python Python highlight={33-49}
+    from langsmith import Client, wrappers
+    from openai import OpenAI
+    from openevals.llm import create_llm_as_judge
+    from openevals.prompts import CORRECTNESS_PROMPT
+
+    # Wrap the OpenAI client for LangSmith tracing
+    openai_client = wrappers.wrap_openai(OpenAI())
+
+    # Define the application logic you want to evaluate inside a target function
+    # The SDK will automatically send the inputs from the dataset to your target function
+    def target(inputs: dict) -> dict:
+        response = openai_client.chat.completions.create(
+            model="gpt-5-mini",
+            messages=[
+                {"role": "system", "content": "Answer the following question accurately"},
+                {"role": "user", "content": inputs["question"]},
+            ],
+        )
+        return {"answer": response.choices[0].message.content.strip()}
+
+    def correctness_evaluator(inputs: dict, outputs: dict, reference_outputs: dict):
+        evaluator = create_llm_as_judge(
+            prompt=CORRECTNESS_PROMPT,
+            model="openai:o3-mini",
+            feedback_key="correctness",
+        )
+        return evaluator(
+            inputs=inputs,
+            outputs=outputs,
+            reference_outputs=reference_outputs
+        )
+
+    # After running the evaluation, a link will be provided to view the results in langsmith
+    def main():
+        client = Client()
+        experiment_results = client.evaluate(
+            target,
+            data="Sample dataset",
+            evaluators=[
+                correctness_evaluator,
+                # can add multiple evaluators here
+            ],
+            experiment_prefix="first-eval-in-langsmith",
+            max_concurrency=2,
+        )
+        print(experiment_results)
+
+    if __name

@@ -1,0 +1,398 @@
+---
+title: ChatCohere
+---
+[Cohere](https://cohere.com/) 是一家加拿大初创公司，提供自然语言处理模型，帮助企业改善人机交互。
+
+本文将帮助您开始使用 Cohere [聊天模型](/oss/langchain/models)。有关 `ChatCohere` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_cohere.ChatCohere.html)。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | [PY 支持](https://python.langchain.com/docs/integrations/chat/cohere) | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| [ChatCohere](https://api.js.langchain.com/classes/langchain_cohere.ChatCohere.html) | [`@langchain/cohere`](https://www.npmjs.com/package/@langchain/cohere) | beta | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/cohere?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/cohere?style=flat-square&label=%20&) |
+
+### 模型特性
+
+有关如何使用特定功能的指南，请参阅下表标题中的链接。
+
+| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+
+## 设置
+
+为了使用 LangChain.js 的 Cohere 集成，您需要一个 API 密钥。
+您可以注册一个 Cohere 账户并在此处创建 API 密钥 [here](https://dashboard.cohere.com/welcome/register)。
+
+首先，您需要安装 [`@langchain/cohere`](https://www.npmjs.com/package/@langchain/cohere) 包。
+
+### 凭据
+
+前往 [Cohere 网站](https://dashboard.cohere.com/welcome/register) 注册 Cohere 并生成 API 密钥。完成后，设置 `COHERE_API_KEY` 环境变量：
+
+```bash
+export COHERE_API_KEY="your-api-key"
+```
+
+如果您希望自动追踪模型调用，还可以通过取消注释以下行来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```bash
+# export LANGSMITH_TRACING="true"
+# export LANGSMITH_API_KEY="your-api-key"
+```
+
+### 安装
+
+LangChain 的 ChatCohere 集成位于 `@langchain/cohere` 包中：
+
+<CodeGroup>
+```bash npm
+npm install @langchain/cohere @langchain/core
+```
+```bash yarn
+yarn add @langchain/cohere @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/cohere @langchain/core
+```
+</CodeGroup>
+
+## 实例化
+
+现在我们可以实例化我们的模型对象并生成聊天补全：
+
+```typescript
+import { ChatCohere } from "@langchain/cohere"
+
+const llm = new ChatCohere({
+    model: "command-r-plus",
+    temperature: 0,
+    maxRetries: 2,
+    // 其他参数...
+})
+```
+
+### 用于 Azure 上的 Cohere、AWS Bedrock 上的 Cohere 以及独立 Cohere 实例的自定义客户端
+
+我们可以实例化一个自定义的 `CohereClient` 并将其传递给 ChatCohere 构造函数。
+
+**注意：** 如果提供了自定义客户端，则构造函数中的 `COHERE_API_KEY` 环境变量和 `apiKey` 参数都将被忽略。
+
+```typescript
+import { ChatCohere } from "@langchain/cohere";
+import { CohereClient } from "cohere-ai";
+
+const client = new CohereClient({
+  token: "<your-api-key>",
+  environment: "<your-cohere-deployment-url>", //可选
+  // 其他参数
+});
+
+const llmWithCustomClient = new ChatCohere({
+  client,
+  // 其他参数...
+});
+```
+
+## 调用
+
+```typescript
+const aiMsg = await llm.invoke([
+    [
+        "system",
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+    ],
+    ["human", "I love programming."],
+])
+aiMsg
+```
+
+```text
+AIMessage {
+  "content": "J'adore programmer.",
+  "additional_kwargs": {
+    "response_id": "0056057a-6075-4436-b75a-b9455ac39f74",
+    "generationId": "3a0985db-92ff-41d8-b6b9-b7b77e300f3b",
+    "chatHistory": [
+      {
+        "role": "SYSTEM",
+        "message": "You are a helpful assistant that translates English to French. Translate the user sentence."
+      },
+      {
+        "role": "USER",
+        "message": "I love programming."
+      },
+      {
+        "role": "CHATBOT",
+        "message": "J'adore programmer."
+      }
+    ],
+    "finishReason": "COMPLETE",
+    "meta": {
+      "apiVersion": {
+        "version": "1"
+      },
+      "billedUnits": {
+        "inputTokens": 20,
+        "outputTokens": 5
+      },
+      "tokens": {
+        "inputTokens": 89,
+        "outputTokens": 5
+      }
+    }
+  },
+  "response_metadata": {
+    "estimatedTokenUsage": {
+      "completionTokens": 5,
+      "promptTokens": 89,
+      "totalTokens": 94
+    },
+    "response_id": "0056057a-6075-4436-b75a-b9455ac39f74",
+    "generationId": "3a0985db-92ff-41d8-b6b9-b7b77e300f3b",
+    "chatHistory": [
+      {
+        "role": "SYSTEM",
+        "message": "You are a helpful assistant that translates English to French. Translate the user sentence."
+      },
+      {
+        "role": "USER",
+        "message": "I love programming."
+      },
+      {
+        "role": "CHATBOT",
+        "message": "J'adore programmer."
+      }
+    ],
+    "finishReason": "COMPLETE",
+    "meta": {
+      "apiVersion": {
+        "version": "1"
+      },
+      "billedUnits": {
+        "inputTokens": 20,
+        "outputTokens": 5
+      },
+      "tokens": {
+        "inputTokens": 89,
+        "outputTokens": 5
+      }
+    }
+  },
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 89,
+    "output_tokens": 5,
+    "total_tokens": 94
+  }
+}
+```
+
+```typescript
+console.log(aiMsg.content)
+```
+
+```text
+J'adore programmer.
+```
+
+## RAG
+
+Cohere 也开箱即用地支持 RAG。
+您可以将文档作为上下文传递给 API 请求，Cohere 的模型将在生成响应时使用它们。
+
+```typescript
+import { ChatCohere } from "@langchain/cohere";
+import { HumanMessage } from "@langchain/core/messages";
+
+const llmForRag = new ChatCohere({
+  apiKey: process.env.COHERE_API_KEY, // 默认
+});
+
+const documents = [
+  {
+    title: "Harrison's work",
+    snippet: "Harrison worked at Kensho as an engineer.",
+  },
+  {
+    title: "Harrison's work duration",
+    snippet: "Harrison worked at Kensho for 3 years.",
+  },
+  {
+    title: "Polar berars in the Appalachian Mountains",
+    snippet:
+      "Polar bears have surprisingly adapted to the Appalachian Mountains, thriving in the diverse, forested terrain despite their traditional arctic habitat. This unique situation has sparked significant interest and study in climate adaptability and wildlife behavior.",
+  },
+];
+
+const ragResponse = await llmForRag.invoke(
+  [new HumanMessage("Where did Harrison work and for how long?")],
+  {
+    documents,
+  }
+);
+console.log(ragResponse.content);
+```
+
+```text
+Harrison worked at Kensho as an engineer for 3 years.
+```
+
+## 连接器
+
+该 API 还允许使用其他非静态文档的连接。
+其中一个例子是他们的 `web-search` 连接器，它允许您传入一个查询，API 将在网络上搜索相关文档。
+下面的示例演示了如何使用此功能。
+
+```typescript
+import { ChatCohere } from "@langchain/cohere";
+import { HumanMessage } from "@langchain/core/messages";
+
+const llmWithConnectors = new ChatCohere({
+  apiKey: process.env.COHERE_API_KEY, // 默认
+});
+
+const connectorsRes = await llmWithConnectors.invoke(
+  [new HumanMessage("How tall are the largest pengiuns?")],
+  {
+    connectors: [{ id: "web-search" }],
+  }
+);
+console.dir(connectorsRes, { depth: null });
+```
+
+```text
+AIMessage {
+  lc_serializable: true,
+  lc_kwargs: {
+    content: 'The largest penguin ever discovered is the prehistoric Palaeeudyptes klekowskii, or "colossus penguin", which stood at 6 feet 6 inches tall. The tallest penguin alive today is the emperor penguin, which stands at just over 4 feet tall.',
+    additional_kwargs: {
+      response_id: '8d5ae032-4c8e-492e-8686-289f198b5eb5',
+      generationId: '2224736b-430c-46cf-9ca0-a7f5737466aa',
+      chatHistory: [
+        { role: 'USER', message: 'How tall are the largest pengiuns?' },
+        {
+          role: 'CHATBOT',
+          message: 'The largest penguin ever discovered is the prehistoric Palaeeudyptes klekowskii, or "colossus penguin", which stood at 6 feet 6 inches tall. The tallest penguin alive today is the emperor penguin, which stands at just over 4 feet tall.'
+        }
+      ],
+      finishReason: 'COMPLETE',
+      meta: {
+        apiVersion: { version: '1' },
+        billedUnits: { inputTokens: 10474, outputTokens: 62 },
+        tokens: { inputTokens: 11198, outputTokens: 286 }
+      },
+      citations: [
+        {
+          start: 43,
+          end: 54,
+          text: 'prehistoric',
+          documentIds: [ 'web-search_1', 'web-search_2' ]
+        },
+        {
+          start: 55,
+          end: 79,
+          text: 'Palaeeudyptes klekowskii',
+          documentIds: [ 'web-search_0', 'web-search_1', 'web-search_2' ]
+        },
+        {
+          start: 84,
+          end: 102,
+          text: '"colossus penguin"',
+          documentIds: [ 'web-search_0', 'web-search_1', 'web-search_2' ]
+        },
+        {
+          start: 119,
+          end: 125,
+          text: '6 feet',
+          documentIds: [ 'web-search_0', 'web-search_1' ]
+        },
+        {
+          start: 126,
+          end: 134,
+          text: '6 inches',
+          documentIds: [ 'web-search_1' ]
+        },
+        {
+          start: 161,
+          end: 172,
+          text: 'alive today',
+          documentIds: [ 'web-search_0', 'web-search_5' ]
+        },
+        {
+          start: 180,
+          end: 195,
+          text: 'emperor penguin',
+          documentIds: [
+            'web-search_0',
+            'web-search_1',
+            'web-search_2',
+            'web-search_4',
+            'web-search_5'
+          ]
+        },
+        {
+          start: 213,
+          end: 235,
+          text: 'just over 4 feet tall.',
+          documentIds: [ 'web-search_0', 'web-search_5' ]
+        }
+      ],
+      documents: [
+        {
+          id: 'web-search_1',
+          snippet: 'Largest species of penguin ever\n' +
+            '\n' +
+            'TencentContact an Account Manager\n' +
+            '\n' +
+            "The largest species of penguin ever recorded is a newly described prehistoric species, Kumimanu fordycei, known from fossil remains discovered inside boulders in North Otago, on New Zealand's South Island. By comparing the size and density of its bones with those of modern-day penguins, researchers estimate that it weighed 154 kilograms (340 pounds), which is three times that of today's largest species, the emperor penguin (Aptenodytes forsteri). The rocks containing the remains of this new giant fossil species date between 55.5 million years and 59.5 million years old, meaning that it existed during the Late Palaeocene. Details of the record-breaking prehistoric penguin were published in the Journal of Paleontology on 8 February 2023.\n" +
+            '\n' +
+            'The height of K. fordycei is debated, though a related extinct species, K. biceae, has been estimated to have stood up to 1.77 m (5 ft). A lack of complete skeletons of extinct giant penguins found to date makes it difficult for height to be determined with any degree of certainty.\n' +
+            '\n' +
+            "Prior to the recent discovery and description of K. fordycei, the largest species of penguin known to science was the colossus penguin (Palaeeudyptes klekowskii), which is estimated to have weighed as much as 115 kg (253 lb 8 oz), and stood up to 2 m (6 ft 6 in) tall. It lived in Antarctica's Seymour Island approximately 37 million years ago, during the Late Eocene, and is represented by the most complete fossil remains ever found for a penguin species in Antarctica.\n" +
+            '\n' +
+            "This species exceeds in height the previous record holder, Nordenskjoeld's giant penguin (Anthropornis nordenskjoeldi), which stood 1.7 m (5 ft 6 in) tall and also existed during the Eocene epoch, occurring in New Zealand and in Antarctica's Seymour Island.\n" +
+            '\n' +
+            'Records change on a daily basis and are not immediately published online. For a full list of record titles, please use our Record Application Search. (You will need to register / login for access)\n' +
+            '\n' +
+            'Comments below may relate to previous holders of this record.',
+          timestamp: '2024-07-28T02:56:04',
+          title: 'Largest species of penguin ever',
+          url: 'https://www.guinnessworldrecords.com/world-records/84903-largest-species-of-penguin'
+        },
+        {
+          id: 'web-search_2',
+          snippet: 'Mega penguins: These are the largest penguins to have ever lived\n' +
+            '\n' +
+            'No penguin alive today can compare with some of the extinct giants that once roamed the planet, including Kumimanu fordycei, Petradyptes stonehousei and Palaeeudyptes klekowskii\n' +
+            '\n' +
+            'An illustration of Kumimanu fordycei (the larger, single bird) and Petradyptes stonehousei penguins on an ancient New Zealand beach\n' +
+            '\n' +
+            'Artwork by Dr. Simone Giovanardi\n' +
+            '\n' +
+            'Penguins come in all shapes and sizes, from the fairy penguin (Eudyptula minor) which stands at just over 30 centimetres tall to the 1-metre-high emperor penguin (Aptenodytes forsteri). But even the biggest emperors alive today would be dwarfed by the mega-penguins that roamed Earth millions of years ago. Here are the most impressive of these ancient giants.\n' +
+            '\n' +
+            'The title of the largest penguin ever documented goes to the species Kumimanu fordycei, which was first described in February 2023.\n' +
+            '\n' +
+            'Daniel Ksepka at the Bruce Museum in Connecticut and his colleagues unearthed an unusually huge flipper bone of a penguin in southern New Zealand in 2018. “The big humerus was shocking to me,” he says. “I almost thought it was maybe some other animal.”\n' +
+            '\n' +
+            'The team quickly determined that this belonged to a new species of penguin that lived in what is now New Zealand over 55 million years ago. The sheer size of the bone suggested that the bird probably weighed between 148 and 160 kilograms and stood around 1.6 metres tall. “The emperor penguin just looks like a child next to it,” says Ksepka.\n' +
+            '\n' +
+            'The species was named after palaeontologist Ewan Fordyce, who made his own mega penguin discoveries in the 1970s (see below).\n' +
+            '\n' +
+            'Sign up to our Wild Wild Life newsletter\n' +
+            '\n' +
+            'A monthly celebration of the biodiversity of our planet’s animals, plants and other organisms.\n' +
+            '\n' +
+            'Sign up to newsletter\n' +
+            '\n' +
+            'Skeletons of Kumimanu, Petradyptes and a modern emperor penguin\n' +
+            '\n' +
+            'Artwork by Dr. Simone Giovanardi\n' +
+            '\n' +
+            'Petradyptes stonehousei\n' +
+            '\n' +
+            'Ksepka and his colleagues discovered another giant penguin alongside K. fordycei, called Petradyptes stonehousei. With an estimated mass of 50 kilograms,

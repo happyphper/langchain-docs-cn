@@ -1,0 +1,664 @@
+---
+title: 快速入门
+---
+本快速入门演示了如何使用 LangGraph 的 Graph API 或 Functional API 构建一个计算器智能体。
+
+- 如果您倾向于将智能体定义为节点和边的图，请[使用 Graph API](#use-the-graph-api)。
+- 如果您倾向于将智能体定义为单个函数，请[使用 Functional API](#use-the-functional-api)。
+
+有关概念性信息，请参阅 [Graph API 概述](/oss/langgraph/graph-api) 和 [Functional API 概述](/oss/langgraph/functional-api)。
+
+<Info>
+对于此示例，您需要设置一个 [Claude (Anthropic)](https://www.anthropic.com/) 账户并获取 API 密钥。然后，在您的终端中设置 `ANTHROPIC_API_KEY` 环境变量。
+</Info>
+
+<Tabs>
+<Tab title="使用 Graph API">
+
+## 1. 定义工具和模型
+
+在此示例中，我们将使用 Claude Sonnet 4.5 模型，并定义用于加法、乘法和除法的工具。
+
+:::python
+```python
+from langchain.tools import tool
+from langchain.chat_models import init_chat_model
+
+
+model = init_chat_model(
+    "claude-sonnet-4-5-20250929",
+    temperature=0
+)
+
+
+# 定义工具
+@tool
+def multiply(a: int, b: int) -> int:
+    """将 `a` 和 `b` 相乘。
+
+    参数：
+        a: 第一个整数
+        b: 第二个整数
+    """
+    return a * b
+
+
+@tool
+def add(a: int, b: int) -> int:
+    """将 `a` 和 `b` 相加。
+
+    参数：
+        a: 第一个整数
+        b: 第二个整数
+    """
+    return a + b
+
+
+@tool
+def divide(a: int, b: int) -> float:
+    """将 `a` 除以 `b`。
+
+    参数：
+        a: 第一个整数
+        b: 第二个整数
+    """
+    return a / b
+
+
+# 为 LLM 绑定工具
+tools = [add, multiply, divide]
+tools_by_name = {tool.name: tool for tool in tools}
+model_with_tools = model.bind_tools(tools)
+```
+:::
+
+:::js
+```typescript
+import { ChatAnthropic } from "@langchain/anthropic";
+import { tool } from "@langchain/core/tools";
+import * as z from "zod";
+
+const model = new ChatAnthropic({
+  model: "claude-sonnet-4-5-20250929",
+  temperature: 0,
+});
+
+// 定义工具
+const add = tool(({ a, b }) => a + b, {
+  name: "add",
+  description: "Add two numbers",
+  schema: z.object({
+    a: z.number().describe("First number"),
+    b: z.number().describe("Second number"),
+  }),
+});
+
+const multiply = tool(({ a, b }) => a * b, {
+  name: "multiply",
+  description: "Multiply two numbers",
+  schema: z.object({
+    a: z.number().describe("First number"),
+    b: z.number().describe("Second number"),
+  }),
+});
+
+const divide = tool(({ a, b }) => a / b, {
+  name: "divide",
+  description: "Divide two numbers",
+  schema: z.object({
+    a: z.number().describe("First number"),
+    b: z.number().describe("Second number"),
+  }),
+});
+
+// 为 LLM 绑定工具
+const toolsByName = {
+  [add.name]: add,
+  [multiply.name]: multiply,
+  [divide.name]: divide,
+};
+const tools = Object.values(toolsByName);
+const modelWithTools = model.bindTools(tools);
+```
+:::
+
+## 2. 定义状态
+
+图的状态用于存储消息和 LLM 调用次数。
+
+:::python
+
+<Tip>
+    LangGraph 中的状态在智能体执行期间持续存在。
+
+    使用 `operator.add` 的 `Annotated` 类型确保新消息被追加到现有列表中，而不是替换它。
+</Tip>
+
+:::
+
+:::js
+
+<Tip>
+    LangGraph 中的状态在智能体执行期间持续存在。
+
+    `MessagesAnnotation` 常量包含一个用于追加消息的内置归约器。`llmCalls` 字段使用 `(x, y) => x + y` 来累加计数。
+</Tip>
+
+:::
+
+:::python
+
+```python
+from langchain.messages import AnyMessage
+from typing_extensions import TypedDict, Annotated
+import operator
+
+
+class MessagesState(TypedDict):
+    messages: Annotated[list[AnyMessage], operator.add]
+    llm_calls: int
+```
+:::
+
+:::js
+```typescript
+import { StateGraph, START, END, MessagesAnnotation, Annotation } from "@langchain/langgraph";
+
+const MessagesState = Annotation.Root({
+  ...MessagesAnnotation.spec,
+  llmCalls: Annotation<number>({
+    reducer: (x, y) => x + y,
+    default: () => 0,
+  }),
+});
+
+// 提取状态类型用于函数签名
+type MessagesStateType = typeof MessagesState.State;
+```
+:::
+
+## 3. 定义模型节点
+
+模型节点用于调用 LLM 并决定是否调用工具。
+
+:::python
+
+```python
+from langchain.messages import SystemMessage
+
+
+def llm_call(state: dict):
+    """LLM 决定是否调用工具"""
+
+    return {
+        "messages": [
+            model_with_tools.invoke(
+                [
+                    SystemMessage(
+                        content="You are a helpful assistant tasked with performing arithmetic on a set of inputs."
+                    )
+                ]
+                + state["messages"]
+            )
+        ],
+        "llm_calls": state.get('llm_calls', 0) + 1
+    }
+```
+:::
+
+:::js
+
+```typescript
+import { SystemMessage } from "@langchain/core/messages";
+async function llmCall(state: MessagesStateType) {
+  return {
+    messages: [await modelWithTools.invoke([
+      new SystemMessage(
+        "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
+      ),
+      ...state.messages,
+    ])],
+    llmCalls: 1,
+  };
+}
+```
+:::
+
+## 4. 定义工具节点
+
+工具节点用于调用工具并返回结果。
+
+:::python
+
+```python
+from langchain.messages import ToolMessage
+
+
+def tool_node(state: dict):
+    """执行工具调用"""
+
+    result = []
+    for tool_call in state["messages"][-1].tool_calls:
+        tool = tools_by_name[tool_call["name"]]
+        observation = tool.invoke(tool_call["args"])
+        result.append(ToolMessage(content=observation, tool_call_id=tool_call["id"]))
+    return {"messages": result}
+```
+:::
+
+:::js
+
+```typescript
+import { AIMessage, ToolMessage } from "@langchain/core/messages";
+async function toolNode(state: MessagesStateType) {
+  const lastMessage = state.messages.at(-1);
+
+  if (lastMessage == null || !AIMessage.isInstance(lastMessage)) {
+    return { messages: [] };
+  }
+
+  const result: ToolMessage[] = [];
+  for (const toolCall of lastMessage.tool_calls ?? []) {
+    const tool = toolsByName[toolCall.name];
+    const observation = await tool.invoke(toolCall);
+    result.push(observation);
+  }
+
+  return { messages: result };
+}
+```
+:::
+
+## 5. 定义结束逻辑
+
+条件边函数用于根据 LLM 是否进行了工具调用来路由到工具节点或结束。
+
+:::python
+
+```python
+from typing import Literal
+from langgraph.graph import StateGraph, START, END
+
+
+def should_continue(state: MessagesState) -> Literal["tool_node", END]:
+    """根据 LLM 是否进行了工具调用来决定是继续循环还是停止"""
+
+    messages = state["messages"]
+    last_message = messages[-1]
+
+    # 如果 LLM 进行了工具调用，则执行操作
+    if last_message.tool_calls:
+        return "tool_node"
+
+    # 否则，我们停止（回复用户）
+    return END
+```
+:::
+
+:::js
+
+```typescript
+async function shouldContinue(state: MessagesStateType) {
+  const lastMessage = state.messages.at(-1);
+
+  // 在访问 tool_calls 之前检查它是否是 AIMessage
+  if (!lastMessage || !AIMessage.isInstance(lastMessage)) {
+    return END;
+  }
+
+  // 如果 LLM 进行了工具调用，则执行操作
+  if (lastMessage.tool_calls?.length) {
+    return "toolNode";
+  }
+
+  // 否则，我们停止（回复用户）
+  return END;
+}
+```
+:::
+
+## 6. 构建并编译智能体
+
+智能体使用 @[`StateGraph`] 类构建，并使用 @[`compile`][StateGraph.compile] 方法编译。
+
+:::python
+
+```python
+# 构建工作流
+agent_builder = StateGraph(MessagesState)
+
+# 添加节点
+agent_builder.add_node("llm_call", llm_call)
+agent_builder.add_node("tool_node", tool_node)
+
+# 添加边以连接节点
+agent_builder.add_edge(START, "llm_call")
+agent_builder.add_conditional_edges(
+    "llm_call",
+    should_continue,
+    ["tool_node", END]
+)
+agent_builder.add_edge("tool_node", "llm_call")
+
+# 编译智能体
+agent = agent_builder.compile()
+
+# 显示智能体
+from IPython.display import Image, display
+display(Image(agent.get_graph(xray=True).draw_mermaid_png()))
+
+# 调用
+from langchain.messages import HumanMessage
+messages = [HumanMessage(content="Add 3 and 4.")]
+messages = agent.invoke({"messages": messages})
+for m in messages["messages"]:
+    m.pretty_print()
+```
+:::
+
+:::js
+
+```typescript
+const agent = new StateGraph(MessagesState)
+  .addNode("llmCall", llmCall)
+  .addNode("toolNode", toolNode)
+  .addEdge(START, "llmCall")
+  .addConditionalEdges("llmCall", shouldContinue, ["toolNode", END])
+  .addEdge("toolNode", "llmCall")
+  .compile();
+
+// 调用
+import { HumanMessage } from "@langchain/core/messages";
+const result = await agent.invoke({
+  messages: [new HumanMessage("Add 3 and 4.")],
+});
+
+for (const message of result.messages) {
+  console.log(`[${message.type}]: ${message.text}`);
+}
+```
+:::
+
+<Tip>
+    要了解如何使用 LangSmith 追踪您的智能体，请参阅 [LangSmith 文档](/langsmith/trace-with-langgraph)。
+</Tip>
+
+恭喜！您已使用 LangGraph Graph API 构建了您的第一个智能体。
+
+<Accordion title="完整代码示例">
+:::python
+
+```python
+# 步骤 1: 定义工具和模型
+
+from langchain.tools import tool
+from langchain.chat_models import init_chat_model
+
+
+model = init_chat_model(
+    "claude-sonnet-4-5-20250929",
+    temperature=0
+)
+
+
+# 定义工具
+@tool
+def multiply(a: int, b: int) -> int:
+    """将 `a` 和 `b` 相乘。
+
+    参数：
+        a: 第一个整数
+        b: 第二个整数
+    """
+    return a * b
+
+
+@tool
+def add(a: int, b: int) -> int:
+    """将 `a` 和 `b` 相加。
+
+    参数：
+        a: 第一个整数
+        b: 第二个整数
+    """
+    return a + b
+
+
+@tool
+def divide(a: int, b: int) -> float:
+    """将 `a` 除以 `b`。
+
+    参数：
+        a: 第一个整数
+        b: 第二个整数
+    """
+    return a / b
+
+
+# 为 LLM 绑定工具
+tools = [add, multiply, divide]
+tools_by_name = {tool.name: tool for tool in tools}
+model_with_tools = model.bind_tools(tools)
+
+# 步骤 2: 定义状态
+
+from langchain.messages import AnyMessage
+from typing_extensions import TypedDict, Annotated
+import operator
+
+
+class MessagesState(TypedDict):
+    messages: Annotated[list[AnyMessage], operator.add]
+    llm_calls: int
+
+# 步骤 3: 定义模型节点
+from langchain.messages import SystemMessage
+
+
+def llm_call(state: dict):
+    """LLM 决定是否调用工具"""
+
+    return {
+        "messages": [
+            model_with_tools.invoke(
+                [
+                    SystemMessage(
+                        content="You are a helpful assistant tasked with performing arithmetic on a set of inputs."
+                    )
+                ]
+                + state["messages"]
+            )
+        ],
+        "llm_calls": state.get('llm_calls', 0) + 1
+    }
+
+
+# 步骤 4: 定义工具节点
+
+from langchain.messages import ToolMessage
+
+
+def tool_node(state: dict):
+    """执行工具调用"""
+
+    result = []
+    for tool_call in state["messages"][-1].tool_calls:
+        tool = tools_by_name[tool_call["name"]]
+        observation = tool.invoke(tool_call["args"])
+        result.append(ToolMessage(content=observation, tool_call_id=tool_call["id"]))
+    return {"messages": result}
+
+# 步骤 5: 定义决定是否结束的逻辑
+
+from typing import Literal
+from langgraph.graph import StateGraph, START, END
+
+
+# 条件边函数，根据 LLM 是否进行了工具调用来路由到工具节点或结束
+def should_continue(state: MessagesState) -> Literal["tool_node", END]:
+    """根据 LLM 是否进行了工具调用来决定是继续循环还是停止"""
+
+    messages = state["messages"]
+    last_message = messages[-1]
+
+    # 如果 LLM 进行了工具调用，则执行操作
+    if last_message.tool_calls:
+        return "tool_node"
+
+    # 否则，我们停止（回复用户）
+    return END
+
+# 步骤 6: 构建智能体
+
+# 构建工作流
+agent_builder = StateGraph(MessagesState)
+
+# 添加节点
+agent_builder.add_node("llm_call", llm_call)
+agent_builder.add_node("tool_node", tool_node)
+
+# 添加边以连接节点
+agent_builder.add_edge(START, "llm_call")
+agent_builder.add_conditional_edges(
+    "llm_call",
+    should_continue,
+    ["tool_node", END]
+)
+agent_builder.add_edge("tool_node", "llm_call")
+
+# 编译智能体
+agent = agent_builder.compile()
+
+
+from IPython.display import Image, display
+# 显示智能体
+display(Image(agent.get_graph(xray=True).draw_mermaid_png()))
+
+# 调用
+from langchain.messages import HumanMessage
+messages = [HumanMessage(content="Add 3 and 4.")]
+messages = agent.invoke({"messages": messages})
+for m in messages["messages"]:
+    m.pretty_print()
+
+```
+:::
+
+:::js
+```typescript
+// 步骤 1: 定义工具和模型
+
+import { ChatAnthropic } from "@langchain/anthropic";
+import { tool } from "@langchain/core/tools";
+import * as z from "zod";
+
+const model = new ChatAnthropic({
+  model: "claude-sonnet-4-5-20250929",
+  temperature: 0,
+});
+
+// 定义工具
+const add = tool(({ a, b }) => a + b, {
+  name: "add",
+  description: "Add two numbers",
+  schema: z.object({
+    a: z.number().describe("First number"),
+    b: z.number().describe("Second number"),
+  }),
+});
+
+const multiply = tool(({ a, b }) => a * b, {
+  name: "multiply",
+  description: "Multiply two numbers",
+  schema: z.object({
+    a: z.number().describe("First number"),
+    b: z.number().describe("Second number"),
+  }),
+});
+
+const divide = tool(({ a, b }) => a / b, {
+  name: "divide",
+  description: "Divide two numbers",
+  schema: z.object({
+    a: z.number().describe("First number"),
+    b: z.number().describe("Second number"),
+  }),
+});
+
+// 为 LLM 绑定工具
+const toolsByName = {
+  [add.name]: add,
+  [multiply.name]: multiply,
+  [divide.name]: divide,
+};
+const tools = Object.values(toolsByName);
+const modelWithTools = model.bindTools(tools);
+
+// 步骤 2: 定义状态
+
+import { StateGraph, START, END, MessagesAnnotation, Annotation } from "@langchain/langgraph";
+
+const MessagesState = Annotation.Root({
+  ...MessagesAnnotation.spec,
+  llmCalls: Annotation<number>({
+    reducer: (x, y) => x + y,
+    default: () => 0,
+  }),
+});
+
+// 提取状态类型用于函数签名
+type MessagesStateType = typeof MessagesState.State;
+
+// 步骤 3: 定义模型节点
+
+import { SystemMessage } from "@langchain/core/messages";
+
+async function llmCall(state: MessagesStateType) {
+  return {
+    messages: [await modelWithTools.invoke([
+      new SystemMessage(
+        "You are a helpful assistant tasked with performing arithmetic on a set of inputs."
+      ),
+      ...state.messages,
+    ])],
+    llmCalls: 1,
+  };
+}
+
+// 步骤 4: 定义工具节点
+
+import { AIMessage, ToolMessage } from "@langchain/core/messages";
+
+async function toolNode(state: MessagesStateType) {
+  const lastMessage = state.messages.at(-1);
+
+  if (lastMessage == null || !AIMessage.isInstance(lastMessage)) {
+    return { messages: [] };
+  }
+
+  const result: ToolMessage[] = [];
+  for (const toolCall of lastMessage.tool_calls ?? []) {
+    const tool = toolsByName[toolCall.name];
+    const observation = await tool.invoke(toolCall);
+    result.push(observation);
+  }
+
+  return { messages: result };
+}
+
+// 步骤 5: 定义决定是否结束的逻辑
+
+async function shouldContinue(state: MessagesStateType) {
+  const lastMessage = state.messages.at(-1);
+
+  // 在访问 tool_calls 之前检查它是否是 AIMessage
+  if (!lastMessage || !AIMessage.isInstance(lastMessage)) {
+    return END;
+  }
+
+  // 如果 LLM 进行了工具调用，则执行操作
+  if (lastMessage.tool_calls?.length) {
+    return "toolNode";
+  }
+
+  // 否则，我们停止

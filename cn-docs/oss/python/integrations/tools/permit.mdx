@@ -1,0 +1,191 @@
+---
+title: 许可
+---
+Permit 是一个访问控制平台，提供基于 RBAC、ABAC 和 ReBAC 等多种模型的细粒度、实时权限管理。它使组织能够在应用程序中执行动态策略，确保只有授权用户才能访问特定资源。
+
+## 概述
+
+本包提供了两个用于 JWT 验证和使用 Permit 进行权限检查的 LangChain 工具：
+
+* LangchainJWTValidationTool：根据 JWKS 端点验证 JWT 令牌
+* LangchainPermissionsCheckTool：使用 Permit 检查用户权限
+
+## 设置
+
+设置以下环境变量：
+
+```bash
+PERMIT_API_KEY=your_permit_api_key
+JWKS_URL=your_jwks_endpoint_url
+PERMIT_PDP_URL=your_permit_pdp_url  # 本地开发通常为 http://localhost:7766，或您的实际部署地址
+```
+
+确保您的 PDP（策略决策点）在 PERMIT_PDP_URL 地址运行。
+有关策略设置以及如何启动 PDP 容器的详细信息，请参阅 [Permit 文档](https://docs.permit.io/concepts/pdp/overview/)。
+
+### 凭据
+
+```bash
+PERMIT_API_KEY=
+JWKS_URL=your_jwks_endpoint_url # 或您的部署 URL
+PERMIT_PDP_URL=your_pdp_url # 或您的部署 URL
+TEST_JWT_TOKEN= # 用于快速测试
+```
+
+为了获得一流的可观测性，设置 [LangSmith](https://smith.langchain.com/) 也很有帮助（但不是必需的）：
+
+## 实例化
+
+### JWT 验证工具
+
+JWT 验证工具根据 JWKS（JSON Web 密钥集）端点验证 JWT 令牌。
+
+```python
+from langchain_permit.tools import LangchainJWTValidationTool
+
+# 初始化工具
+jwt_validator = LangchainJWTValidationTool(
+    jwks_url=#your url endpoint
+)
+```
+
+### 配置选项
+
+您可以通过以下任一方式初始化该工具：
+
+* JWKS URL
+* 直接的 JWKS JSON 数据
+* 环境变量 (JWKS_URL)
+
+```python
+# 使用直接的 JWKS JSON
+jwt_validator = LangchainJWTValidationTool(
+    jwks_json={
+        "keys": [
+            {
+                "kid": "key-id",
+                "kty": "RSA",
+                ...
+            }
+        ]
+    }
+)
+```
+
+### 权限检查工具
+
+权限检查工具与 Permit.io 集成，以验证用户对资源的权限。
+
+```python
+from permit import Permit
+from langchain_permit.tools import LangchainPermissionsCheckTool
+
+# 初始化 Permit 客户端
+permit_client = Permit(
+    token="your_permit_api_key",
+    pdp=# Your PDP URL
+)
+
+# 初始化工具
+permissions_checker = LangchainPermissionsCheckTool(
+    permit=permit_client
+)
+```
+
+本文档展示了这两个工具的主要功能和使用模式。
+
+## 调用
+
+### [使用参数直接调用](https://docs.permit.io/)
+
+### JWT 验证工具
+
+```python
+# 验证令牌
+async def validate_token():
+    claims = await jwt_validator._arun(
+        "..."  # 您的 JWT 令牌
+    )
+    print("Validated Claims:", claims)
+```
+
+### 权限检查工具
+
+```python
+# 检查权限
+async def check_user_permission():
+    result = await permissions_checker._arun(
+        user={
+            "key": "user-123",
+            "firstName": "John"
+        },
+        action="read",
+        resource={
+            "type": "Document",
+            "tenant": "default"
+        }
+    )
+    print("Permission granted:", result)
+```
+
+#### 输入格式
+
+权限检查器接受不同的输入格式：
+
+1. 用户的简单字符串（转换为用户键）：
+
+```python
+result = await permissions_checker._arun(
+    user="user-123",
+    action="read",
+    resource="Document"
+)
+```
+
+2. 完整的用户对象：
+
+```python
+result = await permissions_checker._arun(
+    user={
+        "key": "user-123",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john@example.com",
+        "attributes": {"department": "IT"}
+    },
+    action="read",
+    resource={
+        "type": "Document",
+        "key": "doc-123",
+        "tenant": "techcorp",
+        "attributes": {"confidentiality": "high"}
+    }
+)
+```
+
+### [使用 ToolCall 调用](https://docs.permit.io/)
+
+（待办）
+
+## 链式调用
+
+* 待办：添加用户问题并运行单元
+
+我们可以通过首先将工具绑定到一个 [工具调用模型](https://docs.permit.io/)，然后调用它，从而在链中使用我们的工具：
+
+<ChatModelTabs customVarName="llm" />
+
+### 其他演示脚本
+
+要获取完全可运行的演示，请查看此 [仓库](https://github.com/permitio/langchain-permit) 中的 `/langchain_permit/examples/demo_scripts` 文件夹。您将找到：
+
+* demo_jwt_validation.py – 一个快速脚本，展示如何使用 LangchainJWTValidationTool 验证 JWT。
+* demo_permissions_check.py – 一个使用 LangchainPermissionsCheckTool 执行 Permit.io 权限检查的脚本。
+
+只需运行 `python demo_jwt_validation.py` 或 `python demo_permissions_check.py`（在设置好环境变量后）即可查看这些工具的实际运行情况。
+
+---
+
+## API 参考
+
+有关所有 Permit 功能和配置的详细文档，请前往 API 参考：[docs.permit.io/](https://docs.permit.io/)

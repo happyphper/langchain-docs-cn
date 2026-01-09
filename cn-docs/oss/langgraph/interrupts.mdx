@@ -1,0 +1,498 @@
+---
+title: 中断
+---
+中断（Interrupts）允许你在特定点暂停图（graph）执行，并在继续之前等待外部输入。这使得人机协同（human-in-the-loop）模式成为可能，即你需要外部输入才能继续执行。当中断被触发时，LangGraph 会使用其[持久化（persistence）](/oss/langgraph/persistence)层保存图状态，并无限期等待，直到你恢复执行。
+
+中断通过在图的节点中任意位置调用 `interrupt()` 函数来工作。该函数接受任何可 JSON 序列化的值，该值会暴露给调用者。当你准备好继续时，通过使用 `Command` 重新调用图来恢复执行，该值随后会成为节点内部 `interrupt()` 调用的返回值。
+
+与静态断点（在特定节点之前或之后暂停）不同，中断是**动态的**——它们可以放在代码中的任何位置，并且可以根据你的应用逻辑有条件地触发。
+
+:::python
+- **检查点（Checkpointing）保存你的位置：** 检查点写入确切的图状态，以便你稍后可以恢复，即使在错误状态下也是如此。
+- **`thread_id` 是你的指针：** 设置 `config={"configurable": {"thread_id": ...}}` 来告诉检查点要加载哪个状态。
+- **中断负载（payload）以 `__interrupt__` 形式暴露：** 你传递给 `interrupt()` 的值会在 `__interrupt__` 字段中返回给调用者，以便你知道图在等待什么。
+:::
+:::js
+- **检查点（Checkpointing）保存你的位置：** 检查点写入确切的图状态，以便你稍后可以恢复，即使在错误状态下也是如此。
+- **`thread_id` 是你的指针：** 使用 `{ configurable: { thread_id: ... } }` 作为 `invoke` 方法的选项来告诉检查点要加载哪个状态。
+- **中断负载（payload）以 `__interrupt__` 形式暴露：** 你传递给 `interrupt()` 的值会在 `__interrupt__` 字段中返回给调用者，以便你知道图在等待什么。
+:::
+
+你选择的 `thread_id` 实际上就是你的持久化游标。重用它会恢复同一个检查点；使用新值则会启动一个具有空状态的全新线程。
+
+## 使用 `interrupt` 暂停
+
+@[`interrupt`] 函数会暂停图执行，并向调用者返回一个值。当你在节点内调用 @[`interrupt`] 时，LangGraph 会保存当前的图状态，并等待你提供输入来恢复执行。
+
+要使用 @[`interrupt`]，你需要：
+1. 一个**检查点（checkpointer）** 来持久化图状态（在生产环境中使用持久的检查点）
+2. 配置中的**线程 ID（thread ID）**，以便运行时知道从哪个状态恢复
+3. 在你想要暂停的地方调用 `interrupt()`（负载必须是可 JSON 序列化的）
+
+:::python
+```python
+from langgraph.types import interrupt
+
+def approval_node(state: State):
+    # 暂停并请求批准
+    approved = interrupt("Do you approve this action?")
+
+    # 当你恢复时，Command(resume=...) 返回的值会在这里
+    return {"approved": approved}
+```
+:::
+
+:::js
+```typescript
+import { interrupt } from "@langchain/langgraph";
+
+async function approvalNode(state: State) {
+    // 暂停并请求批准
+    const approved = interrupt("Do you approve this action?");
+
+    // Command({ resume: ... }) 提供的值会返回到这个变量中
+    return { approved };
+}
+```
+:::
+
+当你调用 @[`interrupt`] 时，会发生以下情况：
+
+1. **图执行被挂起**在调用 @[`interrupt`] 的确切位置
+2. **状态被保存**到检查点，以便稍后可以恢复执行。在生产环境中，这应该是一个持久化的检查点（例如，由数据库支持）
+3. **值被返回**给调用者，位于 `__interrupt__` 字段下；它可以是任何可 JSON 序列化的值（字符串、对象、数组等）
+4. **图无限期等待**，直到你提供响应来恢复执行
+5. **响应被传递回**节点，当你恢复时，它成为 `interrupt()` 调用的返回值
+
+## 恢复中断
+
+中断暂停执行后，你可以通过再次调用图并附带包含恢复值的 `Command` 来恢复图。恢复值会被传递回 `interrupt` 调用，允许节点继续执行并处理外部输入。
+
+:::python
+```python
+from langgraph.types import Command
+
+# 初始运行 - 遇到中断并暂停
+# thread_id 是持久化指针（在生产环境中存储一个稳定的 ID）
+config = {"configurable": {"thread_id": "thread-1"}}
+result = graph.invoke({"input": "data"}, config=config)
+
+# 检查中断了什么
+# __interrupt__ 包含传递给 interrupt() 的负载
+print(result["__interrupt__"])
+# > [Interrupt(value='Do you approve this action?')]
+
+# 用人的响应恢复
+# resume 负载成为节点内部 interrupt() 的返回值
+graph.invoke(Command(resume=True), config=config)
+```
+:::
+
+:::js
+```typescript
+import { Command } from "@langchain/langgraph";
+
+// 初始运行 - 遇到中断并暂停
+// thread_id 是指向已保存检查点的持久化指针
+const config = { configurable: { thread_id: "thread-1" } };
+const result = await graph.invoke({ input: "data" }, config);
+
+// 检查中断了什么
+// __interrupt__ 镜像了你传递给 interrupt() 的每个负载
+console.log(result.__interrupt__);
+// [{ value: 'Do you approve this action?', ... }]
+
+// 用人的响应恢复
+// Command({ resume }) 返回的值会成为节点中 interrupt() 的返回值
+await graph.invoke(new Command({ resume: true }), config);
+```
+:::
+
+**关于恢复的关键点：**
+
+- 恢复时必须使用与中断发生时**相同的线程 ID**
+- 传递给 `Command(resume=...)` 的值成为 @[`interrupt`] 调用的返回值
+- 恢复时，节点会从调用 @[`interrupt`] 的节点开头重新开始，因此 @[`interrupt`] 之前的任何代码都会再次运行
+- 你可以传递任何可 JSON 序列化的值作为恢复值
+
+## 常见模式
+
+中断解锁的关键能力是能够暂停执行并等待外部输入。这对于各种用例非常有用，包括：
+
+- <Icon icon="check-circle" /> [审批工作流](#approve-or-reject)：在执行关键操作（API 调用、数据库更改、金融交易）之前暂停
+- <Icon icon="pencil" /> [审查和编辑](#review-and-edit-state)：让人在继续之前审查和修改 LLM 输出或工具调用
+- <Icon icon="wrench" /> [中断工具调用](#interrupts-in-tools)：在执行工具调用之前暂停，以便在执行前审查和编辑工具调用
+- <Icon icon="shield-check" /> [验证人工输入](#validating-human-input)：在继续下一步之前暂停以验证人工输入
+
+### 批准或拒绝
+
+中断最常见的用途之一是在关键操作之前暂停并请求批准。例如，你可能希望让人批准一个 API 调用、数据库更改或任何其他重要决策。
+
+:::python
+```python
+from typing import Literal
+from langgraph.types import interrupt, Command
+
+def approval_node(state: State) -> Command[Literal["proceed", "cancel"]]:
+    # 暂停执行；负载会出现在 result["__interrupt__"] 中
+    is_approved = interrupt({
+        "question": "Do you want to proceed with this action?",
+        "details": state["action_details"]
+    })
+
+    # 根据响应进行路由
+    if is_approved:
+        return Command(goto="proceed")  # 在提供 resume 负载后运行
+    else:
+        return Command(goto="cancel")
+```
+:::
+
+:::js
+```typescript
+import { interrupt, Command } from "@langchain/langgraph";
+
+function approvalNode(state: State): Command {
+  // 暂停执行；负载会出现在 result.__interrupt__ 中
+  const isApproved = interrupt({
+    question: "Do you want to proceed?",
+    details: state.actionDetails
+  });
+
+  // 根据响应进行路由
+  if (isApproved) {
+    return new Command({ goto: "proceed" }); // 在提供 resume 负载后运行
+  } else {
+    return new Command({ goto: "cancel" });
+  }
+}
+```
+:::
+
+当你恢复图时，传递 `true` 表示批准，`false` 表示拒绝：
+
+:::python
+```python
+# 批准
+graph.invoke(Command(resume=True), config=config)
+
+# 拒绝
+graph.invoke(Command(resume=False), config=config)
+```
+:::
+
+:::js
+```typescript
+// 批准
+await graph.invoke(new Command({ resume: true }), config);
+
+// 拒绝
+await graph.invoke(new Command({ resume: false }), config);
+```
+:::
+
+<Accordion title="完整示例">
+    :::python
+
+    ```python
+    from typing import Literal, Optional, TypedDict
+
+    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.graph import StateGraph, START, END
+    from langgraph.types import Command, interrupt
+
+
+    class ApprovalState(TypedDict):
+        action_details: str
+        status: Optional[Literal["pending", "approved", "rejected"]]
+
+
+    def approval_node(state: ApprovalState) -> Command[Literal["proceed", "cancel"]]:
+        # 暴露详细信息，以便调用者可以在 UI 中渲染它们
+        decision = interrupt({
+            "question": "Approve this action?",
+            "details": state["action_details"],
+        })
+
+        # 恢复后路由到适当的节点
+        return Command(goto="proceed" if decision else "cancel")
+
+
+    def proceed_node(state: ApprovalState):
+        return {"status": "approved"}
+
+
+    def cancel_node(state: ApprovalState):
+        return {"status": "rejected"}
+
+
+    builder = StateGraph(ApprovalState)
+    builder.add_node("approval", approval_node)
+    builder.add_node("proceed", proceed_node)
+    builder.add_node("cancel", cancel_node)
+    builder.add_edge(START, "approval")
+    builder.add_edge("proceed", END)
+    builder.add_edge("cancel", END)
+
+    # 在生产环境中使用更持久的检查点
+    checkpointer = MemorySaver()
+    graph = builder.compile(checkpointer=checkpointer)
+
+    config = {"configurable": {"thread_id": "approval-123"}}
+    initial = graph.invoke(
+        {"action_details": "Transfer $500", "status": "pending"},
+        config=config,
+    )
+    print(initial["__interrupt__"])  # -> [Interrupt(value={'question': ..., 'details': ...})]
+
+    # 用决策恢复；True 路由到 proceed，False 路由到 cancel
+    resumed = graph.invoke(Command(resume=True), config=config)
+    print(resumed["status"])  # -> "approved"
+    ```
+    :::
+
+    :::js
+
+    ```typescript
+    import {
+      Command,
+      MemorySaver,
+      START,
+      END,
+      StateGraph,
+      interrupt,
+    } from "@langchain/langgraph";
+    import * as z from "zod";
+
+    const State = z.object({
+      actionDetails: z.string(),
+      status: z.enum(["pending", "approved", "rejected"]).nullable(),
+    });
+
+    const graphBuilder = new StateGraph(State)
+      .addNode("approval", async (state) => {
+        // 暴露详细信息，以便调用者可以在 UI 中渲染它们
+        const decision = interrupt({
+          question: "Approve this action?",
+          details: state.actionDetails,
+        });
+        return new Command({ goto: decision ? "proceed" : "cancel" });
+      }, { ends: ['proceed', 'cancel'] })
+      .addNode("proceed", () => ({ status: "approved" }))
+      .addNode("cancel", () => ({ status: "rejected" }))
+      .addEdge(START, "approval")
+      .addEdge("proceed", END)
+      .addEdge("cancel", END);
+
+    // 在生产环境中使用更持久的检查点
+    const checkpointer = new MemorySaver();
+    const graph = graphBuilder.compile({ checkpointer });
+
+    const config = { configurable: { thread_id: "approval-123" } };
+    const initial = await graph.invoke(
+      { actionDetails: "Transfer $500", status: "pending" },
+      config,
+    );
+    console.log(initial.__interrupt__);
+    // [{ value: { question: ..., details: ... } }]
+
+    // 用决策恢复；true 路由到 proceed，false 路由到 cancel
+    const resumed = await graph.invoke(new Command({ resume: true }), config);
+    console.log(resumed.status); // -> "approved"
+    ```
+    :::
+
+</Accordion>
+
+### 审查和编辑状态
+
+有时你希望让人在继续之前审查和编辑图状态的一部分。这对于纠正 LLM、添加缺失信息或进行调整非常有用。
+
+:::python
+```python
+from langgraph.types import interrupt
+
+def review_node(state: State):
+    # 暂停并显示当前内容以供审查（出现在 result["__interrupt__"] 中）
+    edited_content = interrupt({
+        "instruction": "Review and edit this content",
+        "content": state["generated_text"]
+    })
+
+    # 用编辑后的版本更新状态
+    return {"generated_text": edited_content}
+```
+:::
+
+:::js
+```typescript
+import { interrupt } from "@langchain/langgraph";
+
+function reviewNode(state: State) {
+  // 暂停并显示当前内容以供审查（出现在 result.__interrupt__ 中）
+  const editedContent = interrupt({
+    instruction: "Review and edit this content",
+    content: state.generatedText
+  });
+
+  // 用编辑后的版本更新状态
+  return { generatedText: editedContent };
+}
+```
+:::
+
+恢复时，提供编辑后的内容：
+
+:::python
+```python
+graph.invoke(
+    Command(resume="The edited and improved text"),  # 该值成为 interrupt() 的返回值
+    config=config
+)
+```
+:::
+
+:::js
+```typescript
+await graph.invoke(
+  new Command({ resume: "The edited and improved text" }), // 该值成为 interrupt() 的返回值
+  config
+);
+```
+:::
+
+<Accordion title="完整示例">
+    :::python
+
+    ```python
+    import sqlite3
+    from typing import TypedDict
+
+    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.graph import StateGraph, START, END
+    from langgraph.types import Command, interrupt
+
+
+    class ReviewState(TypedDict):
+        generated_text: str
+
+
+    def review_node(state: ReviewState):
+        # 请求审查者编辑生成的内容
+        updated = interrupt({
+            "instruction": "Review and edit this content",
+            "content": state["generated_text"],
+        })
+        return {"generated_text": updated}
+
+
+    builder = StateGraph(ReviewState)
+    builder.add_node("review", review_node)
+    builder.add_edge(START, "review")
+    builder.add_edge("review", END)
+
+    checkpointer = MemorySaver()
+    graph = builder.compile(checkpointer=checkpointer)
+
+    config = {"configurable": {"thread_id": "review-42"}}
+    initial = graph.invoke({"generated_text": "Initial draft"}, config=config)
+    print(initial["__interrupt__"])  # -> [Interrupt(value={'instruction': ..., 'content': ...})]
+
+    # 用审查者编辑后的文本恢复
+    final_state = graph.invoke(
+        Command(resume="Improved draft after review"),
+        config=config,
+    )
+    print(final_state["generated_text"])  # -> "Improved draft after review"
+    ```
+    :::
+
+    :::js
+
+    ```typescript
+    import {
+      Command,
+      MemorySaver,
+      START,
+      END,
+      StateGraph,
+      interrupt,
+    } from "@langchain/langgraph";
+    import * as z from "zod";
+
+    const State = z.object({
+      generatedText: z.string(),
+    });
+
+    const builder = new StateGraph(State)
+      .addNode("review", async (state) => {
+        // 请求审查者编辑生成的内容
+        const updated = interrupt({
+          instruction: "Review and edit this content",
+          content: state.generatedText,
+        });
+        return { generatedText: updated };
+      })
+      .addEdge(START, "review")
+      .addEdge("review", END);
+
+    const checkpointer = new MemorySaver();
+    const graph = builder.compile({ checkpointer });
+
+    const config = { configurable: { thread_id: "review-42" } };
+    const initial = await graph.invoke({ generatedText: "Initial draft" }, config);
+    console.log(initial.__interrupt__);
+    // [{ value: { instruction: ..., content: ... } }]
+
+    // 用审查者编辑后的文本恢复
+    const finalState = await graph.invoke(
+      new Command({ resume: "Improved draft after review" }),
+      config,
+    );
+    console.log(finalState.generatedText); // -> "Improved draft after review"
+    ```
+    :::
+
+</Accordion>
+
+### 工具中的中断
+
+你也可以将中断直接放在工具函数内部。这使得工具本身在被调用时暂停等待批准，并允许在执行前对工具调用进行人工审查和编辑。
+
+首先，定义一个使用 @[`interrupt`] 的工具：
+
+:::python
+```python
+from langchain.tools import tool
+from langgraph.types import interrupt
+
+@tool
+def send_email(to: str, subject: str, body: str):
+    """Send an email to a recipient."""
+
+    # 发送前暂停；负载出现在 result["__interrupt__"] 中
+    response = interrupt({
+        "action": "send_email",
+        "to": to,
+        "subject": subject,
+        "body": body,
+        "message": "Approve sending this email?"
+    })
+
+    if response.get("action") == "approve":
+        # 恢复值可以在执行前覆盖输入
+        final_to = response.get("to", to)
+        final_subject = response.get("subject", subject)
+        final_body = response.get("body", body)
+        return f"Email sent to {final_to} with subject '{final_subject}'"
+    return "Email cancelled by user"
+```
+:::
+
+:::js
+```typescript
+import { tool } from "@langchain/core/tools";
+import { interrupt } from "@langchain/langgraph";
+import * as z from "zod";
+
+const send

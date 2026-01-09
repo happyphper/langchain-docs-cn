@@ -1,0 +1,468 @@
+---
+title: 评估 RAG 应用程序
+sidebarTitle: Evaluate a RAG application
+---
+<Info>
+[RAG 评估](/langsmith/evaluation-concepts#retrieval-augmented-generation-rag) | [评估器](/langsmith/evaluation-concepts#evaluators) | [LLM 作为评判的评估器](/langsmith/evaluation-concepts#llm-as-judge)
+</Info>
+
+检索增强生成 (RAG) 是一种通过为大型语言模型 (LLM) 提供相关外部知识来增强其能力的技术。它已成为构建 LLM 应用最广泛使用的方法之一。
+
+本教程将向您展示如何使用 LangSmith 评估您的 RAG 应用程序。您将学习：
+
+1. 如何创建测试数据集
+2. 如何在数据集上运行您的 RAG 应用程序
+3. 如何使用不同的评估指标来衡量应用程序的性能
+
+## 概述
+
+典型的 RAG 评估工作流程包含三个主要步骤：
+
+1. 创建包含问题及其预期答案的数据集
+2. 在这些问题上运行您的 RAG 应用程序
+3. 使用评估器来衡量应用程序的表现，关注以下因素：
+   * 答案相关性
+   * 答案准确性
+   * 检索质量
+
+在本教程中，我们将创建并评估一个机器人，该机器人回答关于 [Lilian Weng](https://lilianweng.github.io/) 几篇富有洞察力的博客文章的问题。
+
+## 设置
+
+### 环境
+
+首先，让我们设置环境变量：
+
+<CodeGroup>
+
+```python Python
+import os
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = "YOUR LANGSMITH API KEY"
+os.environ["OPENAI_API_KEY"] = "YOUR OPENAI API KEY"
+```
+
+```typescript TypeScript
+process.env.LANGSMITH_TRACING = "true";
+process.env.LANGSMITH_API_KEY = "YOUR LANGSMITH API KEY";
+process.env.OPENAI_API_KEY = "YOUR OPENAI API KEY";
+```
+
+</CodeGroup>
+
+并安装我们需要的依赖项：
+
+<CodeGroup>
+
+```bash Python
+pip install -U langsmith langchain[openai] langchain-community
+```
+
+```bash TypeScript
+yarn add langsmith langchain @langchain/community @langchain/openai
+```
+
+</CodeGroup>
+
+### 应用程序
+
+<Info>
+虽然本教程使用 LangChain，但这里演示的评估技术和 LangSmith 功能适用于任何框架。请随意使用您偏好的工具和库。
+</Info>
+
+在本节中，我们将构建一个基本的检索增强生成 (RAG) 应用程序。
+
+我们将采用一个简单的实现，包括：
+* 索引：将 Lilian Weng 的几篇博客文章分块并索引到向量存储中
+* 检索：根据用户问题检索这些块
+* 生成：将问题和检索到的文档传递给 LLM。
+
+#### 索引和检索
+
+首先，让我们加载要为其构建聊天机器人的博客文章并建立索引。
+
+<CodeGroup>
+
+```python Python
+from langchain_community.document_loaders import WebBaseLoader
+from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+# List of URLs to load documents from
+urls = [
+    "https://lilianweng.github.io/posts/2023-06-23-agent/",
+    "https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/",
+    "https://lilianweng.github.io/posts/2023-10-25-adv-attack-llm/",
+]
+
+# Load documents from the URLs
+docs = [WebBaseLoader(url).load() for url in urls]
+docs_list = [item for sublist in docs for item in sublist]
+
+# Initialize a text splitter with specified chunk size and overlap
+text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+    chunk_size=250, chunk_overlap=0
+)
+
+# Split the documents into chunks
+doc_splits = text_splitter.split_documents(docs_list)
+
+# Add the document chunks to the "vector store" using OpenAIEmbeddings
+vectorstore = InMemoryVectorStore.from_documents(
+    documents=doc_splits,
+    embedding=OpenAIEmbeddings(),
+)
+
+# With langchain we can easily turn any vector store into a retrieval component:
+retriever = vectorstore.as_retriever(k=6)
+```
+
+```typescript TypeScript
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
+import { BrowserbaseLoader } from "@langchain/community/document_loaders/web/browserbase";
+import { RecursiveCharacterTextSplitter } from "@langchain/text_splitters";
+
+// List of URLs to load documents from
+const urls = [
+    "https://lilianweng.github.io/posts/2023-06-23-agent/",
+    "https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/",
+    "https://lilianweng.github.io/posts/2023-10-25-adv-attack-llm/",
+]
+
+const loader = new BrowserbaseLoader(urls, {
+    textContent: true,
+});
+
+const docs = await loader.load();
+
+const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 1000, chunkOverlap: 200
+});
+
+const allSplits = await splitter.splitDocuments(docs);
+
+const embeddings = new OpenAIEmbeddings({
+    model: "text-embedding-3-large"
+});
+
+const vectorStore = new MemoryVectorStore(embeddings);  // Index chunks
+await vectorStore.addDocuments(allSplits)
+```
+
+</CodeGroup>
+
+#### 生成
+
+我们现在可以定义生成管道。
+
+<CodeGroup>
+
+```python Python
+from langchain_openai import ChatOpenAI
+from langsmith import traceable
+
+llm = ChatOpenAI(model="gpt-4o", temperature=1)
+
+# Add decorator so this function is traced in LangSmith
+@traceable()
+def rag_bot(question: str) -> dict:
+    # LangChain retriever will be automatically traced
+    docs = retriever.invoke(question)
+    docs_string = "".join(doc.page_content for doc in docs)
+    instructions = f"""You are a helpful assistant who is good at analyzing source information and answering questions.
+       Use the following source documents to answer the user's questions.
+       If you don't know the answer, just say that you don't know.
+       Use three sentences maximum and keep the answer concise.
+
+Documents:
+{docs_string}"""
+    # langchain ChatModel will be automatically traced
+    ai_msg = llm.invoke([
+            {"role": "system", "content": instructions},
+            {"role": "user", "content": question},
+        ],
+    )
+    return {"answer": ai_msg.content, "documents": docs}
+```
+
+```typescript TypeScript
+import { ChatOpenAI } from "@langchain/openai";
+import { traceable } from "langsmith/traceable";
+
+const llm = new ChatOpenAI({
+  model: "gpt-4o",
+  temperature: 1,
+})
+
+// Add decorator so this function is traced in LangSmith
+const ragBot = traceable(
+    async (question: string) => {
+        // LangChain retriever will be automatically traced
+        const retrievedDocs = await vectorStore.similaritySearch(question);
+        const docsContent = retrievedDocs.map((doc) => doc.pageContent).join("");
+
+        const instructions = `You are a helpful assistant who is good at analyzing source information and answering questions
+        Use the following source documents to answer the user's questions.
+        If you don't know the answer, just say that you don't know.
+        Use three sentences maximum and keep the answer concise.
+        Documents:
+        ${docsContent}`;
+
+        const aiMsg = await llm.invoke([
+            {
+                role: "system",
+                content: instructions
+            },
+            {
+                role: "user",
+                content: question
+            }
+        ])
+
+        return {"answer": aiMsg.content, "documents": retrievedDocs}
+    }
+)
+```
+
+</CodeGroup>
+
+## 数据集
+
+现在我们已经有了应用程序，让我们构建一个数据集来评估它。在本例中，我们的数据集将非常简单：我们将有示例问题和参考答案。
+
+<CodeGroup>
+
+```python Python
+from langsmith import Client
+
+client = Client()
+
+# Define the examples for the dataset
+examples = [
+    {
+        "inputs": {"question": "How does the ReAct agent use self-reflection? "},
+        "outputs": {"answer": "ReAct integrates reasoning and acting, performing actions - such tools like Wikipedia search API - and then observing / reasoning about the tool outputs."},
+    },
+    {
+        "inputs": {"question": "What are the types of biases that can arise with few-shot prompting?"},
+        "outputs": {"answer": "The biases that can arise with few-shot prompting include (1) Majority label bias, (2) Recency bias, and (3) Common token bias."},
+    },
+    {
+        "inputs": {"question": "What are five types of adversarial attacks?"},
+        "outputs": {"answer": "Five types of adversarial attacks are (1) Token manipulation, (2) Gradient based attack, (3) Jailbreak prompting, (4) Human red-teaming, (5) Model red-teaming."},
+    },
+]
+
+# Create the dataset and examples in LangSmith
+dataset_name = "Lilian Weng Blogs Q&A"
+dataset = client.create_dataset(dataset_name=dataset_name)
+client.create_examples(
+    dataset_id=dataset.id,
+    examples=examples
+)
+```
+
+```typescript TypeScript
+import { Client } from "langsmith";
+
+const client = new Client();
+
+// Define the examples for the dataset
+const examples = [
+    [
+        "How does the ReAct agent use self-reflection? ",
+        "ReAct integrates reasoning and acting, performing actions - such tools like Wikipedia search API - and then observing / reasoning about the tool outputs.",
+    ],
+    [
+        "What are the types of biases that can arise with few-shot prompting?",
+        "The biases that can arise with few-shot prompting include (1) Majority label bias, (2) Recency bias, and (3) Common token bias.",
+    ],
+    [
+        "What are five types of adversarial attacks?",
+        "Five types of adversarial attacks are (1) Token manipulation, (2) Gradient based attack, (3) Jailbreak prompting, (4) Human red-teaming, (5) Model red-teaming.",
+    ]
+]
+
+const [inputs, outputs] = examples.reduce<[Array<{ input: string }>, Array<{ outputs: string }>]>(
+    ([inputs, outputs], item) => [
+        [...inputs, { input: item[0] }],
+        [...outputs, { outputs: item[1] }],
+    ],
+    [[], []]
+);
+
+const datasetName = "Lilian Weng Blogs Q&A";
+const dataset = await client.createDataset(datasetName);
+await client.createExamples({ inputs, outputs, datasetId: dataset.id })
+```
+
+</CodeGroup>
+
+## 评估器
+
+思考不同类型 RAG 评估器的一种方式是将其视为一个元组：被评估的对象 X 评估所依据的对象：
+
+1.  **正确性**：响应 vs 参考答案
+    * `目标`：衡量“*RAG 链的答案相对于标准答案的相似性/正确性如何*”
+    * `模式`：需要通过数据集提供标准（参考）答案
+    * `评估器`：使用 LLM 作为评判来评估答案正确性。
+
+2.  **相关性**：响应 vs 输入
+    * `目标`：衡量“*生成的响应在多大程度上解决了初始用户输入*”
+    * `模式`：不需要参考答案，因为它会将答案与输入问题进行比较
+    * `评估器`：使用 LLM 作为评判来评估答案相关性、有用性等。
+
+3.  **事实依据性**：响应 vs 检索到的文档
+    * `目标`：衡量“*生成的响应在多大程度上与检索到的上下文一致*”
+    * `模式`：不需要参考答案，因为它会将答案与检索到的上下文进行比较
+    * `评估器`：使用 LLM 作为评判来评估忠实度、幻觉等。
+
+4.  **检索相关性**：检索到的文档 vs 输入
+    * `目标`：衡量“*我的检索结果对于此查询的相关性如何*”
+    * `模式`：不需要参考答案，因为它会将问题与检索到的上下文进行比较
+    * `评估器`：使用 LLM 作为评判来评估相关性
+
+![RAG 评估概览](/langsmith/images/rag-eval-overview.png)
+
+### 正确性：响应 vs 参考答案
+
+<CodeGroup>
+
+```python Python
+from typing_extensions import Annotated, TypedDict
+
+# Grade output schema
+class CorrectnessGrade(TypedDict):
+    # Note that the order in the fields are defined is the order in which the model will generate them.
+    # It is useful to put explanations before responses because it forces the model to think through
+    # its final response before generating it:
+    explanation: Annotated[str, ..., "Explain your reasoning for the score"]
+    correct: Annotated[bool, ..., "True if the answer is correct, False otherwise."]
+
+# Grade prompt
+correctness_instructions = """You are a teacher grading a quiz. You will be given a QUESTION, the GROUND TRUTH (correct) ANSWER, and the STUDENT ANSWER. Here is the grade criteria to follow:
+(1) Grade the student answers based ONLY on their factual accuracy relative to the ground truth answer. (2) Ensure that the student answer does not contain any conflicting statements.
+(3) It is OK if the student answer contains more information than the ground truth answer, as long as it is factually accurate relative to the  ground truth answer.
+
+Correctness:
+A correctness value of True means that the student's answer meets all of the criteria.
+A correctness value of False means that the student's answer does not meet all of the criteria.
+
+Explain your reasoning in a step-by-step manner to ensure your reasoning and conclusion are correct. Avoid simply stating the correct answer at the outset."""
+
+# Grader LLM
+grader_llm = ChatOpenAI(model="gpt-4o", temperature=0).with_structured_output(
+    CorrectnessGrade, method="json_schema", strict=True
+)
+
+def correctness(inputs: dict, outputs: dict, reference_outputs: dict) -> bool:
+    """An evaluator for RAG answer accuracy"""
+    answers = f"""\
+QUESTION: {inputs['question']}
+GROUND TRUTH ANSWER: {reference_outputs['answer']}
+STUDENT ANSWER: {outputs['answer']}"""
+    # Run evaluator
+    grade = grader_llm.invoke([
+        {"role": "system", "content": correctness_instructions},
+        {"role": "user", "content": answers}
+    ])
+    return grade["correct"]
+```
+
+```typescript TypeScript
+import type { EvaluationResult } from "langsmith/evaluation";
+import { z } from "zod";
+
+// Grade prompt
+const correctnessInstructions = `You are a teacher grading a quiz. You will be given a QUESTION, the GROUND TRUTH (correct) ANSWER, and the STUDENT ANSWER. Here is the grade criteria to follow:
+(1) Grade the student answers based ONLY on their factual accuracy relative to the ground truth answer. (2) Ensure that the student answer does not contain any conflicting statements.
+(3) It is OK if the student answer contains more information than the ground truth answer, as long as it is factually accurate relative to the  ground truth answer.
+
+Correctness:
+A correctness value of True means that the student's answer meets all of the criteria.
+A correctness value of False means that the student's answer does not meet all of the criteria.
+
+Explain your reasoning in a step-by-step manner to ensure your reasoning and conclusion are correct. Avoid simply stating the correct answer at the outset.`
+
+const graderLLM = new ChatOpenAI({
+  model: "gpt-4o",
+  temperature: 0,
+}).withStructuredOutput(
+  z
+    .object({
+      explanation: z
+        .string()
+        .describe("Explain your reasoning for the score"),
+      correct: z
+        .boolean()
+        .describe("True if the answer is correct, False otherwise.")
+    })
+    .describe("Correctness score for reference answer v.s. generated answer.")
+);
+
+async function correctness({
+  inputs,
+  outputs,
+  referenceOutputs,
+}: {
+  inputs: Record<string, any>;
+  outputs: Record<string, any>;
+  referenceOutputs?: Record<string, any>;
+}): Promise<EvaluationResult> => {
+  const answer = `QUESTION: ${inputs.question}
+    GROUND TRUTH ANSWER: ${referenceOutputs.answer}
+    STUDENT ANSWER: ${outputs.answer}`
+
+  // Run evaluator
+  const grade = graderLLM.invoke([{role: "system", content: correctnessInstructions}, {role: "user", content: answer}])
+  return grade.score;
+};
+```
+
+</CodeGroup>
+
+### 相关性：响应 vs 输入
+
+流程与上面类似，但我们只查看 `inputs` 和 `outputs`，而不需要 `reference_outputs`。没有参考答案，我们无法评估准确性，但仍然可以评估相关性——即模型是否解决了用户的问题。
+
+<CodeGroup>
+
+```python Python
+# Grade output schema
+class RelevanceGrade(TypedDict):
+    explanation: Annotated[str, ..., "Explain your reasoning for the score"]
+    relevant: Annotated[
+        bool, ..., "Provide the score on whether the answer addresses the question"
+    ]
+
+# Grade prompt
+relevance_instructions = """You are a teacher grading a quiz. You will be given a QUESTION and a STUDENT ANSWER. Here is the grade criteria to follow:
+(1) Ensure the STUDENT ANSWER is concise and relevant to the QUESTION
+(2) Ensure the STUDENT ANSWER helps to answer the QUESTION
+
+Relevance:
+A relevance value of True means that the student's answer meets all of the criteria.
+A relevance value of False means that the student's answer does not meet all of the criteria.
+
+Explain your reasoning in a step-by-step manner to ensure your reasoning and conclusion are correct. Avoid simply stating the correct answer at the outset."""
+
+# Grader LLM
+relevance_llm = ChatOpenAI(model="gpt-4o", temperature=0).with_structured_output(
+    RelevanceGrade, method="json_schema", strict=True
+)
+
+# Evaluator
+def relevance(inputs: dict, outputs: dict) -> bool:
+    """A simple evaluator for RAG answer helpfulness."""
+    answer = f"QUESTION: {inputs['question']}\nSTUDENT ANSWER: {outputs['answer']}"
+    grade = relevance_llm.invoke([
+        {"role": "system", "content": relevance_instructions},
+        {"role": "user", "content": answer}
+    ])
+    return grade["relevant"]
+```
+
+```typescript TypeScript
+import type { EvaluationResult } from "langsmith/evaluation

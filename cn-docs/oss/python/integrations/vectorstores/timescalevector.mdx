@@ -1,0 +1,391 @@
+---
+title: Timescale Vector (Postgres)
+---
+>[Timescale Vector](https://www.timescale.com/ai?utm_campaign=vectorlaunch&utm_source=langchain&utm_medium=referral) 是面向 AI 应用的 `PostgreSQL++` 向量数据库。
+
+本笔记本展示了如何使用 PostgreSQL 向量数据库 `Timescale Vector`。你将学习如何使用 TimescaleVector 进行 (1) 语义搜索, (2) 基于时间的向量搜索, (3) 自查询, 以及 (4) 如何创建索引以加速查询。
+
+## 什么是 Timescale Vector？
+
+`Timescale Vector` 使你能够在 `PostgreSQL` 中高效存储和查询数百万个向量嵌入。
+
+- 通过受 `DiskANN` 启发的索引算法，增强了 `pgvector`，可在 1 亿+向量上实现更快、更准确的相似性搜索。
+- 通过自动基于时间分区和索引，实现快速的基于时间的向量搜索。
+- 提供熟悉的 SQL 接口，用于查询向量嵌入和关系数据。
+
+`Timescale Vector` 是面向 AI 的云 `PostgreSQL`，可从概念验证扩展到生产环境：
+
+- 简化操作，使你能够在单个数据库中存储关系元数据、向量嵌入和时间序列数据。
+- 受益于坚如磐石的 PostgreSQL 基础，具备企业级功能，如流式备份和复制、高可用性和行级安全性。
+- 凭借企业级安全性和合规性，提供无忧体验。
+
+## 如何访问 Timescale Vector
+
+`Timescale Vector` 可在云 PostgreSQL 平台 [Timescale](https://www.timescale.com/ai?utm_campaign=vectorlaunch&utm_source=langchain&utm_medium=referral) 上使用。（目前没有自托管版本。）
+
+LangChain 用户可获得 Timescale Vector 的 90 天免费试用。
+
+- 要开始使用，请 [注册](https://console.cloud.timescale.com/signup?utm_campaign=vectorlaunch&utm_source=langchain&utm_medium=referral) Timescale，创建一个新数据库，然后按照本笔记本操作！
+- 查看 [Timescale Vector 说明博客](https://www.timescale.com/blog/how-we-made-postgresql-the-best-vector-database/?utm_campaign=vectorlaunch&utm_source=langchain&utm_medium=referral) 以获取更多详细信息和性能基准。
+- 查看 [安装说明](https://github.com/timescale/python-vector) 以获取有关在 Python 中使用 Timescale Vector 的更多详细信息。
+
+## 设置
+
+按照以下步骤准备学习本教程。
+
+```python
+# Pip 安装必要的包
+pip install -qU  timescale-vector
+pip install -qU  langchain-openai langchain-community
+pip install -qU  tiktoken
+```
+
+在此示例中，我们将使用 `OpenAIEmbeddings`，因此让我们加载你的 OpenAI API 密钥。
+
+```python
+import os
+
+# 运行 export OPENAI_API_KEY=sk-YOUR_OPENAI_API_KEY...
+# 通过读取本地 .env 文件获取 openAI api 密钥
+from dotenv import find_dotenv, load_dotenv
+
+_ = load_dotenv(find_dotenv())
+OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
+```
+
+```python
+# 获取 API 密钥并将其保存为环境变量
+# import os
+# import getpass
+# os.environ["OPENAI_API_KEY"] = getpass.getpass("OpenAI API Key:")
+
+```
+
+```python
+from typing import Tuple
+```
+
+接下来，我们将导入所需的 Python 库以及 LangChain 中的库。请注意，我们导入了 `timescale-vector` 库以及 TimescaleVector LangChain 向量存储。
+
+```python
+from datetime import datetime, timedelta
+
+from langchain_community.document_loaders import TextLoader
+from langchain_community.document_loaders.json_loader import JSONLoader
+from langchain_community.vectorstores.timescalevector import TimescaleVector
+from langchain_core.documents import Document
+from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import CharacterTextSplitter
+```
+
+## 1. 使用欧几里得距离进行相似性搜索（默认）
+
+首先，我们将看一个在国情咨文演讲上进行相似性搜索查询的示例，以查找与给定查询句子最相似的句子。我们将使用 [欧几里得距离](https://en.wikipedia.org/wiki/Euclidean_distance) 作为我们的相似性度量。
+
+```python
+# 加载文本并将其分割成块
+loader = TextLoader("../../../extras/modules/state_of_the_union.txt")
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+
+embeddings = OpenAIEmbeddings()
+```
+
+接下来，我们将加载 Timescale 数据库的服务 URL。
+
+如果你还没有，请 [注册 Timescale](https://console.cloud.timescale.com/signup?utm_campaign=vectorlaunch&utm_source=langchain&utm_medium=referral)，并创建一个新数据库。
+
+然后，要连接到你的 PostgreSQL 数据库，你需要你的服务 URI，该 URI 可以在创建新数据库后下载的备忘单或 `.env` 文件中找到。
+
+URI 看起来像这样：`postgres://tsdbadmin:<password>@<id>.tsdb.cloud.timescale.com:<port>/tsdb?sslmode=require`。
+
+```python
+# Timescale Vector 需要你的云数据库的服务 URL。你可以在云 UI 中创建服务后立即看到它，或者在 credentials.sql 文件中看到它
+SERVICE_URL = os.environ["TIMESCALE_SERVICE_URL"]
+
+# 如果测试，直接指定
+# SERVICE_URL = "postgres://tsdbadmin:<password>@<id>.tsdb.cloud.timescale.com:<port>/tsdb?sslmode=require"
+
+# # 你也可以从环境变量中获取它。我们建议使用 .env 文件。
+# import os
+# SERVICE_URL = os.environ.get("TIMESCALE_SERVICE_URL", "")
+```
+
+接下来，我们创建一个 TimescaleVector 向量存储。我们指定一个集合名称，这将是存储我们数据的表的名称。
+
+注意：当创建 TimescaleVector 的新实例时，TimescaleVector 模块将尝试创建一个以集合名称为名的表。因此，请确保集合名称是唯一的（即它尚不存在）。
+
+```python
+# TimescaleVector 模块将创建一个以集合名称为名的表。
+COLLECTION_NAME = "state_of_the_union_test"
+
+# 从文档集合创建 Timescale Vector 实例
+db = TimescaleVector.from_documents(
+    embedding=embeddings,
+    documents=docs,
+    collection_name=COLLECTION_NAME,
+    service_url=SERVICE_URL,
+)
+```
+
+现在我们已经加载了数据，可以执行相似性搜索了。
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+docs_with_score = db.similarity_search_with_score(query)
+```
+
+```python
+for doc, score in docs_with_score:
+    print("-" * 80)
+    print("Score: ", score)
+    print(doc.page_content)
+    print("-" * 80)
+```
+
+```text
+--------------------------------------------------------------------------------
+Score:  0.18443380687035138
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
+
+Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
+
+One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
+
+And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Score:  0.18452197313308139
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
+
+Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
+
+One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
+
+And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Score:  0.21720781018594182
+A former top litigator in private practice. A former federal public defender. And from a family of public school educators and police officers. A consensus builder. Since she’s been nominated, she’s received a broad range of support—from the Fraternal Order of Police to former judges appointed by Democrats and Republicans.
+
+And if we are to advance liberty and justice, we need to secure the Border and fix the immigration system.
+
+We can do both. At our border, we’ve installed new technology like cutting-edge scanners to better detect drug smuggling.
+
+We’ve set up joint patrols with Mexico and Guatemala to catch more human traffickers.
+
+We’re putting in place dedicated immigration judges so families fleeing persecution and violence can have their cases heard faster.
+
+We’re securing commitments and supporting partners in South and Central America to host more refugees and secure their own borders.
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Score:  0.21724902288621384
+A former top litigator in private practice. A former federal public defender. And from a family of public school educators and police officers. A consensus builder. Since she’s been nominated, she’s received a broad range of support—from the Fraternal Order of Police to former judges appointed by Democrats and Republicans.
+
+And if we are to advance liberty and justice, we need to secure the Border and fix the immigration system.
+
+We can do both. At our border, we’ve installed new technology like cutting-edge scanners to better detect drug smuggling.
+
+We’ve set up joint patrols with Mexico and Guatemala to catch more human traffickers.
+
+We’re putting in place dedicated immigration judges so families fleeing persecution and violence can have their cases heard faster.
+
+We’re securing commitments and supporting partners in South and Central America to host more refugees and secure their own borders.
+--------------------------------------------------------------------------------
+```
+
+### 将 Timescale Vector 用作检索器
+
+初始化 TimescaleVector 存储后，你可以将其用作 [检索器](/oss/langchain/retrieval)。
+
+```python
+# 将 TimescaleVector 用作检索器
+retriever = db.as_retriever()
+```
+
+```python
+print(retriever)
+```
+
+```text
+tags=['TimescaleVector', 'OpenAIEmbeddings'] metadata=None vectorstore=<langchain_community.vectorstores.timescalevector.TimescaleVector object at 0x10fc8d070> search_type='similarity' search_kwargs={}
+```
+
+让我们看一个使用 Timescale Vector 作为检索器与 RetrievalQA 链和 stuff documents 链的示例。
+
+在此示例中，我们将提出与上面相同的查询，但这次我们将把从 Timescale Vector 返回的相关文档传递给 LLM，用作回答我们问题的上下文。
+
+首先，我们将创建我们的 stuff 链：
+
+```python
+# 初始化 GPT3.5 模型
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(temperature=0.1, model="gpt-3.5-turbo-16k")
+
+# 从 stuff 链初始化 RetrievalQA 类
+from langchain_classic.chains import RetrievalQA
+
+qa_stuff = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type="stuff",
+    retriever=retriever,
+    verbose=True,
+)
+```
+
+```python
+query = "What did the president say about Ketanji Brown Jackson?"
+response = qa_stuff.run(query)
+```
+
+```text
+> Entering new RetrievalQA chain...
+
+> Finished chain.
+```
+
+```python
+print(response)
+```
+
+```text
+The President said that he nominated Circuit Court of Appeals Judge Ketanji Brown Jackson, who is one of our nation's top legal minds and will continue Justice Breyer's legacy of excellence. He also mentioned that since her nomination, she has received a broad range of support from various groups, including the Fraternal Order of Police and former judges appointed by Democrats and Republicans.
+```
+
+## 2. 使用基于时间过滤的相似性搜索
+
+Timescale Vector 的一个关键用例是高效的基于时间的向量搜索。Timescale Vector 通过自动按时间对向量（及相关元数据）进行分区来实现这一点。这使你能够根据与查询向量的相似性和时间来高效查询向量。
+
+基于时间的向量搜索功能对于以下应用程序很有帮助：
+
+- 存储和检索 LLM 响应历史记录（例如聊天机器人）
+- 查找与查询向量相似的最新嵌入（例如最近的新闻）。
+- 将相似性搜索限制在相关的时间范围内（例如询问关于知识库的基于时间的问题）
+
+为了说明如何使用 TimescaleVector 的基于时间向量搜索功能，我们将询问有关 TimescaleDB git 日志历史的问题。我们将说明如何添加带有基于时间 uuid 的文档，以及如何使用时间范围过滤器运行相似性搜索。
+
+### 从 git 日志 JSON 中提取内容和元数据
+
+首先，让我们将 git 日志数据加载到 PostgreSQL 数据库中名为 `timescale_commits` 的新集合中。
+
+```python
+```
+
+我们将定义一个辅助函数，根据文档的时间戳为其及其关联的向量嵌入创建 uuid。我们将使用此函数为每个 git 日志条目创建 uuid。
+
+重要提示：如果你正在处理文档并希望将当前日期和时间与向量关联以进行基于时间的搜索，则可以跳过此步骤。默认情况下，在摄取文档时会自动生成 uuid。
+
+```python
+from timescale_vector import client
+
+
+# 函数：接收过去的日期字符串并返回 uuid v1
+def create_uuid(date_string: str):
+    if date_string is None:
+        return None
+    time_format = "%a %b %d %H:%M:%S %Y %z"
+    datetime_obj = datetime.strptime(date_string, time_format)
+    uuid = client.uuid_from_time(datetime_obj)
+    return str(uuid)
+```
+
+接下来，我们将定义一个元数据函数，用于从 JSON 记录中提取相关元数据。我们将把这个函数传递给 JSONLoader。有关更多详细信息，请参阅 [JSON 文档加载器文档](/oss/integrations/document_loaders/json)。
+
+```python
+# 辅助函数：给定一个由 Name Lastname <email> 组成的作者字符串，分割姓名和电子邮件
+def split_name(input_string: str) -> Tuple[str, str]:
+    if input_string is None:
+        return None, None
+    start = input_string.find("<")
+    end = input_string.find(">")
+    name = input_string[:start].strip()
+    email = input_string[start + 1 : end].strip()
+    return name, email
+
+
+# 辅助函数：将日期字符串转换为 timestamp_tz 字符串
+def create_date(input_string: str) -> datetime:
+    if input_string is None:
+        return None
+    # 定义一个字典，将月份缩写映射到其数字等效值
+    month_dict = {
+        "Jan": "01",
+        "Feb": "02",
+        "Mar": "03",
+        "Apr": "04",
+        "May": "05",
+        "Jun": "06",
+        "Jul": "07",
+        "Aug": "08",
+        "Sep": "09",
+        "Oct": "10",
+        "Nov": "11",
+        "Dec": "12",
+    }
+
+    # 将输入字符串拆分为其组成部分
+    components = input_string.split()
+    # 提取相关信息
+    day = components[2]
+    month = month_dict[components[1]]
+    year = components[4]
+    time = components[3]
+    timezone_offset_minutes = int(components[5])  # 将偏移量转换为分钟
+    timezone_hours = timezone_offset_minutes // 60  # 计算小时数
+    timezone_minutes = timezone_offset_minutes % 60  # 计算剩余的分钟数
+    # 为 PostgreSQL 格式的 timestamptz 创建格式化字符串
+    timestamp_tz_str = (
+        f"{year}-{month}-{day} {time}+{timezone_hours:02}{timezone_minutes:02}"
+    )
+    return timestamp_tz_str
+
+
+# 元数据提取函数：从 JSON 记录中提取元数据
+def extract_metadata(record: dict, metadata: dict) -> dict:
+    record_name, record_email = split_name(record["author"])
+    metadata["id"] = create_uuid(record["date"])
+    metadata["date"] = create_date(record["date"])
+    metadata["author_name"] = record_name
+    metadata["author_email"] = record_email
+    metadata["commit_hash"] = record["commit"]
+    return metadata
+```
+
+接下来，你需要 [下载示例数据集](https://s3.amazonaws.com/assets.timescale.com/ai/ts_git_log.json) 并将其放置在与本笔记本相同的目录中。
+
+你可以使用以下命令：
+
+```python
+# 使用 curl 下载文件并保存为 commit_history.csv
+# 注意：在与笔记本相同的目录中，在终端中执行此命令
+!curl -O https://s3.amazonaws.com/assets.timescale.com/ai/ts_git_log.json
+```
+
+最后，我们可以初始化 JSON 加载器来解析 JSON 记录。为了简单起见，我们还删除了空记录。
+
+```python
+# 定义相对于此笔记本的 JSON 文件路径
+# 将其更改为你的 JSON 文件路径
+FILE_PATH = "../../../../../ts_git_log.json"
+
+# 从 JSON 文件加载数据并提取元数据
+loader = JSONLoader(
+    file_path=FILE_PATH,
+    jq_schema=".commit_history[]",
+    text_content=False,
+    metadata_func=extract_metadata,
+)
+documents = loader.load()
+
+# 删除日期为 None 的文档
+documents = [doc for doc in documents if doc.metadata["date"] is not None]
+```
+
+```python
+print(documents[0])
+```
+
+```python
+page_content='{"commit": "44e41c12ab25e36c202f58e068ced262eadc8d16", "author": "Lakshmi Narayanan Sreethar[lakshmi@timescale.com](mailto:lakshmi@timescale.com)", "date": "Tue Sep 5 21:03:21 2023 +0530", "change summary": "Fix segfault in set_integer_now_func", "change details": "When an invalid function oid is passed to set_integer_now_func, it finds out that the function oid is invalid but before throwing

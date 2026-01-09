@@ -1,0 +1,94 @@
+---
+title: GPT4All
+---
+[GitHub:nomic-ai/gpt4all](https://github.com/nomic-ai/gpt4all) 是一个开源聊天机器人生态系统，其模型在包含代码、故事和对话在内的大量高质量助手数据上进行训练。
+
+本示例将介绍如何使用 LangChain 与 `GPT4All` 模型进行交互。
+
+```python
+pip install -qU langchain-community gpt4all
+```
+
+### 导入 GPT4All
+
+```python
+from langchain_community.llms import GPT4All
+from langchain_core.prompts import PromptTemplate
+```
+
+### 设置传递给 LLM 的问题
+
+```python
+template = """Question: {question}
+
+Answer: Let's think step by step."""
+
+prompt = PromptTemplate.from_template(template)
+```
+
+### 指定模型
+
+要在本地运行，需要下载一个兼容的 ggml 格式模型。
+
+[gpt4all 页面](https://gpt4all.io/index.html) 有一个实用的 `Model Explorer` 部分：
+
+* 选择一个感兴趣的模型
+* 通过 UI 下载，并将 `.bin` 文件移动到 `local_path`（如下所述）
+
+更多信息，请访问 [github.com/nomic-ai/gpt4all](https://github.com/nomic-ai/gpt4all)。
+
+---
+
+此集成目前尚不支持通过 [`.stream()`](https://python.langchain.com/docs/how_to/streaming/) 方法进行分块流式传输。下面的示例使用了一个设置了 `streaming=True` 的回调处理器：
+
+```python
+local_path = (
+    "./models/Meta-Llama-3-8B-Instruct.Q4_0.gguf"  # 替换为你的本地文件路径
+)
+```
+
+```python
+from langchain_core.callbacks import BaseCallbackHandler
+
+count = 0
+
+
+class MyCustomHandler(BaseCallbackHandler):
+    def on_llm_new_token(self, token: str, **kwargs) -> None:
+        global count
+        if count < 10:
+            print(f"Token: {token}")
+            count += 1
+
+
+# 必须设置 verbose 以传递给回调管理器
+llm = GPT4All(model=local_path, callbacks=[MyCustomHandler()], streaming=True)
+
+# 如果你想使用自定义模型，请添加 backend 参数
+# 查看 https://docs.gpt4all.io/gpt4all_python.html 了解支持的 backend
+# llm = GPT4All(model=local_path, backend="gptj", callbacks=callbacks, streaming=True)
+
+chain = prompt | llm
+
+question = "What NFL team won the Super Bowl in the year Justin Bieber was born?"
+
+# 流式传输的 token 将通过传递的回调进行记录/聚合
+res = chain.invoke({"question": question})
+```
+
+```text
+Token:  Justin
+Token:  Bieber
+Token:  was
+Token:  born
+Token:  on
+Token:  March
+Token:
+Token: 1
+Token: ,
+Token:
+```
+
+```python
+
+```

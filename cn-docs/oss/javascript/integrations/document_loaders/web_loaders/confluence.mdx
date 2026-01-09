@@ -1,0 +1,54 @@
+---
+title: Confluence
+---
+<Tip>
+**兼容性说明**
+
+仅适用于 Node.js 环境。
+</Tip>
+
+本文介绍如何从 Confluence 空间中的页面加载文档对象。
+
+## 凭证
+
+- 您需要设置一个访问令牌，并将其与您的 Confluence 用户名一起提供，以验证请求。
+- 您还需要包含要加载为文档的页面的空间的 `space key`。在导航到您的空间时，可以在 URL 中找到它，例如：`https://example.atlassian.net/wiki/spaces/{SPACE_KEY}`
+- 此外，您需要安装 `html-to-text` 来将页面解析为纯文本。
+
+```bash npm
+npm install @langchain/community @langchain/core html-to-text
+```
+
+## 使用方法
+
+```typescript
+import { ConfluencePagesLoader } from "@langchain/community/document_loaders/web/confluence";
+
+const username = process.env.CONFLUENCE_USERNAME;
+const accessToken = process.env.CONFLUENCE_ACCESS_TOKEN;
+const personalAccessToken = process.env.CONFLUENCE_PAT;
+
+if (username && accessToken) {
+  const loader = new ConfluencePagesLoader({
+    baseUrl: "https://example.atlassian.net/wiki",
+    spaceKey: "~EXAMPLE362906de5d343d49dcdbae5dEXAMPLE",
+    username,
+    accessToken,
+  });
+
+  const documents = await loader.load();
+  console.log(documents);
+} else if (personalAccessToken) {
+  const loader = new ConfluencePagesLoader({
+    baseUrl: "https://example.atlassian.net/wiki",
+    spaceKey: "~EXAMPLE362906de5d343d49dcdbae5dEXAMPLE",
+    personalAccessToken,
+  });
+  const documents = await loader.load();
+  console.log(documents);
+} else {
+  console.log(
+    "You need either a username and access token, or a personal access token (PAT), to use this example."
+  );
+}
+```

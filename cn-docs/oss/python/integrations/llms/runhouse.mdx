@@ -1,0 +1,155 @@
+---
+title: Runhouse
+---
+[Runhouse](https://github.com/run-house/runhouse) 支持跨环境和用户的远程计算与数据。请参阅 [Runhouse 文档](https://www.run.house/docs)。
+
+本示例将介绍如何结合使用 LangChain 和 [Runhouse](https://github.com/run-house/runhouse) 来与托管在您自己的 GPU 上，或 AWS、GCP、AWS 或 Lambda 上的按需 GPU 上的模型进行交互。
+
+**注意**：代码中使用的是 `SelfHosted` 名称，而非 `Runhouse`。
+
+```python
+pip install -qU  runhouse
+```
+
+```python
+import runhouse as rh
+from langchain_classic.chains import LLMChain
+from langchain_community.llms import SelfHostedHuggingFaceLLM, SelfHostedPipeline
+from langchain_core.prompts import PromptTemplate
+```
+
+```text
+INFO | 2023-04-17 16:47:36,173 | No auth token provided, so not using RNS API to save and load configs
+```
+
+```python
+# 对于 GCP、Azure 或 Lambda 上的按需 A100
+gpu = rh.cluster(name="rh-a10x", instance_type="A100:1", use_spot=False)
+
+# 对于 AWS 上的按需 A10G（AWS 上没有单块 A100）
+# gpu = rh.cluster(name='rh-a10x', instance_type='g5.2xlarge', provider='aws')
+
+# 对于现有集群
+# gpu = rh.cluster(ips=['<集群的 IP 地址>'],
+#                  ssh_creds={'ssh_user': '...', 'ssh_private_key':'<密钥路径>'},
+#                  name='rh-a10x')
+```
+
+```python
+template = """问题：{question}
+
+回答：让我们一步步思考。"""
+
+prompt = PromptTemplate.from_template(template)
+```
+
+```python
+llm = SelfHostedHuggingFaceLLM(
+    model_id="gpt2", hardware=gpu, model_reqs=["pip:./", "transformers", "torch"]
+)
+```
+
+```python
+llm_chain = LLMChain(prompt=prompt, llm=llm)
+```
+
+```python
+question = "贾斯汀·比伯出生那年，哪支 NFL 球队赢得了超级碗？"
+
+llm_chain.run(question)
+```
+
+```text
+INFO | 2023-02-17 05:42:23,537 | Running _generate_text via gRPC
+INFO | 2023-02-17 05:42:24,016 | Time to send message: 0.48 seconds
+```
+
+```text
+"\n\n让我们谈谈在贾斯汀·比伯出生那年赢得超级碗的体育球队"
+```
+
+您也可以通过 SelfHostedHuggingFaceLLM 接口加载更自定义的模型：
+
+```python
+llm = SelfHostedHuggingFaceLLM(
+    model_id="google/flan-t5-small",
+    task="text2text-generation",
+    hardware=gpu,
+)
+```
+
+```python
+llm("德国的首都是什么？")
+```
+
+```text
+INFO | 2023-02-17 05:54:21,681 | Running _generate_text via gRPC
+INFO | 2023-02-17 05:54:21,937 | Time to send message: 0.25 seconds
+```
+
+```text
+'berlin'
+```
+
+使用自定义加载函数，我们可以直接在远程硬件上加载自定义流水线：
+
+```python
+def load_pipeline():
+    from transformers import (
+        AutoModelForCausalLM,
+        AutoTokenizer,
+        pipeline,
+    )
+
+    model_id = "gpt2"
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForCausalLM.from_pretrained(model_id)
+    pipe = pipeline(
+        "text-generation", model=model, tokenizer=tokenizer, max_new_tokens=10
+    )
+    return pipe
+
+
+def inference_fn(pipeline, prompt, stop=None):
+    return pipeline(prompt)[0]["generated_text"][len(prompt) :]
+```
+
+```python
+llm = SelfHostedHuggingFaceLLM(
+    model_load_fn=load_pipeline, hardware=gpu, inference_fn=inference_fn
+)
+```
+
+```python
+llm("现任美国总统是谁？")
+```
+
+```text
+INFO | 2023-02-17 05:42:59,219 | Running _generate_text via gRPC
+INFO | 2023-02-17 05:42:59,522 | Time to send message: 0.3 seconds
+```
+
+```text
+'john w. bush'
+```
+
+您可以直接通过网络将流水线发送到您的模型，但这仅适用于小型模型（&lt;2 Gb），并且速度会相当慢：
+
+```python
+pipeline = load_pipeline()
+llm = SelfHostedPipeline.from_pipeline(
+    pipeline=pipeline, hardware=gpu, model_reqs=["pip:./", "transformers", "torch"]
+)
+```
+
+相反，我们也可以将其发送到硬件的文件系统，这样会快得多。
+
+```python
+import pickle
+
+rh.blob(pickle.dumps(pipeline), path="models/pipeline.pkl").save().to(
+    gpu, path="models"
+)
+
+llm = SelfHostedPipeline.from_pipeline(pipeline="models/pipeline.pkl", hardware=gpu)
+```

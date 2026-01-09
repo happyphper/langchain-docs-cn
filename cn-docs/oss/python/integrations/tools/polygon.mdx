@@ -1,0 +1,134 @@
+---
+title: Polygon IO 工具包与工具
+---
+本笔记本展示了如何使用智能体（agent）与 [Polygon IO](https://polygon.io/) 工具包进行交互。该工具包提供了对 Polygon 股票市场数据 API 的访问。
+
+## 设置
+
+### 安装
+
+要使用 Polygon IO 工具，您需要安装 `langchain-community` 包。
+
+```python
+pip install -qU langchain-community > /dev/null
+```
+
+### 凭证
+
+在此处获取您的 Polygon IO API 密钥 [here](https://polygon.io/)，然后将其设置如下。
+
+```python
+import getpass
+import os
+
+if "POLYGON_API_KEY" not in os.environ:
+    os.environ["POLYGON_API_KEY"] = getpass.getpass()
+```
+
+设置 [LangSmith](https://smith.langchain.com/) 也很有帮助（但不是必需的），以获得最佳的观测性。
+
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+# os.environ["LANGSMITH_API_KEY"] = getpass.getpass()
+```
+
+## 工具包
+
+Polygon IO 提供了一个工具包，以及工具包中包含的每个工具的独立工具。我们首先探索使用工具包，然后我们将逐步介绍使用各个工具。
+
+### 初始化
+
+我们可以通过导入工具包以及使用这些工具所需的 API 包装器来初始化它。
+
+```python
+from langchain_community.agent_toolkits.polygon.toolkit import PolygonToolkit
+from langchain_community.utilities.polygon import PolygonAPIWrapper
+
+polygon = PolygonAPIWrapper()
+toolkit = PolygonToolkit.from_polygon_api_wrapper(polygon)
+```
+
+### 工具
+
+我们可以检查此工具包中包含的工具：
+
+```python
+toolkit.get_tools()
+```
+
+```text
+[PolygonAggregates(api_wrapper=PolygonAPIWrapper(polygon_api_key='K231Rg76pOsN_IdT2eWhCC9npBguCYEj')),
+ PolygonLastQuote(api_wrapper=PolygonAPIWrapper(polygon_api_key='K231Rg76pOsN_IdT2eWhCC9npBguCYEj')),
+ PolygonTickerNews(api_wrapper=PolygonAPIWrapper(polygon_api_key='K231Rg76pOsN_IdT2eWhCC9npBguCYEj')),
+ PolygonFinancials(api_wrapper=PolygonAPIWrapper(polygon_api_key='K231Rg76pOsN_IdT2eWhCC9npBguCYEj'))]
+```
+
+### 在智能体中使用
+
+接下来，我们可以将工具包添加到智能体并使用它！
+
+```python
+from langchain_classic import hub
+from langchain.agents import AgentExecutor, create_openai_functions_agent
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(temperature=0, model="gpt-4o")
+
+instructions = """You are an assistant."""
+base_prompt = hub.pull("langchain-ai/openai-functions-template")
+prompt = base_prompt.partial(instructions=instructions)
+
+agent = create_openai_functions_agent(llm, toolkit.get_tools(), prompt)
+```
+
+```python
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=toolkit.get_tools(),
+    verbose=True,
+)
+```
+
+我们可以检查某个股票代码昨天的信息：
+
+```python
+agent_executor.invoke({"input": "What was yesterdays financial info for AAPL?"})
+```
+
+```text
+> Entering new AgentExecutor chain...
+
+Invoking: `polygon_aggregates` with `{'ticker': 'AAPL', 'timespan': 'day', 'timespan_multiplier': 1, 'from_date': '2023-10-05', 'to_date': '2023-10-05'}`
+
+
+[{"v": 48527918.0, "vw": 174.2297, "o": 173.79, "c": 174.91, "h": 175.45, "l": 172.68, "t": 1696478400000, "n": 509175}]以下是苹果公司（AAPL）2023年10月5日的财务信息：
+
+- **开盘价**：$173.79
+- **收盘价**：$174.91
+- **最高价**：$175.45
+- **最低价**：$172.68
+- **成交量**：48,527,918 股
+- **成交量加权平均价格（VWAP）**：$174.2297
+- **交易笔数**：509,175
+
+> Finished chain.
+```
+
+```text
+{'input': 'What was yesterdays financial info for AAPL?',
+ 'output': 'Here is the financial information for Apple Inc. (AAPL) for October 5, 2023:\n\n- **Opening Price**: $173.79\n- **Closing Price**: $174.91\n- **High Price**: $175.45\n- **Low Price**: $172.68\n- **Volume**: 48,527,918 shares\n- **Volume Weighted Average Price (VWAP)**: $174.2297\n- **Number of Transactions**: 509,175'}
+```
+
+我们还可以询问有关某只股票的最新新闻：
+
+```python
+agent_executor.invoke({"input": "What is the recent new regarding MSFT?"})
+```
+
+```text
+> Entering new AgentExecutor chain...
+
+Invoking: `polygon_ticker_news` with `{'query': 'MSFT'}`
+
+
+[{"id": "931602cbcfeb06e22188e205a1cb6127215b7a62e9a37e5cc7a935e8376ac402", "publisher": {"name": "The Motley Fool", "homepage_url": "https://www.fool.com/", "logo_url": "https://s3.polygon.io/public/assets/news/logos/themotleyfool.svg", "favicon_url": "https://s3.polygon.io/public/assets/news/favicons/themotleyfool.ico"}, "title": "Prediction: 1 Unstoppable Stock Will Join Nvidia, Apple, Microsoft, and Alphabet in the $2 Trillion Club Within 3 Years", "author": "The Motley Fool", "published_utc": "2024-08-08T10:40:00Z", "article_url": "https://www.fool.com/investing/2024/08/08/prediction-1-stock-nvidia-microsoft-in-2-trillion/?source=iedfolrf0000001", "tickers": ["META", "NVDA", "AAPL", "MSFT", "GOOG", "GOOGL"], "image_url": "https://g.foolcdn.com/editorial/images/785914/two-people-laughing-while-watching-a-video-on-a-smartphone.jpg", "description": "Meta Platforms (META) is predicted to join the $2 trillion club within 3 years, driven by its advancements in artificial intelligence and potential to drive significant returns for investors.", "keywords": ["Meta Platforms", "Artificial Intelligence", "Stock Prediction"], "insights": [{"ticker": "META", "sentiment": "positive", "sentiment_reasoning": "The article predicts that Meta Platforms will join the $2 trillion club within 3 years, driven by its advancements in artificial intelligence and potential to drive significant returns for investors."}, {"ticker": "NVDA", "sentiment": "positive", "sentiment_reasoning": "Nvidia is mentioned as one of the companies currently valued at over $2 trillion, indicating its strong market position."}, {"ticker": "AAPL", "sentiment": "positive", "sentiment_reasoning": "Apple is mentioned as one of the companies currently valued at over $2 trillion, indicating its strong market position."}, {"ticker": "MSFT", "sentiment": "positive", "sentiment_reasoning": "Microsoft is mentioned as one of the companies currently valued at over $2 trillion, indicating its strong market position."}, {"ticker": "GOOG", "sentiment": "positive", "sentiment_reasoning": "Alphabet is mentioned as one of the companies currently valued at over $2 trillion, indicating its strong market position."}, {"ticker": "GOOGL", "sentiment": "positive", "sentiment_reasoning": "Alphabet is mentioned as one of the companies currently valued at over $2 trillion, indicating its strong market position."}]}, {"id": "2fedf0bd60526169295242173be22d9cb07aa9bf492859d16a25357b057ab0be", "publisher": {"name": "The Motley Fool", "homepage_url": "https://www.fool.com/", "logo_url": "https://s3.polygon.io/public/assets/news/logos/themotleyfool.svg", "favicon_url": "https://s3.polygon.io/public/assets/news/favicons/themotleyfool.ico"}, "title": "Nasdaq Correction: My Top \"Magnificent Seven\" Stock to Buy in August", "author": "Daniel Foelber", "published_utc": "2024-08-08T10:30:00Z", "article_url": "https://www.fool.com/investing/2024/08/08/nasdaq-buy-microsoft-stock-magnificent-seven/?source=iedfolrf0000001", "tickers": ["MSFT", "GOOG", "GOOGL", "AAPL", "AMZN", "META", "NVDA", "TSLA"], "image_url": "https://g.foolcdn.com/editorial/images/785889/gettyimages-1440510600-1201x761-58a9ed0.jpg", "description": "The article discusses why Microsoft is a compelling investment opportunity among the 'Magnificent Seven' tech stocks, despite the recent market sell-off. It highlights Microsoft's strong profitability, ongoing investments in cloud and AI, and its ability to balance growth and shareholder returns.", "keywords": ["Microsoft", "Magnificent Seven", "tech stocks", "cloud", "AI", "growth", "shareholder returns"], "insights": [{"ticker": "MSFT", "sentiment": "positive", "sentiment_reasoning": "The article argues that Microsoft is a compelling investment opportunity due to its strong profitability, ongoing investments in cloud and AI, and its ability to balance growth and shareholder returns. The author believes Microsoft's strategy of prioritizing innovation and market share growth over short-term profitability is a positive long-term move."}, {"ticker": "GOOG", "sentiment": "neutral", "sentiment_reasoning": "The article mentions Alphabet as part of the 'Magnificent Seven' tech stocks, but does not provide any specific analysis or sentiment on the company."}, {"ticker": "GOOGL", "sentiment": "neutral", "sentiment_reasoning": "The article mentions Alphabet as part of the 'Magnificent Seven' tech stocks, but does not provide any specific analysis or sentiment on the company."}, {"ticker": "AAPL", "sentiment": "neutral", "sentiment_reasoning": "The article mentions Apple as part of the 'Magnificent Seven' tech stocks, but does not provide any specific analysis or sentiment on the company."}, {"ticker": "AMZN", "sentiment": "neutral", "sentiment_reasoning": "The article mentions Amazon as part of the 'Magnificent Seven' tech stocks, but does not provide any specific analysis or sentiment on the company."}, {"ticker": "META", "sentiment": "neutral", "sentiment_reasoning": "The article mentions Meta Platforms (formerly Facebook) as part of the 'Magnificent Seven' tech stocks, but does not provide any specific analysis or sentiment on the company."}, {"ticker": "NVDA", "sentiment": "neutral", "sentiment_reasoning": "The article mentions Nvidia as part of the 'Magnificent Seven' tech stocks, but does not provide any specific analysis or sentiment on the company."}, {"ticker": "TSLA", "sentiment": "neutral", "sentiment_reasoning": "The article mentions Tesla as part of the 'Magnificent Seven' tech stocks, but does not provide any specific analysis or sentiment on the company."}]}, {"id": "aa33fcaf9302450660f1e64e4c05e13a18e508103afb8933a75db47c26eb5969", "publisher": {"name": "Zacks Investment Research", "homepage_url": "https://www.zacks.com/", "logo_url": "https://s3.polygon.io/public/assets/news/logos/zacks.png", "favicon_url": "https://s3.polygon.io/public/assets/news/favicons/zacks.ico"}, "title": "Zacks Earnings Trends Highlights: Microsoft, Alphabet, Amazon, Apple, Meta, Tesla and Nvidia", "author": "Zacks.Com", "published_utc": "2024-08-08T08:34:00Z", "article_url": "https://www.zacks.com/stock/news/2318733/zacks-earnings-trends-highlights-microsoft-alphabet-amazon-apple-meta-tesla-and-nvidia?cid=CS-ZC-FT-press_releases-2318733", "tickers": ["MSFT", "GOOG", "GOOGL", "AMZN", "AAPL", "META", "TSLA", "NVDA"], "image_url": "https://staticx-tuner.zacks.com/images/articles/main/14/776.jpg", "description": "The overall earnings picture for Q2 2024 is one of stability and an improving outlook, with management teams providing a reassuring view of the economic situation. However, estimates for Q3 2024 have started to weaken faster than in previous quarters.", "keywords": ["earnings", "Q2 2024", "Q3 2024", "economic outlook", "earnings estimates"], "insights": [{"ticker": "MSFT", "sentiment": "neutral", "sentiment_reasoning": "The article mentions that Microsoft's Q2 earnings report, along with those of other 'Magnificent 7' companies, mostly failed to impress market participants, particularly due to their rising capex levels towards AI projects."}, {"ticker": "GOOG", "sentiment": "neutral", "sentiment_reasoning": "Similar to Microsoft, the article notes that Alphabet's Q2 earnings report, along with other 'Magnificent 7' companies, mostly failed to impress market participants due to their rising capex levels towards AI projects."}, {"ticker": "GOOGL", "sentiment": "neutral", "sentiment_reasoning": "Similar to Microsoft, the article notes that Alphabet's Q2 earnings report, along with other 'Magnificent 7' companies, mostly failed to impress market participants due to their rising capex levels towards AI projects."}, {"ticker": "AMZN", "sentiment": "neutral", "sentiment_reasoning": "The article mentions that Amazon's Q2 earnings report, along with those of other 'Magnificent 7' companies, mostly failed to impress market participants, particularly due to their rising capex levels towards AI projects."}, {"ticker": "AAPL", "sentiment": "neutral", "sentiment_reasoning": "The article includes Apple as one of the 'Magnificent 7' companies, whose Q2 earnings reports mostly failed to impress market participants due to their rising capex levels towards AI projects."}, {"ticker": "META", "sentiment": "neutral", "sentiment_reasoning": "Meta Platforms is included in the 'Magnificent 7' group of companies, whose Q2 earnings reports mostly failed to impress market participants due to their rising capex levels towards AI projects."}, {"ticker": "TSLA", "sentiment": "neutral", "sentiment_reasoning": "The article mentions that Tesla's Q2 earnings report, along with those of other 'Magnificent 7' companies, mostly failed to impress market participants, particularly due to their rising capex levels towards AI projects."}, {"ticker": "NVDA", "sentiment": "neutral", "sentiment_reasoning": "Nvidia is part of the 'Magnificent 7' group of companies, whose Q2 earnings reports mostly failed to impress market participants due to their rising capex levels towards AI projects."}]}, {"id": "49ff05860d1cafdaaa3935fd800bfb458f07917849754c424b3e5a794e6f5bb7", "publisher": {"name": "GlobeNewswire Inc.", "homepage_url": "https://www.globenewswire.com", "logo_url": "https://s3.polygon.io/public/assets/news/logos/globenewswire.svg", "favicon_url": "https://s3.polygon.io/public/assets/news/favicons/globenewswire.ico"}, "title": "VDS: Steve Chen, Randi Zuckerberg, and Juan Antonio Samaranch Lead Top Speaker Lineup at Valencia\u2019s Premier Tech Event", "author": "Globe Newswire", "published_utc": "2024-08-07T19:58:00Z", "article_url": "https://www.globenewswire.com/news-release/2024/08/07/2926271/0/en/VDS-Steve-Chen-Randi-Zuckerberg-and-Juan-Antonio-Samaranch-Lead-Top-Speaker-Lineup-at-Valencia-s-Premier-Tech-Event.html", "tickers": ["MSFT", "IBM", "SSTK", "MA", "INTC"], "image_url": "https://www.globenewswire.com/news-release/2024/08/07/2926271/0/en/VDS-Steve-Chen-Randi-Zuckerberg-and-Juan-Antonio-Samaranch-Lead-Top-Speaker-Lineup-at-Valencia-s-Premier-Tech-Event.html", "description": "VDS, a prominent tech event in Southern Europe, will feature influential speakers like Steve Chen, Randi Zuckerberg, and Juan Antonio Samaranch. The event aims to empower entrepreneurs and foster connections in the tech ecosystem.", "keywords": ["tech event", "tech innovation", "entrepreneurs", "startups", "investors"], "insights": [{"ticker": "MSFT", "sentiment": "positive", "sentiment_reasoning": "Visionary speakers from top companies like Hugging Face, Stability IA, Microsoft, IBM, Cloudera, Shutterstock, Mastercard, Intel, Babel, Eleven Labs

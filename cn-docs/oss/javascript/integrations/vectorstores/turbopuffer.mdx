@@ -1,0 +1,120 @@
+---
+title: Turbopuffer
+---
+## 设置
+
+首先，您必须在此处注册一个 Turbopuffer 账户。
+然后，拥有账户后即可创建 API 密钥。
+
+将您的 API 密钥设置为环境变量：
+
+```bash
+export TURBOPUFFER_API_KEY=<YOUR_API_KEY>
+```
+
+## 使用
+
+```typescript
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { TurbopufferVectorStore } from "@langchain/community/vectorstores/turbopuffer";
+
+const embeddings = new OpenAIEmbeddings();
+
+const store = new TurbopufferVectorStore(embeddings, {
+  apiKey: process.env.TURBOPUFFER_API_KEY,
+  namespace: "my-namespace",
+});
+
+const createdAt = new Date().getTime();
+
+// 向存储中添加一些文档。
+// 目前仅支持字符串类型的元数据值。
+const ids = await store.addDocuments([
+  {
+    pageContent: "some content",
+    metadata: { created_at: createdAt.toString() },
+  },
+  { pageContent: "hi", metadata: { created_at: (createdAt + 1).toString() } },
+  { pageContent: "bye", metadata: { created_at: (createdAt + 2).toString() } },
+  {
+    pageContent: "what's this",
+    metadata: { created_at: (createdAt + 3).toString() },
+  },
+]);
+
+// 从存储中检索文档
+const results = await store.similaritySearch("hello", 1);
+
+console.log(results);
+/*
+  [
+    Document {
+      pageContent: 'hi',
+      metadata: { created_at: '1705519164987' }
+    }
+  ]
+*/
+
+// 按元数据过滤
+// 有关允许的过滤器的更多信息，请参阅 https://turbopuffer.com/docs/reference/query#filter-parameters
+const results2 = await store.similaritySearch("hello", 1, {
+  created_at: [["Eq", (createdAt + 3).toString()]],
+});
+
+console.log(results2);
+
+/*
+  [
+    Document {
+      pageContent: "what's this",
+      metadata: { created_at: '1705519164989' }
+    }
+  ]
+*/
+
+// 通过传递 ID 进行更新插入
+await store.addDocuments(
+  [
+    { pageContent: "changed", metadata: { created_at: createdAt.toString() } },
+    {
+      pageContent: "hi changed",
+      metadata: { created_at: (createdAt + 1).toString() },
+    },
+    {
+      pageContent: "bye changed",
+      metadata: { created_at: (createdAt + 2).toString() },
+    },
+    {
+      pageContent: "what's this changed",
+      metadata: { created_at: (createdAt + 3).toString() },
+    },
+  ],
+  { ids }
+);
+
+// 按元数据过滤
+const results3 = await store.similaritySearch("hello", 10, {
+  created_at: [["Eq", (createdAt + 3).toString()]],
+});
+
+console.log(results3);
+
+/*
+  [
+    Document {
+      pageContent: "what's this changed",
+      metadata: { created_at: '1705519164989' }
+    }
+  ]
+*/
+
+// 从命名空间中删除所有向量。
+await store.delete({
+  deleteIndex: true,
+});
+```
+
+## 相关
+
+- 向量存储 [概念指南](/oss/integrations/vectorstores)
+- 向量存储 [操作指南](/oss/integrations/vectorstores)

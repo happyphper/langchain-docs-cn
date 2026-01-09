@@ -1,0 +1,115 @@
+---
+title: Ollama
+---
+<Warning>
+**您当前正在查阅使用 Ollama 模型作为文本补全模型的文档。许多流行的 Ollama 模型是[聊天补全模型](/oss/langchain/models)。**
+
+您可能正在寻找[这个页面](/oss/integrations/chat/ollama/)。
+</Warning>
+
+本页详细介绍了如何使用 LangChain 与 `Ollama` 模型进行交互。
+
+## 安装
+
+```python
+# 安装包
+pip install -U langchain-ollama
+```
+
+## 设置
+
+首先，按照[这些说明](https://github.com/ollama/ollama?tab=readme-ov-file#ollama)来设置并运行本地 Ollama 实例：
+
+* [下载](https://ollama.ai/download)并安装 Ollama 到可用的支持平台（包括 Windows Subsystem for Linux 即 WSL、macOS 和 Linux）
+  * macOS 用户可以通过 Homebrew 使用 `brew install ollama` 安装，并使用 `brew services start ollama` 启动
+* 通过 `ollama pull <模型名称>` 获取可用的 LLM 模型
+  * 通过[模型库](https://ollama.ai/library)查看可用模型列表
+  * 例如：`ollama pull llama3`
+* 这将下载模型的默认标记版本。通常，默认指向最新、最小参数大小的模型。
+
+> 在 Mac 上，模型将下载到 `~/.ollama/models`
+>
+> 在 Linux（或 WSL）上，模型将存储在 `/usr/share/ollama/.ollama/models`
+
+* 指定感兴趣模型的确切版本，例如 `ollama pull vicuna:13b-v1.5-16k-q4_0`（在此示例中查看 [`Vicuna` 的各种标签](https://ollama.ai/library/vicuna/tags)）
+* 要查看所有已拉取的模型，请使用 `ollama list`
+* 要从命令行直接与模型聊天，请使用 `ollama run <模型名称>`
+* 查看 [Ollama 文档](https://github.com/ollama/ollama/tree/main/docs) 获取更多命令。您可以在终端中运行 `ollama help` 查看可用命令。
+
+## 使用
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama.llms import OllamaLLM
+
+template = """问题：{question}
+
+回答：让我们一步步思考。"""
+
+prompt = ChatPromptTemplate.from_template(template)
+
+model = OllamaLLM(model="llama3.1")
+
+chain = prompt | model
+
+chain.invoke({"question": "什么是 LangChain？"})
+```
+
+```text
+'为了分解 LangChain 是什么，让我们一步步分析：\n\n1. **分解名称**："Lang" 可能代表 "Language"，表明 LangChain 与语言处理或涉及人类语言的 AI 相关任务有关。\n\n2. **理解此上下文中的 "chain" 术语**：在技术和计算领域，特别是在人工智能（AI）和机器学习（ML）领域，"chain" 通常指一系列链接在一起的过程。这可能意味着 LangChain 涉及按顺序执行多个任务或功能。\n\n3. **与 AI/ML 技术的联系**：考虑到其名称和上下文，可以合理推断 LangChain 涉及自然语言处理（NLP）或更广泛的人工智能领域。NLP 是计算机科学中关注计算机与人类使用人类语言进行交互的领域。\n\n4. **可能的功能或服务**：考虑到对语言的关注以及多个链接过程的潜力，LangChain 可能提供各种 AI 驱动的功能，例如：\n    - 文本分析（如情感分析或文本分类）。\n    - 语言翻译。\n    - 聊天机器人或对话界面。\n    - 内容生成（例如文章、摘要）。\n    - 对话管理系统。\n\n5. **结论**：基于名称及其组成部分的分析，LangChain 很可能是一个用于开发涉及通过 AI 和 ML 技术与人类语言进行复杂交互的应用程序的工具或框架。它可能支持创建自定义聊天机器人、自然语言界面、文本生成器或其他需要复杂语言理解和处理能力的应用程序。\n\n这种逐步分解表明，LangChain 专注于通过多个链接过程（"chain" 部分）利用 AI 以复杂的方式理解、处理和与人类语言交互。'
+```
+
+## 多模态
+
+Ollama 支持多模态 LLM，例如 [bakllava](https://ollama.com/library/bakllava) 和 [llava](https://ollama.com/library/llava)。
+
+    ollama pull bakllava
+
+请确保更新 Ollama 以获取支持多模态的最新版本。
+
+```python
+pip install pillow
+```
+
+```python
+import base64
+from io import BytesIO
+
+from IPython.display import HTML, display
+from PIL import Image
+
+
+def convert_to_base64(pil_image):
+    """
+    将 PIL 图像转换为 Base64 编码字符串
+
+    :param pil_image: PIL 图像
+    :return: 调整大小的 Base64 字符串
+    """
+
+    buffered = BytesIO()
+    pil_image.save(buffered, format="JPEG")  # 如果需要可以更改格式
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    return img_str
+
+
+def plt_img_base64(img_base64):
+    """
+    将 base64 编码字符串显示为图像
+
+    :param img_base64: Base64 字符串
+    """
+    # 创建带有 base64 字符串作为源的 HTML img 标签
+    image_html = f'<img src="data:image/jpeg;base64,{img_base64}" />'
+    # 通过渲染 HTML 显示图像
+    display(HTML(image_html))
+
+
+file_path = "../../../static/img/ollama_example_img.jpg"
+pil_image = Image.open(file_path)
+image_b64 = convert_to_base64(pil_image)
+plt_img_base64(image_b64)
+```
+
+```html
+<img src="data:image/jpeg;base64,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

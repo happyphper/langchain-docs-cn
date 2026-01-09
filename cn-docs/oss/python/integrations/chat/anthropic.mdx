@@ -1,0 +1,444 @@
+---
+title: ChatAnthropic
+description: '开始使用 LangChain 中的 Anthropic [聊天模型](/oss/langchain/models)。'
+---
+你可以在 [Claude](https://platform.claude.com/docs/en/about-claude/models/overview) 文档中找到关于 Anthropic 最新模型、其成本、上下文窗口和支持的输入类型的信息。
+
+<Tip>
+    **API 参考**
+
+    有关所有功能和配置选项的详细文档，请前往 @[`ChatAnthropic`] API 参考。
+</Tip>
+
+<Info>
+    **AWS Bedrock 和 Google VertexAI**
+
+    请注意，某些 Anthropic 模型也可以通过 AWS Bedrock 和 Google VertexAI 访问。请参阅 [`ChatBedrock`](/oss/integrations/chat/bedrock/) 和 [`ChatVertexAI`](/oss/integrations/chat/google_vertex_ai#anthropic-on-vertex-ai) 集成，以通过这些服务使用 Anthropic 模型。
+</Info>
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | JS/TS 支持 | 下载量 | 最新版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| @[`ChatAnthropic`] | @[`langchain-anthropic`] | beta | ✅ [(npm)](https://js.langchain.com/docs/integrations/chat/anthropic) | <a href="https://pypi.org/project/langchain-anthropic/" target="_blank"><img src="https://static.pepy.tech/badge/langchain-anthropic/month" alt="Downloads per month" noZoom height="100" class="rounded" /></a> | <a href="https://pypi.org/project/langchain-anthropic/" target="_blank"><img src="https://img.shields.io/pypi/v/langchain-anthropic?style=flat-square&label=%20&color=orange" alt="PyPI - Latest version" noZoom height="100" class="rounded" /></a> |
+
+### 模型特性
+
+| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ |
+
+## 设置
+
+要访问 Anthropic (Claude) 模型，你需要安装 `langchain-anthropic` 集成包并获取一个 [Claude](https://platform.claude.com/docs/en/get-started#prerequisites) API 密钥。
+
+### 安装
+
+<CodeGroup>
+    ```bash pip
+    pip install -U langchain-anthropic
+    ```
+    ```bash uv
+    uv add langchain-anthropic
+    ```
+</CodeGroup>
+
+### 凭证
+
+前往 [Claude 控制台](https://console.anthropic.com) 注册并生成 Claude API 密钥。完成后，设置 `ANTHROPIC_API_KEY` 环境变量：
+
+```python
+import getpass
+import os
+
+if "ANTHROPIC_API_KEY" not in os.environ:
+    os.environ["ANTHROPIC_API_KEY"] = getpass.getpass("Enter your Anthropic API key: ")
+```
+
+要启用模型调用的自动追踪，请设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
+```
+
+## 实例化
+
+现在我们可以实例化我们的模型对象并生成聊天补全：
+
+```python
+from langchain_anthropic import ChatAnthropic
+
+model = ChatAnthropic(
+    model="claude-haiku-4-5-20251001",
+    # temperature=,
+    # max_tokens=,
+    # timeout=,
+    # max_retries=,
+    # ...
+)
+```
+
+有关所有可用实例化参数的详细信息，请参阅 @[`ChatAnthropic`] API 参考。
+
+{/* TODO: 展示与代理或不同 base_url 的使用 */}
+
+## 调用
+
+<AccordionGroup>
+    <Accordion
+        title="调用"
+    >
+        ```python
+        messages = [
+            (
+                "system",
+                "You are a helpful translator. Translate the user sentence to French.",
+            ),
+            (
+                "human",
+                "I love programming.",
+            ),
+        ]
+        model.invoke(messages)
+        ```
+
+
+        ```python
+        print(ai_msg.text)
+        ```
+
+        ```text
+        J'adore la programmation.
+        ```
+    </Accordion>
+    <Accordion
+        title="流式传输"
+    >
+        ```python
+        for chunk in model.stream(messages):
+            print(chunk.text, end="")
+        ```
+
+        ```python
+        AIMessageChunk(content="J", id="run-272ff5f9-8485-402c-b90d-eac8babc5b25")
+        AIMessageChunk(content="'", id="run-272ff5f9-8485-402c-b90d-eac8babc5b25")
+        AIMessageChunk(content="a", id="run-272ff5f9-8485-402c-b90d-eac8babc5b25")
+        AIMessageChunk(content="ime", id="run-272ff5f9-8485-402c-b90d-eac8babc5b25")
+        AIMessageChunk(content=" la", id="run-272ff5f9-8485-402c-b90d-eac8babc5b25")
+        AIMessageChunk(content=" programm", id="run-272ff5f9-8485-402c-b90d-eac8babc5b25")
+        AIMessageChunk(content="ation", id="run-272ff5f9-8485-402c-b90d-eac8babc5b25")
+        AIMessageChunk(content=".", id="run-272ff5f9-8485-402c-b90d-eac8babc5b25")
+        ```
+
+        要从流中聚合完整的消息：
+
+        ```python
+        stream = model.stream(messages)
+        full = next(stream)
+        for chunk in stream:
+            full += chunk
+        full
+        ```
+
+        ```python
+        AIMessageChunk(content="J'aime la programmation.", id="run-b34faef0-882f-4869-a19c-ed2b856e6361")
+        ```
+    </Accordion>
+    <Accordion
+        title="异步"
+    >
+        ```python
+        await model.ainvoke(messages)
+
+        # stream
+        async for chunk in (await model.astream(messages))
+
+        # batch
+        await model.abatch([messages])
+        ```
+
+        ```python
+        AIMessage(
+            content="J'aime la programmation.",
+            response_metadata={
+                "id": "msg_01Trik66aiQ9Z1higrD5XFx3",
+                "model": "claude-sonnet-4-5-20250929",
+                "stop_reason": "end_turn",
+                "stop_sequence": None,
+                "usage": {"input_tokens": 25, "output_tokens": 11},
+            },
+            id="run-5886ac5f-3c2e-49f5-8a44-b1e92808c929-0",
+            usage_metadata={
+                "input_tokens": 25,
+                "output_tokens": 11,
+                "total_tokens": 36,
+            },
+        )
+        ```
+    </Accordion>
+</AccordionGroup>
+
+在我们的 [模型](/oss/langchain/models#invocation) 指南中了解更多关于支持的调用方法。
+
+## 内容块
+
+当使用工具、[扩展思考](#extended-thinking) 和其他功能时，来自单个 Anthropic @[`AIMessage`] 的内容可以是单个字符串，也可以是 Anthropic 内容块的列表。
+
+例如，当 Anthropic 模型调用一个工具时，工具调用是消息内容的一部分（同时也暴露在标准化的 @[`AIMessage.tool_calls`] 中）：
+
+```python
+from langchain_anthropic import ChatAnthropic
+from typing_extensions import Annotated
+
+model = ChatAnthropic(model="claude-haiku-4-5-20251001")
+
+
+def get_weather(
+    location: Annotated[str, ..., "Location as city and state."]
+) -> str:
+    """Get the weather at a location."""
+    return "It's sunny."
+
+
+model_with_tools = model.bind_tools([get_weather])
+response = model_with_tools.invoke("Which city is hotter today: LA or NY?")
+response.content
+```
+
+```python
+[{'text': "I'll help you compare the temperatures of Los Angeles and New York by checking their current weather. I'll retrieve the weather for both cities.",
+  'type': 'text'},
+ {'id': 'toolu_01CkMaXrgmsNjTso7so94RJq',
+  'input': {'location': 'Los Angeles, CA'},
+  'name': 'get_weather',
+  'type': 'tool_use'},
+ {'id': 'toolu_01SKaTBk9wHjsBTw5mrPVSQf',
+  'input': {'location': 'New York, NY'},
+  'name': 'get_weather',
+  'type': 'tool_use'}]
+```
+
+使用 `content_blocks` 将以 LangChain 的标准格式呈现内容，该格式与其他模型提供商保持一致。阅读更多关于 [内容块](/oss/langchain/messages#standard-content-blocks) 的信息。
+
+```python
+response.content_blocks
+```
+
+你也可以使用 `tool_calls` 属性以标准格式专门访问工具调用：
+
+```python
+response.tool_calls
+```
+
+```python
+[{'name': 'GetWeather',
+  'args': {'location': 'Los Angeles, CA'},
+  'id': 'toolu_01Ddzj5PkuZkrjF4tafzu54A'},
+ {'name': 'GetWeather',
+  'args': {'location': 'New York, NY'},
+  'id': 'toolu_012kz4qHZQqD4qg8sFPeKqpP'}]
+```
+
+## 工具
+
+Anthropic 的工具使用功能允许你定义 Claude 可以在对话过程中调用的外部函数。这实现了动态信息检索、计算以及与外部系统的交互。
+
+有关如何将工具绑定到模型实例的详细信息，请参阅 @[`ChatAnthropic.bind_tools`]。
+
+<Note>
+    关于 Claude 内置工具（代码执行、网页浏览、文件 API 等）的信息，请参阅 [内置工具](#built-in-tools)。
+</Note>
+
+```python
+from pydantic import BaseModel, Field
+
+
+class GetWeather(BaseModel):
+    '''Get the current weather in a given location'''
+
+    location: str = Field(..., description="The city and state, e.g. San Francisco, CA")
+
+
+class GetPopulation(BaseModel):
+    '''Get the current population in a given location'''
+
+    location: str = Field(..., description="The city and state, e.g. San Francisco, CA")
+
+
+model_with_tools = model.bind_tools([GetWeather, GetPopulation]) # [!code highlight]
+ai_msg = model_with_tools.invoke("Which city is hotter today and which is bigger: LA or NY?")
+ai_msg.tool_calls
+```
+
+```python
+[
+    {
+        "name": "GetWeather",
+        "args": {"location": "Los Angeles, CA"},
+        "id": "toolu_01KzpPEAgzura7hpBqwHbWdo",
+    },
+    {
+        "name": "GetWeather",
+        "args": {"location": "New York, NY"},
+        "id": "toolu_01JtgbVGVJbiSwtZk3Uycezx",
+    },
+    {
+        "name": "GetPopulation",
+        "args": {"location": "Los Angeles, CA"},
+        "id": "toolu_01429aygngesudV9nTbCKGuw",
+    },
+    {
+        "name": "GetPopulation",
+        "args": {"location": "New York, NY"},
+        "id": "toolu_01JPktyd44tVMeBcPPnFSEJG",
+    },
+]
+```
+
+### 严格工具使用
+
+<Info>
+    严格工具使用需要：
+
+    - Claude Sonnet 4.5 或 Opus 4.1。
+    - `langchain-anthropic>=1.1.0`
+</Info>
+
+Anthropic 支持选择性的 [严格模式工具调用](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)。这通过约束解码保证工具名称和参数经过验证并正确类型化。
+
+没有严格模式时，Claude 偶尔会生成破坏应用程序的无效工具输入：
+
+- **类型不匹配**：`passengers: "2"` 而不是 `passengers: 2`
+- **缺少必填字段**：省略了你的函数期望的字段
+- **无效的枚举值**：超出允许集合的值
+- **模式违规**：嵌套对象与预期结构不匹配
+
+严格工具使用保证模式合规的工具调用：
+
+- 工具输入严格遵循你的 `input_schema`
+- 保证字段类型和必填字段
+- 消除对格式错误输入的错误处理
+- 使用的工具 `name` 始终来自提供的工具
+
+| 使用严格工具使用 | 使用标准工具调用 |
+|---------------------|---------------------------|
+| 构建可靠性至关重要的智能体工作流时 | 简单的单轮工具调用 |
+| 具有许多参数或嵌套对象的工具 | 原型设计和实验 |
+| 需要特定类型（例如 `int` 与 `str`）的函数 |  |
+
+要启用严格工具使用，请在调用 @[`bind_tools`][ChatAnthropic.bind_tools] 时指定 `strict=True`。
+
+```python
+from langchain_anthropic import ChatAnthropic
+
+model = ChatAnthropic(model="claude-sonnet-4-5-20250929")
+
+def get_weather(location: str) -> str:
+    """Get the weather at a location."""
+    return "It's sunny."
+
+model_with_tools = model.bind_tools([get_weather], strict=True)  # [!code highlight]
+```
+
+<Accordion
+    title="示例：类型安全的预订系统"
+>
+    考虑一个 `passengers` 必须是整数的预订系统：
+
+    ```python
+    from langchain_anthropic import ChatAnthropic
+    from typing import Literal
+
+    model = ChatAnthropic(model="claude-sonnet-4-5-20250929")
+
+    def book_flight(
+        destination: str,
+        departure_date: str,
+        passengers: int, # [!code highlight]
+        cabin_class: Literal["economy", "business", "first"]
+    ) -> str:
+        """Book a flight to a destination.
+
+        Args:
+            destination: The destination city
+            departure_date: Date in YYYY-MM-DD format
+            passengers: Number of passengers (must be an integer)
+            cabin_class: The cabin class for the flight
+        """
+        return f"Booked {passengers} passengers to {destination}"
+
+    model_with_tools = model.bind_tools(
+        [book_flight],
+        strict=True, # [!code highlight]
+        tool_choice="any",
+    )
+    response = model_with_tools.invoke("Book 2 passengers to Tokyo, business class, 2025-01-15")
+
+    # 使用 strict=True，passengers 保证是 int，而不是 "2" 或 "two"
+    print(response.tool_calls[0]["args"]["passengers"])
+    ```
+
+    ```text
+    2
+    ```
+</Accordion>
+
+严格工具使用有一些需要注意的 JSON 模式限制。更多详情请参阅 [Claude 文档](https://platform.claude.com/docs/en/build-with-claude/structured-outputs#json-schema-limitations)。
+
+如果你的工具模式使用了不支持的功能，你将收到 400 错误。在这些情况下，请简化模式或使用标准（非严格）工具调用。
+
+### 输入示例
+
+对于复杂的工具，你可以提供使用示例来帮助 Claude 正确理解如何使用它们。这是通过在工具的 `extras` 参数中设置 `input_examples` 来完成的。
+
+```python
+from langchain_anthropic import ChatAnthropic
+from langchain.tools import tool
+
+@tool(
+    extras={ # [!code highlight]
+        "input_examples": [ # [!code highlight]
+            { # [!code highlight]
+                "query": "weather report", # [!code highlight]
+                "location": "San Francisco", # [!code highlight]
+                "format": "detailed" # [!code highlight]
+            }, # [!code highlight]
+            { # [!code highlight]
+                "query": "temperature", # [!code highlight]
+                "location": "New York", # [!code highlight]
+                "format": "brief" # [!code highlight]
+            } # [!code highlight]
+        ] # [!code highlight]
+    } # [!code highlight]
+)
+def search_weather_data(query: str, location: str, format: str = "brief") -> str:
+    """Search weather database with specific query and format preferences.
+
+    Args:
+        query: The type of weather information to retrieve
+        location: City or region to search
+        format: Output format, either 'brief' or 'detailed'
+    """
+    return f"{format.title()} {query} for {location}: Data found"
+
+model = ChatAnthropic(model="claude-sonnet-4-5-20250929")
+model_with_tools = model.bind_tools([search_weather_data])
+
+response = model_with_tools.invoke(
+    "Get me a detailed weather report for Seattle"
+)
+```
+
+`extras` 参数还支持：
+- `defer_loading` (bool)：为 [工具搜索](#tool-search) 按需加载工具
+- `cache_control` (dict)：为工具启用 [提示词缓存](#caching-tools)
+
+### 令牌高效的工具使用
+
+Anthropic 支持 [令牌高效的工具使用](https://platform.claude.com/docs/en/agents-and-tools/tool-use/token-efficient-tool-use) 功能。所有 Claude 4 及以上模型默认支持此功能。
+
+<Accordion title="在 Claude 3.7 上启用令牌高效工具使用">
+    要在 Claude 3.7 上使用令牌高效工具

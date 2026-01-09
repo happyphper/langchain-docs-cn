@@ -1,0 +1,68 @@
+---
+title: 光束
+---
+调用 Beam API 包装器，在云端部署中部署并随后调用 gpt2 大语言模型（LLM）实例。需要安装 Beam 库并注册 Beam 客户端 ID 和客户端密钥。通过调用该包装器，将创建并运行一个模型实例，返回与提示相关的文本。后续可以通过直接调用 Beam API 进行额外调用。
+
+[创建一个账户](https://www.beam.cloud/)，如果您还没有的话。从[仪表板](https://www.beam.cloud/dashboard/settings/api-keys)获取您的 API 密钥。
+
+安装 Beam CLI：
+
+```python
+!curl https://raw.githubusercontent.com/slai-labs/get-beam/main/get-beam.sh -sSfL | sh
+```
+
+注册 API 密钥并设置您的 beam 客户端 ID 和密钥环境变量：
+
+```python
+import os
+
+beam_client_id = "<您的 beam 客户端 id>"
+beam_client_secret = "<您的 beam 客户端密钥>"
+
+# 设置环境变量
+os.environ["BEAM_CLIENT_ID"] = beam_client_id
+os.environ["BEAM_CLIENT_SECRET"] = beam_client_secret
+
+# 运行 beam configure 命令
+!beam configure --clientId={beam_client_id} --clientSecret={beam_client_secret}
+```
+
+安装 Beam SDK：
+
+```python
+pip install -qU  beam-sdk
+```
+
+**直接从 langchain 部署和调用 Beam！**
+
+请注意，冷启动可能需要几分钟才能返回响应，但后续调用会更快！
+
+```python
+from langchain_community.llms.beam import Beam
+
+llm = Beam(
+    model_name="gpt2",
+    name="langchain-gpt2-test",
+    cpu=8,
+    memory="32Gi",
+    gpu="A10G",
+    python_version="python3.8",
+    python_packages=[
+        "diffusers[torch]>=0.10",
+        "transformers",
+        "torch",
+        "pillow",
+        "accelerate",
+        "safetensors",
+        "xformers",
+    ],
+    max_length="50",
+    verbose=False,
+)
+
+llm._deploy()
+
+response = llm._call("Running machine learning on a remote GPU")
+
+print(response)
+```

@@ -1,0 +1,33 @@
+---
+title: OctoAI
+---
+>[OctoAI](https://docs.octoai.cloud/docs) 提供便捷的高效算力访问，使用户能够将自选的 AI 模型集成到应用程序中。
+> `OctoAI` 计算服务帮助您轻松运行、调优和扩展 AI 应用。
+
+## 安装与设置
+
+- 安装 `openai` Python 包：
+  ```bash
+  pip install openai
+  ```
+- 在 `OctoAI` 上注册，并从 [您的 OctoAI 账户页面](https://octoai.cloud/settings) 获取 API 令牌。
+
+## 聊天模型
+
+查看 [使用示例](/oss/integrations/chat/octoai)。
+
+```python
+from langchain_community.chat_models import ChatOctoAI
+```
+## 大语言模型 (LLMs)
+
+查看 [使用示例](/oss/integrations/llms/octoai)。
+
+```python
+from langchain_community.llms.octoai_endpoint import OctoAIEndpoint
+```
+## 嵌入模型
+
+```python
+from langchain_community.embeddings.octoai_embeddings import OctoAIEmbeddings
+```

@@ -1,0 +1,46 @@
+---
+title: VDMS
+---
+> [VDMS](https://github.com/IntelLabs/vdms/blob/master/README.md) 是一个面向大规模“视觉”数据高效访问的存储解决方案，旨在通过基于图存储的视觉元数据搜索相关视觉数据，并实现对视觉数据的机器友好增强以加速访问，从而达到云规模。
+
+## 安装与设置
+
+### 安装客户端
+
+<CodeGroup>
+```bash pip
+pip install langchain-vdms
+```
+
+```bash uv
+uv add langchain-vdms
+```
+</CodeGroup>
+
+### 安装数据库
+
+有两种方式可以开始使用 VDMS：
+
+1. 通过 Docker 在本地机器上安装 VDMS
+    ```bash
+        docker run -d -p 55555:55555 intellabs/vdms:latest
+    ```
+
+2. 直接在本地机器上安装 VDMS。请参阅[安装说明](https://github.com/IntelLabs/vdms/blob/master/INSTALL.md)。
+
+## VectorStore
+
+导入此向量存储：
+
+```python
+from langchain_vdms import VDMS
+from langchain_vdms.vectorstores import VDMS
+```
+
+导入 VDMS 客户端连接器：
+
+```python
+from langchain_vdms.vectorstores import VDMS_Client
+```
+
+有关 VDMS 包装器的更详细指南，请参阅[此指南](/oss/integrations/vectorstores/vdms)。

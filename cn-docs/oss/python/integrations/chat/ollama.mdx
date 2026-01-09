@@ -1,0 +1,223 @@
+---
+title: ChatOllama
+description: '开始使用 LangChain 中的 Ollama [聊天模型](/oss/langchain/models)。'
+---
+[Ollama](https://ollama.com/) 允许您在本地运行开源大语言模型（LLMs），例如 `gpt-oss`。
+
+Ollama 将模型权重、配置和数据打包成一个由 Modelfile 定义的单一软件包。它优化了设置和配置细节，包括 GPU 使用。
+
+有关支持的模型和模型变体的完整列表，请参阅 [Ollama 模型库](https://ollama.com/search)。
+
+<Tip>
+    **API 参考**
+
+    有关所有功能和配置选项的详细文档，请查阅 @[`ChatOllama`] API 参考。
+</Tip>
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | [JS 支持](https://js.langchain.com/docs/integrations/chat/ollama) | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| @[`ChatOllama`] | @[`langchain-ollama`] | ❌ | ✅ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-ollama?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-ollama?style=flat-square&label=%20) |
+
+### 模型特性
+
+| [工具调用](/oss/langchain/tools/) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| :---: |:----------------------------------------------------:| :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
+| ✅ |                          ✅                           | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
+
+## 设置
+
+首先，按照 [这些说明](https://github.com/ollama/ollama?tab=readme-ov-file#ollama) 设置并运行本地 Ollama 实例：
+
+* [下载](https://ollama.ai/download) 并将 Ollama 安装到可用的支持平台（包括 Windows Subsystem for Linux 即 WSL、macOS 和 Linux）
+  * macOS 用户可以通过 Homebrew 使用 `brew install ollama` 安装，并使用 `brew services start ollama` 启动
+* 通过 `ollama pull <模型名称>` 获取可用的 LLM 模型
+  * 通过 [模型库](https://ollama.ai/library) 查看可用模型列表
+  * 例如：`ollama pull gpt-oss:20b`
+* 这将下载模型的默认标记版本。通常，默认指向最新、参数规模最小的模型。
+
+> 在 Mac 上，模型将下载到 `~/.ollama/models`
+>
+> 在 Linux（或 WSL）上，模型将存储在 `/usr/share/ollama/.ollama/models`
+
+* 指定感兴趣模型的确切版本，例如 `ollama pull gpt-oss:20b`（在此示例中查看 [`Vicuna`](https://ollama.ai/library/vicuna/tags) 模型的各种标签）
+* 要查看所有已拉取的模型，请使用 `ollama list`
+* 要直接从命令行与模型聊天，请使用 `ollama run <模型名称>`
+* 查看 [Ollama 文档](https://github.com/ollama/ollama/blob/main/docs/README.md) 以获取更多命令。您可以在终端中运行 `ollama help` 来查看可用命令。
+
+要启用模型调用的自动追踪，请设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+```
+
+### 安装
+
+LangChain Ollama 集成位于 `langchain-ollama` 包中：
+
+```python
+pip install -qU langchain-ollama
+```
+
+<Warning>
+请确保您使用的是最新的 Ollama 版本！
+</Warning>
+
+通过运行以下命令更新：
+
+```python
+pip install -U ollama
+```
+
+## 实例化
+
+现在我们可以实例化我们的模型对象并生成聊天补全：
+
+```python
+from langchain_ollama import ChatOllama
+
+llm = ChatOllama(
+    model="llama3.1",
+    temperature=0,
+    # 其他参数...
+)
+```
+
+## 调用
+
+```python
+messages = [
+    (
+        "system",
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+    ),
+    ("human", "I love programming."),
+]
+ai_msg = llm.invoke(messages)
+ai_msg
+```
+
+```text
+AIMessage(content='The translation of "I love programming" in French is:\n\n"J\'adore le programmation."', additional_kwargs={}, response_metadata={'model': 'llama3.1', 'created_at': '2025-06-25T18:43:00.483666Z', 'done': True, 'done_reason': 'stop', 'total_duration': 619971208, 'load_duration': 27793125, 'prompt_eval_count': 35, 'prompt_eval_duration': 36354583, 'eval_count': 22, 'eval_duration': 555182667, 'model_name': 'llama3.1'}, id='run--348bb5ef-9dd9-4271-bc7e-a9ddb54c28c1-0', usage_metadata={'input_tokens': 35, 'output_tokens': 22, 'total_tokens': 57})
+```
+
+```python
+print(ai_msg.content)
+```
+
+```text
+The translation of "I love programming" in French is:
+
+"J'adore le programmation."
+```
+
+## 工具调用
+
+[Ollama 工具调用](https://ollama.com/blog/tool-support) 使用 OpenAI 兼容的 Web 服务器规范，并且可以与默认的 `BaseChatModel.bind_tools()` 方法一起使用，如 [此处](/oss/langchain/tools/) 所述。
+
+请确保选择支持 [工具调用](https://ollama.com/search?&c=tools) 的 ollama 模型。
+
+我们可以将 [工具调用](/oss/langchain/tools/) 与 [经过工具使用微调的 LLM](https://ollama.com/search?&c=tools)（例如 `gpt-oss`）一起使用：
+
+```
+ollama pull gpt-oss:20b
+```
+
+有关创建自定义工具的详细信息，请参阅 [本指南](/oss/langchain/tools#customize-tool-properties)。下面，我们演示如何使用 @[`@tool`] 装饰器在普通 Python 函数上创建工具。
+
+```python
+from typing import List
+
+from langchain.messages import AIMessage
+from langchain.tools import tool
+from langchain_ollama import ChatOllama
+
+
+@tool
+def validate_user(user_id: int, addresses: List[str]) -> bool:
+    """Validate user using historical addresses.
+
+    Args:
+        user_id (int): the user ID.
+        addresses (List[str]): Previous addresses as a list of strings.
+    """
+    return True
+
+
+llm = ChatOllama(
+    model="gpt-oss:20b",
+    validate_model_on_init=True,
+    temperature=0,
+).bind_tools([validate_user])
+
+result = llm.invoke(
+    "Could you validate user 123? They previously lived at "
+    "123 Fake St in Boston MA and 234 Pretend Boulevard in "
+    "Houston TX."
+)
+
+if isinstance(result, AIMessage) and result.tool_calls:
+    print(result.tool_calls)
+```
+
+```text
+[{'name': 'validate_user', 'args': {'addresses': ['123 Fake St, Boston, MA', '234 Pretend Boulevard, Houston, TX'], 'user_id': '123'}, 'id': 'aef33a32-a34b-4b37-b054-e0d85584772f', 'type': 'tool_call'}]
+```
+
+## 多模态
+
+Ollama 对多模态 LLM 的支持有限，例如 [gemma3](https://ollama.com/library/gemma3)
+
+请务必更新 Ollama，以便您拥有支持多模态的最新版本。
+
+```python
+pip install pillow
+```
+
+```python
+import base64
+from io import BytesIO
+
+from IPython.display import HTML, display
+from PIL import Image
+
+
+def convert_to_base64(pil_image):
+    """
+    Convert PIL images to Base64 encoded strings
+
+    :param pil_image: PIL image
+    :return: Re-sized Base64 string
+    """
+
+    buffered = BytesIO()
+    pil_image.save(buffered, format="JPEG")  # You can change the format if needed
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    return img_str
+
+
+def plt_img_base64(img_base64):
+    """
+    Disply base64 encoded string as image
+
+    :param img_base64:  Base64 string
+    """
+    # Create an HTML img tag with the base64 string as the source
+    image_html = f'<img src="data:image/jpeg;base64,{img_base64}" />'
+    # Display the image by rendering the HTML
+    display(HTML(image_html))
+
+
+file_path = "../../../static/img/ollama_example_img.jpg"
+pil_image = Image.open(file_path)
+
+image_b64 = convert_to_base64(pil_image)
+plt_img_base64(image_b64)
+```
+
+```html
+<img src="data:image/jpeg;base64,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

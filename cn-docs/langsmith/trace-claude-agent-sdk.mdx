@@ -1,0 +1,93 @@
+---
+title: 追踪 Claude Agent SDK
+sidebarTitle: Claude Agent SDK
+---
+[Claude Agent SDK](https://platform.claude.com/docs/en/agent-sdk/overview) 是一个用于构建基于 Claude 的智能体（agentic）应用程序的 SDK。LangSmith 提供了与 Claude Agent SDK 的原生集成，可以自动追踪您的智能体执行过程、工具调用以及与 Claude 模型的交互。
+
+## 安装
+
+为 Claude Agent SDK 安装 LangSmith 集成
+
+<CodeGroup>
+```bash pip
+pip install "langsmith[claude-agent-sdk]"
+```
+
+```bash uv
+uv add "langsmith[claude-agent-sdk]"
+```
+</CodeGroup>
+
+## 快速开始
+
+要为您的 Claude Agent SDK 应用程序启用 LangSmith 追踪，请在应用程序启动时调用 `configure_claude_agent_sdk()`：
+
+```python
+import asyncio
+from claude_agent_sdk import (
+    ClaudeAgentOptions,
+    ClaudeSDKClient,
+    tool,
+    create_sdk_mcp_server,
+)
+from typing import Any
+
+from langsmith.integrations.claude_agent_sdk import configure_claude_agent_sdk
+
+# 使用 langsmith 追踪设置 claude_agent_sdk
+configure_claude_agent_sdk()
+
+@tool(
+    "get_weather",
+    "Gets the current weather for a given city",
+    {
+        "city": str,
+    },
+)
+async def get_weather(args: dict[str, Any]) -> dict[str, Any]:
+    """Simulated weather lookup tool"""
+    city = args["city"]
+
+    # Simulated weather data
+    weather_data = {
+        "San Francisco": "Foggy, 62°F",
+        "New York": "Sunny, 75°F",
+        "London": "Rainy, 55°F",
+        "Tokyo": "Clear, 68°F",
+    }
+
+    weather = weather_data.get(city, "Weather data not available")
+    return {"content": [{"type": "text", "text": f"Weather in {city}: {weather}"}]}
+
+
+async def main():
+    # Create SDK MCP server with the weather tool
+    weather_server = create_sdk_mcp_server(
+        name="weather",
+        version="1.0.0",
+        tools=[get_weather],
+    )
+
+    options = ClaudeAgentOptions(
+        model="claude-sonnet-4-5-20250929",
+        system_prompt="You are a friendly travel assistant who helps with weather information.",
+        mcp_servers={"weather": weather_server},
+        allowed_tools=["mcp__weather__get_weather"],
+    )
+
+    async with ClaudeSDKClient(options=options) as client:
+        await client.query("What's the weather like in San Francisco and Tokyo?")
+
+        async for message in client.receive_response():
+            print(message)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+一旦配置完成，所有 Claude Agent SDK 的操作都将被自动追踪到 LangSmith，包括：
+- 智能体查询和响应
+- 工具调用和结果
+- Claude 模型交互
+- MCP 服务器操作

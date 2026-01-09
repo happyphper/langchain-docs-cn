@@ -1,0 +1,65 @@
+---
+title: 梯度
+---
+`Gradient` 允许通过简单的 Web API 创建 @[`Embeddings`]，以及对 LLM 进行微调和获取补全结果。
+
+本笔记本介绍了如何将 LangChain 与 [Gradient](https://gradient.ai/) 的 Embeddings 结合使用。
+
+## 导入
+
+```python
+from langchain_community.embeddings import GradientEmbeddings
+```
+
+## 设置环境 API 密钥
+
+请确保从 Gradient AI 获取您的 API 密钥。您将获得 10 美元的免费额度，用于测试和微调不同的模型。
+
+```python
+import os
+from getpass import getpass
+
+if not os.environ.get("GRADIENT_ACCESS_TOKEN", None):
+    # 访问令牌位于 https://auth.gradient.ai/select-workspace
+    os.environ["GRADIENT_ACCESS_TOKEN"] = getpass("gradient.ai access token:")
+if not os.environ.get("GRADIENT_WORKSPACE_ID", None):
+    # `ID` 列在 `$ gradient workspace list` 中
+    # 登录后也会在 https://auth.gradient.ai/select-workspace 显示
+    os.environ["GRADIENT_WORKSPACE_ID"] = getpass("gradient.ai workspace id:")
+```
+
+可选：验证您的环境变量 `GRADIENT_ACCESS_TOKEN` 和 `GRADIENT_WORKSPACE_ID`，以获取当前部署的模型。使用 `gradientai` Python 包。
+
+```python
+pip install -qU  gradientai
+```
+
+## 创建 Gradient 实例
+
+```python
+documents = [
+    "Pizza is a dish.",
+    "Paris is the capital of France",
+    "numpy is a lib for linear algebra",
+]
+query = "Where is Paris?"
+```
+
+```python
+embeddings = GradientEmbeddings(model="bge-large")
+
+documents_embedded = embeddings.embed_documents(documents)
+query_result = embeddings.embed_query(query)
+```
+
+```python
+# (演示) 计算相似度
+import numpy as np
+
+scores = np.array(documents_embedded) @ np.array(query_result).T
+dict(zip(documents, scores))
+```
+
+```python
+
+```

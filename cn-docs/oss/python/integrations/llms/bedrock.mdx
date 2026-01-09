@@ -1,0 +1,66 @@
+---
+title: Bedrock
+---
+<Warning>
+**您当前正在查阅的是将 Amazon Bedrock 模型用作文本补全模型的文档。Bedrock 上许多流行的模型实际上是 [聊天补全模型](/oss/langchain/models)。**
+
+您可能正在寻找 [这个页面](/oss/integrations/chat/bedrock/)。
+</Warning>
+
+>[Amazon Bedrock](https://aws.amazon.com/bedrock/) 是一项完全托管的服务，它通过单一 API 提供来自领先 AI 公司（如 `AI21 Labs`、`Anthropic`、`Cohere`、`Meta`、`Stability AI` 和 `Amazon`）的高性能基础模型（FMs）选择，并提供构建具有安全性、隐私性和负责任 AI 的生成式 AI 应用程序所需的一系列广泛功能。使用 `Amazon Bedrock`，您可以轻松地针对您的用例试验和评估顶级 FM，使用微调和 `检索增强生成`（`RAG`）等技术利用您的数据对其进行私有化定制，并构建利用您的企业系统和数据源执行任务的智能体。由于 `Amazon Bedrock` 是无服务器的，您无需管理任何基础设施，并且可以使用您已经熟悉的 AWS 服务，安全地将生成式 AI 功能集成并部署到您的应用程序中。
+
+```python
+pip install -qU langchain-aws
+```
+
+```python
+from langchain_aws import BedrockLLM
+
+llm = BedrockLLM(
+    credentials_profile_name="bedrock-admin", model_id="amazon.titan-text-express-v1"
+)
+```
+
+### 自定义模型
+
+```python
+custom_llm = BedrockLLM(
+    credentials_profile_name="bedrock-admin",
+    provider="cohere",
+    model_id="<Custom model ARN>",  # 通过配置自定义模型获得的 ARN，如 'arn:aws:bedrock:...'
+    model_kwargs={"temperature": 1},
+    streaming=True,
+)
+
+custom_llm.invoke(input="What is the recipe of mayonnaise?")
+```
+
+## Amazon Bedrock 护栏
+
+[Amazon Bedrock 护栏](https://aws.amazon.com/bedrock/guardrails/) 根据特定用例的策略评估用户输入和模型响应，无论底层模型如何，都提供额外的安全保障层。护栏可以应用于多种模型，包括 Anthropic Claude、Meta Llama 2、Cohere Command、AI21 Labs Jurassic 和 Amazon Titan Text，以及经过微调的模型。
+在本节中，我们将设置一个具有特定护栏（包含追踪功能）的 Bedrock 语言模型。
+
+```python
+from typing import Any
+
+from langchain_core.callbacks import AsyncCallbackHandler
+
+
+class BedrockAsyncCallbackHandler(AsyncCallbackHandler):
+    # 可用于处理来自 langchain 回调的异步回调处理器。
+
+    async def on_llm_error(self, error: BaseException, **kwargs: Any) -> Any:
+        reason = kwargs.get("reason")
+        if reason == "GUARDRAIL_INTERVENED":
+            print(f"Guardrails: {kwargs}")
+
+
+# 具有追踪功能的 Amazon Bedrock 护栏
+llm = BedrockLLM(
+    credentials_profile_name="bedrock-admin",
+    model_id="<Model_ID>",
+    model_kwargs={},
+    guardrails={"id": "<Guardrail_ID>", "version": "<Version>", "trace": True},
+    callbacks=[BedrockAsyncCallbackHandler()],
+)
+```

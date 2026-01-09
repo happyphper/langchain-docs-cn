@@ -1,0 +1,531 @@
+---
+title: ChatOpenAI
+---
+[OpenAI](https://en.wikipedia.org/wiki/OpenAI) 是一个人工智能（AI）研究实验室。
+
+本指南将帮助您开始使用 ChatOpenAI [聊天模型](/oss/langchain/models)。有关 ChatOpenAI 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_openai.ChatOpenAI.html)。
+
+<Note>
+    **Chat Completions API 兼容性**
+
+    `ChatOpenAI` 与 OpenAI 的（旧版）[Chat Completions API](https://platform.openai.com/docs/guides/completions) 完全兼容。如果您希望连接到支持 Chat Completions API 的其他模型提供商，也可以实现——请参阅[说明](/oss/integrations/chat#chat-completions-api)。
+</Note>
+
+<Info>
+    **托管在 Azure 上的 OpenAI 模型**
+
+    请注意，某些 OpenAI 模型也可以通过 [Microsoft Azure 平台](https://azure.microsoft.com/en-us/products/ai-foundry/models/openai/) 访问。
+</Info>
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | [PY 支持](https://python.langchain.com/docs/integrations/chat/openai) | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| [ChatOpenAI](https://api.js.langchain.com/classes/langchain_openai.ChatOpenAI.html) | [`@langchain/openai`](https://www.npmjs.com/package/@langchain/openai) | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/openai?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/openai?style=flat-square&label=%20&) |
+
+### 模型特性
+
+有关如何使用特定功能的指南，请参阅下表标题中的链接。
+
+| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+
+## 设置
+
+要访问 OpenAI 聊天模型，您需要创建一个 OpenAI 账户，获取一个 API 密钥，并安装 `@langchain/openai` 集成包。
+
+### 凭据
+
+前往 [OpenAI 网站](https://platform.openai.com/) 注册 OpenAI 并生成 API 密钥。完成后，设置 `OPENAI_API_KEY` 环境变量：
+
+```bash
+export OPENAI_API_KEY="your-api-key"
+```
+
+如果您希望自动追踪模型调用，还可以通过取消注释以下内容来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```bash
+# export LANGSMITH_TRACING="true"
+# export LANGSMITH_API_KEY="your-api-key"
+```
+
+### 安装
+
+LangChain @[`ChatOpenAI`] 集成位于 `@langchain/openai` 包中：
+
+<CodeGroup>
+```bash npm
+npm install @langchain/openai @langchain/core
+```
+```bash yarn
+yarn add @langchain/openai @langchain/core
+```
+```bash pnpm
+pnpm add @langchain/openai @langchain/core
+```
+</CodeGroup>
+
+## 实例化
+
+现在我们可以实例化我们的模型对象并生成聊天补全：
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai"
+
+const llm = new ChatOpenAI({
+  model: "gpt-4o",
+  temperature: 0,
+  // 其他参数...
+})
+```
+
+## 调用
+
+```typescript
+const aiMsg = await llm.invoke([
+  {
+    role: "system",
+    content: "You are a helpful assistant that translates English to French. Translate the user sentence.",
+  },
+  {
+    role: "user",
+    content: "I love programming."
+  },
+])
+aiMsg
+```
+
+```text
+AIMessage {
+  "id": "chatcmpl-ADItECqSPuuEuBHHPjeCkh9wIO1H5",
+  "content": "J'adore la programmation.",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "tokenUsage": {
+      "completionTokens": 5,
+      "promptTokens": 31,
+      "totalTokens": 36
+    },
+    "finish_reason": "stop",
+    "system_fingerprint": "fp_5796ac6771"
+  },
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 31,
+    "output_tokens": 5,
+    "total_tokens": 36
+  }
+}
+```
+
+```typescript
+console.log(aiMsg.content)
+```
+
+```text
+J'adore la programmation.
+```
+
+## 自定义 URL
+
+您可以通过传递 `configuration` 参数来自定义 SDK 发送请求的基础 URL，如下所示：
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai";
+
+const llmWithCustomURL = new ChatOpenAI({
+  model: "gpt-4o",
+  temperature: 0.9,
+  configuration: {
+    baseURL: "https://your_custom_url.com",
+  },
+});
+
+await llmWithCustomURL.invoke("Hi there!");
+```
+
+`configuration` 字段也接受官方 SDK 支持的其他 `ClientOptions` 参数。
+
+如果您在 Azure OpenAI 上托管，请参阅[专用页面](/oss/integrations/chat/azure)。
+
+## 自定义请求头
+
+您可以在同一个 `configuration` 字段中指定自定义请求头：
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai";
+
+const llmWithCustomHeaders = new ChatOpenAI({
+  model: "gpt-4o",
+  temperature: 0.9,
+  configuration: {
+    defaultHeaders: {
+      "Authorization": `Bearer SOME_CUSTOM_VALUE`,
+    },
+  },
+});
+
+await llmWithCustomHeaders.invoke("Hi there!");
+```
+
+## 禁用流式使用量元数据
+
+某些代理或第三方提供商提供了与 OpenAI 基本相同的 API 接口，但不支持最近添加的 `stream_options` 参数来返回流式使用量。您可以通过禁用流式使用量来使用 @[`ChatOpenAI`] 访问这些提供商，如下所示：
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai";
+
+const llmWithoutStreamUsage = new ChatOpenAI({
+  model: "gpt-4o",
+  temperature: 0.9,
+  streamUsage: false,
+  configuration: {
+    baseURL: "https://proxy.com",
+  },
+});
+
+await llmWithoutStreamUsage.invoke("Hi there!");
+```
+
+## 调用微调模型
+
+您可以通过传入相应的 `modelName` 参数来调用微调的 OpenAI 模型。
+
+这通常采用 `ft:{OPENAI_MODEL_NAME}:{ORG_NAME}::{MODEL_ID}` 的形式。例如：
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai";
+
+const fineTunedLlm = new ChatOpenAI({
+  temperature: 0.9,
+  model: "ft:gpt-3.5-turbo-0613:{ORG_NAME}::{MODEL_ID}",
+});
+
+await fineTunedLlm.invoke("Hi there!");
+```
+
+## 生成元数据
+
+如果您需要额外的信息，如对数概率或令牌使用量，这些信息将直接返回到消息的 `response_metadata` 字段中的 `invoke` 响应里。
+
+<Info>
+    **需要 `@langchain/core` 版本 >=0.1.48。**
+</Info>
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai";
+
+// 详情请见 https://cookbook.openai.com/examples/using_logprobs
+const llmWithLogprobs = new ChatOpenAI({
+  model: "gpt-4o",
+  logprobs: true,
+  // topLogprobs: 5,
+});
+
+const responseMessageWithLogprobs = await llmWithLogprobs.invoke("Hi there!");
+console.dir(responseMessageWithLogprobs.response_metadata.logprobs, { depth: null });
+```
+
+```javascript
+{
+  content: [
+    {
+      token: 'Hello',
+      logprob: -0.0004740447,
+      bytes: [ 72, 101, 108, 108, 111 ],
+      top_logprobs: []
+    },
+    {
+      token: '!',
+      logprob: -0.00004334534,
+      bytes: [ 33 ],
+      top_logprobs: []
+    },
+    {
+      token: ' How',
+      logprob: -0.000030113732,
+      bytes: [ 32, 72, 111, 119 ],
+      top_logprobs: []
+    },
+    {
+      token: ' can',
+      logprob: -0.0004797665,
+      bytes: [ 32, 99, 97, 110 ],
+      top_logprobs: []
+    },
+    {
+      token: ' I',
+      logprob: -7.89631e-7,
+      bytes: [ 32, 73 ],
+      top_logprobs: []
+    },
+    {
+      token: ' assist',
+      logprob: -0.114006,
+      bytes: [
+         32,  97, 115,
+        115, 105, 115,
+        116
+      ],
+      top_logprobs: []
+    },
+    {
+      token: ' you',
+      logprob: -4.3202e-7,
+      bytes: [ 32, 121, 111, 117 ],
+      top_logprobs: []
+    },
+    {
+      token: ' today',
+      logprob: -0.00004501419,
+      bytes: [ 32, 116, 111, 100, 97, 121 ],
+      top_logprobs: []
+    },
+    {
+      token: '?',
+      logprob: -0.000010206721,
+      bytes: [ 63 ],
+      top_logprobs: []
+    }
+  ],
+  refusal: null
+}
+```
+
+## 自定义工具
+
+[自定义工具](https://platform.openai.com/docs/guides/function-calling#custom-tools) 支持具有任意字符串输入的工具。当您期望字符串参数较长或复杂时，它们可能特别有用。
+
+如果您使用的模型支持自定义工具，可以使用 @[`ChatOpenAI`] 类和 `customTool` 函数来创建自定义工具。
+
+```typescript
+import { ChatOpenAI, customTool } from "@langchain/openai";
+import { createAgent, HumanMessage } from "langchain";
+
+const codeTool = customTool(
+  async () => {
+    // ... 添加代码来执行输入
+    return "Code executed successfully";
+  },
+  {
+    name: "execute_code",
+    description: "Execute a code snippet",
+    format: { type: "text" },
+  }
+);
+
+const model = new ChatOpenAI({ model: "gpt-5" });
+
+const agent = createAgent({
+  model,
+  tools: [codeTool],
+});
+
+const result = await agent.invoke({
+  messages: [new HumanMessage("Use the tool to execute the code")],
+});
+console.log(result);
+```
+
+<details>
+<summary>上下文无关语法</summary>
+
+OpenAI 支持为自定义工具输入指定 `lark` 或 `regex` 格式的[上下文无关语法](https://platform.openai.com/docs/guides/function-calling#context-free-grammars)。详情请参阅 [OpenAI 文档](https://platform.openai.com/docs/guides/function-calling#context-free-grammars)。`format` 参数可以传入 `customTool`，如下所示：
+
+```typescript
+import { ChatOpenAI, customTool } from "@langchain/openai";
+import { createAgent, HumanMessage } from "langchain";
+
+const MATH_GRAMMAR = `
+start: expr
+expr: term (SP ADD SP term)* -> add
+| term
+term: factor (SP MUL SP factor)* -> mul
+| factor
+factor: INT
+SP: \" \"
+ADD: \"+\"
+MUL: \"*\"
+%import common.INT
+`;
+
+const doMath = customTool(
+  async () => {
+    // ... 添加代码来解析和执行输入
+    return "27";
+  },
+  {
+    name: "do_math",
+    description: "Evaluate a math expression",
+    format: { type: "grammar", definition: MATH_GRAMMAR, syntax: "lark" },
+  }
+);
+
+const model = new ChatOpenAI({ model: "gpt-5" });
+
+const agent = createAgent({
+  model,
+  tools: [doMath],
+});
+
+const result = await agent.invoke({
+  messages: [new HumanMessage("Use the tool to calculate 3^3")],
+});
+console.log(result);
+```
+
+</details>
+
+## `strict: true`
+
+自 2024 年 8 月 6 日起，OpenAI 在调用工具时支持 `strict` 参数，该参数将强制模型遵守工具参数模式。[了解更多](https://platform.openai.com/docs/guides/function-calling)。
+
+<Info>
+    需要 `@langchain/openai >= 0.2.6`
+</Info>
+
+<Warning>
+    如果 `strict: true`，工具定义也将被验证，并且只接受 JSON 模式的一个子集。关键的是，模式不能有可选参数（那些有默认值的参数）。请阅读[完整文档](https://platform.openai.com/docs/guides/structured-outputs/supported-schemas)了解支持哪些类型的模式。
+</Warning>
+
+这是一个工具调用的示例。向 `.bindTools` 传递一个额外的 `strict: true` 参数将把该参数传递给所有工具定义：
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai";
+import { tool } from "@langchain/core/tools";
+import * as z from "zod";
+
+const weatherTool = tool((_) => "no-op", {
+  name: "get_current_weather",
+  description: "Get the current weather",
+  schema: z.object({
+    location: z.string(),
+  }),
+})
+
+const llmWithStrictTrue = new ChatOpenAI({
+  model: "gpt-4o",
+}).bindTools([weatherTool], {
+  strict: true,
+  tool_choice: weatherTool.name,
+});
+
+// 尽管问题与天气无关，但由于我们传递了 `tool_choice` 和 `strict: true`，它将使用正确的参数调用工具。
+const strictTrueResult = await llmWithStrictTrue.invoke("What is 127862 times 12898 divided by 2?");
+
+console.dir(strictTrueResult.tool_calls, { depth: null });
+```
+
+```text
+[
+  {
+    name: 'get_current_weather',
+    args: { location: 'current' },
+    type: 'tool_call',
+    id: 'call_hVFyYNRwc6CoTgr9AQFQVjm9'
+  }
+]
+```
+
+如果您只想将此参数应用于选定的少数工具，也可以直接传递 OpenAI 格式的工具模式：
+
+```typescript
+import { zodToJsonSchema } from "zod-to-json-schema";
+
+const toolSchema = {
+  type: "function",
+  function: {
+    name: "get_current_weather",
+    description: "Get the current weather",
+    strict: true,
+    parameters: zodToJsonSchema(
+      z.object({
+        location: z.string(),
+      })
+    ),
+  },
+};
+
+const llmWithStrictTrueTools = new ChatOpenAI({
+  model: "gpt-4o",
+}).bindTools([toolSchema], {
+  strict: true,
+});
+
+const weatherToolResult = await llmWithStrictTrueTools.invoke([{
+  role: "user",
+  content: "What is the current weather in London?"
+}])
+
+weatherToolResult.tool_calls;
+```
+
+```text
+[
+  {
+    name: 'get_current_weather',
+    args: { location: 'London' },
+    type: 'tool_call',
+    id: 'call_EOSejtax8aYtqpchY8n8O82l'
+  }
+]
+```
+
+## 结构化输出
+
+我们也可以将 `strict: true` 传递给 [`.withStructuredOutput()`](https://js.langchain.com/docs/how_to/structured_output/#the-.withstructuredoutput-method)。这是一个示例：
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai";
+
+const traitSchema = z.object({
+  traits: z.array(z.string()).describe("A list of traits contained in the input"),
+});
+
+const structuredLlm = new ChatOpenAI({
+  model: "gpt-4o-mini",
+}).withStructuredOutput(traitSchema, {
+  name: "extract_traits",
+  strict: true,
+});
+
+await structuredLlm.invoke([{
+  role: "user",
+  content: `I am 6'5" tall and love fruit.`
+}]);
+```
+
+```javascript
+{ traits: [ `6'5" tall`, 'love fruit' ] }
+```
+
+## Responses API
+
+<Warning>
+**兼容性**
+
+以下要点适用于 `@langchain/openai>=0.4.5-rc.0`。
+
+</Warning>
+
+OpenAI 支持一个面向构建[智能体](/oss/langchain/agents)应用程序的 [Responses](https://platform.openai.com/docs/guides/responses-vs-chat-completions) API。它包括一套[内置工具](https://platform.openai.com/docs/guides/tools?api-mode=responses)，包括网络和文件搜索。它还支持[对话状态](https://platform.openai.com/docs/guides/conversation-state?api-mode=responses)的管理，允许您继续对话线程而无需显式传递先前的消息。
+
+如果使用了这些功能之一，`ChatOpenAI` 将路由到 Responses API。您也可以在实例化 `ChatOpenAI` 时指定 `useResponsesApi: true`。
+
+### 内置工具
+
+为 @[`ChatOpenAI`] 配备内置工具将使用外部信息（例如通过文件或网络中的上下文）来支撑其响应。从模型生成的 [AIMessage](/oss/langchain/messages/#aimessage) 将包含有关内置工具调用的信息。
+
+#### 网络搜索
+
+要触发网络搜索，请将 `{"type": "web_search_preview"}` 作为另一个工具传递给模型。
+
+<Tip>
+**您也可以将内置工具作为调用参数传递：**
+
+```ts
+llm.invoke("...", { tools:

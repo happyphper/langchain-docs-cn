@@ -1,0 +1,152 @@
+---
+title: Azure Container Apps 动态会话
+---
+Azure Container Apps 动态会话提供了一种安全且可扩展的方式，在 Hyper-V 隔离沙箱中运行 Python 代码解释器。这使得您的智能体能够在安全环境中运行可能不受信任的代码。代码解释器环境包含许多流行的 Python 包，例如 NumPy、pandas 和 scikit-learn。有关会话工作原理的更多信息，请参阅 [Azure Container App 文档](https://learn.microsoft.com/en-us/azure/container-apps/sessions-code-interpreter)。
+
+## 设置
+
+默认情况下，`SessionsPythonREPLTool` 工具使用 `DefaultAzureCredential` 向 Azure 进行身份验证。在本地，它将使用您在 Azure CLI 或 VS Code 中的凭据。安装 Azure CLI 并使用 `az login` 登录以进行身份验证。
+
+要使用代码解释器，您还需要创建一个会话池，您可以按照[此处](https://learn.microsoft.com/en-us/azure/container-apps/sessions-code-interpreter?tabs=azure-cli#create-a-session-pool-with-azure-cli)的说明进行操作。完成后，您应该会获得一个池管理会话端点，您需要在下面设置它：
+
+```python
+import getpass
+
+POOL_MANAGEMENT_ENDPOINT = getpass.getpass()
+```
+
+```text
+ ········
+```
+
+您还需要安装 `langchain-azure-dynamic-sessions` 包：
+
+```python
+pip install -qU langchain-azure-dynamic-sessions langchain-openai langchainhub langchain langchain-community
+```
+
+## 使用工具
+
+实例化并使用工具：
+
+```python
+from langchain_azure_dynamic_sessions import SessionsPythonREPLTool
+
+tool = SessionsPythonREPLTool(pool_management_endpoint=POOL_MANAGEMENT_ENDPOINT)
+tool.invoke("6 * 7")
+```
+
+```text
+'{\n  "result": 42,\n  "stdout": "",\n  "stderr": ""\n}'
+```
+
+调用该工具将返回一个包含代码执行结果的 JSON 字符串，以及任何 stdout 和 stderr 输出。要获取原始的字典结果，请使用 `execute()` 方法：
+
+```python
+tool.execute("6 * 7")
+```
+
+```text
+{'$id': '2',
+ 'status': 'Success',
+ 'stdout': '',
+ 'stderr': '',
+ 'result': 42,
+ 'executionTimeInMilliseconds': 8}
+```
+
+## 上传数据
+
+如果我们想要对特定数据执行计算，可以使用 `upload_file()` 功能将数据上传到我们的会话中。您可以通过 `data: BinaryIO` 参数或 `local_file_path: str` 参数（指向您系统上的本地文件）上传数据。数据会自动上传到会话容器的 "/mnt/data/" 目录。您可以通过 `upload_file()` 返回的上传元数据获取完整的文件路径。
+
+```python
+import io
+import json
+
+data = {"important_data": [1, 10, -1541]}
+binary_io = io.BytesIO(json.dumps(data).encode("ascii"))
+
+upload_metadata = tool.upload_file(
+    data=binary_io, remote_file_path="important_data.json"
+)
+
+code = f"""
+import json
+
+with open("{upload_metadata.full_path}") as f:
+    data = json.load(f)
+
+sum(data['important_data'])
+"""
+tool.execute(code)
+```
+
+```text
+{'$id': '2',
+ 'status': 'Success',
+ 'stdout': '',
+ 'stderr': '',
+ 'result': -1530,
+ 'executionTimeInMilliseconds': 12}
+```
+
+## 处理图像结果
+
+动态会话结果可以包含 base64 编码字符串形式的图像输出。在这些情况下，'result' 的值将是一个字典，包含键 "type"（将为 "image"）、"format"（图像的格式）和 "base64_data"。
+
+```python
+code = """
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Generate values for x from -1 to 1
+x = np.linspace(-1, 1, 400)
+
+# Calculate the sine of each x value
+y = np.sin(x)
+
+# Create the plot
+plt.plot(x, y)
+
+# Add title and labels
+plt.title('Plot of sin(x) from -1 to 1')
+plt.xlabel('x')
+plt.ylabel('sin(x)')
+
+# Show the plot
+plt.grid(True)
+plt.show()
+"""
+
+result = tool.execute(code)
+result["result"].keys()
+```
+
+```text
+dict_keys(['type', 'format', 'base64_data'])
+```
+
+```python
+result["result"]["type"], result["result"]["format"]
+```
+
+```text
+('image', 'png')
+```
+
+我们可以解码图像数据并显示它：
+
+```python
+import base64
+import io
+
+from IPython.display import display
+from PIL import Image
+
+base64_str = result["result"]["base64_data"]
+img = Image.open(io.BytesIO(base64.decodebytes(bytes(base64_str, "utf-8"))))
+display(img)
+```
+
+<p>
+<img src="data:image/png;base64,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

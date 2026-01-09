@@ -1,0 +1,73 @@
+---
+title: FastEmbed by Qdrant
+---
+>[FastEmbed](https://qdrant.github.io/fastembed/) 来自 [Qdrant](https://qdrant.tech)，是一个轻量级、快速的 Python 库，专为生成嵌入向量而构建。
+>
+>- 量化模型权重
+>- 使用 ONNX Runtime，无需 PyTorch 依赖
+>- CPU 优先设计
+>- 支持数据并行以编码大型数据集
+
+## 依赖项
+
+要在 LangChain 中使用 FastEmbed，请安装 `fastembed` Python 包。
+
+```python
+pip install -qU  fastembed
+```
+
+## 导入
+
+```python
+from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
+```
+
+## 实例化 FastEmbed
+
+### 参数
+
+- `model_name: str` (默认: "BAAI/bge-small-en-v1.5")
+        > 要使用的 FastEmbedding 模型名称。您可以在此处找到支持的模型列表[here](https://qdrant.github.io/fastembed/examples/Supported_Models/)。
+
+- `max_length: int` (默认: 512)
+        > 最大令牌数。对于值 > 512 的行为未知。
+
+- `cache_dir: Optional[str]` (默认: None)
+        > 缓存目录的路径。默认为父目录中的 `local_cache`。
+
+- `threads: Optional[int]` (默认: None)
+        > 单个 onnxruntime 会话可以使用的线程数。
+
+- `doc_embed_type: Literal["default", "passage"]` (默认: "default")
+        > "default": 使用 FastEmbed 的默认嵌入方法。
+
+        > "passage": 在嵌入前为文本添加 "passage" 前缀。
+
+- `batch_size: int` (默认: 256)
+        > 编码的批处理大小。值越高将使用更多内存，但速度更快。
+
+- `parallel: Optional[int]` (默认: None)
+
+        > 如果 `>1`，将使用数据并行编码，建议用于大型数据集的离线编码。
+        > 如果 `0`，使用所有可用的核心。
+        > 如果 `None`，不使用数据并行处理，而是使用默认的 onnxruntime 线程。
+
+```python
+embeddings = FastEmbedEmbeddings()
+```
+
+## 用法
+
+### 生成文档嵌入向量
+
+```python
+document_embeddings = embeddings.embed_documents(
+    ["This is a document", "This is some other document"]
+)
+```
+
+### 生成查询嵌入向量
+
+```python
+query_embeddings = embeddings.embed_query("This is a query")
+```

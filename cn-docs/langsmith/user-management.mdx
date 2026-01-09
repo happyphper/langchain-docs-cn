@@ -1,0 +1,313 @@
+---
+title: 用户管理
+sidebarTitle: User management
+---
+本页涵盖 LangSmith 中的用户管理功能，包括访问控制、身份验证和自动化用户配置：
+
+- [设置访问控制](#设置访问控制)：配置基于角色的访问控制（RBAC）以管理工作区内的用户权限，包括创建自定义角色并将其分配给用户。
+- [SAML 单点登录（企业版计划）](#为您的组织设置-saml-单点登录)：为企业客户使用 SAML 2.0 设置单点登录身份验证，包括为常用身份提供商进行配置。
+- [SCIM 用户配置（企业版计划）](#为您的组织设置-scim)：使用 SCIM 在您的身份提供商和 LangSmith 之间自动化用户配置和取消配置。
+
+## 设置访问控制
+
+<Note>
+RBAC（基于角色的访问控制）是一项仅对企业客户可用的功能。如果您对此功能感兴趣，[请联系我们的销售团队](https://www.langchain.com/contact-sales)。其他计划默认对所有用户使用 [`Admin` 角色](/langsmith/administration-overview)。
+</Note>
+
+<Check>
+在设置访问控制之前，您可能会发现阅读[管理概述](/langsmith/administration-overview)页面会有所帮助。
+</Check>
+
+LangSmith 依赖 RBAC 来管理[工作区](/langsmith/administration-overview#workspaces)内的用户权限。这使您可以控制谁可以访问您的 LangSmith 工作区以及他们可以在其中执行哪些操作。只有拥有 `workspace:manage` 权限的用户才能管理工作区的访问控制设置。
+
+有关工作区角色及其权限的完整参考，请参阅[基于角色的访问控制](/langsmith/rbac#workspace-roles)指南。有关每个角色可以执行的具体操作，请参阅[组织和 workspace 操作参考](/langsmith/organization-workspace-operations)。
+
+### 创建角色
+
+默认情况下，LangSmith 附带一组系统角色：
+
+- `Admin`：对工作区内的所有资源拥有完全访问权限。
+- `Viewer`：对工作区内的所有资源拥有只读访问权限。
+- `Editor`：拥有除工作区管理（添加/移除用户、更改角色、配置服务密钥）之外的所有权限。
+
+如果这些角色不符合您的访问模型，`Organization Admins` 可以创建自定义角色以满足您的需求。
+
+要创建角色，请导航到[组织设置页面](https://smith.langchain.com/settings)的 **Members and roles** 部分中的 **Roles** 选项卡。请注意，您创建的新角色将在您组织内的所有工作区中可用。
+
+点击 **Create Role** 按钮以创建新角色。将打开一个 **Create role** 表单。
+
+![创建角色](/langsmith/images/create-role.png)
+
+为您想要控制访问权限的不同 LangSmith 资源分配权限。
+
+### 为用户分配角色
+
+设置好角色后，您可以将它们分配给用户。要将角色分配给用户，请导航到[组织设置页面](https://smith.langchain.com/settings)的 `Workspaces` 部分中的 `Workspace members` 选项卡。
+
+每个用户都会有一个 **Role** 下拉菜单，您可以使用它来为他们分配角色。
+
+![分配角色](/langsmith/images/assign-role.png)
+
+您还可以邀请具有特定角色的新用户。
+
+![邀请用户](/langsmith/images/invite-user.png)
+
+## 为您的组织设置 SAML 单点登录
+
+单点登录（SSO）功能**适用于企业云**客户，可通过单一身份验证源访问 LangSmith。这使管理员能够集中管理团队访问权限，并使信息更加安全。
+
+LangSmith 的 SSO 配置使用 SAML（安全断言标记语言）2.0 标准构建。SAML 2.0 支持将身份提供商（IdP）连接到您的组织，以实现更简单、更安全的登录体验。
+
+SSO 服务允许用户使用一组凭据（例如，姓名或电子邮件地址和密码）访问多个应用程序。该服务仅对最终用户进行一次身份验证，即可访问用户被授予权限的所有应用程序，并在同一会话期间用户切换应用程序时消除进一步的提示。SSO 的好处包括：
+
+- 为组织所有者简化跨系统的用户管理。
+- 使组织能够强制执行自己的安全策略（例如，MFA）。
+- 消除了最终用户记住和管理多个密码的需要。通过允许在多个应用程序的单一访问点登录，简化了最终用户体验。
+
+### 即时（JIT）配置
+
+LangSmith 在使用 SAML SSO 时支持即时配置。这允许通过 SAML SSO 登录的用户自动作为成员加入组织和选定的工作区。
+
+<Note>
+JIT 配置仅对新用户运行，即尚未通过[其他登录方法](/langsmith/authentication-methods#cloud)使用相同电子邮件地址访问组织的用户。
+</Note>
+
+### 登录方法和访问权限
+
+为您的组织完成 SAML SSO 配置后，用户将能够通过 SAML SSO 以及[其他登录方法](/langsmith/authentication-methods#cloud)（例如用户名/密码或 Google 身份验证）登录：
+
+- 通过 SAML SSO 登录时，用户只能访问配置了 SAML SSO 的相应组织。
+- 将 SAML SSO 作为其唯一登录方法的用户没有[个人组织](/langsmith/administration-overview#organizations)。
+- 通过任何其他方法登录时，用户可以访问配置了 SAML SSO 的组织以及他们所属的任何其他组织。
+
+### 强制仅使用 SAML SSO
+
+<Note>
+在强制仅使用 SAML SSO 的组织中不支持用户邀请。初始工作区成员资格和角色由 JIT 配置决定，之后的更改可以在 UI 中管理。
+为了在自动化用户管理方面获得更大的灵活性，LangSmith 支持 SCIM。
+</Note>
+
+为确保用户只能在使用 SAML SSO 登录时访问组织，而不能使用其他方法，请选中 **Login via SSO only** 复选框并点击 **Save**。一旦发生这种情况，通过非 SSO 登录方法登录并访问组织的用户将被要求使用 SAML SSO 重新登录。可以通过取消选中该复选框并点击 **Save** 将此设置切换回允许所有登录方法。
+
+<Note>
+您必须通过 SAML SSO 登录才能将此设置更新为 `Only SAML SSO`。这是为了确保 SAML 设置有效，并避免将用户锁定在您的组织之外。
+</Note>
+
+如需故障排除，请参阅 [SAML SSO 常见问题解答](/langsmith/faq#saml-sso-faqs)。如果您在设置 SAML SSO 时遇到问题，请通过 [support.langchain.com](https://support.langchain.com) 联系 LangChain 支持团队。
+
+### 先决条件
+
+<Note>
+SAML SSO 适用于[企业版计划](https://www.langchain.com/pricing-langsmith)的组织。请[联系销售](https://www.langchain.com/contact-sales)以了解更多信息。
+</Note>
+
+- 您的组织必须处于企业版计划。
+- 您的身份提供商（IdP）必须支持 SAML 2.0 标准。
+- 只有 [`Organization Admins`](/langsmith/organization-workspace-operations#sso-and-authentication) 可以配置 SAML SSO。
+
+有关将 SCIM 与 SAML 结合使用以进行用户配置和取消配置的说明，请参阅 [SCIM 设置](#为您的组织设置-scim)。
+
+### 初始配置
+
+<Note>
+有关特定 IdP 的配置步骤，请参阅以下之一：
+
+- [Entra ID](#entra-id-azure)
+- [Google](#google)
+- [Okta](#okta)
+</Note>
+
+1.  在您的 IdP 中：使用以下详细信息配置 SAML 应用程序，然后复制元数据 URL 或 XML 用于步骤 3。
+
+    <Note>
+    以下 URL 对于美国区和欧盟区是不同的。请确保选择正确的链接。
+    </Note>
+
+    1.  单点登录 URL（或 ACS URL）：
+        - 美国：[https://auth.langchain.com/auth/v1/sso/saml/acs](https://auth.langchain.com/auth/v1/sso/saml/acs)
+        - 欧盟：[https://eu.auth.langchain.com/auth/v1/sso/saml/acs](https://eu.auth.langchain.com/auth/v1/sso/saml/acs)
+    2.  受众 URI（或 SP 实体 ID）：
+        - 美国：[https://auth.langchain.com/auth/v1/sso/saml/metadata](https://auth.langchain.com/auth/v1/sso/saml/metadata)
+        - 欧盟：[https://eu.auth.langchain.com/auth/v1/sso/saml/metadata](https://eu.auth.langchain.com/auth/v1/sso/saml/metadata)
+    3.  Name ID 格式：电子邮件地址。
+    4.  应用程序用户名：电子邮件地址。
+    5.  必需声明：`sub` 和 `email`。
+
+2.  在 LangSmith 中：转到 **Settings** -> **Members and roles** -> **SSO Configuration**。填写所需信息并提交以激活 SSO 登录：
+
+       1. 填写 `SAML metadata URL` 或 `SAML metadata XML`。
+       2. 选择 `Default workspace role` 和 `Default workspaces`。通过 SSO 登录的新用户将以所选角色添加到指定的工作区。
+
+- `Default workspace role` 和 `Default workspaces` 是可编辑的。更新的设置仅适用于新用户，不适用于现有用户。
+- （即将推出）`SAML metadata URL` 和 `SAML metadata XML` 是可编辑的。这通常仅在加密密钥轮换/过期或元数据 URL 已更改但仍使用相同的 IdP 时才需要。
+
+### Entra ID (Azure)
+
+更多信息，请参阅 Microsoft 的[文档](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/add-application-portal-setup-sso)。
+
+<div id="create-application-entra-id"></div>
+**步骤 1：创建新的 Entra ID 应用程序集成**
+
+1. 使用特权角色（例如 `Global Administrator`）登录 [Azure 门户](https://portal.azure.com/#home)。在左侧导航窗格中，选择 `Entra ID` 服务。
+
+2. 导航到 **Enterprise Applications**，然后选择 **All Applications**。
+
+3. 点击 **Create your own application**。
+
+4. 在 **Create your own application** 窗口中：
+
+   1. 输入您的应用程序名称（例如 `LangSmith`）。
+   2. 选择 **Integrate any other application you don't find in the gallery (Non-gallery)**。
+
+5. 点击 **Create**。
+
+**步骤 2：配置 Entra ID 应用程序并获取 SAML 元数据**
+
+1. 打开您创建的企业应用程序。
+
+2. 在左侧导航中，选择 **Manage** > **Single sign-on**。
+
+3. 在 Single sign-on 页面上，点击 **SAML**。
+
+4. 更新 **Basic SAML Configuration**：
+
+   1. `Identifier (Entity ID)`：
+      - 美国：[https://auth.langchain.com/auth/v1/sso/saml/metadata](https://auth.langchain.com/auth/v1/sso/saml/metadata)
+      - 欧盟：[https://eu.auth.langchain.com/auth/v1/sso/saml/metadata](https://eu.auth.langchain.com/auth/v1/sso/saml/metadata)
+   2. `Reply URL (Assertion Consumer Service URL)`：
+      - 美国：[https://auth.langchain.com/auth/v1/sso/saml/acs](https://auth.langchain.com/auth/v1/sso/saml/acs)
+      - 欧盟：[https://eu.auth.langchain.com/auth/v1/sso/saml/acs](https://eu.auth.langchain.com/auth/v1/sso/saml/acs)
+   3. 将 `Relay State`、`Logout Url` 和 `Sign on URL` 留空。
+   4. 点击 **Save**。
+
+5. 确保存在必需的声明，其 **Namespace** 为 `http://schemas.xmlsoap.org/ws/2005/05/identity/claims`：
+
+   1. `sub`：`user.objectid`。
+   2. `emailaddress`：`user.userprincipalname` 或 `user.mail`（如果使用后者，请确保所有用户在 `Contact Information` 下都填写了 `Email` 字段）。
+   3. （可选）对于 SCIM，请参阅[设置文档](/langsmith/user-management)以获取有关 `Unique User Identifier (Name ID)` 的具体说明。
+
+6. 在 SAML-based Sign-on 页面上，在 **SAML Certificates** 下，复制 **App Federation Metadata URL**。
+
+**步骤 3：设置 LangSmith SSO 配置**
+
+按照[初始配置](#initial-configuration)中 `Fill in required information` 步骤的说明，使用上一步中的元数据 URL。
+
+**步骤 4：验证 SSO 设置**
+
+1. 在 Entra ID 中将应用程序分配给用户/组：
+
+   1. 选择 **Manage** > **Users and groups**。
+
+   2. 点击 **Add user/group**。
+
+   3. 在 **Add Assignment** 窗口中：
+
+      1. 在 **Users** 下，点击 **None Selected**。
+      2. 搜索要分配给企业应用程序的用户，然后点击 **Select**。
+      3. 确认用户已选中，然后点击 **Assign**。
+
+2. 让用户通过 **SSO Configuration** 页面上的唯一登录 URL 登录，或者转到 **Manage** > **Single sign-on** 并选择 **Test single sign-on with (application name)**。
+
+### Google
+
+更多信息，请参阅 Google 的[文档](https://support.google.com/a/answer/6087519)。
+
+**步骤 1：创建和配置 Google Workspace SAML 应用程序**
+
+1. 确保您已使用具有适当权限的管理员帐户登录。
+
+2. 在管理控制台中，转到 **Menu** -> **Apps** -> **Web and mobile apps**。
+
+3. 点击 **Add App**，然后点击 **Add custom SAML app**。
+
+4. 输入应用程序名称，并可选择上传图标。点击 **Continue**。
+
+5. 在 Google Identity Provider details 页面上，下载 **IDP metadata** 并保存以备步骤 2 使用。点击 **Continue**。
+
+6. 在 `Service Provider Details` 窗口中，输入：
+
+   1. `ACS URL`：
+      - 美国：[https://auth.langchain.com/auth/v1/sso/saml/acs](https://auth.langchain.com/auth/v1/sso/saml/acs)
+      - 欧盟：[https://eu.auth.langchain.com/auth/v1/sso/saml/acs](https://eu.auth.langchain.com/auth/v1/sso/saml/acs)
+   2. `Entity ID`：
+      - 美国：[https://auth.langchain.com/auth/v1/sso/saml/metadata](https://auth.langchain.com/auth/v1/sso/saml/metadata)
+      - 欧盟：[https://eu.auth.langchain.com/auth/v1/sso/saml/metadata](https://eu.auth.langchain.com/auth/v1/sso/saml/metadata)
+   3. 将 `Start URL` 和 `Signed response` 框留空。
+   4. 将 `Name ID` 格式设置为 `EMAIL`，并将 `Name ID` 保留为默认值（`Basic Information > Primary email`）。
+   5. 点击 `Continue`。
+
+7. 使用 `Add mapping` 确保存在必需的声明：
+   1. `Basic Information > Primary email` -> `email`
+
+**步骤 2：设置 LangSmith SSO 配置**
+
+按照[初始配置](#initial-configuration)中 `Fill in required information` 步骤的说明，使用上一步中的 `IDP metadata` 作为元数据 XML。
+
+**步骤 3：在 Google 中开启 SAML 应用程序**
+
+1. 在 `Menu -> Apps -> Web and mobile apps` 下选择 SAML 应用程序。
+
+2. 点击 `User access`。
+
+3. 开启服务：
+
+   1. 要为组织中的所有人开启服务，请点击 `On for everyone`，然后点击 `Save`。
+
+   2. 要为某个组织单位开启服务：
+
+      1. 在左侧，选择组织单位，然后选择 `On`。
+      2. 如果服务状态设置为 `Inherited`，并且您希望保留更新的设置，即使父设置更改，也请点击 `Override`。
+      3. 如果服务状态设置为 `Overridden`，可以点击 `Inherit` 恢复为与其父级相同的设置，或者点击 `Save` 保留新设置，即使父设置更改。
+
+   3. 要为跨组织单位或组织单位内的一组用户开启服务，请选择一个访问组。有关详细信息，请转到[使用组自定义服务访问权限](https://support.google.com/a/answer/9050643)。
+
+4. 确保用户用于登录 LangSmith 的电子邮件地址与他们用于登录您的 Google 域的电子邮件地址匹配。
+
+**步骤 4：验证 SSO 设置**
+
+让具有访问权限的用户通过 **SSO Configuration** 页面上的唯一登录 URL 登录，或者转到 Google 中的 SAML 应用程序页面并点击 **TEST SAML LOGIN**。
+
+### Okta
+
+#### 支持的功能
+
+- IdP 发起的 SSO（单点登录）
+- SP 发起的 SSO
+- 即时配置
+- 强制仅使用 SSO
+
+#### 配置步骤
+
+更多信息，请参阅 Okta 的[文档](https://help.okta.com/en-us/content/topics/apps/apps_app_integration_wizard_saml.htm)。
+
+**步骤 1：创建和配置 Okta SAML 应用程序**
+
+<div id="via-okta-integration-network">
+    <b>通过 Okta 集成网络（推荐）</b>
+</div>
+
+1. 登录 [Okta](https://login.okta.com/)。
+1. 在右上角，选择 Admin。从管理区域看不到此按钮。
+1. 选择 `Browse App Integration Catalog`。
+1. 找到并选择 LangSmith 应用程序。
+1. 在应用程序概览页面上，选择 Add Integration。
+1. 将 `ApiUrlBase` 留空。
+1. 填写 `AuthHost`：
+    - 美国：`auth.langchain.com`
+    - 欧盟：`eu.auth.langchain.com`
+1. （可选，如果计划同时使用 [SCIM](#为您的组织设置-scim)）填写 `LangSmithUrl`：
+    - 美国：`api.smith.langchain.com`
+    - 欧盟：`eu.api.smith.langchain.com`
+1. 在 Application Visibility 下，保持复选框未选中。
+1. 选择 Next。
+1. 选择 `SAML 2.0`。
+1. 填写 `Sign-On Options`：
+   - `Application username format`：`Email`
+   - `Update application username on`：`Create and update`
+   - `Allow users to securely see their password`：保持**未选中**。
+1. 从 **Sign On Options** 页面复制 **Metadata URL** 以用于下一步。
+
+**通过自定义应用程序集成**
+
+<Warning>
+SCIM 与此配置方法不兼容。请参阅[**通过 Okta 集成网络**](#via-okta-integ

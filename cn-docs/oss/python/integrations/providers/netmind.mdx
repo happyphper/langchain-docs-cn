@@ -1,0 +1,24 @@
+---
+title: Netmind
+---
+[Netmind AI](https://www.netmind.ai/) 更快、更智能、更经济地构建 AI。
+利用我们的全球 GPU 网络进行训练、微调、运行推理和扩展——您的一体化 AI 引擎。
+
+本示例介绍如何使用 LangChain 与 Netmind AI 模型进行交互。
+
+## 安装与设置
+
+```bash
+pip install langchain-netmind
+```
+
+获取 Netmind API 密钥并将其设置为环境变量 (`NETMIND_API_KEY`)。
+前往 [www.netmind.ai/](https://www.netmind.ai/) 注册 Netmind 并生成 API 密钥。
+
+## 聊天模型
+
+有关 Netmind 聊天模型的更多信息，请访问[此指南](/oss/integrations/chat/netmind)。
+
+## 嵌入模型
+
+有关 Netmind 嵌入模型的更多信息，请访问[此指南](/oss/integrations/text_embedding/netmind)。

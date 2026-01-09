@@ -1,0 +1,55 @@
+---
+title: PlainID
+---
+[PlainID](https://www.plainid.com/) 提供基于策略的授权（PBAC）和集中式策略执行。此集成允许您在 LLM 链的不同阶段，在您的 LangChain 应用程序中实施细粒度的访问控制。
+
+通过 `langchain-plainid`，您可以：
+- **过滤 RAG 数据：** 根据用户的权限动态过滤从向量存储中检索到的文档，确保他们只能看到被授权访问的数据。
+- **授权提示：** 根据用户或租户查询的*类别*，控制是否允许他们*调用*某个链或工具。
+- **匿名化数据：** 根据 PlainID 中定义的策略，检测并匿名化（掩码或加密）响应中的 PII 或其他敏感实体。
+
+## 安装
+
+首先，安装合作伙伴包：
+
+<CodeGroup>
+```bash pip
+pip install langchain_plainid
+```
+</CodeGroup>
+
+## 设置
+
+接下来，您需要使用来自您的 PlainID 租户的凭据来配置提供者。您将需要您的客户端 ID、客户端密钥和基础 URL。
+
+您可以将它们设置为环境变量：
+
+<CodeGroup>
+```bash Environment Variables
+export PLAINID_CLIENT_ID="your-client-id"
+export PLAINID_CLIENT_SECRET="your-client-secret"
+export PLAINID_BASE_URL="[https://platform-product.us1.plainid.io](https://platform-product.us1.plainid.io)"
+```
+</CodeGroup>
+
+如果在实例化期间未提供显式凭据，所有组件将自动使用这些环境变量。
+
+## 用法
+
+该包提供了三个用于执行授权的主要组件。
+
+### RAG 数据过滤
+
+`PlainIDRetriever` 包装您现有的向量存储检索器。它根据用户身份从 PlainID 获取授权过滤器，并将其应用于向量存储查询。这会在文档被传递给 LLM 作为上下文*之前*将其过滤掉。
+
+此示例假设您已配置好 `PlainIDPermissionsProvider`（例如，通过环境变量）并设置了 `PlainIDRetrieverFilterProvider`。
+
+### 提示授权
+
+`PlainIDCategorizer` 可以放置在链的开头，以授权用户的*意图*。它对输入提示进行分类（例如，“HR”、“Finance”、“Contract”），并向 PlainID 检查用户是否被允许询问该类别。如果未获授权，则会引发 `ValueError`。
+
+### PII 匿名化
+
+`PlainIDAnonymizer` 可以放置在链的末尾，以检查 LLM 的响应。它使用 `presidio` 来检测 PII 实体（如“PERSON”、“PHONE_NUMBER”），然后根据定义的策略咨询 PlainID 是将其`MASK`还是`ENCRYPT`。
+
+有关更详细的信息和完整示例，请参阅 [langchain_plainid PyPI 页面](https://pypi.org/project/langchain_plainid/)。

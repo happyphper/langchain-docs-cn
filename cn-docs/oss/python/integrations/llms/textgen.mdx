@@ -1,0 +1,76 @@
+---
+title: 文本生成
+---
+[GitHub:oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui) 一个基于 Gradio 的 Web UI，用于运行大型语言模型，如 LLaMA、llama.cpp、GPT-J、Pythia、OPT 和 GALACTICA。
+
+本示例将介绍如何通过 `text-generation-webui` 的 API 集成，使用 LangChain 与 LLM 模型进行交互。
+
+请确保您已配置好 `text-generation-webui` 并安装了 LLM 模型。建议通过适用于您操作系统的[一键安装程序](https://github.com/oobabooga/text-generation-webui#one-click-installers)进行安装。
+
+一旦 `text-generation-webui` 安装完毕并通过 Web 界面确认可以正常工作，请启用 `api` 选项。您可以通过 Web 模型配置选项卡启用，或者在启动命令中添加运行时参数 `--api`。
+
+## 设置 model_url 并运行示例
+
+```python
+model_url = "http://localhost:5000"
+```
+
+```python
+from langchain_classic.chains import LLMChain
+from langchain.globals import set_debug
+from langchain_community.llms import TextGen
+from langchain_core.prompts import PromptTemplate
+
+set_debug(True)
+
+template = """Question: {question}
+
+Answer: Let's think step by step."""
+
+
+prompt = PromptTemplate.from_template(template)
+llm = TextGen(model_url=model_url)
+llm_chain = LLMChain(prompt=prompt, llm=llm)
+question = "What NFL team won the Super Bowl in the year Justin Bieber was born?"
+
+llm_chain.run(question)
+```
+
+### 流式版本
+
+您需要安装 websocket-client 来使用此功能。
+`pip install websocket-client`
+
+```python
+model_url = "ws://localhost:5005"
+```
+
+```python
+from langchain_classic.chains import LLMChain
+from langchain.globals import set_debug
+from langchain_community.llms import TextGen
+from langchain_core.callbacks import StreamingStdOutCallbackHandler
+from langchain_core.prompts import PromptTemplate
+
+set_debug(True)
+
+template = """Question: {question}
+
+Answer: Let's think step by step."""
+
+
+prompt = PromptTemplate.from_template(template)
+llm = TextGen(
+    model_url=model_url, streaming=True, callbacks=[StreamingStdOutCallbackHandler()]
+)
+llm_chain = LLMChain(prompt=prompt, llm=llm)
+question = "What NFL team won the Super Bowl in the year Justin Bieber was born?"
+
+llm_chain.run(question)
+```
+
+```python
+llm = TextGen(model_url=model_url, streaming=True)
+for chunk in llm.stream("Ask 'Hi, how are you?' like a pirate:'", stop=["'", "\n"]):
+    print(chunk, end="", flush=True)
+```

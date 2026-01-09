@@ -5,67 +5,36 @@ export class LinkProcessor {
     static processImages(content: string): string {
         let transformed = content;
 
-        // 1. 处理包裹在居中 div 中的图片（JSX 样式转标准 HTML）
+        // 1. 处理居中 div 包裹的图片标签，剥离外层 div
         // 匹配: <div style={{ display: "flex", justifyContent: "center" }}> ... <img ... /> ... </div>
+        // 或者: <div style="display: flex; justify-content: center;"> ... <img ... /> ... </div>
         transformed = transformed.replace(
-            /<div\s+style=\{\{\s*display:\s*["']flex["'],\s*justifyContent:\s*["']center["']\s*\}\}>([\s\S]*?)<\/div>/g,
+            /<div\s+style=\{?\{?\s*display:\s*["']flex["'],\s*justifyContent:\s*["']center["']\s*\}?\}?>([\s\S]*?)<\/div>/gi,
             (match, innerContent) => {
-                // 在 div 内查找 img 标签（支持多行）
-                const imgMatch = innerContent.match(/<img[\s\S]*?\/>/);
-                if (imgMatch) {
-                    const imgTag = imgMatch[0];
-                    let srcMatch = imgTag.match(/src=["']([^"']*)["']/);
-                    let altMatch = imgTag.match(/alt=["']([^"']*)["']/);
-                    let src = srcMatch ? srcMatch[1] : '';
-                    let alt = altMatch ? altMatch[1] : '';
-
-                    // 确保路径正确
-                    if (src && !src.startsWith('http') && !src.startsWith('/')) {
-                        src = `/${src}`;
-                    }
-
-                    // 返回标准 HTML 结构（保持居中）
-                    return `<div style="display: flex; justify-content: center;">\n  <img src="${src}" alt="${alt}" />\n</div>`;
-                }
-                return match;
+                const imgMatch = innerContent.match(/<img[\s\S]*?\/>/i);
+                return imgMatch ? imgMatch[0] : innerContent;
             }
         );
 
-        // 2. 为没有 div 包裹的独立 <img /> 标签添加居中容器
-        // 使用占位符保护机制
-        const protectedDivs: string[] = [];
-
-        // 先保护所有 div 块
-        transformed = transformed.replace(/<div[^>]*>([\s\S]*?)<\/div>/g, (match) => {
-            const placeholder = `__PROTECTED_DIV_${protectedDivs.length}__`;
-            protectedDivs.push(match);
-            return placeholder;
-        });
-
-        // 现在处理所有剩余的（未被保护的）img 标签
-        transformed = transformed.replace(/<img\s+([^>]*?)\s*\/?>/g, (match, attrs) => {
-            let srcMatch = attrs.match(/src=["']([^"']*)["']/);
-            let altMatch = attrs.match(/alt=["']([^"']*)["']/);
+        // 2. 规范化所有 <img /> 标签的 src 路径
+        transformed = transformed.replace(/<img\s+([^>]*?)\s*\/?>/gi, (match, attrs) => {
+            let srcMatch = attrs.match(/src=["']([^"']*)["']/i);
+            let altMatch = attrs.match(/alt=["']([^"']*)["']/i);
             let src = srcMatch ? srcMatch[1] : '';
             let alt = altMatch ? altMatch[1] : '';
 
-            // 确保路径正确
+            // 规范化路径：仅处理非 http 开头的本地路径
             if (src && !src.startsWith('http') && !src.startsWith('/')) {
                 src = `/${src}`;
             }
 
-            // 包裹在居中的 div 中
-            return `<div style="display: flex; justify-content: center;">\n  <img src="${src}" alt="${alt}" />\n</div>`;
+            // 返回标准的 img 标签，不带外层 div
+            return `<img src="${src}" alt="${alt}" />`;
         });
 
-        // 还原被保护的 div
-        protectedDivs.forEach((original, i) => {
-            const placeholder = `__PROTECTED_DIV_${i}__`;
-            transformed = transformed.replace(placeholder, original);
-        });
-
-        // 3. 处理 Markdown 原生图片语法，确保路径正确
+        // 3. 处理 Markdown 原生图片语法 ![]()，确保路径正确
         transformed = transformed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+            // 规范化路径：仅处理非 http 开头的本地路径
             if (src && !src.startsWith('http') && !src.startsWith('/')) {
                 return `![${alt}](/${src})`;
             }

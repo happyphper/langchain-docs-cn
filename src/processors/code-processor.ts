@@ -1,5 +1,19 @@
 
 export class CodeProcessor {
+
+    /**
+     * 修复代码块语言标识中的特殊符号
+     * 用于处理类似 ```<prompt:user> 这样的写法，将其转换为 ```prompt:user
+     * 避免 VitePress 将 <...> 解析为 HTML 标签导致报错
+     */
+    static fixPromptLanguageTags(content: string): string {
+        // 匹配 ``` 后面的空格(可选，包括 NBSP) + <prompt:xxx>
+        // group 1: 反引号
+        // group 2: 可选空格（\t, 普通空格, 不换行空格）
+        // group 3: 标签内容 (prompt:xxx)
+        return content.replace(/(`{3,})([ \t\u00A0]*)<(prompt:[^>\s]+)>/gi, '$1$2$3');
+    }
+
     // 处理代码块标题：将 ```python Title 转换为 ```python [Title]
     static processCodeBlockTitles(content: string): string {
         // 匹配 ```python Title 这种格式，要求 Title 必须在同一行

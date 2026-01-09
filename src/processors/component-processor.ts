@@ -1,6 +1,21 @@
 
 export class ComponentProcessor {
 
+    /**
+     * 规范化组件标签的缩进
+     * 移除组件标签前的所有空格，防止 VitePress 将其识别为代码块
+     */
+    static normalizeComponentTagIndents(content: string): string {
+        let result = content;
+
+        // 处理常见的 MDX 组件标签（包括自闭合和配对标签）
+        // 匹配行首的空格 + 组件标签
+        const componentTagPattern = /^[ \t]+(<\/?(?:Tab|Tabs|CodeGroup|Accordion|AccordionGroup|Note|Warning|Tip|Info|Step|ParamField|Callout)(?:\s+[^>]*)?>)/gm;
+
+        result = result.replace(componentTagPattern, '$1');
+
+        return result;
+    }
 
     static processSnippetImports(content: string, targetLang: string, snippetImports: Map<string, string>): string {
         let transformed = content;
@@ -61,7 +76,9 @@ export class ComponentProcessor {
 
                 // 2. 处理常用的 Markdown 语法
                 parsedContent = parsedContent.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-                parsedContent = parsedContent.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<em>$1</em>');
+                // 注释掉斜体转换，因为它会错误地将列表项的 * 识别为斜体标记
+                // VitePress 会自动处理斜体语法
+                // parsedContent = parsedContent.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '<em>$1</em>');
                 // 注释掉反引号转换，避免 Vue 编译错误（如 `**/*.ts` 被误认为 HTML 标签）
                 // VitePress 会自动处理反引号
                 // parsedContent = parsedContent.replace(/`([^`]+)`/g, '<code>$1</code>');

@@ -241,6 +241,13 @@ li>.inline-icon {
   margin-top: 0 !important;
 }
 
+/* 确保图片居中显示（非内联图片） */
+.vp-doc img,
+.vp-doc .custom-container img {
+  display: block;
+  margin: 0 auto;
+}
+
 /* medium-zoom 样式 */
 .vp-doc img:not(.no-zoom) {
   cursor: zoom-in;
@@ -254,10 +261,4 @@ li>.inline-icon {
 .medium-zoom-image--opened {
   z-index: 1001 !important;
   cursor: zoom-out;
-}
-
-/* 确保图片容器不影响点击蒙版后的显示 */
-.vp-doc div[style*="display: flex"] {
-  position: relative;
-  z-index: 1;
 }

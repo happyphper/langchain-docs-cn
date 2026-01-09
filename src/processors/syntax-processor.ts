@@ -1,6 +1,56 @@
 
 export class SyntaxProcessor {
 
+    /**
+     * 转义行内代码中的 Vue 插值语法 {{}}
+     * VitePress 使用 Vue，会将 {{}} 解析为插值表达式
+     * 只处理包含 {{}} 的行内代码（单个反引号），不处理普通行内代码和代码块
+     * 
+     * 示例：`${{ env.VAR }}` -> <code v-pre>${{ env.VAR }}</code>
+     */
+    static escapeVueInterpolation(content: string): string {
+        // 只匹配包含 {{...}} 的行内代码（单个反引号）
+        // 使用负向前瞻和负向后顾确保不匹配代码块的反引号
+        // (?<!`) 确保反引号前面不是反引号
+        // (?!`) 确保反引号后面不是反引号
+        return content.replace(/(?<!`)(`)((?:[^`]*?\{\{[^}]*?\}\}[^`]*?)+)\1(?!`)/g, (match, backtick, codeContent) => {
+            // 只有当内容确实包含 {{}} 时才转换
+            if (codeContent.includes('{{') && codeContent.includes('}}')) {
+                return `<code v-pre>${codeContent}</code>`;
+            }
+            return match;
+        });
+    }
+
+    /**
+     * 规范化 Markdown 表格的缩进
+     * 移除表格行前的所有空格，确保表格能被正确解析
+     */
+    static normalizeMarkdownTableIndents(content: string): string {
+        // 匹配 Markdown 表格行（以 | 开头和结尾）
+        // 移除行首的所有空格
+        return content.replace(/^[ \t]+(\|.*\|)[ \t]*$/gm, '$1');
+    }
+
+    /**
+     * 规范化普通文本的缩进
+     * 移除普通段落文本前 4 个或更多空格的缩进，防止被识别为代码块
+     * 但保留列表项、标题等 Markdown 语法的缩进
+     */
+    static normalizeTextIndents(content: string): string {
+        // 匹配以 4 个或更多空格开头的行，但排除：
+        // - 代码块标记（```）
+        // - 列表项（-, *, +, 数字.）
+        // - 标题（#）
+        // - 表格行（|）
+        // - 空行
+        // - HTML 标签（<）
+        return content.replace(/^[ \t]{4,}(?!```|[-*+]|\d+\.|#|\||<|$)(.+)$/gm, (match, text) => {
+            // 保留原始文本，但移除所有前导空格
+            return text;
+        });
+    }
+
     static processAttributes(content: string): string {
         let transformed = content;
 

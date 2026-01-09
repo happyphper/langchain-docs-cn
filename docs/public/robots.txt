@@ -1,0 +1,11 @@
+# robots.txt for LangChain 中文文档
+
+User-agent: *
+Allow: /
+
+# 禁止爬取这些目录
+Disallow: /api/
+Disallow: /.vitepress/
+
+# 站点地图
+Sitemap: https://langchain-docs-cn.com/sitemap.xml

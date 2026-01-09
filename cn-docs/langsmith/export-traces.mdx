@@ -1,25 +1,26 @@
 ---
-title: 查询追踪（SDK）
-sidebarTitle: Query traces (SDK)
+title: 查询追踪 (SDK)
+sidebarTitle: 查询追踪 (SDK)
 ---
+
 <Tip>
 **推荐阅读**
 
-在深入阅读本内容之前，建议先阅读以下内容：
+在深入研究此内容之前，阅读以下内容可能会有所帮助：
 
-- [运行（span）数据格式](/langsmith/run-data-format)
+- [运行 (span) 数据格式](/langsmith/run-data-format)
 - <RegionalUrl type="api" suffix="/redoc" text="LangSmith API 参考" />
 - [LangSmith 追踪查询语法](/langsmith/trace-query-syntax)
 
 </Tip>
 
 <Note>
-**如果您需要导出大量追踪数据，我们建议使用[批量数据导出](./data-export)功能，因为它能更好地处理大数据量，并支持跨分区的自动重试和并行化。**
+**如果您希望导出大量追踪，我们建议您使用[批量数据导出](./data-export)功能，因为它可以更好地处理大数据量，并支持跨分区的自动重试和并行化。**
 </Note>
 
 查询运行（LangSmith 追踪中的 span 数据）的推荐方式是使用 SDK 中的 `list_runs` 方法或 API 中的 `/runs/query` 端点。
 
-LangSmith 以 [运行（span）数据格式](/langsmith/run-data-format) 中规定的简单格式存储追踪。
+LangSmith 以 [运行 (span) 数据格式](/langsmith/run-data-format) 中指定的简单格式存储追踪。
 
 ## 使用过滤参数
 
@@ -58,7 +59,7 @@ project_runs = client.list_runs(project_name="<your_project>")
 ```
 
 ```typescript TypeScript
-// Download runs in a project
+// 下载项目中的运行
 const projectRuns: Run[] = [];
 for await (const run of client.listRuns({
   projectName: "<your_project>",
@@ -69,7 +70,7 @@ for await (const run of client.listRuns({
 
 </CodeGroup>
 
-### 列出过去 24 小时内的 LLM 和 Chat 运行
+### 列出过去 24 小时内的 LLM 和 chat 运行
 
 <CodeGroup>
 
@@ -96,7 +97,7 @@ for await (const run of client.listRuns({
 
 ### 列出项目中的根运行
 
-根运行是没有父级的运行。这些运行的 `is_root` 值被设置为 `True`。您可以使用此属性来过滤根运行。
+根运行是没有父项的运行。这些运行的 `is_root` 值被分配为 `True`。您可以使用它来过滤根运行。
 
 <CodeGroup>
 
@@ -173,7 +174,7 @@ for await (const run of client.listRuns({
 
 ### 按 ID 获取单个运行
 
-要按 ID 获取单个运行（追踪），请使用 `read_run` 方法。当您有一个特定的追踪 ID（例如，来自 LangSmith 分享链接，如 `https://smith.langchain.com/public/<trace-id>/r`）并希望检索其完整数据时，这非常有用。
+要按 ID 获取单个运行（追踪），请使用 `read_run` 方法。当您有一个特定的追踪 ID（例如，来自 LangSmith 共享链接，如 `https://smith.langchain.com/public/<trace-id>/r`）并希望检索其完整数据时，这非常有用。
 
 <CodeGroup>
 
@@ -181,7 +182,7 @@ for await (const run of client.listRuns({
 run_id = "a36092d2-4ad5-4fb4-9c0d-0dba9a2ed836"
 run = client.read_run(run_id)
 
-# Access run data
+# 访问运行数据
 print(run.inputs)
 print(run.outputs)
 print(run.name)
@@ -191,7 +192,7 @@ print(run.name)
 const runId = "a36092d2-4ad5-4fb4-9c0d-0dba9a2ed836";
 const run = await client.readRun(runId);
 
-// Access run data
+// 访问运行数据
 console.log(run.inputs);
 console.log(run.outputs);
 console.log(run.name);
@@ -208,38 +209,6 @@ console.log(run.name);
 ## 使用过滤查询语言
 
 对于更复杂的查询，您可以使用 [过滤查询语言参考](/langsmith/trace-query-syntax#filter-query-language) 中描述的查询语言。
-
-### 列出对话线程中的所有根运行
-
-这是获取对话线程中运行的方法。有关设置线程的更多信息，请参阅我们的 [如何设置线程指南](./threads)。
-线程通过设置共享的线程 ID 进行分组。LangSmith UI 允许您使用以下三个元数据键中的任何一个：`session_id`、`conversation_id` 或 `thread_id`。会话 ID 也称为追踪项目 ID。以下查询匹配其中任何一个。
-
-<CodeGroup>
-
-```python Python
-group_key = "<your_thread_id>"
-filter_string = f'and(in(metadata_key, ["session_id","conversation_id","thread_id"]), eq(metadata_value, "{group_key}"))'
-thread_runs = client.list_runs(
-    project_name="<your_project>",
-    filter=filter_string,
-    is_root=True
-)
-```
-
-```typescript TypeScript
-const groupKey = "<your_thread_id>";
-const filterString = `and(in(metadata_key, ["session_id","conversation_id","thread_id"]), eq(metadata_value, "${groupKey}"))`;
-const threadRuns: Run[] = [];
-for await (const run of client.listRuns({
-  projectName: "<your_project>",
-  filter: filterString,
-  isRoot: true
-})) {
-  threadRuns.push(run);
-};
-```
-
-</CodeGroup>
 
 ### 列出所有名为 "extractor" 且其追踪根运行被分配了反馈 "user_score" 分数为 1 的运行
 
@@ -263,7 +232,7 @@ client.listRuns({
 
 </CodeGroup>
 
-### 列出 "star_rating" 键的分数大于 4 的运行
+### 列出 "star_rating" 键且分数大于 4 的运行
 
 <CodeGroup>
 
@@ -294,7 +263,9 @@ client.list_runs(project_name="<your_project>", filter='gt(latency, "5s")')
 ```typescript TypeScript
 client.listRuns({projectName: "<your_project>", filter: 'gt(latency, "5s")'})
 ```
+
 </CodeGroup>
+
 ### 列出所有 "error" 不等于 null 的运行
 
 <CodeGroup>
@@ -391,9 +362,9 @@ client.listRuns({
 
 </CodeGroup>
 
-### 通过全文搜索追踪树
+### 按全文搜索追踪树
 
-您可以使用不带任何特定字段的 `search()` 函数，在运行的所有字符串字段中进行全文搜索。这使您可以快速找到与搜索词匹配的追踪。
+您可以不带任何特定字段使用 `search()` 函数，对运行中的所有字符串字段进行全文搜索。这允许您快速找到与搜索词匹配的追踪。
 
 <CodeGroup>
 
@@ -415,7 +386,7 @@ client.listRuns({
 
 ### 检查元数据是否存在
 
-如果您想检查元数据是否存在，可以使用 `eq` 运算符，可选地结合 `and` 语句来匹配值。如果您想记录关于运行的更结构化信息，这非常有用。
+如果您想检查元数据是否存在，可以使用 `eq` 运算符，可选地结合 `and` 语句按值匹配。如果您想记录有关运行的更结构化的信息，这非常有用。
 
 <CodeGroup>
 
@@ -424,12 +395,12 @@ to_search = {
     "user_id": ""
 }
 
-# Check for any run with the "user_id" metadata key
+# 检查是否存在具有 "user_id" 元数据键的任何运行
 client.list_runs(
   project_name="default",
   filter="eq(metadata_key, 'user_id')"
 )
-# Check for runs with user_id=4070f233-f61e-44eb-bff1-da3c163895a3
+# 检查具有 user_id=4070f233-f61e-44eb-bff1-da3c163895a3 的运行
 client.list_runs(
   project_name="default",
   filter="and(eq(metadata_key, 'user_id'), eq(metadata_value, '4070f233-f61e-44eb-bff1-da3c163895a3'))"
@@ -437,12 +408,12 @@ client.list_runs(
 ```
 
 ```typescript TypeScript
-// Check for any run with the "user_id" metadata key
+// 检查是否存在具有 "user_id" 元数据键的任何运行
 client.listRuns({
   projectName: 'default',
   filter: `eq(metadata_key, 'user_id')`
 });
-// Check for runs with user_id=4070f233-f61e-44eb-bff1-da3c163895a3
+// 检查具有 user_id=4070f233-f61e-44eb-bff1-da3c163895a3 的运行
 client.listRuns({
   projectName: 'default',
   filter: `and(eq(metadata_key, 'user_id'), eq(metadata_value, '4070f233-f61e-44eb-bff1-da3c163895a3'))`
@@ -453,7 +424,7 @@ client.listRuns({
 
 ### 检查元数据中的环境详细信息
 
-一种常见模式是通过元数据将环境信息添加到您的追踪中。如果您想过滤包含环境元数据的运行，可以使用与上述相同的模式：
+一种常见的模式是通过元数据向追踪添加环境信息。如果您想过滤包含环境元数据的运行，可以使用与上述相同的模式：
 
 <CodeGroup>
 
@@ -475,7 +446,7 @@ client.listRuns({
 
 ### 检查元数据中的对话 ID
 
-关联同一对话中追踪的另一种常见方式是使用共享的对话 ID。如果您想以这种方式基于对话 ID 过滤运行，可以在元数据中搜索该 ID。
+关联同一对话中追踪的另一种常见方式是使用共享的对话 ID。如果您想以此种方式基于对话 ID 过滤运行，可以在元数据中搜索该 ID。
 
 <CodeGroup>
 
@@ -495,32 +466,32 @@ client.listRuns({
 
 </CodeGroup>
 
-### 对键值对进行负向过滤
+### 对键值对进行否定过滤
 
-您可以在元数据、输入和输出键值对上使用负向过滤，从结果中排除特定的运行。以下是一些针对元数据键值对的示例，但同样的逻辑也适用于输入和输出键值对。
+您可以对元数据、输入和输出键值对使用否定过滤，以从结果中排除特定运行。以下是元数据键值对的一些示例，但同样的逻辑也适用于输入和输出键值对。
 
 <CodeGroup>
 
 ```python Python
-# Find all runs where the metadata does not contain a "conversation_id" key
+# 查找元数据中不包含 "conversation_id" 键的所有运行
 client.list_runs(
   project_name="default",
   filter="and(neq(metadata_key, 'conversation_id'))"
 )
 
-# Find all runs where the conversation_id in metadata is not "a1b2c3d4-e5f6-7890"
+# 查找元数据中 conversation_id 不为 "a1b2c3d4-e5f6-7890" 的所有运行
 client.list_runs(
   project_name="default",
   filter="and(eq(metadata_key, 'conversation_id'), neq(metadata_value, 'a1b2c3d4-e5f6-7890'))"
 )
 
-# Find all runs where there is no "conversation_id" metadata key and the "a1b2c3d4-e5f6-7890" value is not present
+# 查找没有 "conversation_id" 元数据键且不存在 "a1b2c3d4-e5f6-7890" 值的所有运行
 client.list_runs(
   project_name="default",
   filter="and(neq(metadata_key, 'conversation_id'), neq(metadata_value, 'a1b2c3d4-e5f6-7890'))"
 )
 
-# Find all runs where the conversation_id metadata key is not present but the "a1b2c3d4-e5f6-7890" value is present
+# 查找不存在 conversation_id 元数据键但存在 "a1b2c3d4-e5f6-7890" 值的所有运行
 client.list_runs(
   project_name="default",
   filter="and(neq(metadata_key, 'conversation_id'), eq(metadata_value, 'a1b2c3d4-e5f6-7890'))"
@@ -528,25 +499,79 @@ client.list_runs(
 ```
 
 ```typescript TypeScript
-// Find all runs where the metadata does not contain a "conversation_id" key
+// 查找元数据中不包含 "conversation_id" 键的所有运行
 client.listRuns({
   projectName: 'default',
   filter: `and(neq(metadata_key, 'conversation_id'))`
 });
 
-// Find all runs where the conversation_id in metadata is not "a1b2c3d4-e5f6-7890"
+// 查找元数据中 conversation_id 不为 "a1b2c3d4-e5f6-7890" 的所有运行
 client.listRuns({
   projectName: 'default',
   filter: `and(eq(metadata_key, 'conversation_id'), neq(metadata_value, 'a1b2c3d4-e5f6-7890'))`
 });
 
-// Find all runs where there is no "conversation_id" metadata key and the "a1b2c3d4-e5f6-7890" value is not present
+// 查找没有 "conversation_id" 元数据键且不存在 "a1b2c3d4-e5f6-7890" 值的所有运行
 client.listRuns({
   projectName: 'default',
   filter: `and(neq(metadata_key, 'conversation_id'), neq(metadata_value, 'a1b2c3d4-e5f6-7890'))`
 });
 
-// Find all runs where the conversation_id metadata key is not present but the "a1b2c3d4-e5f6-7890" value is present
+// 查找不存在 conversation_id 元数据键但存在 "a1b2c3d4-e5f6-7890" 值的所有运行
 client.listRuns({
   projectName: 'default',
-  filter: `and(neq(
+  filter: `and(neq(metadata_key, 'conversation_id'), eq(metadata_value, 'a1b2c3d4-e5f6-7890'))`
+});
+```
+
+</CodeGroup>
+
+### 组合多个过滤器
+
+如果您想组合多个条件以细化搜索，可以将 `and` 运算符与其他过滤函数结合使用。以下是搜索名为 "ChatOpenAI" 且其元数据中还具有特定 `conversation_id` 的运行的方法：
+
+<CodeGroup>
+
+```python Python
+client.list_runs(
+  project_name="default",
+  filter="and(eq(name, 'ChatOpenAI'), eq(metadata_key, 'conversation_id'), eq(metadata_value, '69b12c91-b1e2-46ce-91de-794c077e8151'))"
+)
+```
+
+```typescript TypeScript
+client.listRuns({
+  projectName: 'default',
+  filter: `and(eq(name, 'ChatOpenAI'), eq(metadata_key, 'conversation_id'), eq(metadata_value, '69b12c91-b1e2-46ce-91de-794c077e8151'))`
+});
+```
+
+</CodeGroup>
+
+### 树过滤器 (Tree filter)
+
+列出所有名为 "RetrieveDocs" 的运行，其根运行具有 1 的 "user_score" 反馈，并且完整追踪中的任何运行名为 "ExpandQuery"。
+
+如果您想根据追踪内达到的各种状态或步骤有条件地提取特定运行，此类查询非常有用。
+
+<CodeGroup>
+
+```python Python
+client.list_runs(
+    project_name="<your_project>",
+    filter='eq(name, "RetrieveDocs")',
+    trace_filter='and(eq(feedback_key, "user_score"), eq(feedback_score, 1))',
+    tree_filter='eq(name, "ExpandQuery")'
+)
+```
+
+```typescript TypeScript
+client.listRuns({
+  projectName: "<your_project>",
+  filter: 'eq(name, "RetrieveDocs")',
+  traceFilter: 'and(eq(feedback_key, "user_score"), eq(feedback_score, 1))',
+  treeFilter: 'eq(name, "ExpandQuery")'
+})
+```
+
+</CodeGroup>

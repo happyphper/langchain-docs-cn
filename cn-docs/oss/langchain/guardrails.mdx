@@ -531,4 +531,163 @@ def safety_guardrail(state: AgentState, runtime: Runtime) -> dict[str, Any] | No
     result = safety_model.invoke([{"role": "user", "content": safety_prompt}])
 
     if "UNSAFE" in result.content:
-        last_message.content = "I cannot
+        last_message.content = "I cannot provide that response. Please rephrase your request."
+
+    return None
+
+# 使用安全防护栏
+from langchain.agents import create_agent
+
+agent = create_agent(
+    model="gpt-4o",
+    tools=[search_tool, calculator_tool],
+    middleware=[safety_guardrail],
+)
+
+result = agent.invoke({
+    "messages": [{"role": "user", "content": "How do I make explosives?"}]
+})
+```
+
+</CodeGroup>
+
+:::
+
+:::js
+```typescript
+import { createMiddleware, AIMessage, initChatModel } from "langchain";
+
+const safetyGuardrailMiddleware = () => {
+  const safetyModel = initChatModel("gpt-4o-mini");
+
+  return createMiddleware({
+    name: "SafetyGuardrailMiddleware",
+    afterAgent: {
+      hook: async (state) => {
+        // 获取最终的 AI 响应
+        if (!state.messages || state.messages.length === 0) {
+          return;
+        }
+
+        const lastMessage = state.messages[state.messages.length - 1];
+        if (lastMessage._getType() !== "ai") {
+          return;
+        }
+
+        // 使用模型评估安全性
+        const safetyPrompt = `Evaluate if this response is safe and appropriate.
+        Respond with only 'SAFE' or 'UNSAFE'.
+
+        Response: ${lastMessage.content.toString()}`;
+
+        const result = await safetyModel.invoke([
+          { role: "user", content: safetyPrompt }
+        ]);
+
+        if (result.content.toString().includes("UNSAFE")) {
+          return {
+            messages: [
+              new AIMessage(
+                "I cannot provide that response. Please rephrase your request."
+              )
+            ],
+            jumpTo: "end",
+          };
+        }
+
+        return;
+      },
+      canJumpTo: ['end']
+    }
+  });
+};
+
+// 使用安全防护栏
+import { createAgent } from "langchain";
+
+const agent = createAgent({
+  model: "gpt-4o",
+  tools: [searchTool, calculatorTool],
+  middleware: [safetyGuardrailMiddleware()],
+});
+
+const result = await agent.invoke({
+  messages: [{ role: "user", content: "How do I make explosives?" }]
+});
+```
+:::
+
+### 组合多个防护栏 (Combine multiple guardrails)
+
+您可以通过将多个防护栏添加到 middleware 数组来叠加使用它们。它们按顺序执行，允许您构建分层防护：
+
+:::python
+```python
+from langchain.agents import create_agent
+from langchain.agents.middleware import PIIMiddleware, HumanInTheLoopMiddleware
+
+agent = create_agent(
+    model="gpt-4o",
+    tools=[search_tool, send_email_tool],
+    middleware=[
+        # 第 1 层：确定性输入过滤（在智能体执行前运行）
+        ContentFilterMiddleware(banned_keywords=["hack", "exploit"]),
+
+        # 第 2 层：PII 保护（在模型调用前后运行）
+        PIIMiddleware("email", strategy="redact", apply_to_input=True),
+        PIIMiddleware("email", strategy="redact", apply_to_output=True),
+
+        # 第 3 层：针对敏感工具的人工审批
+        HumanInTheLoopMiddleware(interrupt_on={"send_email": True}),
+
+        # 第 4 层：基于模型的安全检查（在智能体执行后运行）
+        SafetyGuardrailMiddleware(),
+    ],
+)
+```
+:::
+
+:::js
+```typescript
+import { createAgent, piiRedactionMiddleware, humanInTheLoopMiddleware } from "langchain";
+
+const agent = createAgent({
+  model: "gpt-4o",
+  tools: [searchTool, sendEmailTool],
+  middleware: [
+    // 第 1 层：确定性输入过滤（在智能体执行前运行）
+    contentFilterMiddleware(["hack", "exploit"]),
+
+    // 第 2 层：PII 保护（在模型调用前后运行）
+    piiRedactionMiddleware({
+      piiType: "email",
+      strategy: "redact",
+      applyToInput: true,
+    }),
+    piiRedactionMiddleware({
+      piiType: "email",
+      strategy: "redact",
+      applyToOutput: true,
+    }),
+
+    // 第 3 层：针对敏感工具的人工审批
+    humanInTheLoopMiddleware({
+      interruptOn: {
+        send_email: { allowAccept: true, allowEdit: true, allowRespond: true },
+      }
+    }),
+
+    // 第 4 层：基于模型的安全检查（在智能体执行后运行）
+    safetyGuardrailMiddleware(),
+  ],
+});
+```
+:::
+
+## 额外资源 (Additional resources)
+
+- [中间件文档 (Middleware documentation)](/oss/langchain/middleware) - 自定义中间件的完整指南
+- [中间件 API 参考 (Middleware API reference)](https://reference.langchain.com/python/langchain/middleware/) - 详细的 API 说明
+- [人工介入 (Human-in-the-loop)](/oss/langchain/human-in-the-loop) - 为敏感操作添加人工审核
+- [测试智能体 (Testing agents)](/oss/langchain/test) - 安全机制的测试策略
+

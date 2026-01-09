@@ -369,4 +369,7 @@ commonEnv:
 ```
 
 <Note>
-确保 Kubernetes 集群配置了足够的资源以扩展到推荐的大小。部署后，Kubernetes 集群中的所有 Pod 都应处于 `Running` 状态。卡在 `Pending
+确保 Kubernetes 集群配置了足够的资源以扩展到推荐的大小。部署后，Kubernetes 集群中的所有 Pod 都应处于 `Running` 状态。卡在 `Pending` 状态的 Pod 可能表明您已达到节点池限制或需要更大的节点。
+
+同时，确保部署在集群上的任何 Ingress 控制器能够处理预期的负载，以防止瓶颈。
+</Note>

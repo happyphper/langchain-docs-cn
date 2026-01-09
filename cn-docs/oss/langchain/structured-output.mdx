@@ -1,9 +1,10 @@
 ---
-title: 结构化输出
+title: 结构化输出 (Structured output)
 ---
+
 :::python
 
-结构化输出允许智能体（agent）以特定、可预测的格式返回数据。你无需解析自然语言响应，而是可以直接获得 JSON 对象、[Pydantic 模型](https://docs.pydantic.dev/latest/concepts/models/#basic-model-usage)或数据类（dataclasses）形式的、可供应用程序直接使用的结构化数据。
+结构化输出（Structured output）允许智能体（agent）以特定、可预测的格式返回数据。你无需解析自然语言响应，而是可以直接获得 JSON 对象、[Pydantic 模型](https://docs.pydantic.dev/latest/concepts/models/#basic-model-usage)或数据类（dataclasses）形式的、可供应用程序直接使用的结构化数据。
 
 LangChain 的 @[`create_agent`] 会自动处理结构化输出。用户设置他们期望的结构化输出模式（schema），当模型生成结构化数据时，它会被捕获、验证并返回到智能体状态的 `'structured_response'` 键中。
 
@@ -18,7 +19,7 @@ def create_agent(
     ]
 ```
 
-## 响应格式
+## 响应格式 (Response format)
 
 使用 `response_format` 来控制智能体如何返回结构化数据：
 
@@ -47,9 +48,9 @@ def create_agent(
 结构化响应会返回到智能体最终状态的 `structured_response` 键中。
 :::
 :::js
-结构化输出允许智能体（agent）以特定、可预测的格式返回数据。你无需解析自然语言响应，而是可以直接获得类型化的结构化数据。
+结构化输出（Structured output）允许智能体（agent）以特定、可预测的格式返回数据。你无需解析自然语言响应，而是可以直接获得类型化的结构化数据。
 
-LangChain 预构建的 ReAct 智能体 `createAgent` 会自动处理结构化输出。用户设置他们期望的结构化输出模式（schema），当模型生成结构化数据时，它会被捕获、验证并返回到智能体状态的 `structuredResponse` 键中。
+LangChain 的预构建 ReAct 智能体 `createAgent` 会自动处理结构化输出。用户设置他们期望的结构化输出模式（schema），当模型生成结构化数据时，它会被捕获、验证并返回到智能体状态的 `structuredResponse` 键中。
 
 ```ts
 type ResponseFormat = (
@@ -63,11 +64,11 @@ const agent = createAgent({
 })
 ```
 
-## 响应格式
+## 响应格式 (Response format)
 
 控制智能体如何返回结构化数据。你可以提供 Zod 对象或 JSON 模式。默认情况下，智能体使用工具调用策略，即输出由一个额外的工具调用创建。某些模型支持原生结构化输出，在这种情况下，智能体将改用该策略。
 
-你可以通过将 `ResponseFormat` 包装在 `toolStrategy` 或 `providerStrategy` 函数调用来控制此行为：
+你可以通过将 `ResponseFormat` 包装在 `toolStrategy` 或 `providerStrategy` 函数调用中来控制此行为：
 
 ```ts
 import { toolStrategy, providerStrategy } from "langchain";
@@ -95,7 +96,7 @@ const agent = createAgent({
 </Tip>
 :::
 
-## 提供商策略
+## 提供商策略 (Provider strategy)
 
 一些模型提供商通过其 API 原生支持结构化输出（例如 OpenAI、xAI (Grok)、Gemini、Anthropic (Claude)）。当可用时，这是最可靠的方法。
 
@@ -126,7 +127,7 @@ class ProviderStrategy(Generic[SchemaT]):
 当你直接将模式类型传递给 @[`create_agent.response_format`][create_agent(response_format)] 并且模型支持原生结构化输出时，LangChain 会自动使用 `ProviderStrategy`：
 
 <CodeGroup>
-    ```python Pydantic 模型
+    ```python Pydantic Model
     from pydantic import BaseModel, Field
     from langchain.agents import create_agent
 
@@ -150,7 +151,7 @@ class ProviderStrategy(Generic[SchemaT]):
     # ContactInfo(name='John Doe', email='john@example.com', phone='(555) 123-4567')
     ```
 
-    ```python 数据类
+    ```python Dataclass
     from dataclasses import dataclass
     from langchain.agents import create_agent
 
@@ -201,7 +202,7 @@ class ProviderStrategy(Generic[SchemaT]):
     # {'name': 'John Doe', 'email': 'john@example.com', 'phone': '(555) 123-4567'}
     ```
 
-    ```python JSON 模式
+    ```python JSON Schema
     from langchain.agents import create_agent
 
 
@@ -240,14 +241,14 @@ function providerStrategy<StructuredResponseT>(
 
 <ParamField path="schema" required>
     定义结构化输出格式的模式。支持：
-    - **Zod 模式**：一个 zod 模式
+    - **Zod 模式**：一个 Zod 模式
     - **JSON 模式**：一个 JSON 模式对象
 </ParamField>
 
 当你直接将模式类型传递给 `createAgent.responseFormat` 并且模型支持原生结构化输出时，LangChain 会自动使用 `ProviderStrategy`：
 
 <CodeGroup>
-    ```ts Zod 模式
+    ```ts Zod Schema
     import * as z from "zod";
     import { createAgent, providerStrategy } from "langchain";
 
@@ -271,7 +272,7 @@ function providerStrategy<StructuredResponseT>(
     // { name: "John Doe", email: "john@example.com", phone: "(555) 123-4567" }
     ```
 
-    ```ts JSON 模式
+    ```ts JSON Schema
     import { createAgent, providerStrategy } from "langchain";
 
     const contactInfoSchema = {
@@ -312,13 +313,13 @@ function providerStrategy<StructuredResponseT>(
 :::
 :::js
 <Note>
-    如果提供商原生支持你选择的模型的结构化输出，那么写 `responseFormat: contactInfoSchema` 与写 `responseFormat: providerStrategy(contactInfoSchema)` 在功能上是等效的。
+    如果提供商原生支持你选择的模型的结构化输出，那么写 `responseFormat: contactInfoSchema` 与写 `responseFormat: providerStrategy(contactInfoSchema)` 在功能上是等效 of.
 
     无论哪种情况，如果不支持结构化输出，智能体将回退到工具调用策略。
 </Note>
 :::
 
-## 工具调用策略
+## 工具调用策略 (Tool calling strategy)
 
 对于不支持原生结构化输出的模型，LangChain 使用工具调用来实现相同的结果。这适用于所有支持工具调用的模型（大多数现代模型）。
 
@@ -364,7 +365,7 @@ class ToolStrategy(Generic[SchemaT]):
 </ParamField>
 
 <CodeGroup>
-    ```python Pydantic 模型
+    ```python Pydantic Model
     from pydantic import BaseModel, Field
     from typing import Literal
     from langchain.agents import create_agent
@@ -390,7 +391,7 @@ class ToolStrategy(Generic[SchemaT]):
     # ProductReview(rating=5, sentiment='positive', key_points=['fast shipping', 'expensive'])
     ```
 
-    ```python 数据类
+    ```python Dataclass
     from dataclasses import dataclass
     from typing import Literal
     from langchain.agents import create_agent
@@ -443,7 +444,7 @@ class ToolStrategy(Generic[SchemaT]):
     # {'rating': 5, 'sentiment': 'positive', 'key_points': ['fast shipping', 'expensive']}
     ```
 
-    ```python JSON 模式
+    ```python JSON Schema
     from langchain.agents import create_agent
     from langchain.agents.structured_output import ToolStrategy
 
@@ -458,4 +459,697 @@ class ToolStrategy(Generic[SchemaT]):
                 "minimum": 1,
                 "maximum": 5
             },
-            "sentiment
+            "sentiment": {
+                "type": "string",
+                "enum": ["positive", "negative"],
+                "description": "评论的情感倾向"
+            },
+            "key_points": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "评论的要点"
+            }
+        },
+        "required": ["sentiment", "key_points"]
+    }
+
+    agent = create_agent(
+        model="gpt-5",
+        tools=tools,
+        response_format=ToolStrategy(product_review_schema)
+    )
+
+    result = agent.invoke({
+        "messages": [{"role": "user", "content": "分析此评论：'很棒的产品：5星。发货快，但价格贵'"}]
+    })
+    result["structured_response"]
+    # {'rating': 5, 'sentiment': 'positive', 'key_points': ['fast shipping', 'expensive']}
+    ```
+
+    ```python Union Types
+    from pydantic import BaseModel, Field
+    from typing import Literal, Union
+    from langchain.agents import create_agent
+    from langchain.agents.structured_output import ToolStrategy
+
+
+    class ProductReview(BaseModel):
+        """产品评论分析。"""
+        rating: int | None = Field(description="产品评分", ge=1, le=5)
+        sentiment: Literal["positive", "negative"] = Field(description="评论的情感倾向")
+        key_points: list[str] = Field(description="评论的要点。小写，每个1-3个词。")
+
+    class CustomerComplaint(BaseModel):
+        """关于产品或服务的客户投诉。"""
+        issue_type: Literal["product", "service", "shipping", "billing"] = Field(description="问题类型")
+        severity: Literal["low", "medium", "high"] = Field(description="投诉严重程度")
+        description: str = Field(description="投诉的简要说明")
+
+    agent = create_agent(
+        model="gpt-5",
+        tools=tools,
+        response_format=ToolStrategy(Union[ProductReview, CustomerComplaint])
+    )
+
+    result = agent.invoke({
+        "messages": [{"role": "user", "content": "分析此评论：'很棒的产品：5星。发货快，但价格贵'"}]
+    })
+    result["structured_response"]
+    # ProductReview(rating=5, sentiment='positive', key_points=['fast shipping', 'expensive'])
+    ```
+</CodeGroup>
+
+### 自定义工具消息内容 (Custom tool message content)
+
+`tool_message_content` 参数允许你自定义生成结构化输出时出现在对话历史中的消息：
+
+```python
+from pydantic import BaseModel, Field
+from typing import Literal
+from langchain.agents import create_agent
+from langchain.agents.structured_output import ToolStrategy
+
+
+class MeetingAction(BaseModel):
+    """从会议转录中提取的操作项。"""
+    task: str = Field(description="要完成的具体任务")
+    assignee: str = Field(description="负责该任务的人员")
+    priority: Literal["low", "medium", "high"] = Field(description="优先级")
+
+agent = create_agent(
+    model="gpt-5",
+    tools=[],
+    response_format=ToolStrategy(
+        schema=MeetingAction,
+        tool_message_content="操作项已捕获并添加到会议记录中！"
+    )
+)
+
+agent.invoke({
+    "messages": [{"role": "user", "content": "来自我们的会议：Sarah 需要尽快更新项目时间表"}]
+})
+```
+
+```
+================================ Human Message =================================
+
+来自我们的会议：Sarah 需要尽快更新项目时间表
+================================== Ai Message ==================================
+Tool Calls:
+  MeetingAction (call_1)
+ Call ID: call_1
+  Args:
+    task: 更新项目时间表
+    assignee: Sarah
+    priority: high
+================================= Tool Message =================================
+Name: MeetingAction
+
+操作项已捕获并添加到会议记录中！
+```
+
+如果没有 `tool_message_content`，我们最终的 @[`ToolMessage`] 将是：
+```
+================================= Tool Message =================================
+Name: MeetingAction
+
+Returning structured response: {'task': 'update the project timeline', 'assignee': 'Sarah', 'priority': 'high'}
+```
+:::
+:::js
+```ts
+function toolStrategy<StructuredResponseT>(
+    responseFormat:
+        | JsonSchemaFormat
+        | ZodSchema<StructuredResponseT>
+        | (ZodSchema<StructuredResponseT> | JsonSchemaFormat)[]
+    options?: ToolStrategyOptions
+): ToolStrategy<StructuredResponseT>
+```
+
+<ParamField path="schema" required>
+    定义结构化输出格式的模式。支持：
+    - **Zod 模式**：一个 Zod 模式
+    - **JSON 模式**：一个 JSON 模式对象
+</ParamField>
+
+<ParamField path="options.toolMessageContent">
+    生成结构化输出时返回的工具消息的自定义内容。
+    如果未提供，则默认为显示结构化响应数据的消息。
+</ParamField>
+
+<ParamField path="options.handleError">
+    包含可选 `handleError` 参数的选项对象，用于自定义错误处理策略。
+
+    - **`true`**：捕获所有错误并使用默认错误模板（默认）
+    - **`False`**：不重试，让异常传播
+    - **`(error: ToolStrategyError) => string | Promise<string>`**：使用提供的消息进行重试或抛出错误
+</ParamField>
+
+<CodeGroup>
+    ```ts Zod Schema
+    import * as z from "zod";
+    import { createAgent, toolStrategy } from "langchain";
+
+    const ProductReview = z.object({
+        rating: z.number().min(1).max(5).optional(),
+        sentiment: z.enum(["positive", "negative"]),
+        keyPoints: z.array(z.string()).describe("评论的要点。小写，每个1-3个词。"),
+    });
+
+    const agent = createAgent({
+        model: "gpt-5",
+        tools: [],
+        responseFormat: toolStrategy(ProductReview)
+    })
+
+    const result = await agent.invoke({
+        "messages": [{"role": "user", "content": "分析此评论：'很棒的产品：5星。发货快，但价格贵'"}]
+    })
+
+    console.log(result.structuredResponse);
+    // { "rating": 5, "sentiment": "positive", "keyPoints": ["fast shipping", "expensive"] }
+    ```
+
+
+    ```ts JSON Schema
+    import { createAgent, toolStrategy } from "langchain";
+
+    const productReviewSchema = {
+        "type": "object",
+        "description": "产品评论分析。",
+        "properties": {
+            "rating": {
+                "type": ["integer", "null"],
+                "description": "产品评分 (1-5)",
+                "minimum": 1,
+                "maximum": 5
+            },
+            "sentiment": {
+                "type": "string",
+                "enum": ["positive", "negative"],
+                "description": "评论的情感倾向"
+            },
+            "key_points": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "评论的要点"
+            }
+        },
+        "required": ["sentiment", "key_points"]
+    }
+
+    const agent = createAgent({
+        model: "gpt-5",
+        tools: [],
+        responseFormat: toolStrategy(productReviewSchema)
+    });
+
+    const result = await agent.invoke({
+        messages: [{"role": "user", "content": "分析此评论：'很棒的产品：5星。发货快，但价格贵'"}]
+    })
+
+    console.log(result.structuredResponse);
+    // { "rating": 5, "sentiment": "positive", "keyPoints": ["fast shipping", "expensive"] }
+    ```
+
+    ```ts Union Types
+    import * as z from "zod";
+    import { createAgent, toolStrategy } from "langchain";
+
+    const ProductReview = z.object({
+        rating: z.number().min(1).max(5).optional(),
+        sentiment: z.enum(["positive", "negative"]),
+        keyPoints: z.array(z.string()).describe("评论的要点。小写，每个1-3个词。"),
+    });
+
+    const CustomerComplaint = z.object({
+        issueType: z.enum(["product", "service", "shipping", "billing"]),
+        severity: z.enum(["low", "medium", "high"]),
+        description: z.string().describe("投诉的简要说明"),
+    });
+
+    const agent = createAgent({
+        model: "gpt-5",
+        tools: [],
+        responseFormat: toolStrategy([ProductReview, CustomerComplaint])
+    });
+
+    const result = await agent.invoke({
+        messages: [{"role": "user", "content": "分析此评论：'很棒的产品：5星。发货快，但价格贵'"}]
+    })
+
+    console.log(result.structuredResponse);
+    // { "rating": 5, "sentiment": "positive", "keyPoints": ["fast shipping", "expensive"] }
+    ```
+</CodeGroup>
+
+### 自定义工具消息内容 (Custom tool message content)
+
+`toolMessageContent` 参数允许你自定义生成结构化输出时出现在对话历史中的消息：
+
+```ts
+import * as z from "zod";
+import { createAgent, toolStrategy } from "langchain";
+
+const MeetingAction = z.object({
+    task: z.string().describe("要完成的具体任务"),
+    assignee: z.string().describe("负责该任务的人员"),
+    priority: z.enum(["low", "medium", "high"]).describe("优先级"),
+});
+
+const agent = createAgent({
+    model: "gpt-5",
+    tools: [],
+    responseFormat: toolStrategy(MeetingAction, {
+        toolMessageContent: "操作项已捕获并添加到会议记录中！"
+    })
+});
+
+const result = await agent.invoke({
+    messages: [{"role": "user", "content": "来自我们的会议：Sarah 需要尽快更新项目时间表"}]
+});
+
+console.log(result);
+/**
+ * {
+ *   messages: [
+ *     { role: "user", content: "来自我们的会议：Sarah 需要尽快更新项目时间表" },
+ *     { role: "assistant", content: "操作项已捕获并添加到会议记录中！", tool_calls: [ { name: "MeetingAction", args: { task: "更新项目时间表", assignee: "Sarah", priority: "high" }, id: "call_456" } ] },
+ *     { role: "tool", content: "操作项已捕获并添加到会议记录中！", tool_call_id: "call_456", name: "MeetingAction" }
+ *   ],
+ *   structuredResponse: { task: "更新项目时间表", assignee: "Sarah", priority: "high" }
+ * }
+ */
+```
+
+如果没有 `toolMessageContent`，我们会看到：
+
+```ts
+# console.log(result);
+/**
+ * {
+ *   messages: [
+ *     ...
+ *     { role: "tool", content: "Returning structured response: {'task': 'update the project timeline', 'assignee': 'Sarah', 'priority': 'high'}", tool_call_id: "call_456", name: "MeetingAction" }
+ *   ],
+ *   structuredResponse: { task: "update the project timeline", assignee: "Sarah", priority: "high" }
+ * }
+ */
+```
+:::
+
+## 错误处理 (Error handling)
+
+模型通过工具调用生成结构化输出时可能会出错。LangChain 提供了智能重试机制来自动处理这些错误。
+
+#### 多个结构化输出错误 (Multiple structured outputs error)
+
+当模型错误地调用了多个结构化输出工具时，智能体会提供 @[`ToolMessage`] 形式的错误反馈，并提示模型重试：
+
+:::python
+```python
+from pydantic import BaseModel, Field
+from typing import Union
+from langchain.agents import create_agent
+from langchain.agents.structured_output import ToolStrategy
+
+
+class ContactInfo(BaseModel):
+    name: str = Field(description="人员姓名")
+    email: str = Field(description="电子邮件地址")
+
+class EventDetails(BaseModel):
+    event_name: str = Field(description="活动名称")
+    date: str = Field(description="活动日期")
+
+agent = create_agent(
+    model="gpt-5",
+    tools=[],
+    response_format=ToolStrategy(Union[ContactInfo, EventDetails])  # 默认：handle_errors=True
+)
+
+agent.invoke({
+    "messages": [{"role": "user", "content": "提取信息：John Doe (john@email.com) 正在组织 3 月 15 日的技术会议"}]
+})
+```
+
+```
+================================ Human Message =================================
+
+提取信息：John Doe (john@email.com) 正在组织 3 月 15 日的技术会议
+None
+================================== Ai Message ==================================
+Tool Calls:
+  ContactInfo (call_1)
+ Call ID: call_1
+  Args:
+    name: John Doe
+    email: john@email.com
+  EventDetails (call_2)
+ Call ID: call_2
+  Args:
+    event_name: 技术会议
+    date: March 15th
+================================= Tool Message =================================
+Name: ContactInfo
+
+Error: 模型错误地返回了多个结构化响应 (ContactInfo, EventDetails)，而预期只有一个。
+ 请纠正你的错误。
+================================= Tool Message =================================
+Name: EventDetails
+
+Error: 模型错误地返回了多个结构化响应 (ContactInfo, EventDetails)，而预期只有一个。
+ 请纠正你的错误。
+================================== Ai Message ==================================
+Tool Calls:
+  ContactInfo (call_3)
+ Call ID: call_3
+  Args:
+    name: John Doe
+    email: john@email.com
+================================= Tool Message =================================
+Name: ContactInfo
+
+Returning structured response: {'name': 'John Doe', 'email': 'john@email.com'}
+```
+:::
+:::js
+```ts
+import * as z from "zod";
+import { createAgent, toolStrategy } from "langchain";
+
+const ContactInfo = z.object({
+    name: z.string().describe("人员姓名"),
+    email: z.string().describe("电子邮件地址"),
+});
+
+const EventDetails = z.object({
+    event_name: z.string().describe("活动名称"),
+    date: z.string().describe("活动日期"),
+});
+
+const agent = createAgent({
+    model: "gpt-5",
+    tools: [],
+    responseFormat: toolStrategy([ContactInfo, EventDetails]),
+});
+
+const result = await agent.invoke({
+    messages: [
+        {
+        role: "user",
+        content:
+            "提取信息：John Doe (john@email.com) 正在组织 3 月 15 日的技术会议",
+        },
+    ],
+});
+
+console.log(result);
+
+/**
+ * {
+ *   messages: [
+ *     { role: "user", content: "提取信息：John Doe (john@email.com) 正在组织 3 月 15 日的技术会议" },
+ *     { role: "assistant", content: "", tool_calls: [ { name: "ContactInfo", args: { name: "John Doe", email: "john@email.com" }, id: "call_1" }, { name: "EventDetails", args: { event_name: "技术会议", date: "March 15th" }, id: "call_2" } ] },
+ *     { role: "tool", content: "Error: 模型错误地返回了多个结构化响应 (ContactInfo, EventDetails)，而预期只有一个。\n 请纠正你的错误。", tool_call_id: "call_1", name: "ContactInfo" },
+ *     { role: "tool", content: "Error: 模型错误地返回了多个结构化响应 (ContactInfo, EventDetails)，而预期只有一个。\n 请纠正你的错误。", tool_call_id: "call_2", name: "EventDetails" },
+ *     { role: "assistant", content: "", tool_calls: [ { name: "ContactInfo", args: { name: "John Doe", email: "john@email.com" }, id: "call_3" } ] },
+ *     { role: "tool", content: "Returning structured response: {'name': 'John Doe', 'email': 'john@email.com'}", tool_call_id: "call_3", name: "ContactInfo" }
+ *   ],
+ *   structuredResponse: { name: "John Doe", email: "john@email.com" }
+ * }
+ */
+```
+:::
+
+
+#### Schema validation error
+
+When structured output doesn't match the expected schema, the agent provides specific error feedback:
+
+:::python
+```python
+from pydantic import BaseModel, Field
+from langchain.agents import create_agent
+from langchain.agents.structured_output import ToolStrategy
+
+
+class ProductRating(BaseModel):
+    rating: int | None = Field(description="Rating from 1-5", ge=1, le=5)
+    comment: str = Field(description="评论内容")
+
+agent = create_agent(
+    model="gpt-5",
+    tools=[],
+    response_format=ToolStrategy(ProductRating),  # 默认：handle_errors=True
+    system_prompt="你是一个帮助解析产品评论的助手。不要编造任何字段或值。"
+)
+
+agent.invoke({
+    "messages": [{"role": "user", "content": "解析此内容：Amazing product, 10/10!"}]
+})
+```
+
+```
+================================ Human Message =================================
+
+解析此内容：Amazing product, 10/10!
+================================== Ai Message ==================================
+Tool Calls:
+  ProductRating (call_1)
+ Call ID: call_1
+  Args:
+    rating: 10
+    comment: Amazing product
+================================= Tool Message =================================
+Name: ProductRating
+
+Error: 解析工具 'ProductRating' 的结构化输出失败：ProductRating.rating 存在 1 个验证错误
+  Input should be less than or equal to 5 [type=less_than_equal, input_value=10, input_type=int]。
+ 请纠正你的错误。
+================================== Ai Message ==================================
+Tool Calls:
+  ProductRating (call_2)
+ Call ID: call_2
+  Args:
+    rating: 5
+    comment: Amazing product
+================================= Tool Message =================================
+Name: ProductRating
+
+Returning structured response: {'rating': 5, 'comment': 'Amazing product'}
+```
+
+#### 错误处理策略 (Error handling strategies)
+
+你可以使用 `handle_errors` 参数自定义错误的处​​理方式：
+
+**自定义错误消息：**
+```python
+ToolStrategy(
+    schema=ProductRating,
+    handle_errors="请提供 1-5 之间的有效评分并包含评论。"
+)
+```
+如果 `handle_errors` 是字符串，智能体将*始终*提示模型使用固定的工具消息重试：
+```
+================================= Tool Message =================================
+Name: ProductRating
+
+请提供 1-5 之间的有效评分并包含评论。
+```
+
+**仅处理特定异常：**
+
+```python
+ToolStrategy(
+    schema=ProductRating,
+    handle_errors=ValueError  # 仅在发生 ValueError 时重试，抛出其他异常
+)
+```
+
+如果 `handle_errors` 是异常类型，则仅当抛出的异常是指定类型时，智能体才会重试（使用默认错误消息）。在所有其他情况下，异常将被抛出。
+
+**处理多种异常类型：**
+```python
+ToolStrategy(
+    schema=ProductRating,
+    handle_errors=(ValueError, TypeError)  # 在发生 ValueError 和 TypeError 时重试
+)
+```
+
+如果 `handle_errors` 是异常元组，则仅当抛出的异常是指定类型之一时，智能体才会重试（使用默认错误消息）。在所有其他情况下，异常将被抛出。
+
+**自定义错误处理函数：**
+
+```python
+
+from langchain.agents.structured_output import StructuredOutputValidationError
+from langchain.agents.structured_output import MultipleStructuredOutputsError
+
+def custom_error_handler(error: Exception) -> str:
+    if isinstance(error, StructuredOutputValidationError):
+        return "格式存在问题。请再试一次。"
+    elif isinstance(error, MultipleStructuredOutputsError):
+        return "返回了多个结构化输出。请选择最相关的一个。"
+    else:
+        return f"错误：{str(error)}"
+
+
+agent = create_agent(
+    model="gpt-5",
+    tools=[],
+    response_format=ToolStrategy(
+                        schema=Union[ContactInfo, EventDetails],
+                        handle_errors=custom_error_handler
+                    )  # 默认：handle_errors=True
+)
+
+result = agent.invoke({
+    "messages": [{"role": "user", "content": "提取信息：John Doe (john@email.com) 正在组织 3 月 15 日的技术会议"}]
+})
+
+for msg in result['messages']:
+    # 如果消息实际上是 ToolMessage 对象（不是字典），检查其类名
+    if type(msg).__name__ == "ToolMessage":
+        print(msg.content)
+    # 如果消息是字典或你想要备选方案
+    elif isinstance(msg, dict) and msg.get('tool_call_id'):
+        print(msg['content'])
+
+```
+
+发生 `StructuredOutputValidationError` 时：
+```
+================================= Tool Message =================================
+Name: ToolStrategy
+
+格式存在问题。请再试一次。
+```
+
+发生 `MultipleStructuredOutputsError` 时：
+
+```
+================================= Tool Message =================================
+Name: ToolStrategy
+
+返回了多个结构化输出。请选择最相关的一个。
+```
+
+发生其他错误时：
+
+```
+================================= Tool Message =================================
+Name: ToolStrategy
+
+错误：<错误消息>
+```
+
+**无错误处理：**
+
+```python
+response_format = ToolStrategy(
+    schema=ProductRating,
+    handle_errors=False  # 抛出所有错误
+)
+```
+:::
+:::js
+```ts
+import * as z from "zod";
+import { createAgent, toolStrategy } from "langchain";
+
+const ProductRating = z.object({
+    rating: z.number().min(1).max(5).describe("1-5 之间的评分"),
+    comment: z.string().describe("评论内容"),
+});
+
+const agent = createAgent({
+    model: "gpt-5",
+    tools: [],
+    responseFormat: toolStrategy(ProductRating),
+});
+
+const result = await agent.invoke({
+    messages: [
+        {
+        role: "user",
+        content: "解析此内容：Amazing product, 10/10!",
+        },
+    ],
+});
+
+console.log(result);
+
+/**
+ * {
+ *   messages: [
+ *     { role: "user", content: "解析此内容：Amazing product, 10/10!" },
+ *     { role: "assistant", content: "", tool_calls: [ { name: "ProductRating", args: { rating: 10, comment: "Amazing product" }, id: "call_1" } ] },
+ *     { role: "tool", content: "Error: 解析工具 'ProductRating' 的结构化输出失败：1 validation error for ProductRating\nrating\n  Input should be less than or equal to 5 [type=less_than_equal, input_value=10, input_type=int].\n 请纠正你的错误。", tool_call_id: "call_1", name: "ProductRating" },
+ *     { role: "assistant", content: "", tool_calls: [ { name: "ProductRating", args: { rating: 5, comment: "Amazing product" }, id: "call_2" } ] },
+ *     { role: "tool", content: "Returning structured response: {'rating': 5, 'comment': 'Amazing product'}", tool_call_id: "call_2", name: "ProductRating" }
+ *   ],
+ *   structuredResponse: { rating: 5, comment: "Amazing product" }
+ * }
+ */
+```
+
+#### 错误处理策略 (Error handling strategies)
+
+你可以使用 `handleErrors` 参数自定义错误的处​​理方式：
+
+**自定义错误消息：**
+
+```ts
+const responseFormat = toolStrategy(ProductRating, {
+    handleError: "请提供 1-5 之间的有效评分并包含评论。"
+})
+
+// 错误消息变为：
+// { role: "tool", content: "请提供 1-5 之间的有效评分并包含评论。" }
+```
+
+**仅处理特定异常：**
+
+```ts
+import { ToolInputParsingException } from "@langchain/core/tools";
+
+const responseFormat = toolStrategy(ProductRating, {
+    handleError: (error: ToolStrategyError) => {
+        if (error instanceof ToolInputParsingException) {
+        return "请提供 1-5 之间的有效评分并包含评论。";
+        }
+        return error.message;
+    }
+})
+
+// 仅验证错误会使用默认消息重试：
+// { role: "tool", content: "Error: 解析工具 'ProductRating' 的结构化输出失败：...\n 请纠正你的错误。" }
+```
+
+**处理多种异常类型：**
+
+```ts
+const responseFormat = toolStrategy(ProductRating, {
+    handleError: (error: ToolStrategyError) => {
+        if (error instanceof ToolInputParsingException) {
+        return "请提供 1-5 之间的有效评分并包含评论。";
+        }
+        if (error instanceof CustomUserError) {
+        return "这是一个自定义用户错误。";
+        }
+        return error.message;
+    }
+})
+```
+
+**无错误处理：**
+
+```ts
+const responseFormat = toolStrategy(ProductRating, {
+    handleError: false  // 抛出所有错误
+})
+```
+:::

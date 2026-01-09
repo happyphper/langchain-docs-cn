@@ -1,0 +1,191 @@
+---
+title: 基于角色的访问控制
+sidebarTitle: Role-based access control
+---
+
+
+本文档解释了 LangSmith 用于管理组织级别和工作空间级别权限的基于角色的访问控制 (RBAC) 系统。
+
+<Note>
+
+RBAC（基于角色的访问控制）是一项用于管理工作空间级别权限的企业版功能。如果您对此功能感兴趣，请[联系我们的销售团队](https://www.langchain.com/contact-sales)。其他计划默认将所有用户设置为管理员角色。
+
+</Note>
+
+LangSmith 的 RBAC 系统管理工作空间内的用户权限。RBAC 允许您控制谁可以访问您的 LangSmith [工作空间](/langsmith/administration-overview#workspaces)以及他们在其中可以执行的操作。
+
+在 LangSmith 中，每个用户拥有：
+- 一个适用于整个组织的 [**组织角色**](#organization-roles)（独立于工作空间 RBAC）。
+    - <!--@include: @/snippets/python/langsmith/multi-workspace-org-roles.md-->
+- 对于他们所属的每个工作空间，拥有一个 [**工作空间角色**](#workspace-roles)（需要企业版 RBAC 功能）。
+
+在企业版计划中，组织可以创建具有精细权限组合的 [自定义工作空间角色](#custom-roles)。
+
+要了解如何设置 RBAC 并为用户分配角色，请参阅 [用户管理指南](/langsmith/user-management#set-up-access-control)。
+
+<Note>
+
+<!--@include: @/snippets/python/langsmith/permissions-reference.md-->
+
+</Note>
+
+## 角色类型
+
+### 组织角色
+
+组织角色**独立于工作空间 RBAC 功能**，用于管理组织范围内的能力。这些角色是系统定义的，无法修改或扩展。这些角色适用于 [Plus 和企业版计划](https://langchain.com/pricing) 上的多工作空间组织。
+
+| 角色 | 描述 |
+|------|-------------|
+| [组织管理员](#organization-admin) | 拥有管理组织配置、用户、账单和工作空间的完整权限 |
+| [组织用户](#organization-user) | 对组织信息具有读取权限，并能创建个人访问令牌 |
+| [组织查看者](#organization-viewer) | 对组织信息具有只读权限 |
+
+<Note>
+
+在仅限于单个工作空间的组织中，所有用户都是 [组织管理员](#organization-admin)。
+
+</Note>
+
+#### 组织管理员
+
+**描述**：拥有管理所有组织配置、用户、账单和工作空间的完整权限。
+
+**权限**：
+- `organization:manage` - 对组织设置、SSO、安全、账单的完全控制
+- `organization:read` - 对所有组织信息的读取权限
+- `organization:pats:create` - 创建组织级别的 [个人访问令牌](/langsmith/administration-overview#personal-access-tokens-pats)
+
+<!--@include: @/snippets/python/langsmith/permissions-reference.md-->
+
+**关键能力**：
+- 管理 [组织设置](/langsmith/set-up-hierarchy#set-up-an-organization) 和品牌
+- 配置 [SSO 和身份验证方法](/langsmith/user-management#set-up-saml-sso-for-your-organization)
+- 管理 [账单](/langsmith/billing) 和订阅计划
+- 创建和删除 [工作空间](/langsmith/set-up-hierarchy)
+- 邀请和移除组织成员
+- 为成员分配组织和工作空间角色
+- 创建和管理 [自定义角色](#custom-roles)
+- 配置 RBAC 和 ABAC（基于属性的访问控制）策略（请注意，ABAC 目前处于私有预览阶段）
+- 查看组织 [使用情况](/langsmith/administration-overview#usage-limits) 和分析数据
+
+有关设置和管理组织的详细信息，请参阅 [管理概述](/langsmith/administration-overview#organizations)。
+
+#### 组织用户
+
+**描述**：对组织信息具有读取权限，并能创建个人访问令牌。
+
+**权限**：
+- `organization:read` - 对组织信息的读取权限
+- `organization:pats:create` - 创建个人访问令牌
+
+<!--@include: @/snippets/python/langsmith/permissions-reference.md-->
+
+**关键能力**：
+- 查看组织成员和工作空间
+- 查看组织设置（但无法修改）
+- 为 API 访问创建 [个人访问令牌](/langsmith/administration-overview#personal-access-tokens-pats)
+- 加入他们被邀请的工作空间
+
+**限制**：
+- 无法修改组织设置
+- 无法管理账单或订阅
+- 无法创建或删除工作空间
+- 无法邀请或移除组织成员
+- 无法管理角色或权限
+
+您可以将组织用户添加到一部分工作空间中，并分配工作空间角色（如果启用了 RBAC），这些角色指定了工作空间级别的权限。
+
+#### 组织查看者
+
+**描述**：对组织信息具有只读权限。
+
+**权限**：
+- `organization:read` - 对组织信息的读取权限
+
+<!--@include: @/snippets/python/langsmith/permissions-reference.md-->
+
+**关键能力**：
+- 查看组织成员和工作空间
+- 查看组织设置
+
+**限制**：
+- 无法在组织级别修改任何内容
+- 无法创建个人访问令牌
+- 无法管理账单、工作空间或成员
+
+### 工作空间角色
+
+工作空间角色是 **企业版 RBAC 功能** 的一部分，控制用户在工作空间内对资源可以执行的操作：
+
+| 角色 | 描述 |
+|------|-------------|
+| [工作空间管理员](#workspace-admin) | 对所有资源拥有完整权限，并能管理工作空间 |
+| [工作空间编辑者](#workspace-editor) | 对大多数资源拥有完整权限，无法管理工作空间设置或删除某些资源 |
+| [工作空间查看者](#workspace-viewer) | 对所有工作空间资源拥有只读权限 |
+
+<Note>
+
+RBAC（基于角色的访问控制）是一项仅对 [企业版](https://langchain.com/pricing) 客户可用的功能。如果您对此功能感兴趣，请[联系我们的销售团队](https://www.langchain.com/contact-sales)。其他计划默认将所有用户设置为管理员角色。
+
+</Note>
+
+#### 工作空间管理员
+
+**描述**：对所有资源拥有完整权限并能管理工作空间的角色。
+
+**权限**：
+- 对所有资源类型拥有创建、读取、更新、删除和共享的全部权限
+- 工作空间管理能力
+
+<!--@include: @/snippets/python/langsmith/permissions-reference.md-->
+
+#### 工作空间编辑者
+
+**描述**：对大多数资源拥有完整权限的角色。无法管理工作空间设置或删除某些关键资源。
+
+**与管理员的主要区别**：
+- 无法删除 [运行记录](/langsmith/observability#runs)
+- 无法管理工作空间设置（添加/移除成员、更改工作空间名称等）
+
+#### 工作空间查看者
+
+**描述**：对所有工作空间资源拥有只读权限。
+
+**权限**：对所有资源类型拥有只读权限。
+
+<!--@include: @/snippets/python/langsmith/permissions-reference.md-->
+
+<Tip>
+
+有关为用户分配工作空间角色的分步说明，请参阅 [用户管理指南](/langsmith/user-management#assign-a-role-to-a-user)。
+
+</Tip>
+
+## 自定义角色
+
+<Info>
+创建自定义角色适用于企业版计划中的组织。
+</Info>
+
+[组织管理员](#organization-admin) 可以创建自定义角色，这些角色包含根据其组织需求定制的特定权限组合。
+
+### 创建自定义角色
+
+自定义角色在 [组织](/langsmith/administration-overview#organizations) 级别创建，可以分配给该组织内任何 [工作空间](/langsmith/administration-overview#workspaces) 中的用户。
+
+**步骤**：
+1. 导航到组织 **设置** > **角色**。
+2. 点击 **创建自定义角色**。
+3. 选择要包含在该角色中的权限。
+4. 在特定工作空间中为用户分配自定义角色。
+
+有关每个操作需要哪些具体权限的详细信息，请参阅 [组织和工作空间操作参考](/langsmith/organization-workspace-operations)。
+
+请注意以下关于自定义角色的细节：
+
+- 自定义角色只能由组织管理员创建和管理。
+- 自定义角色是组织特定的（不能在组织之间转移）。
+- 每个自定义角色可以包含工作空间级别权限的任意组合。
+- 自定义角色不能拥有组织级别的权限。
+- 用户在不同的工作空间中可以拥有不同的角色（包括自定义角色）。

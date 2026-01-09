@@ -1,0 +1,52 @@
+---
+title: 重复发送消息
+sidebarTitle: Overview
+---
+
+<Info>
+
+<strong>前提条件</strong>
+* [Agent Server](/langsmith/agent-server)
+
+</Info>
+
+很多时候，用户可能会以非预期的方式与你的图（graph）进行交互。
+例如，用户可能发送一条消息，在图运行完成之前又发送了第二条消息。
+更一般地说，用户可能在第一次运行尚未完成时再次调用图。
+我们称这种情况为"双发消息"（double texting）。
+
+[入队](#enqueue-default) 是在 [Agent Server](/langsmith/agent-server) 中创建运行时的默认双发消息（多任务）策略。
+
+<Note>
+
+双发消息是 LangSmith Deployment 的一项功能。它在 [LangGraph 开源框架](/oss/langgraph/overview) 中不可用。
+
+</Note>
+
+![双发消息策略对比：首次运行与第二次运行：Reject 策略仅保留第一次；Enqueue 策略随后运行第二次；Interrupt 策略中断第一次以运行第二次；Rollback 策略回滚第一次并用第二次重新运行。](/langsmith/images/double-texting.png)
+
+## 入队（默认）
+
+此选项允许当前运行完成后再处理任何新的输入。传入的请求会被排队，并在之前的运行完成后按顺序执行。
+
+关于如何配置入队双发消息选项，请参考 [操作指南](/langsmith/enqueue-concurrent)。
+
+## 拒绝
+
+此选项会在当前运行正在进行时拒绝任何额外的传入运行，防止并发执行或双发消息。
+
+关于如何配置拒绝双发消息选项，请参考 [操作指南](/langsmith/reject-concurrent)。
+
+## 中断
+
+此选项会停止当前执行，并保留到中断点为止的进度。然后插入新的用户输入，并从该状态继续执行。
+
+使用此选项时，你的图必须考虑到潜在的边缘情况。例如，一个工具调用可能已经启动但在中断时尚未完成。在这些情况下，可能需要处理或移除部分工具调用，以避免未解决的操作。
+
+关于如何配置中断双发消息选项，请参考 [操作指南](/langsmith/interrupt-concurrent)。
+
+## 回滚
+
+此选项会停止当前执行，并在处理新的用户输入之前回滚所有进度——包括初始运行输入。新的输入被视为一次全新的运行，从初始状态开始。
+
+关于如何配置回滚双发消息选项，请参考 [操作指南](/langsmith/rollback-concurrent)。

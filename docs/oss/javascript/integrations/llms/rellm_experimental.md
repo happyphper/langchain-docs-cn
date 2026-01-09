@@ -1,0 +1,101 @@
+---
+title: RELLM
+---
+[RELLM](https://github.com/r2d4/rellm) 是一个用于对本地 Hugging Face pipeline 模型进行结构化解码的包装库。
+
+它的工作原理是每次生成一个 token。在每一步，它会屏蔽掉不符合所提供的部分正则表达式模式的 token。
+
+**警告 - 此模块仍处于实验阶段**
+
+```python
+pip install -qU  rellm langchain-huggingface > /dev/null
+```
+
+### Hugging Face 基线
+
+首先，我们通过检查模型在没有结构化解码时的输出，来建立一个定性的基线。
+
+```python
+import logging
+
+logging.basicConfig(level=logging.ERROR)
+prompt = """Human: "What's the capital of the United States?"
+AI Assistant:{
+  "action": "Final Answer",
+  "action_input": "The capital of the United States is Washington D.C."
+}
+Human: "What's the capital of Pennsylvania?"
+AI Assistant:{
+  "action": "Final Answer",
+  "action_input": "The capital of Pennsylvania is Harrisburg."
+}
+Human: "What 2 + 5?"
+AI Assistant:{
+  "action": "Final Answer",
+  "action_input": "2 + 5 = 7."
+}
+Human: 'What's the capital of Maryland?'
+AI Assistant:"""
+```
+
+```python
+from langchain_huggingface import HuggingFacePipeline
+from transformers import pipeline
+
+hf_model = pipeline(
+    "text-generation", model="cerebras/Cerebras-GPT-590M", max_new_tokens=200
+)
+
+original_model = HuggingFacePipeline(pipeline=hf_model)
+
+generated = original_model.generate([prompt], stop=["Human:"])
+print(generated)
+```
+
+```text
+Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+```
+
+```text
+generations=[[Generation(text=' "What\'s the capital of Maryland?"\n', generation_info=None)]] llm_output=None
+```
+
+***这并不令人印象深刻，对吧？它没有回答问题，也完全没有遵循 JSON 格式！让我们尝试使用结构化解码器。***
+
+## RELLM LLM 包装器
+
+现在让我们再试一次，这次提供一个正则表达式来匹配 JSON 结构化格式。
+
+```python
+import regex  # 注意这是 regex 库，不是 Python 的 re 标准库模块
+
+# 我们将选择一个正则表达式来匹配如下结构的 JSON 字符串：
+# {
+#  "action": "Final Answer",
+# "action_input": string or dict
+# }
+pattern = regex.compile(
+    r'\{\s*"action":\s*"Final Answer",\s*"action_input":\s*(\{.*\}|"[^"]*")\s*\}\nHuman:'
+)
+```
+
+```python
+from langchain_experimental.llms import RELLM
+
+model = RELLM(pipeline=hf_model, regex=pattern, max_new_tokens=200)
+
+generated = model.predict(prompt, stop=["Human:"])
+print(generated)
+```
+
+```json
+{"action": "Final Answer",
+  "action_input": "The capital of Maryland is Baltimore."
+}
+```
+
+**瞧！没有解析错误。**
+
+```python
+
+```

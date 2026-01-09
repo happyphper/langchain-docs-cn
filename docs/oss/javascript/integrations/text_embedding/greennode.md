@@ -1,0 +1,198 @@
+---
+title: GreenNodeEmbeddings
+---
+>[GreenNode](https://greennode.ai/) 是一家全球 AI 解决方案提供商，也是 **NVIDIA 首选合作伙伴**，为美国、中东和北非以及亚太地区的企业提供从基础设施到应用的全栈 AI 能力。GreenNode 基于**世界级的基础设施**（LEED 金级认证、TIA‑942、Uptime Tier III）运营，为企业、初创公司和研究人员提供全面的 AI 服务套件。
+
+本指南提供了 `GreenNodeEmbeddings` 的入门指引。它使您能够通过生成高质量的文本向量表示，使用各种内置连接器或您自己的自定义数据源执行语义文档搜索。
+
+## 概述
+
+### 集成详情
+
+| 提供商 | 包 |
+|:--------:|:-------:|
+| [GreenNode](/oss/integrations/providers/greennode/) | [langchain-greennode](https://python.langchain.com/v0.2/api_reference/langchain_greennode/embeddings/langchain_greennode.embeddingsGreenNodeEmbeddings.html) |
+
+## 设置
+
+要访问 GreenNode 的嵌入模型，您需要创建一个 GreenNode 账户，获取 API 密钥，并安装 `langchain-greennode` 集成包。
+
+### 凭证
+
+GreenNode 需要一个 API 密钥进行身份验证，该密钥可以在初始化时作为 `api_key` 参数提供，也可以设置为环境变量 `GREENNODE_API_KEY`。您可以通过在 [GreenNode Serverless AI](https://aiplatform.console.greennode.ai/playground) 上注册账户来获取 API 密钥。
+
+```python
+import getpass
+import os
+
+if not os.getenv("GREENNODE_API_KEY"):
+    os.environ["GREENNODE_API_KEY"] = getpass.getpass("Enter your GreenNode API key: ")
+```
+
+如果您希望自动追踪模型调用，也可以通过取消注释以下代码来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+```
+
+### 安装
+
+LangChain GreenNode 集成位于 `langchain-greennode` 包中：
+
+```python
+pip install -qU langchain-greennode
+```
+
+## 实例化
+
+`GreenNodeEmbeddings` 类可以通过 API 密钥和模型名称等可选参数进行实例化：
+
+```python
+from langchain_greennode import GreenNodeEmbeddings
+
+# 初始化嵌入模型
+embeddings = GreenNodeEmbeddings(
+    # api_key="YOUR_API_KEY",  # 您可以直接传入 API 密钥
+    model="BAAI/bge-m3"  # 默认的嵌入模型
+)
+```
+
+## 索引与检索
+
+嵌入模型在检索增强生成（RAG）工作流中扮演着关键角色，它既支持内容的索引，也支持其高效检索。
+下面，我们将使用上面初始化的 `embeddings` 对象来演示如何索引和检索数据。在这个例子中，我们将在 `InMemoryVectorStore` 中索引和检索一个示例文档。
+
+```python
+# 使用示例文本创建向量存储
+from langchain_core.vectorstores import InMemoryVectorStore
+
+text = "LangChain is the framework for building context-aware reasoning applications"
+
+vectorstore = InMemoryVectorStore.from_texts(
+    [text],
+    embedding=embeddings,
+)
+
+# 将向量存储用作检索器
+retriever = vectorstore.as_retriever()
+
+# 检索最相似的文本
+retrieved_documents = retriever.invoke("What is LangChain?")
+
+# 显示检索到的文档内容
+retrieved_documents[0].page_content
+```
+
+```text
+'LangChain is the framework for building context-aware reasoning applications'
+```
+
+## 直接使用
+
+`GreenNodeEmbeddings` 类可以独立使用来生成文本嵌入，而无需向量存储。这对于相似性评分、聚类或自定义处理流水线等任务非常有用。
+
+### 嵌入单个文本
+
+您可以使用 `embed_query` 嵌入单个文本或文档：
+
+```python
+single_vector = embeddings.embed_query(text)
+print(str(single_vector)[:100])  # 显示向量的前 100 个字符
+```
+
+```text
+[-0.01104736328125, -0.0281982421875, 0.0035858154296875, -0.0311279296875, -0.0106201171875, -0.039
+```
+
+### 嵌入多个文本
+
+您可以使用 `embed_documents` 嵌入多个文本：
+
+```python
+text2 = (
+    "LangGraph is a library for building stateful, multi-actor applications with LLMs"
+)
+two_vectors = embeddings.embed_documents([text, text2])
+for vector in two_vectors:
+    print(str(vector)[:100])  # 显示向量的前 100 个字符
+```
+
+```text
+[-0.01104736328125, -0.0281982421875, 0.0035858154296875, -0.0311279296875, -0.0106201171875, -0.039
+[-0.07177734375, -0.00017452239990234375, -0.002044677734375, -0.0299072265625, -0.0184326171875, -0
+```
+
+### 异步支持
+
+GreenNodeEmbeddings 支持异步操作：
+
+```python
+import asyncio
+
+async def generate_embeddings_async():
+    # 嵌入单个查询
+    query_result = await embeddings.aembed_query("What is the capital of France?")
+    print(f"Async query embedding dimension: {len(query_result)}")
+
+    # 嵌入多个文档
+    docs = [
+        "Paris is the capital of France",
+        "Berlin is the capital of Germany",
+        "Rome is the capital of Italy",
+    ]
+    docs_result = await embeddings.aembed_documents(docs)
+    print(f"Async document embeddings count: {len(docs_result)}")
+
+await generate_embeddings_async()
+```
+
+```text
+Async query embedding dimension: 1024
+Async document embeddings count: 3
+```
+
+### 文档相似性示例
+
+```python
+import numpy as np
+from scipy.spatial.distance import cosine
+
+# 创建一些文档
+documents = [
+    "Machine learning algorithms build mathematical models based on sample data",
+    "Deep learning uses neural networks with many layers",
+    "Climate change is a major global environmental challenge",
+    "Neural networks are inspired by the human brain's structure",
+]
+
+# 嵌入文档
+embeddings_list = embeddings.embed_documents(documents)
+
+# 计算相似性的函数
+def calculate_similarity(embedding1, embedding2):
+    return 1 - cosine(embedding1, embedding2)
+
+# 打印相似性矩阵
+print("Document Similarity Matrix:")
+for i, emb_i in enumerate(embeddings_list):
+    similarities = []
+    for j, emb_j in enumerate(embeddings_list):
+        similarity = calculate_similarity(emb_i, emb_j)
+        similarities.append(f"{similarity:.4f}")
+    print(f"Document {i + 1}: {similarities}")
+```
+
+```text
+Document Similarity Matrix:
+Document 1: ['1.0000', '0.6005', '0.3542', '0.5788']
+Document 2: ['0.6005', '1.0000', '0.4154', '0.6170']
+Document 3: ['0.3542', '0.4154', '1.0000', '0.3528']
+Document 4: ['0.5788', '0.6170', '0.3528', '1.0000']
+```
+
+---
+
+## API 参考
+
+有关 GreenNode Serverless AI API 的更多详细信息，请访问 [GreenNode Serverless AI 文档](https://aiplatform.console.greennode.ai/api-docs/maas)。

@@ -1,0 +1,42 @@
+---
+title: Anyscale
+---
+>[Anyscale](https://www.anyscale.com) 是一个平台，可通过生产就绪的 API 来运行、微调和扩展 LLMs。
+> [Anyscale Endpoints](https://docs.anyscale.com/endpoints/overview) 以经济高效的方式提供许多开源模型。
+
+`Anyscale` 还提供了一个[示例](https://docs.anyscale.com/endpoints/model-serving/examples/langchain-integration)，说明如何将 `LangChain` 与 `Anyscale` 结合以构建高级聊天代理。
+
+## 安装与设置
+
+- 获取 Anyscale 服务 URL、路由和 API 密钥，并将它们设置为环境变量 (`ANYSCALE_SERVICE_URL`, `ANYSCALE_SERVICE_ROUTE`, `ANYSCALE_SERVICE_TOKEN`)。
+- 更多详情请参阅 [Anyscale 文档](https://www.anyscale.com/get-started)。
+
+我们需要安装 `openai` 包：
+
+::: code-group
+
+```bash [pip]
+pip install openai
+```
+
+```bash [uv]
+uv add openai
+```
+
+:::
+
+## LLM
+
+查看[使用示例](/oss/integrations/llms/anyscale)。
+
+```python
+from langchain_community.llms.anyscale import Anyscale
+```
+
+## 嵌入
+
+查看[使用示例](/oss/integrations/text_embedding/anyscale)。
+
+```python
+from langchain_community.embeddings import AnyscaleEmbeddings
+```

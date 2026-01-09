@@ -1,0 +1,309 @@
+---
+title: 使用 LangChain 构建 RAG 代理
+sidebarTitle: RAG agent
+---
+
+
+## 概述
+
+由大语言模型（LLM）实现的最强大应用之一是复杂的问答（Q&A）聊天机器人。这些应用能够回答关于特定源信息的问题。它们使用一种称为检索增强生成（Retrieval Augmented Generation，简称 [RAG](/oss/langchain/retrieval/)）的技术。
+
+本教程将展示如何基于非结构化文本数据源构建一个简单的问答应用。我们将演示：
+
+1.  一个使用简单工具执行搜索的 RAG [智能体](#rag-agents)。这是一个很好的通用实现。
+2.  一个两步 RAG [链](#rag-chains)，每个查询仅使用一次 LLM 调用。对于简单查询，这是一种快速有效的方法。
+
+### 概念
+
+我们将涵盖以下概念：
+
+-   **索引**：从源摄取数据并为其建立索引的流水线。*这通常在一个独立的进程中完成。*
+-   **检索与生成**：实际的 RAG 过程，它在运行时接收用户查询，从索引中检索相关数据，然后将其传递给模型。
+
+一旦我们为数据建立了索引，我们将使用一个[智能体](/oss/langchain/agents)作为编排框架来实现检索和生成步骤。
+
+<Note>
+
+本教程的索引部分将主要遵循[语义搜索教程](/oss/langchain/knowledge-base)。
+
+如果你的数据已经可供搜索（即，你有一个执行搜索的函数），或者你已经熟悉该教程的内容，可以跳过并直接阅读[检索与生成](#2-retrieval-and-generation)部分。
+
+</Note>
+
+### 预览
+
+在本指南中，我们将构建一个回答关于网站内容问题的应用。我们将使用的具体网站是 Lilian Weng 的 [LLM Powered Autonomous Agents](https://lilianweng.github.io/posts/2023-06-23-agent/) 博客文章，这允许我们就文章内容提问。
+
+我们可以创建一个简单的索引流水线和 RAG 链，用大约 40 行代码完成这项工作。完整代码片段如下：
+
+:::: details 展开查看完整代码片段
+
+```python
+import bs4
+from langchain.agents import AgentState, create_agent
+from langchain_community.document_loaders import WebBaseLoader
+from langchain.messages import MessageLikeRepresentation
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+# 加载并分块博客内容
+loader = WebBaseLoader(
+    web_paths=("https://lilianweng.github.io/posts/2023-06-23-agent/",),
+    bs_kwargs=dict(
+        parse_only=bs4.SoupStrainer(
+            class_=("post-content", "post-title", "post-header")
+        )
+    ),
+)
+docs = loader.load()
+
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+all_splits = text_splitter.split_documents(docs)
+
+# 索引分块
+_ = vector_store.add_documents(documents=all_splits)
+
+# 构建用于检索上下文的工具
+@tool(response_format="content_and_artifact")
+def retrieve_context(query: str):
+    """检索信息以帮助回答问题。"""
+    retrieved_docs = vector_store.similarity_search(query, k=2)
+    serialized = "\n\n".join(
+        (f"Source: {doc.metadata}\nContent: {doc.page_content}")
+        for doc in retrieved_docs
+    )
+    return serialized, retrieved_docs
+
+tools = [retrieve_context]
+# 如果需要，可以指定自定义指令
+prompt = (
+    "你可以访问一个从博客文章中检索上下文的工具。"
+    "使用该工具来帮助回答用户查询。"
+)
+agent = create_agent(model, tools, system_prompt=prompt)
+```
+
+```python
+query = "What is task decomposition?"
+for step in agent.stream(
+    {"messages": [{"role": "user", "content": query}]},
+    stream_mode="values",
+):
+    step["messages"][-1].pretty_print()
+```
+
+```
+================================ Human Message =================================
+
+What is task decomposition?
+================================== Ai Message ==================================
+Tool Calls:
+  retrieve_context (call_xTkJr8njRY0geNz43ZvGkX0R)
+ Call ID: call_xTkJr8njRY0geNz43ZvGkX0R
+  Args:
+    query: task decomposition
+================================= Tool Message =================================
+Name: retrieve_context
+
+Source: {'source': 'https://lilianweng.github.io/posts/2023-06-23-agent/'}
+Content: Task decomposition can be done by...
+
+Source: {'source': 'https://lilianweng.github.io/posts/2023-06-23-agent/'}
+Content: Component One: Planning...
+================================== Ai Message ==================================
+
+Task decomposition refers to...
+```
+
+查看 [LangSmith 追踪记录](https://smith.langchain.com/public/a117a1f8-c96c-4c16-a285-00b85646118e/r)。
+
+::::
+
+## 环境设置
+
+### 安装
+
+本教程需要以下 langchain 依赖项：
+
+::: code-group
+
+```bash [pip]
+pip install langchain langchain-text-splitters langchain-community bs4
+```
+
+```bash [uv]
+uv add langchain langchain-text-splitters langchain-community bs4
+```
+
+:::
+
+更多详情，请参阅我们的[安装指南](/oss/langchain/install)。
+
+### LangSmith
+
+使用 LangChain 构建的许多应用将包含多个步骤和多次 LLM 调用。随着这些应用变得越来越复杂，能够检查链或智能体内部究竟发生了什么变得至关重要。最好的方法是使用 [LangSmith](https://smith.langchain.com)。
+
+在上述链接注册后，请确保设置环境变量以开始记录追踪：
+
+```shell
+export LANGSMITH_TRACING="true"
+export LANGSMITH_API_KEY="..."
+```
+
+或者，在 Python 中设置：
+
+```python
+import getpass
+import os
+
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass()
+```
+
+### 组件
+
+我们需要从 LangChain 的集成套件中选择三个组件。
+
+选择一个聊天模型：
+<!--@include: @/snippets/python/chat-model-tabs.md-->
+
+选择一个嵌入模型：
+<!--@include: @/snippets/python/embeddings-tabs-py.md-->
+
+选择一个向量存储：
+<!--@include: @/snippets/python/vectorstore-tabs-py.md-->
+
+## 1. 索引
+
+<Note>
+
+<strong>本节是[语义搜索教程](/oss/langchain/knowledge-base)内容的精简版。</strong>
+
+如果你的数据已经建立索引并可供搜索（即，你有一个执行搜索的函数），或者你熟悉[文档加载器](/oss/langchain/retrieval#document_loaders)、[嵌入](/oss/langchain/retrieval#embedding_models)和[向量存储](/oss/langchain/retrieval#vectorstores)，可以跳过本节，直接阅读下一节关于[检索与生成](/oss/langchain/rag#2-retrieval-and-generation)的内容。
+
+</Note>
+
+索引通常按以下方式工作：
+
+1.  **加载**：首先我们需要加载数据。这通过[文档加载器](/oss/langchain/retrieval#document_loaders)完成。
+2.  **分割**：[文本分割器](/oss/langchain/retrieval#text_splitters)将大的 `Document` 分割成更小的块。这对于索引数据和将其传递给模型都很有用，因为大块内容更难搜索，并且可能无法放入模型的有限上下文窗口。
+3.  **存储**：我们需要一个地方来存储和索引我们的分割块，以便以后可以搜索它们。这通常使用[向量存储](/oss/langchain/retrieval#vectorstores)和[嵌入](/oss/langchain/retrieval#embedding_models)模型来完成。
+
+![索引示意图](/images/rag_indexing.png)
+
+### 加载文档
+
+我们首先需要加载博客文章的内容。我们可以使用[文档加载器](/oss/langchain/retrieval#document_loaders)，这些对象从源加载数据并返回一个 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link">Document</a> 对象列表。
+
+在本例中，我们将使用 [`WebBaseLoader`](/oss/integrations/document_loaders/web_base)，它使用 `urllib` 从网页 URL 加载 HTML，并使用 `BeautifulSoup` 将其解析为文本。我们可以通过 `bs_kwargs` 向 `BeautifulSoup` 解析器传递参数来自定义 HTML -> 文本的解析（参见 [BeautifulSoup 文档](https://beautiful-soup-4.readthedocs.io/en/latest/#beautifulsoup)）。在本例中，只有类名为 "post-content"、"post-title" 或 "post-header" 的 HTML 标签是相关的，因此我们将删除所有其他标签。
+
+```python
+import bs4
+from langchain_community.document_loaders import WebBaseLoader
+
+# 仅保留完整 HTML 中的文章标题、标题和内容。
+bs4_strainer = bs4.SoupStrainer(class_=("post-title", "post-header", "post-content"))
+loader = WebBaseLoader(
+    web_paths=("https://lilianweng.github.io/posts/2023-06-23-agent/",),
+    bs_kwargs={"parse_only": bs4_strainer},
+)
+docs = loader.load()
+
+assert len(docs) == 1
+print(f"Total characters: {len(docs[0].page_content)}")
+```
+
+```text
+Total characters: 43131
+```
+
+```python
+print(docs[0].page_content[:500])
+```
+
+```text
+      LLM Powered Autonomous Agents
+
+Date: June 23, 2023  |  Estimated Reading Time: 31 min  |  Author: Lilian Weng
+
+Building agents with LLM (large language model) as its core controller is a cool concept. Several proof-of-concepts demos, such as AutoGPT, GPT-Engineer and BabyAGI, serve as inspiring examples. The potentiality of LLM extends beyond generating well-written copies, stories, essays and programs; it can be framed as a powerful general problem solver.
+Agent System Overview#
+In
+```
+
+**深入了解**
+
+`DocumentLoader`：从源加载数据作为 `Document` 列表的对象。
+
+-   [集成](/oss/integrations/document_loaders/)：160+ 个集成可供选择。
+-   <a href="https://reference.langchain.com/python/langchain_core/document_loaders/#langchain_core.document_loaders.BaseLoader" target="_blank" rel="noreferrer" class="link"><code>BaseLoader</code></a>：基础接口的 API 参考。
+
+### 分割文档
+
+我们加载的文档超过 42k 个字符，这对于许多模型的上下文窗口来说太长了。即使对于那些能够将整篇文章放入其上下文窗口的模型，模型也可能难以在非常长的输入中找到信息。
+
+为了解决这个问题，我们将把 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link"><code>Document</code></a> 分割成块以进行嵌入和向量存储。这应该有助于我们在运行时仅检索博客文章中最相关的部分。
+
+与[语义搜索教程](/oss/langchain/knowledge-base)中一样，我们使用 `RecursiveCharacterTextSplitter`，它将使用换行符等常见分隔符递归地分割文档，直到每个块达到合适的大小。这是通用文本用例推荐的文本分割器。
+
+```python
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,  # 块大小（字符数）
+    chunk_overlap=200,  # 块重叠（字符数）
+    add_start_index=True,  # 跟踪原始文档中的索引
+)
+all_splits = text_splitter.split_documents(docs)
+
+print(f"Split blog post into {len(all_splits)} sub-documents.")
+```
+
+```text
+Split blog post into 66 sub-documents.
+```
+
+**深入了解**
+
+`TextSplitter`：将 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link"><code>Document</code></a> 对象列表分割成更小块以供存储和检索的对象。
+
+-   [集成](/oss/integrations/splitters/)
+-   [接口](https://python.langchain.com/api_reference/text_splitters/base/langchain_text_splitters.base.TextSplitter.html)：基础接口的 API 参考。
+
+### 存储文档
+
+现在我们需要索引我们的 66 个文本块，以便在运行时可以搜索它们。遵循[语义搜索教程](/oss/langchain/knowledge-base)，我们的方法是[嵌入](/oss/langchain/retrieval#embedding_models/)每个文档分割块的内容，并将这些嵌入插入到[向量存储](/oss/langchain/retrieval#vectorstores/)中。给定一个输入查询，我们就可以使用向量搜索来检索相关文档。
+
+我们可以使用在[教程开始](/oss/langchain/rag#components)时选择的向量存储和嵌入模型，通过一个命令嵌入和存储所有文档分割块。
+
+```python
+document_ids = vector_store.add_documents(documents=all_splits)
+
+print(document_ids[:3])
+```
+
+```python
+['07c18af6-ad58-479a-bfb1-d508033f9c64', '9000bf8e-1993-446f-8d4d-f4e507ba4b8f', 'ba3b5d14-bed9-4f5f-88be-44c88aedc2e6']
+```
+
+**深入了解**
+
+`Embeddings`：文本嵌入模型的包装器，用于将文本转换为嵌入向量。
+
+-   [集成](/oss/integrations/text_embedding/)：30+ 个集成可供选择。
+-   <a href="https://reference.langchain.com/python/langchain_core/embeddings/#langchain_core.embeddings.embeddings.Embeddings" target="_blank" rel="noreferrer" class="link">接口</a>：基础接口的 API 参考。
+
+`VectorStore`：向量数据库的包装器，用于存储和查询嵌入向量。
+
+-   [集成](/oss/integrations/vectorstores/)：40+ 个集成可供选择。
+-   [接口](https://python.langchain.com/api_reference/core/vectorstores/langchain_core.vectorstores.base.VectorStore.html)：基础接口的 API 参考。
+
+这就完成了流水线的**索引**部分。此时，我们拥有一个包含博客文章分块内容的可查询向量存储。给定一个用户问题，我们理想情况下应该能够返回回答该问题的博客文章片段。
+
+## 2. 检索与生成
+
+RAG 应用通常按以下方式工作：
+
+1.  **检索**：给定用户输入，使用[检索器](/oss/langchain/retrieval#retrievers)从存储中检索相关的分割块。
+2.  **生成**：[模型](/oss/langchain/models)使用一个包含问题和检索到的数据的提示来生成答案。
+
+![检索示意图](/images/rag_

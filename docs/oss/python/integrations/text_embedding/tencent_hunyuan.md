@@ -1,0 +1,52 @@
+---
+title: 腾讯混元
+---
+`TencentHunyuanEmbeddings` 类使用腾讯混元 API 为给定文本生成嵌入向量。
+
+## 设置
+
+1. 在此处注册腾讯云账户 [here](https://cloud.tencent.com/register)。
+2. 在此处创建 SecretID 和 SecretKey [here](https://console.cloud.tencent.com/cam/capi)。
+3. 将 SecretID 和 SecretKey 分别设置为名为 `TENCENT_SECRET_ID` 和 `TENCENT_SECRET_KEY` 的环境变量。
+
+<Tip>
+
+有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm install @langchain/community @langchain/core
+```
+如果您在浏览器环境中使用 LangChain.js，还需要安装以下依赖项：
+
+```bash [npm]
+npm install crypto-js
+```
+
+然后确保按如下所示从 `web` 导入。
+
+## 用法
+
+以下是一个示例：
+
+```typescript
+// 在 nodejs 环境中
+import { TencentHunyuanEmbeddings } from "@langchain/community/embeddings/tencent_hunyuan";
+
+// 在浏览器环境中
+// import { TencentHunyuanEmbeddings } from "@langchain/community/embeddings/tencent_hunyuan/web";
+
+/* 嵌入查询 */
+const embeddings = new TencentHunyuanEmbeddings();
+const res = await embeddings.embedQuery("你好，世界！");
+console.log(res);
+/* 嵌入文档 */
+const documentRes = await embeddings.embedDocuments(["你好，世界！", "再见"]);
+console.log({ documentRes });
+```
+
+## 相关链接
+
+- 嵌入模型 [概念指南](/oss/integrations/text_embedding)
+- 嵌入模型 [操作指南](/oss/integrations/text_embedding)

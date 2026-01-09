@@ -1,0 +1,44 @@
+---
+title: Gradient AI
+---
+`GradientEmbeddings` 类使用 Gradient AI API 为给定文本生成嵌入向量。
+
+## 设置
+
+你需要安装官方的 Gradient Node SDK 作为对等依赖：
+
+```bash [npm]
+npm i @langchain/community @langchain/core @gradientai/nodejs-sdk
+```
+你需要设置以下环境变量以使用 Gradient AI API。
+
+```
+export GRADIENT_ACCESS_TOKEN=<你的访问令牌>
+export GRADIENT_WORKSPACE_ID=<你的工作空间ID>
+```
+或者，这些也可以在实例化 `GradientAI` 类时分别作为 `gradientAccessKey` 和 `workspaceId` 进行设置。
+例如：
+
+```typescript
+const model = new GradientEmbeddings({
+  gradientAccessKey: "我的秘密访问令牌"
+  workspaceId: "我的秘密工作空间ID"
+});
+```
+
+## 用法
+
+```typescript
+import { GradientEmbeddings } from "@langchain/community/embeddings/gradient_ai";
+
+const model = new GradientEmbeddings({});
+const res = await model.embedQuery(
+  "一家生产彩色袜子的公司，起什么名字好？"
+);
+console.log({ res });
+```
+
+## 相关链接
+
+- 嵌入模型 [概念指南](/oss/integrations/text_embedding)
+- 嵌入模型 [操作指南](/oss/integrations/text_embedding)

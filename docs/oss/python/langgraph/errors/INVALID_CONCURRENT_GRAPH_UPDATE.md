@@ -1,0 +1,46 @@
+---
+title: 无效的并发图更新
+---
+当 LangGraph 的 [`StateGraph`](https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph) 从多个节点接收到对某个不支持并发更新的状态属性进行并发更新时，会发生此错误。
+
+一种可能的情况是，你在图中使用了[扇出（fanout）](/oss/langgraph/graph-api#map-reduce-and-the-send-api)或其他并行执行，并且定义了类似以下的图：
+
+```python
+class State(TypedDict):
+    some_key: str  # [!code highlight]
+
+def node(state: State):
+    return {"some_key": "some_string_value"}
+
+def other_node(state: State):
+    return {"some_key": "some_string_value"}
+
+builder = StateGraph(State)
+builder.add_node(node)
+builder.add_node(other_node)
+builder.add_edge(START, "node")
+builder.add_edge(START, "other_node")
+graph = builder.compile()
+```
+
+如果上述图中的某个节点返回 `{ "some_key": "some_string_value" }`，这将用 `"some_string_value"` 覆盖 `"some_key"` 的状态值。
+但是，如果在单个步骤中（例如在扇出操作中）有多个节点返回 `"some_key"` 的值，图将抛出此错误，因为存在如何更新内部状态的不确定性。
+
+要解决这个问题，你可以定义一个合并多个值的归约器（reducer）：
+
+```python
+import operator
+from typing import Annotated
+
+class State(TypedDict):
+    # operator.add 归约函数使其变为仅追加  # [!code highlight]
+    some_key: Annotated[list, operator.add]  # [!code highlight]
+```
+
+这将允许你定义处理从并行执行的多个节点返回的相同键的逻辑。
+
+## 故障排除
+
+以下方法可能有助于解决此错误：
+
+* 如果你的图并行执行节点，请确保已为相关的状态键定义了归约器。

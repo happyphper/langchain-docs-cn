@@ -1,0 +1,285 @@
+---
+title: Elasticsearch
+---
+
+<Tip>
+
+<strong>兼容性</strong>：仅在 Node.js 环境下可用。
+
+</Tip>
+
+[Elasticsearch](https://github.com/elastic/elasticsearch) 是一个分布式的、RESTful 风格的搜索引擎，针对生产规模工作负载的速度和相关性进行了优化。它还支持使用 [k-最近邻](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm) (kNN) 算法进行向量搜索，以及[用于自然语言处理的自定义模型](https://www.elastic.co/blog/how-to-deploy-nlp-text-embeddings-and-vector-search) (NLP)。
+你可以在此处[阅读更多关于 Elasticsearch 向量搜索支持的信息](https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html)。
+
+本指南提供了 Elasticsearch [向量存储](/oss/integrations/vectorstores) 的快速入门概述。有关 `ElasticVectorSearch` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_elasticsearch.ElasticVectorSearch.html)。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | [PY 支持](https://python.langchain.com/docs/integrations/vectorstores/elasticsearch/) | 版本 |
+| :--- | :--- | :---: | :---: |
+| [`ElasticVectorSearch`](https://api.js.langchain.com/classes/langchain_community_vectorstores_elasticsearch.ElasticVectorSearch.html) | [`@langchain/community`](https://www.npmjs.com/package/@langchain/community) | ✅ |  ![NPM - Version](https://img.shields.io/npm/v/@langchain/community?style=flat-square&label=%20&) |
+
+## 设置
+
+要使用 Elasticsearch 向量存储，你需要安装 `@langchain/community` 集成包。
+
+LangChain.js 接受 [`@elastic/elasticsearch`](https://github.com/elastic/elasticsearch-js) 作为 Elasticsearch 向量存储的客户端。你需要将其作为对等依赖项安装。
+
+本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。如果你愿意，也可以使用[其他支持的嵌入模型](/oss/integrations/text_embedding)。
+
+::: code-group
+
+```bash [npm]
+npm install @langchain/community @elastic/elasticsearch @langchain/openai @langchain/core
+```
+
+```bash [yarn]
+yarn add @langchain/community @elastic/elasticsearch @langchain/openai @langchain/core
+```
+
+```bash [pnpm]
+pnpm add @langchain/community @elastic/elasticsearch @langchain/openai @langchain/core
+```
+
+:::
+
+### 凭证
+
+要使用 Elasticsearch 向量存储，你需要有一个正在运行的 Elasticsearch 实例。
+
+你可以使用[官方 Docker 镜像](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html) 开始，或者使用 [Elastic Cloud](https://www.elastic.co/cloud/)，这是 Elastic 的官方云服务。
+
+要连接到 Elastic Cloud，你可以阅读[此处](https://www.elastic.co/guide/en/kibana/current/api-keys.html) 报告的文档以获取 API 密钥。
+
+如果你在本指南中使用 OpenAI 嵌入，你还需要设置你的 OpenAI 密钥：
+
+```typescript
+process.env.OPENAI_API_KEY = "YOUR_API_KEY";
+```
+
+如果你想获取模型调用的自动追踪，也可以通过取消注释以下内容来设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```typescript
+// process.env.LANGSMITH_TRACING="true"
+// process.env.LANGSMITH_API_KEY="your-api-key"
+```
+
+## 实例化
+
+Elasticsearch 的实例化将根据你的实例托管位置而有所不同。
+
+```typescript
+import {
+  ElasticVectorSearch,
+  type ElasticClientArgs,
+} from "@langchain/community/vectorstores/elasticsearch";
+import { OpenAIEmbeddings } from "@langchain/openai";
+
+import { Client, type ClientOptions } from "@elastic/elasticsearch";
+
+import * as fs from "node:fs";
+
+const embeddings = new OpenAIEmbeddings({
+  model: "text-embedding-3-small",
+});
+
+const config: ClientOptions = {
+  node: process.env.ELASTIC_URL ?? "https://127.0.0.1:9200",
+};
+
+if (process.env.ELASTIC_API_KEY) {
+  config.auth = {
+    apiKey: process.env.ELASTIC_API_KEY,
+  };
+} else if (process.env.ELASTIC_USERNAME && process.env.ELASTIC_PASSWORD) {
+  config.auth = {
+    username: process.env.ELASTIC_USERNAME,
+    password: process.env.ELASTIC_PASSWORD,
+  };
+}
+// 本地 Docker 部署需要 TLS 证书
+if (process.env.ELASTIC_CERT_PATH) {
+  config.tls = {
+    ca: fs.readFileSync(process.env.ELASTIC_CERT_PATH),
+    rejectUnauthorized: false,
+  }
+}
+const clientArgs: ElasticClientArgs = {
+  client: new Client(config),
+  indexName: process.env.ELASTIC_INDEX ?? "test_vectorstore",
+};
+
+const vectorStore = new ElasticVectorSearch(embeddings, clientArgs);
+```
+
+## 混合搜索
+
+<Tip>
+
+混合搜索需要 Elasticsearch 8.9+ 以支持 RRF（倒数排序融合）。
+
+</Tip>
+
+混合搜索使用倒数排序融合 (RRF) 将 kNN 向量搜索与 BM25 全文搜索相结合，以提高搜索相关性。当你希望同时利用语义相似性和关键词匹配时，这非常有用。
+
+要启用混合搜索，请向构造函数传递一个 `HybridRetrievalStrategy`：
+
+```typescript
+import {
+  ElasticVectorSearch,
+  HybridRetrievalStrategy,
+  type ElasticClientArgs,
+} from "@langchain/community/vectorstores/elasticsearch";
+
+const hybridVectorStore = new ElasticVectorSearch(embeddings, {
+  client: new Client(config),
+  indexName: "test_hybrid_search",
+  strategy: new HybridRetrievalStrategy({
+    rankWindowSize: 100,  // RRF 要考虑的文档数量
+    rankConstant: 60,     // 用于分数标准化的 RRF 常数
+    textField: "text",    // 用于 BM25 全文搜索的字段
+  }),
+});
+```
+
+一旦配置完成，所有相似性搜索将自动使用混合搜索：
+
+```typescript
+// 现在使用混合搜索（向量 + BM25 + RRF）
+const results = await hybridVectorStore.similaritySearch(
+  "how to prevent muscle soreness while running",
+  5
+);
+```
+
+## 管理向量存储
+
+### 向向量存储添加项目
+
+```typescript
+import type { Document } from "@langchain/core/documents";
+
+const document1: Document = {
+  pageContent: "The powerhouse of the cell is the mitochondria",
+  metadata: { source: "https://example.com" }
+};
+
+const document2: Document = {
+  pageContent: "Buildings are made out of brick",
+  metadata: { source: "https://example.com" }
+};
+
+const document3: Document = {
+  pageContent: "Mitochondria are made out of lipids",
+  metadata: { source: "https://example.com" }
+};
+
+const document4: Document = {
+  pageContent: "The 2024 Olympics are in Paris",
+  metadata: { source: "https://example.com" }
+}
+
+const documents = [document1, document2, document3, document4];
+
+await vectorStore.addDocuments(documents, { ids: ["1", "2", "3", "4"] });
+```
+
+```python
+[ '1', '2', '3', '4' ]
+```
+
+### 从向量存储中删除项目
+
+你可以通过传入添加时使用的相同 id 来从存储中删除值：
+
+```typescript
+await vectorStore.delete({ ids: ["4"] });
+```
+
+## 查询向量存储
+
+一旦你的向量存储被创建并且相关文档已添加，你很可能会希望在运行链或代理时查询它。
+
+### 直接查询
+
+执行简单的相似性搜索可以按如下方式进行：
+
+```typescript
+const filter = [{
+  operator: "match",
+  field: "source",
+  value: "https://example.com",
+}];
+
+const similaritySearchResults = await vectorStore.similaritySearch("biology", 2, filter);
+
+for (const doc of similaritySearchResults) {
+  console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
+}
+```
+
+```text
+* The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
+* Mitochondria are made out of lipids [{"source":"https://example.com"}]
+```
+
+向量存储支持 [Elasticsearch 过滤器语法](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html) 运算符。
+
+如果你想执行相似性搜索并接收相应的分数，可以运行：
+
+```typescript
+const similaritySearchWithScoreResults = await vectorStore.similaritySearchWithScore("biology", 2, filter)
+
+for (const [doc, score] of similaritySearchWithScoreResults) {
+  console.log(`* [SIM=${score.toFixed(3)}] ${doc.pageContent} [${JSON.stringify(doc.metadata)}]`);
+}
+```
+
+```text
+* [SIM=0.374] The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
+* [SIM=0.370] Mitochondria are made out of lipids [{"source":"https://example.com"}]
+```
+
+### 转换为检索器进行查询
+
+你也可以将向量存储转换为[检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+
+```typescript
+const retriever = vectorStore.asRetriever({
+  // 可选过滤器
+  filter: filter,
+  k: 2,
+});
+await retriever.invoke("biology");
+```
+
+```javascript
+[
+  Document {
+    pageContent: 'The powerhouse of the cell is the mitochondria',
+    metadata: { source: 'https://example.com' },
+    id: undefined
+  },
+  Document {
+    pageContent: 'Mitochondria are made out of lipids',
+    metadata: { source: 'https://example.com' },
+    id: undefined
+  }
+]
+```
+
+### 用于检索增强生成
+
+有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
+
+- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
+- [智能体 RAG](/oss/langgraph/agentic-rag)
+- [检索文档](/oss/langchain/retrieval)
+
+---
+
+## API 参考
+
+有关 `ElasticVectorSearch` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_elasticsearch.ElasticVectorSearch.html)。

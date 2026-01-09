@@ -1,0 +1,128 @@
+---
+title: Azure Cosmos DB for MongoDB vCore
+---
+> [Azure Cosmos DB for MongoDB vCore](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/) 可以轻松创建具有完整原生 MongoDB 支持的数据库。您可以将应用程序指向 API for MongoDB vCore 帐户的连接字符串，从而应用您的 MongoDB 经验并继续使用您喜欢的 MongoDB 驱动程序、SDK 和工具。使用 Azure Cosmos DB for MongoDB vCore 中的向量搜索，将您的基于 AI 的应用程序与存储在 Azure Cosmos DB 中的数据无缝集成。
+
+Azure Cosmos DB for MongoDB vCore 为开发人员提供了一个完全托管的、与 MongoDB 兼容的数据库服务，用于通过熟悉的架构构建现代应用程序。
+
+从[此页面](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/vector-search)了解如何利用 Azure Cosmos DB for MongoDB vCore 的向量搜索功能。如果您没有 Azure 帐户，可以[创建一个免费帐户](https://azure.microsoft.com/free/)开始使用。
+
+## 设置
+
+您首先需要安装 [`@langchain/azure-cosmosdb`](https://www.npmjs.com/package/@langchain/azure-cosmosdb) 包：
+
+<Tip>
+
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm install @langchain/azure-cosmosdb @langchain/core
+```
+
+您还需要运行一个 Azure Cosmos DB for MongoDB vCore 实例。您可以按照[本指南](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/quickstart-portal)在 Azure 门户上免费部署一个版本。
+
+一旦您的实例运行起来，请确保您拥有连接字符串和管理密钥。您可以在 Azure 门户中，实例的“连接字符串”部分找到它们。然后您需要设置以下环境变量：
+
+```bash [.env vars]
+AZURE_COSMOSDB_MONGODB_CONNECTION_STRING=
+```
+
+## 示例
+
+下面是一个示例，它将文件中的文档索引到 Azure Cosmos DB for MongoDB vCore 中，运行向量搜索查询，最后使用一个链（chain）基于检索到的文档以自然语言回答问题。
+
+```typescript
+import {
+  AzureCosmosDBMongoDBVectorStore,
+  AzureCosmosDBMongoDBSimilarityType,
+} from "@langchain/azure-cosmosdb";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { createStuffDocumentsChain } from "@langchain/classic/chains/combine_documents";
+import { createRetrievalChain } from "@langchain/classic/chains/retrieval";
+import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
+import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+
+// 从文件加载文档
+const loader = new TextLoader("./state_of_the_union.txt");
+const rawDocuments = await loader.load();
+const splitter = new RecursiveCharacterTextSplitter({
+  chunkSize: 1000,
+  chunkOverlap: 0,
+});
+const documents = await splitter.splitDocuments(rawDocuments);
+
+// 创建 Azure Cosmos DB for MongoDB vCore 向量存储
+const store = await AzureCosmosDBMongoDBVectorStore.fromDocuments(
+  documents,
+  new OpenAIEmbeddings(),
+  {
+    databaseName: "langchain",
+    collectionName: "documents",
+    indexOptions: {
+      numLists: 100,
+      dimensions: 1536,
+      similarity: AzureCosmosDBMongoDBSimilarityType.COS,
+    },
+  }
+);
+
+// 执行相似性搜索
+const resultDocuments = await store.similaritySearch(
+  "What did the president say about Ketanji Brown Jackson?"
+);
+
+console.log("相似性搜索结果：");
+console.log(resultDocuments[0].pageContent);
+/*
+  Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
+
+  Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
+
+  One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
+
+  And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
+*/
+
+// 将存储作为链的一部分使用
+const model = new ChatOpenAI({ model: "gpt-3.5-turbo-1106" });
+const questionAnsweringPrompt = ChatPromptTemplate.fromMessages([
+  [
+    "system",
+    "根据以下上下文回答用户的问题：\n\n{context}",
+  ],
+  ["human", "{input}"],
+]);
+
+const combineDocsChain = await createStuffDocumentsChain({
+  llm: model,
+  prompt: questionAnsweringPrompt,
+});
+
+const chain = await createRetrievalChain({
+  retriever: store.asRetriever(),
+  combineDocsChain,
+});
+
+const res = await chain.invoke({
+  input: "What is the president's top priority regarding prices?",
+});
+
+console.log("链式响应：");
+console.log(res.answer);
+/*
+  The president's top priority is getting prices under control.
+*/
+
+// 清理
+await store.delete();
+
+await store.close();
+```
+
+## 相关链接
+
+- 向量存储[概念指南](/oss/integrations/vectorstores)
+- 向量存储[操作指南](/oss/integrations/vectorstores)

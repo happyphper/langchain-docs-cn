@@ -1,0 +1,52 @@
+---
+title: 并行
+---
+本页面涵盖 LangChain 与 [Parallel](https://platform.parallel.ai/) 的所有集成。
+
+## 安装与设置
+
+`Parallel` 集成存在于其独立的 [合作伙伴包](https://pypi.org/project/langchain-parallel/) 中。您可以通过以下方式安装：
+
+::: code-group
+
+```bash [pip]
+pip install -qU langchain-parallel
+```
+```bash [uv]
+uv add langchain-parallel
+```
+
+:::
+
+为了使用该包，您还需要将 `PARALLEL_API_KEY` 环境变量设置为您在 Parallel 的 API 密钥。您可以通过 [在 Parallel 注册](https://platform.parallel.ai) 来获取 API 密钥。
+
+## 模型接口
+
+<Columns :cols="2">
+
+<Card title="ChatParallelWeb" href="/oss/integrations/chat/parallel" cta="Get started" icon="message" arrow>
+
+具备实时网络搜索能力的聊天模型。
+
+</Card>
+
+</Columns>
+
+## 工具与工具包
+
+<Columns :cols="2">
+
+<Card title="ParallelWebSearchTool" href="/oss/integrations/tools/parallel_search" cta="Get started" icon="magnifying-glass" arrow>
+
+搜索网络。
+
+</Card>
+
+<Card title="ParallelExtractTool" href="/oss/integrations/tools/parallel_extract" cta="Get started" icon="file-lines" arrow>
+
+从指定的网页 URL 中提取相关内容。
+
+</Card>
+
+</Columns>
+

@@ -1,0 +1,181 @@
+---
+title: 将您的应用部署到云端
+sidebarTitle: Cloud quickstart
+---
+这是将您的首个应用程序部署到 LangSmith Cloud 的快速入门指南。
+
+<Tip>
+
+如需包含所有配置选项的完整 Cloud 部署指南，请参阅 [Cloud 部署设置指南](/langsmith/deploy-to-cloud)。
+
+</Tip>
+
+## 先决条件
+
+开始之前，请确保您具备以下条件：
+
+* 一个 [GitHub 账户](https://github.com/)
+* 一个 [LangSmith 账户](https://smith.langchain.com/)（可免费注册）
+
+## 1. 在 GitHub 上创建仓库
+
+要将应用程序部署到 **LangSmith**，您的应用程序代码必须存放在一个 GitHub 仓库中。支持公共和私有仓库。对于本快速入门，请使用 [`new-langgraph-project` 模板](https://github.com/langchain-ai/react-agent) 作为您的应用程序：
+
+1.  访问 [`new-langgraph-project` 仓库](https://github.com/langchain-ai/new-langgraph-project) 或 [`new-langgraphjs-project` 模板](https://github.com/langchain-ai/new-langgraphjs-project)。
+2.  点击右上角的 `Fork` 按钮，将仓库复刻到您的 GitHub 账户。
+3.  点击 **Create fork**。
+
+## 2. 部署到 LangSmith
+
+1.  登录 [LangSmith](https://smith.langchain.com/)。
+2.  在左侧边栏中，选择 **Deployments**。
+3.  点击 **+ New Deployment** 按钮。将打开一个窗格，您可以在其中填写必填字段。
+4.  如果您是首次使用或要添加之前未连接过的私有仓库，请点击 **Import from GitHub** 按钮，并按照说明连接您的 GitHub 账户。
+5.  选择您的 New LangGraph Project 仓库。
+6.  点击 **Submit** 进行部署。
+此过程可能需要大约 15 分钟才能完成。您可以在 **Deployment details** 视图中查看状态。
+
+## 3. 在 Studio 中测试您的应用程序
+
+应用程序部署完成后：
+
+1.  选择您刚刚创建的部署以查看更多详情。
+2.  点击右上角的 **Studio** 按钮。[Studio](/langsmith/studio) 将打开并显示您的图。
+
+## 4. 获取部署的 API URL
+
+1.  在 **Deployment details** 视图中，点击 **API URL** 将其复制到剪贴板。
+2.  点击 `URL` 将其复制到剪贴板。
+
+## 5. 测试 API
+
+您现在可以测试 API：
+
+<Tabs>
+
+<Tab title="Python SDK (异步)">
+
+1. 安装 LangGraph Python SDK：
+```shell
+pip install langgraph-sdk
+```
+2. 向助手发送消息（无线程运行）：
+```python
+from langgraph_sdk import get_client
+
+client = get_client(url="your-deployment-url", api_key="your-langsmith-api-key")
+
+async for chunk in client.runs.stream(
+    None,  # Threadless run
+    "agent", # Name of assistant. Defined in langgraph.json.
+    input={
+        "messages": [{
+            "role": "human",
+            "content": "What is LangGraph?",
+        }],
+    },
+    stream_mode="updates",
+):
+    print(f"Receiving new event of type: {chunk.event}...")
+    print(chunk.data)
+    print("\n\n")
+```
+
+</Tab>
+
+<Tab title="Python SDK (同步)">
+
+1. 安装 LangGraph Python SDK：
+```shell
+pip install langgraph-sdk
+```
+2. 向助手发送消息（无线程运行）：
+```python
+from langgraph_sdk import get_sync_client
+
+client = get_sync_client(url="your-deployment-url", api_key="your-langsmith-api-key")
+
+for chunk in client.runs.stream(
+    None,  # Threadless run
+    "agent", # Name of assistant. Defined in langgraph.json.
+    input={
+        "messages": [{
+            "role": "human",
+            "content": "What is LangGraph?",
+        }],
+    },
+    stream_mode="updates",
+):
+    print(f"Receiving new event of type: {chunk.event}...")
+    print(chunk.data)
+    print("\n\n")
+```
+
+</Tab>
+
+<Tab title="JavaScript SDK">
+
+1. 安装 LangGraph JS SDK
+```shell
+npm install @langchain/langgraph-sdk
+```
+2. 向助手发送消息（无线程运行）：
+```js
+const { Client } = await import("@langchain/langgraph-sdk");
+
+const client = new Client({ apiUrl: "your-deployment-url", apiKey: "your-langsmith-api-key" });
+
+const streamResponse = client.runs.stream(
+    null, // Threadless run
+    "agent", // Assistant ID
+    {
+        input: {
+            "messages": [
+                { "role": "user", "content": "What is LangGraph?"}
+            ]
+        },
+        streamMode: "messages",
+    }
+);
+
+for await (const chunk of streamResponse) {
+    console.log(`Receiving new event of type: ${chunk.event}...`);
+    console.log(JSON.stringify(chunk.data));
+    console.log("\n\n");
+}
+```
+
+</Tab>
+
+<Tab title="Rest API">
+
+```bash
+curl -s --request POST \
+    --url <DEPLOYMENT_URL>/runs/stream \
+    --header 'Content-Type: application/json' \
+    --header "X-Api-Key: <LANGSMITH API KEY> \
+    --data "{
+        \"assistant_id\": \"agent\",
+        \"input\": {
+            \"messages\": [
+                {
+                    \"role\": \"human\",
+                    \"content\": \"What is LangGraph?\"
+                }
+            ]
+        },
+        \"stream_mode\": \"updates\"
+    }"
+```
+
+</Tab>
+
+</Tabs>
+
+## 后续步骤
+
+您已成功将应用程序部署到 LangSmith Cloud。以下是一些后续步骤：
+
+- **探索 Studio**：使用 [Studio](/langsmith/studio) 交互式地可视化和调试您的图。
+- **监控您的应用**：通过追踪、仪表板和警报设置 [可观测性](/langsmith/observability)。
+- **了解更多关于 Cloud 的信息**：查看 [完整的 Cloud 设置指南](/langsmith/deploy-to-cloud) 以获取所有配置选项。

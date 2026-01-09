@@ -1,0 +1,78 @@
+---
+title: LinkupSearchRetriever
+---
+> [Linkup](https://www.linkup.so/) 提供了一个 API，用于将 LLM 连接到网络以及 Linkup 高级合作伙伴数据源。
+
+本文将帮助你开始使用 LinkupSearchRetriever [检索器](/oss/langchain/retrieval/)。有关 LinkupSearchRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/linkup/retrievers/linkup_langchain.search_retriever.LinkupSearchRetriever.html)。
+
+### 集成详情
+
+| 检索器 | 数据源 | 包 |
+| :--- | :--- | :---: |
+[LinkupSearchRetriever](https://python.langchain.com/api_reference/linkup/retrievers/linkup_langchain.search_retriever.LinkupSearchRetriever.html) | 网络及合作伙伴数据源 | langchain-linkup |
+
+## 设置
+
+要使用 Linkup 服务提供商，你需要一个有效的 API 密钥，你可以通过[在此处](https://app.linkup.so/sign-up)注册获取。然后你可以将其设置为 `LINKUP_API_KEY` 环境变量。对于下面的链式示例，你还需要设置一个 OpenAI API 密钥作为 `OPENAI_API_KEY` 环境变量，你也可以在这里完成：
+
+```python
+# import os
+# os.environ["LINKUP_API_KEY"] = ""  # 填入你的 API 密钥
+# os.environ["OPENAI_API_KEY"] = ""  # 填入你的 API 密钥
+```
+
+如果你想从单个查询中获得自动化追踪，也可以通过取消注释以下代码来设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
+```
+
+### 安装
+
+此检索器位于 `langchain-linkup` 包中：
+
+```python
+pip install -qU langchain-linkup
+```
+
+## 实例化
+
+现在我们可以实例化我们的检索器：
+
+```python
+from langchain_linkup import LinkupSearchRetriever
+
+retriever = LinkupSearchRetriever(
+    depth="deep",  # "standard" 或 "deep"
+    linkup_api_key=None,  # API 密钥可以在此处传入，也可以设置为 LINKUP_API_KEY 环境变量
+)
+```
+
+## 使用
+
+```python
+query = "Who won the latest US presidential elections?"
+
+retriever.invoke(query)
+```
+
+```text
+[Document(metadata={'name': 'US presidential election results 2024: Harris vs. Trump | Live maps ...', 'url': 'https://www.reuters.com/graphics/USA-ELECTION/RESULTS/zjpqnemxwvx/'}, page_content='Updated results from the 2024 election for the US president. Reuters live coverage of the 2024 US President, Senate, House and state governors races.'),
+ Document(metadata={'name': 'Election 2024: Presidential results - CNN', 'url': 'https://www.cnn.com/election/2024/results/president'}, page_content='View maps and real-time results for the 2024 US presidential election matchup between former President Donald Trump and Vice President Kamala Harris. For more ...'),
+ Document(metadata={'name': 'Presidential Election 2024 Live Results: Donald Trump wins - NBC News', 'url': 'https://www.nbcnews.com/politics/2024-elections/president-results'}, page_content='View live election results from the 2024 presidential race as Kamala Harris and Donald Trump face off. See the map of votes by state as results are tallied.'),
+ Document(metadata={'name': '2024 President Election - Live Results | RealClearPolitics', 'url': 'https://www.realclearpolitics.com/elections/live_results/2024/president/'}, page_content='Latest Election 2024 Results • President • United States • Tuesday November 3rd • Presidential Election Details'),
+ Document(metadata={'name': 'Live: Presidential Election Results 2024 : NPR', 'url': 'https://apps.npr.org/2024-election-results/'}, page_content='Presidential race ratings are based on NPR analysis. Maps do not shade in until 50% of the estimated vote is in for a given state, to mitigate flutuations in early returns . 2024 General Election Results'),
+ Document(metadata={'name': '2024 US Presidential Election Results: Live Map - Bloomberg.com', 'url': 'https://www.bloomberg.com/graphics/2024-us-election-results/'}, page_content='US Presidential Election Results November 5, 2024. Bloomberg News is reporting live election results in the presidential race between Democratic Vice President Kamala Harris and her Republican ...'),
+ Document(metadata={'name': 'Presidential Election Results 2024: Electoral Votes & Map by State ...', 'url': 'https://www.politico.com/2024-election/results/president/'}, page_content='Live 2024 Presidential election results, maps and electoral votes by state. POLITICO’s real-time coverage of 2024 races for President, Senate, House and Governor.'),
+ Document(metadata={'name': 'US Presidential Election Results 2024 - BBC News', 'url': 'https://www.bbc.com/news/election/2024/us/results'}, page_content='Kamala Harris of the Democrat party has 74,498,303 votes (48.3%) Donald Trump of the Republican party has 76,989,499 votes (49.9%) This map of the US states was filled in as presidential results ...'),
+ Document(metadata={'name': 'Election Results 2024: Live Map - Races by State - POLITICO', 'url': 'https://www.politico.com/2024-election/results/'}, page_content='Live 2024 election results and maps by state. POLITICO’s real-time coverage of 2024 races for President, Senate, House and Governor.'),
+ Document(metadata={'name': '2024 U.S. Presidential Election: Live Results and Maps - USA TODAY', 'url': 'https://www.usatoday.com/elections/results/2024-11-05/president'}, page_content='See who is winning in the Nov. 5, 2024 U.S. Presidential election nationwide with real-time results and state-by-state maps.'),
+ Document(metadata={'name': 'Presidential Election 2024 Live Results: Donald Trump winsNBC News LogoSearchSearchNBC News LogoMSNBC LogoToday Logo', 'url': 'https://www.nbcnews.com/politics/2024-elections/president-results'}, page_content="Profile\n\nSections\n\nLocal\n\ntv\n\nFeatured\n\nMore From NBC\n\nFollow NBC News\n\nnews Alerts\n\nThere are no new alerts at this time\n\n2024 President Results: Trump wins\n==================================\n\nDonald Trump has secured more than the 270 Electoral College votes needed to secure the presidency, NBC News projects.\n\nRaces to watch\n--------------\n\nAll Presidential races\n----------------------\n\nElection Night Coverage\n-----------------------\n\n### China competition should be top priority for Trump, Sullivan says, as Biden and Xi prepare for final meeting\n\n### Jim Himes says 'truth and analysis are not what drive’ Gabbard and Gaetz\n\n### Trump praises RFK Jr. in Mar-a-Lago remarks\n\n### Trump announces North Dakota Gov. Doug Burgum as his pick for interior secretary\n\n### House Ethics Committee cancels meeting at which Gaetz probe was on the agenda\n\n### Trump picks former Rep. Doug Collins for veterans affairs secretary\n\n### Trump to nominate his criminal defense lawyer for deputy attorney general\n\n### From ‘brilliant’ to ‘dangerous’: Mixed reactions roll in after Trump picks RFK Jr. for top health post\n\n### Donald Trump Jr. says he played key role in RFK Jr., Tulsi Gabbard picks\n\n### Jared Polis offers surprising words of support for RFK Jr. pick for HHS secretary\n\nNational early voting\n---------------------\n\n### 88,233,886 mail-in and early in-person votes cast nationally\n\n### 65,676,748 mail-in and early in-person votes requested nationally\n\nPast Presidential Elections\n---------------------------\n\n### Vote Margin by State in the 2020 Presidential Election\n\nCircle size represents the number electoral votes in that state.\n\nThe expected vote is the total number of votes that are expected in a given race once all votes are counted. This number is an estimate and is based on several different factors, including information on the number of votes cast early as well as information provided to our vote reporters on Election Day from county election officials. The figure can change as NBC News gathers new information.\n\n**Source**: [National Election Pool (NEP)](https://www.nbcnews.com/politics/2024-elections/how-election-data-is-collected )\n\n2024 election results\n---------------------\n\nElection Night Coverage\n-----------------------\n\n### China competition should be top priority for Trump, Sullivan says, as Biden and Xi prepare for final meeting\n\n### Jim Himes says 'truth and analysis are not what drive’ Gabbard and Gaetz\n\n### Trump praises RFK Jr. in Mar-a-Lago remarks\n\n©\xa02024 NBCUniversal Media, LLC")]
+```
+
+---
+
+## API 参考
+
+有关 LinkupSearchRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/linkup/retrievers/linkup_langchain.search_retriever.LinkupSearchRetriever.html)。

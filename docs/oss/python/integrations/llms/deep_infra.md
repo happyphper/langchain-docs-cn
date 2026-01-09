@@ -1,0 +1,42 @@
+---
+title: DeepInfra
+---
+LangChain 通过 `DeepInfra` 包装器支持由 [Deep Infra](https://deepinfra.com/) 托管的 LLMs。
+首先，您需要安装 `@langchain/community` 包：
+
+<Tip>
+
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm install @langchain/community @langchain/core
+```
+
+您需要获取一个 API 密钥，并将其设置为名为 `DEEPINFRA_API_TOKEN` 的环境变量（或将其传递给构造函数），然后按如下所示调用模型：
+
+```typescript
+import { DeepInfraLLM } from "@langchain/community/llms/deepinfra";
+
+const apiKey = process.env.DEEPINFRA_API_TOKEN;
+const model = "meta-llama/Meta-Llama-3-70B-Instruct";
+
+const llm = new DeepInfraLLM({
+  temperature: 0.7,
+  maxTokens: 20,
+  model,
+  apiKey,
+  maxRetries: 5,
+});
+
+const res = await llm.invoke(
+  "What is the next step in the process of making a good game?"
+);
+
+console.log({ res });
+```
+
+## 相关链接
+
+- [模型指南](/oss/langchain/models)

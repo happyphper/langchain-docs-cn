@@ -1,0 +1,96 @@
+---
+title: IPEX-LLM - 在英特尔 GPU 上运行本地 BGE 嵌入模型
+---
+> [IPEX-LLM](https://github.com/intel-analytics/ipex-llm) 是一个 PyTorch 库，用于在英特尔 CPU 和 GPU（例如，带有集成显卡的本地 PC，以及 Arc、Flex 和 Max 等独立显卡）上以极低延迟运行大语言模型（LLM）。
+
+本示例将介绍如何利用 LangChain 在英特尔 GPU 上使用 `ipex-llm` 优化进行嵌入任务。这在 RAG、文档问答等应用中会很有帮助。
+
+> **注意**
+>
+> 建议只有使用英特尔锐炫 A 系列 GPU（英特尔锐炫 A300 系列或 Pro A60 除外）的 Windows 用户直接运行此 Jupyter notebook。对于其他情况（例如 Linux 用户、英特尔集成显卡等），建议在终端中使用 Python 脚本运行代码以获得最佳体验。
+
+## 安装前提条件
+
+为了在英特尔 GPU 上受益于 IPEX-LLM，需要完成几个工具安装和环境准备的前提步骤。
+
+如果您是 Windows 用户，请访问[在 Windows 上安装带英特尔 GPU 支持的 IPEX-LLM 指南](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Quickstart/install_windows_gpu.md)，并按照[安装前提条件](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Quickstart/install_windows_gpu.md#install-prerequisites)更新 GPU 驱动（可选）并安装 Conda。
+
+如果您是 Linux 用户，请访问[在 Linux 上安装带英特尔 GPU 支持的 IPEX-LLM](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Quickstart/install_linux_gpu.md)，并按照[**安装前提条件**](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Quickstart/install_linux_gpu.md#install-prerequisites)安装 GPU 驱动、Intel® oneAPI Base Toolkit 2024.0 和 Conda。
+
+## 环境设置
+
+完成前提条件安装后，您应该已经创建了一个安装了所有必备组件的 conda 环境。**请在此 conda 环境中启动 jupyter 服务**：
+
+```python
+pip install -qU langchain langchain-community
+```
+
+安装 IPEX-LLM 以在英特尔 GPU 上进行优化，同时安装 `sentence-transformers`。
+
+```python
+pip install --pre --upgrade ipex-llm[xpu] --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
+pip install sentence-transformers
+```
+
+> **注意**
+>
+> 您也可以使用 `https://pytorch-extension.intel.com/release-whl/stable/xpu/cn/` 作为额外的索引 URL。
+
+## 运行时配置
+
+为了获得最佳性能，建议根据您的设备设置几个环境变量：
+
+### 对于使用英特尔酷睿 Ultra 集成显卡的 Windows 用户
+
+```python
+import os
+
+os.environ["SYCL_CACHE_PERSISTENT"] = "1"
+os.environ["BIGDL_LLM_XMX_DISABLED"] = "1"
+```
+
+### 对于使用英特尔锐炫 A 系列 GPU 的 Windows 用户
+
+```python
+import os
+
+os.environ["SYCL_CACHE_PERSISTENT"] = "1"
+```
+
+> **注意**
+>
+> 每个模型首次在英特尔集成显卡/英特尔锐炫 A300 系列或 Pro A60 上运行时，可能需要几分钟进行编译。
+>
+> 对于其他 GPU 类型，Windows 用户请参考[此处](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Overview/install_gpu.md#runtime-configuration)，Linux 用户请参考[此处](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Overview/install_gpu.md#runtime-configuration-1)。
+
+## 基本用法
+
+在初始化 `IpexLLMBgeEmbeddings` 时，在 `model_kwargs` 中将 `device` 设置为 `"xpu"`，即可将嵌入模型置于英特尔 GPU 上并受益于 IPEX-LLM 优化：
+
+```python
+from langchain_community.embeddings import IpexLLMBgeEmbeddings
+
+embedding_model = IpexLLMBgeEmbeddings(
+    model_name="BAAI/bge-large-en-v1.5",
+    model_kwargs={"device": "xpu"},
+    encode_kwargs={"normalize_embeddings": True},
+)
+```
+
+---
+
+## API 参考
+
+- [IpexLLMBgeEmbeddings](https://python.langchain.com/api_reference/community/embeddings/langchain_community.embeddings.ipex_llm.IpexLLMBgeEmbeddings.html)
+
+```python
+sentence = "IPEX-LLM is a PyTorch library for running LLM on Intel CPU and GPU (e.g., local PC with iGPU, discrete GPU such as Arc, Flex and Max) with very low latency."
+query = "What is IPEX-LLM?"
+
+text_embeddings = embedding_model.embed_documents([sentence, query])
+print(f"text_embeddings[0][:10]: {text_embeddings[0][:10]}")
+print(f"text_embeddings[1][:10]: {text_embeddings[1][:10]}")
+
+query_embedding = embedding_model.embed_query(query)
+print(f"query_embedding[:10]: {query_embedding[:10]}")
+```

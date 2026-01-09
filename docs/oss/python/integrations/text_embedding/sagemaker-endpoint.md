@@ -1,0 +1,95 @@
+---
+title: SageMaker
+---
+让我们加载 `SageMaker Endpoints Embeddings` 类。如果你在 SageMaker 上托管了例如你自己的 Hugging Face 模型，就可以使用这个类。
+
+关于如何操作的说明，请参见[此处](https://www.philschmid.de/custom-inference-huggingface-sagemaker)。
+
+**注意**：为了处理批量请求，你需要调整自定义 `inference.py` 脚本中 `predict_fn()` 函数的返回行：
+
+从
+
+`return {"vectors": sentence_embeddings[0].tolist()}`
+
+改为：
+
+`return {"vectors": sentence_embeddings.tolist()}`。
+
+```python
+!pip3 install langchain boto3
+```
+
+```python
+import json
+from typing import Dict, List
+
+from langchain_community.embeddings import SagemakerEndpointEmbeddings
+from langchain_community.embeddings.sagemaker_endpoint import EmbeddingsContentHandler
+
+class ContentHandler(EmbeddingsContentHandler):
+    content_type = "application/json"
+    accepts = "application/json"
+
+    def transform_input(self, inputs: list[str], model_kwargs: Dict) -> bytes:
+        """
+        将输入转换为 SageMaker 端点可以消费的字节。
+        参数:
+            inputs: 输入字符串列表。
+            model_kwargs: 要传递给端点的额外关键字参数。
+        返回:
+            转换后的字节输入。
+        """
+        # 示例: inference.py 期望一个带有 "inputs" 键的 JSON 字符串:
+        input_str = json.dumps({"inputs": inputs, **model_kwargs})
+        return input_str.encode("utf-8")
+
+    def transform_output(self, output: bytes) -> List[List[float]]:
+        """
+        将来自端点的字节输出转换为嵌入向量列表。
+        参数:
+            output: 来自 SageMaker 端点的字节输出。
+        返回:
+            转换后的输出 - 嵌入向量列表
+        注意:
+            外层列表的长度是输入字符串的数量。
+            内层列表的长度是嵌入维度。
+        """
+        # 示例: inference.py 返回一个 JSON 字符串，其中嵌入向量列表在 "vectors" 键中:
+        response_json = json.loads(output.read().decode("utf-8"))
+        return response_json["vectors"]
+
+content_handler = ContentHandler()
+
+embeddings = SagemakerEndpointEmbeddings(
+    # credentials_profile_name="credentials-profile-name",
+    endpoint_name="huggingface-pytorch-inference-2023-03-21-16-14-03-834",
+    region_name="us-east-1",
+    content_handler=content_handler,
+)
+
+# client = boto3.client(
+#     "sagemaker-runtime",
+#     region_name="us-west-2"
+# )
+# embeddings = SagemakerEndpointEmbeddings(
+#     endpoint_name="huggingface-pytorch-inference-2023-03-21-16-14-03-834",
+#     client=client
+#     content_handler=content_handler,
+# )
+```
+
+```python
+query_result = embeddings.embed_query("foo")
+```
+
+```python
+doc_results = embeddings.embed_documents(["foo"])
+```
+
+```python
+doc_results
+```
+
+```python
+
+```

@@ -1,0 +1,365 @@
+---
+title: 基于 PebbloRetrievalQA 的身份感知 RAG
+---
+> PebbloRetrievalQA 是一个用于针对向量数据库进行问答的检索链，具备身份与语义强制功能。
+
+本笔记本介绍了如何使用身份与语义强制（拒绝主题/实体）来检索文档。
+有关 Pebblo 及其 SafeRetriever 功能的更多详情，请访问 [Pebblo 文档](https://daxa-ai.github.io/pebblo/retrieval_chain/)
+
+### 步骤
+
+1. **加载文档：**
+   我们将把带有授权和语义元数据的文档加载到一个内存中的 Qdrant 向量存储中。该向量存储将用作 PebbloRetrievalQA 中的检索器。
+
+> **注意：** 建议在数据摄取端使用 [PebbloSafeLoader](https://daxa-ai.github.io/pebblo/rag) 作为对应工具，用于加载带有身份验证和语义元数据的文档。`PebbloSafeLoader` 保证了文档的安全高效加载，同时保持元数据的完整性。
+
+2. **测试强制机制**：
+   我们将分别测试身份强制和语义强制。对于每个用例，我们将定义一个具有所需上下文（*auth_context* 和 *semantic_context*）的特定 "ask" 函数，然后提出我们的问题。
+
+## 设置
+
+### 依赖项
+
+在本教程中，我们将使用 OpenAI LLM、OpenAI 嵌入和 Qdrant 向量存储。
+
+```python
+pip install -qU langchain langchain_core langchain-community langchain-openai qdrant_client
+```
+
+### 身份感知数据摄取
+
+这里我们使用 Qdrant 作为向量数据库；但是，您可以使用任何受支持的向量数据库。
+
+**PebbloRetrievalQA 链支持以下向量数据库：**
+
+- Qdrant
+- Pinecone
+- Postgres（利用 pgvector 扩展）
+
+**将带有授权和语义信息的向量数据库加载到元数据中：**
+
+在此步骤中，我们将源文档的授权和语义信息捕获到 VectorDB 中每个块的元数据的 `authorized_identities`、`pebblo_semantic_topics` 和 `pebblo_semantic_entities` 字段中。
+
+*注意：要使用 PebbloRetrievalQA 链，您必须始终将授权和语义元数据放在指定的字段中。这些字段必须包含一个字符串列表。*
+
+```python
+from langchain_community.vectorstores.qdrant import Qdrant
+from langchain_core.documents import Document
+from langchain_openai.embeddings import OpenAIEmbeddings
+from langchain_openai.llms import OpenAI
+
+llm = OpenAI()
+embeddings = OpenAIEmbeddings()
+collection_name = "pebblo-identity-and-semantic-rag"
+
+page_content = """
+**ACME Corp Financial Report**
+
+**Overview:**
+ACME Corp, a leading player in the merger and acquisition industry, presents its financial report for the fiscal year ending December 31, 2020.
+Despite a challenging economic landscape, ACME Corp demonstrated robust performance and strategic growth.
+
+**Financial Highlights:**
+Revenue soared to $50 million, marking a 15% increase from the previous year, driven by successful deal closures and expansion into new markets.
+Net profit reached $12 million, showcasing a healthy margin of 24%.
+
+**Key Metrics:**
+Total assets surged to $80 million, reflecting a 20% growth, highlighting ACME Corp's strong financial position and asset base.
+Additionally, the company maintained a conservative debt-to-equity ratio of 0.5, ensuring sustainable financial stability.
+
+**Future Outlook:**
+ACME Corp remains optimistic about the future, with plans to capitalize on emerging opportunities in the global M&A landscape.
+The company is committed to delivering value to shareholders while maintaining ethical business practices.
+
+**Bank Account Details:**
+For inquiries or transactions, please refer to ACME Corp's US bank account:
+Account Number: 123456789012
+Bank Name: Fictitious Bank of America
+"""
+
+documents = [
+    Document(
+        **{
+            "page_content": page_content,
+            "metadata": {
+                "pebblo_semantic_topics": ["financial-report"],
+                "pebblo_semantic_entities": ["us-bank-account-number"],
+                "authorized_identities": ["finance-team", "exec-leadership"],
+                "page": 0,
+                "source": "https://drive.google.com/file/d/xxxxxxxxxxxxx/view",
+                "title": "ACME Corp Financial Report.pdf",
+            },
+        }
+    )
+]
+
+vectordb = Qdrant.from_documents(
+    documents,
+    embeddings,
+    location=":memory:",
+    collection_name=collection_name,
+)
+
+print("Vectordb loaded.")
+```
+
+```text
+Vectordb loaded.
+```
+
+## 使用身份强制进行检索
+
+PebbloRetrievalQA 链使用 SafeRetrieval 来强制规定，用于上下文（in-context）的片段只能从用户有权访问的文档中检索。
+为了实现这一点，Gen-AI 应用程序需要为此检索链提供一个授权上下文。
+这个 *auth_context* 应填充访问 Gen-AI 应用程序的用户的身份和授权组信息。
+
+以下是 `PebbloRetrievalQA` 的示例代码，其中 `user_auth`（用户授权列表，可能包括其用户 ID 和他们所属的组）来自访问 RAG 应用程序的用户，并通过 `auth_context` 传递。
+
+```python
+from langchain_community.chains import PebbloRetrievalQA
+from langchain_community.chains.pebblo_retrieval.models import AuthContext, ChainInput
+
+# Initialize PebbloRetrievalQA chain
+qa_chain = PebbloRetrievalQA.from_chain_type(
+    llm=llm,
+    retriever=vectordb.as_retriever(),
+    app_name="pebblo-identity-rag",
+    description="Identity Enforcement app using PebbloRetrievalQA",
+    owner="ACME Corp",
+)
+
+def ask(question: str, auth_context: dict):
+    """
+    Ask a question to the PebbloRetrievalQA chain
+    """
+    auth_context_obj = AuthContext(**auth_context) if auth_context else None
+    chain_input_obj = ChainInput(query=question, auth_context=auth_context_obj)
+    return qa_chain.invoke(chain_input_obj.dict())
+```
+
+### 1. 授权用户提问
+
+我们为授权身份 `["finance-team", "exec-leadership"]` 摄取了数据，因此具有授权身份/组 `finance-team` 的用户应该收到正确答案。
+
+```python
+auth = {
+    "user_id": "finance-user@acme.org",
+    "user_auth": [
+        "finance-team",
+    ],
+}
+
+question = "Share the financial performance of ACME Corp for the year 2020"
+resp = ask(question, auth)
+print(f"Question: {question}\n\nAnswer: {resp['result']}")
+```
+
+```text
+Question: Share the financial performance of ACME Corp for the year 2020
+
+Answer:
+Revenue: $50 million (15% increase from previous year)
+Net profit: $12 million (24% margin)
+Total assets: $80 million (20% growth)
+Debt-to-equity ratio: 0.5
+```
+
+### 2. 未授权用户提问
+
+由于用户的授权身份/组 `eng-support` 不包含在授权身份 `["finance-team", "exec-leadership"]` 中，我们不应该收到答案。
+
+```python
+auth = {
+    "user_id": "eng-user@acme.org",
+    "user_auth": [
+        "eng-support",
+    ],
+}
+
+question = "Share the financial performance of ACME Corp for the year 2020"
+resp = ask(question, auth)
+print(f"Question: {question}\n\nAnswer: {resp['result']}")
+```
+
+```text
+Question: Share the financial performance of ACME Corp for the year 2020
+
+Answer:  I don't know.
+```
+
+### 3. 使用 PromptTemplate 提供额外指令
+
+您可以使用 PromptTemplate 向 LLM 提供额外指令，以生成自定义响应。
+
+```python
+from langchain_core.prompts import PromptTemplate
+
+prompt_template = PromptTemplate.from_template(
+    """
+Answer the question using the provided context.
+If no context is provided, just say "I'm sorry, but that information is unavailable, or Access to it is restricted.".
+
+Question: {question}
+"""
+)
+
+question = "Share the financial performance of ACME Corp for the year 2020"
+prompt = prompt_template.format(question=question)
+```
+
+#### 3.1 授权用户提问
+
+```python
+auth = {
+    "user_id": "finance-user@acme.org",
+    "user_auth": [
+        "finance-team",
+    ],
+}
+resp = ask(prompt, auth)
+print(f"Question: {question}\n\nAnswer: {resp['result']}")
+```
+
+```text
+Question: Share the financial performance of ACME Corp for the year 2020
+
+Answer:
+Revenue soared to $50 million, marking a 15% increase from the previous year, and net profit reached $12 million, showcasing a healthy margin of 24%. Total assets also grew by 20% to $80 million, and the company maintained a conservative debt-to-equity ratio of 0.5.
+```
+
+#### 3.2 未授权用户提问
+
+```python
+auth = {
+    "user_id": "eng-user@acme.org",
+    "user_auth": [
+        "eng-support",
+    ],
+}
+resp = ask(prompt, auth)
+print(f"Question: {question}\n\nAnswer: {resp['result']}")
+```
+
+```text
+Question: Share the financial performance of ACME Corp for the year 2020
+
+Answer:
+I'm sorry, but that information is unavailable, or Access to it is restricted.
+```
+
+## 使用语义强制进行检索
+
+PebbloRetrievalQA 链使用 SafeRetrieval 来确保用于上下文的片段只能从符合所提供的语义上下文的文档中检索。
+为了实现这一点，Gen-AI 应用程序必须为此检索链提供一个语义上下文。
+这个 `semantic_context` 应包含访问 Gen-AI 应用程序的用户应被拒绝的主题和实体。
+
+以下是 PebbloRetrievalQA 的示例代码，其中包含 `topics_to_deny` 和 `entities_to_deny`。它们通过 `semantic_context` 传递给链输入。
+
+```python
+from typing import List, Optional
+
+from langchain_community.chains import PebbloRetrievalQA
+from langchain_community.chains.pebblo_retrieval.models import (
+    ChainInput,
+    SemanticContext,
+)
+
+# Initialize PebbloRetrievalQA chain
+qa_chain = PebbloRetrievalQA.from_chain_type(
+    llm=llm,
+    retriever=vectordb.as_retriever(),
+    app_name="pebblo-semantic-rag",
+    description="Semantic Enforcement app using PebbloRetrievalQA",
+    owner="ACME Corp",
+)
+
+def ask(
+    question: str,
+    topics_to_deny: Optional[List[str]] = None,
+    entities_to_deny: Optional[List[str]] = None,
+):
+    """
+    Ask a question to the PebbloRetrievalQA chain
+    """
+    semantic_context = dict()
+    if topics_to_deny:
+        semantic_context["pebblo_semantic_topics"] = {"deny": topics_to_deny}
+    if entities_to_deny:
+        semantic_context["pebblo_semantic_entities"] = {"deny": entities_to_deny}
+
+    semantic_context_obj = (
+        SemanticContext(**semantic_context) if semantic_context else None
+    )
+    chain_input_obj = ChainInput(query=question, semantic_context=semantic_context_obj)
+    return qa_chain.invoke(chain_input_obj.dict())
+```
+
+### 1. 无语义强制
+
+由于没有应用语义强制，系统应该返回答案，而不会因为与上下文关联的语义标签而排除任何上下文。
+
+```python
+topic_to_deny = []
+entities_to_deny = []
+question = "Share the financial performance of ACME Corp for the year 2020"
+resp = ask(question, topics_to_deny=topic_to_deny, entities_to_deny=entities_to_deny)
+print(
+    f"Topics to deny: {topic_to_deny}\nEntities to deny: {entities_to_deny}\n"
+    f"Question: {question}\nAnswer: {resp['result']}"
+)
+```
+
+```text
+Topics to deny: []
+Entities to deny: []
+Question: Share the financial performance of ACME Corp for the year 2020
+Answer:
+Revenue for ACME Corp increased by 15% to $50 million in 2020, with a net profit of $12 million and a strong asset base of $80 million. The company also maintained a conservative debt-to-equity ratio of 0.5.
+```
+
+### 2. 拒绝 financial-report 主题
+
+数据已使用主题 `["financial-report"]` 摄取。
+因此，拒绝 `financial-report` 主题的应用程序不应该收到答案。
+
+```python
+topic_to_deny = ["financial-report"]
+entities_to_deny = []
+question = "Share the financial performance of ACME Corp for the year 2020"
+resp = ask(question, topics_to_deny=topic_to_deny, entities_to_deny=entities_to_deny)
+print(
+    f"Topics to deny: {topic_to_deny}\nEntities to deny: {entities_to_deny}\n"
+    f"Question: {question}\nAnswer: {resp['result']}"
+)
+```
+
+```text
+Topics to deny: ['financial-report']
+Entities to deny: []
+Question: Share the financial performance of ACME Corp for the year 2020
+Answer:
+
+Unfortunately, I do not have access to the financial performance of ACME Corp for the year 2020.
+```
+
+### 3. 拒绝 us-bank-account-number 实体
+
+由于实体 `us-bank-account-number` 被拒绝，系统不应该返回答案。
+
+```python
+topic_to_deny = []
+entities_to_deny = ["us-bank-account-number"]
+question = "Share the financial performance of ACME Corp for the year 2020"
+resp = ask(question, topics_to_deny=topic_to_deny, entities_to_deny=entities_to_deny)
+print(
+    f"Topics to deny: {topic_to_deny}\nEntities to deny: {entities_to_deny}\n"
+    f"Question: {question}\nAnswer: {resp['result']}"
+)
+```
+
+```text
+Topics to deny: []
+Entities to deny: ['us-bank-account-number']
+Question: Share the financial performance of ACME Corp for the year 2020
+Answer:  I don't have information about ACME Corp's financial performance for 2020.
+```

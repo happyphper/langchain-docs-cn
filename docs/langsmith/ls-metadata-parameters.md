@@ -1,0 +1,557 @@
+---
+title: 元数据参数参考
+sidebarTitle: 元数据参数
+---
+
+使用 LangSmith 追踪 LLM 调用时，您通常希望[跟踪成本](/langsmith/cost-tracking)、比较模型配置，并分析不同供应商的性能。LangSmith 的原生集成（如 [LangChain](/langsmith/trace-with-langchain) 或 [OpenAI](/langsmith/trace-openai)/[Anthropic](/langsmith/trace-anthropic) 包装器）会自动处理这些，但自定义模型包装器和自托管模型需要一种标准化的方式来提供这些信息。LangSmith 为此使用了 `ls_` 元数据参数。
+
+这些元数据参数（均以 `ls_` 为前缀）允许您通过标准的 `metadata` 字段传递模型配置和标识信息。一旦设置，LangSmith 就可以自动计算成本、在 UI 中显示模型信息，并启用跨追踪的过滤和分析。
+
+使用 `ls_` 元数据参数可以：
+
+- **为自定义或自托管模型启用自动成本跟踪**，通过识别供应商和模型名称。
+- **跟踪模型配置**，如温度、最大令牌数和其他参数，用于实验比较。
+- **按供应商或配置设置过滤和分析追踪**
+- **通过记录每次运行中具体使用的模型设置来改进调试**
+
+## 基本用法示例
+
+最常见的用例是为自定义模型包装器启用成本跟踪。为此，您需要提供两项关键信息：供应商名称 (`ls_provider`) 和模型名称 (`ls_model_name`)。这些信息共同作用，与 LangSmith 的定价数据库进行匹配。
+
+::: code-group
+
+```python [Python]
+from langsmith import traceable
+
+@traceable(
+    run_type="llm",
+    metadata={
+        "ls_provider": "my_provider",
+        "ls_model_name": "my_custom_model"
+    }
+)
+def my_custom_llm(prompt: str):
+    return call_custom_api(prompt)
+```
+
+```typescript [TypeScript]
+import { traceable } from "langsmith/traceable";
+
+const myCustomLlm = traceable(
+  async (prompt: string) => {
+    return callCustomApi(prompt);
+  },
+  {
+    run_type: "llm",
+    metadata: {
+      ls_provider: "my_provider",
+      ls_model_name: "my_custom_model"
+    }
+  }
+);
+```
+
+:::
+
+这种极简设置告诉 LangSmith 您正在使用的模型，如果模型存在于定价数据库中或者您已[配置了自定义定价](/langsmith/cost-tracking#set-up-model-pricing)，则启用自动成本计算。
+
+为了进行更全面的追踪，您可以包含额外的配置参数。这在[运行实验](/langsmith/evaluation-quickstart)或比较不同模型设置时特别有用：
+
+::: code-group
+
+```python [Python]
+@traceable(
+    run_type="llm",
+    metadata={
+        "ls_provider": "openai",
+        "ls_model_name": "gpt-4o",
+        "ls_temperature": 0.7,
+        "ls_max_tokens": 4096,
+        "ls_stop": ["END"],
+        "ls_invocation_params": {
+            "top_p": 0.9,
+            "frequency_penalty": 0.5
+        }
+    }
+)
+def my_configured_llm(messages: list):
+    return call_llm(messages)
+```
+
+```typescript [TypeScript]
+const myConfiguredLlm = traceable(
+  async (messages: Array<any>) => {
+    return callLlm(messages);
+  },
+  {
+    run_type: "llm",
+    metadata: {
+      ls_provider: "openai",
+      ls_model_name: "gpt-4o",
+      ls_temperature: 0.7,
+      ls_max_tokens: 4096,
+      ls_stop: ["END"],
+      ls_invocation_params: {
+        top_p: 0.9,
+        frequency_penalty: 0.5
+      }
+    }
+  }
+);
+```
+
+:::
+
+通过这种设置，您可以在以后按温度过滤追踪、比较具有不同最大令牌设置的运行，或分析哪些配置参数能产生最佳结果。除了成本跟踪所需的 `ls_provider` 和 `ls_model_name` 配对外，所有这些参数都是可选的。
+
+## 所有参数
+
+### 用户可配置参数
+
+| 参数 | 类型 | 必填 | 描述 |
+|-----------|------|----------|-------------|
+| [`ls_provider`](#ls-provider) | `string` | 是* | 用于成本跟踪的 LLM 供应商名称 |
+| [`ls_model_name`](#ls-model-name) | `string` | 是* | 用于成本跟踪的模型标识符 |
+| [`ls_temperature`](#ls-temperature) | `number` | 否 | 使用的温度参数 |
+| [`ls_max_tokens`](#ls-max-tokens) | `number` | 否 | 使用的最大令牌数参数 |
+| [`ls_stop`](#ls-stop) | `string[]` | 否 | 使用的停止序列 |
+| [`ls_invocation_params`](#ls-invocation-params) | `object` | 否 | 额外的调用参数 |
+
+\* 成本跟踪必须同时提供 `ls_provider` 和 `ls_model_name`
+
+### 系统生成参数
+
+| 参数 | 类型 | 描述 |
+|-----------|------|-------------|
+| [`ls_run_depth`](#ls-run-depth) | `integer` | 追踪树中的深度（0=根，1=子级等）- 自动计算 |
+| [`ls_method`](#ls-method) | `string` | 使用的追踪方法（例如，"traceable"）- 由 SDK 设置 |
+
+### 实验参数
+
+| 参数 | 类型 | 描述 |
+|-----------|------|-------------|
+| [`ls_example_*`](#ls-example-) | `any` | 以 `ls_example_` 为前缀的示例元数据 - 在实验期间添加 |
+| [`ls_experiment_id`](#ls-experiment-id) | `string` (UUID) | 唯一的实验标识符 - 在实验期间添加 |
+
+## 参数详情
+
+### `ls_provider`
+
+- **类型:** `string`
+- **必填:** 是（与 [`ls_model_name`](#ls-model-name) 配合使用）
+
+**作用:**
+标识 LLM 供应商。与 `ls_model_name` 结合，通过与 [LangSmith 的模型定价数据库](https://smith.langchain.com/settings/workspaces/models) 匹配来启用自动成本计算。
+
+**常见值:**
+- `"openai"`
+- `"anthropic"`
+- `"azure"`
+- `"bedrock"`
+- `"google_vertexai"`
+- `"google_genai"`
+- `"fireworks"`
+- `"mistral"`
+- `"groq"`
+- 或者，任何自定义字符串
+
+**何时使用:**
+当您希望对自定义模型包装器或自托管模型进行[自动成本跟踪](/langsmith/cost-tracking)时。
+
+**示例:**
+
+```python
+@traceable(
+    run_type="llm",
+    metadata={
+        "ls_provider": "openai",
+        "ls_model_name": "gpt-4o"
+    }
+)
+def my_llm_call(prompt: str):
+    return call_api(prompt)
+```
+
+**关联关系:**
+- **需要** [`ls_model_name`](#ls-model-name) 才能使成本跟踪生效。
+- 配合令牌使用数据来计算成本。
+
+### `ls_model_name`
+
+- **类型:** `string`
+- **必填:** 是（与 `ls_provider` 配合使用）
+
+**作用:**
+标识具体的模型。与 `ls_provider` 结合，匹配定价数据库以进行自动成本计算。
+
+**常见值:**
+- OpenAI: `"gpt-4o"`, `"gpt-4o-mini"`, `"gpt-3.5-turbo"`
+- Anthropic: `"claude-3-5-sonnet-20241022"`, `"claude-3-opus-20240229"`
+- 自定义: 任何模型标识符
+
+**何时使用:**
+当您希望在 [UI](https://smith.langchain.com) 中启用自动[成本跟踪](/langsmith/cost-tracking)和模型标识时。
+
+**示例:**
+
+```python
+@traceable(
+    run_type="llm",
+    metadata={
+        "ls_provider": "anthropic",
+        "ls_model_name": "claude-3-5-sonnet-20241022"
+    }
+)
+def my_claude_call(messages: list):
+    return call_claude(messages)
+```
+
+**关联关系:**
+- **需要** [`ls_provider`](#ls-provider) 才能使成本跟踪生效。
+- 配合令牌使用数据来计算成本。
+
+### `ls_temperature`
+
+- **类型:** `number` (可为空)
+- **必填:** 否
+
+**作用:**
+记录使用的温度参数。这仅用于追踪目的——不会影响 LangSmith 的行为。
+
+**何时使用:**
+当您希望为实验或调试跟踪模型配置时。
+
+**示例:**
+
+```python
+metadata={
+    "ls_provider": "openai",
+    "ls_model_name": "gpt-4o",
+    "ls_temperature": 0.7
+}
+```
+
+**关联关系:**
+- 独立参数；仅用于追踪。
+- 在实验比较中与其他配置参数配合使用非常有用。
+
+### `ls_max_tokens`
+
+- **类型:** `number` (可为空)
+- **必填:** 否
+
+**作用:**
+记录使用的最大令牌数参数。这仅用于追踪目的——不会影响 LangSmith 的行为。
+
+**何时使用:**
+当您希望为实验或调试跟踪模型配置时。
+
+**示例:**
+
+```python
+metadata={
+    "ls_provider": "openai",
+    "ls_model_name": "gpt-4o",
+    "ls_max_tokens": 4096
+}
+```
+
+**关联关系:**
+- 独立参数；仅用于追踪。
+- 结合实际令牌使用数据，对于成本分析非常有用。
+
+### `ls_stop`
+
+- **类型:** `string[]` (可为空)
+- **必填:** 否
+
+**作用:**
+记录使用的停止序列。这仅用于追踪目的——不会影响 LangSmith 的行为。
+
+**何时使用:**
+当您希望为实验或调试跟踪模型配置时。
+
+**示例:**
+
+```python
+metadata={
+    "ls_provider": "openai",
+    "ls_model_name": "gpt-4o",
+    "ls_stop": ["END", "STOP", "\n\n"]
+}
+```
+
+**关联关系:**
+- 独立参数；仅用于追踪。
+
+### `ls_invocation_params`
+
+- **类型:** `object` (任意键值对)
+- **必填:** 否
+
+**作用:**
+存储不符合特定 `ls_` 参数的其他模型参数。可以包含特定于供应商的设置。
+
+**常见参数:**
+`top_p`, `frequency_penalty`, `presence_penalty`, `top_k`, `seed`, 或任何自定义参数
+
+**何时使用:**
+当您需要跟踪标准参数之外的额外配置时。
+
+**示例:**
+
+```python
+metadata={
+    "ls_provider": "openai",
+    "ls_model_name": "gpt-4o",
+    "ls_invocation_params": {
+        "top_p": 0.9,
+        "frequency_penalty": 0.5,
+        "presence_penalty": 0.3,
+        "seed": 12345
+    }
+}
+```
+
+**关联关系:**
+- 独立参数；存储任意配置。
+
+### `ls_run_depth`
+
+- **类型:** `integer`
+- **设置者:** LangSmith 后端 (自动设置)
+- **无法被覆盖**
+
+**作用:**
+指示在追踪树中的深度：
+- `0` = 根运行 (顶层)
+- `1` = 直接子级
+- `2` = 孙级
+- 等等。
+
+**何时使用:**
+在追踪摄取期间自动计算。用于过滤（例如，“仅显示根运行”）和 UI 可视化。
+
+**示例查询:**
+```
+metadata_key = 'ls_run_depth' AND metadata_value = 0
+```
+
+**关联关系:**
+- 由追踪的父子结构决定。
+- 无法手动设置。
+
+### `ls_method`
+
+- **类型:** `string`
+- **设置者:** SDK (自动设置)
+
+**作用:**
+指示使用哪个 SDK 方法创建了追踪（对于 `@traceable` 装饰器，通常是 `"traceable"`）。
+
+**何时使用:**
+由追踪 SDK 自动设置。用于调试和分析。
+
+**关联关系:**
+- 由 SDK 根据追踪的创建方式设置。
+- 无法手动设置。
+
+### `ls_example_*`
+
+- **类型:** 任意 (取决于示例元数据的类型)
+- **模式:** `ls_example_{original_key}`
+- **设置者:** LangSmith 实验系统 (自动设置)
+
+**作用:**
+在[基于数据集运行实验](/langsmith/evaluation-quickstart)时，示例中的元数据会自动加上 `ls_example_` 前缀并添加到追踪中。
+
+**特殊参数:**
+- `ls_example_dataset_split`: 数据集切分（例如，"train", "test", "validation"）
+
+**何时使用:**
+在数据集实验期间。允许按示例特征进行过滤/分组。
+
+**示例:**
+如果示例的元数据为 `{"category": "technical", "difficulty": "hard"}`，追踪将获得：
+
+```json
+{
+  "metadata": {
+    "ls_example_category": "technical",
+    "ls_example_difficulty": "hard",
+    "ls_example_dataset_split": "test"
+  }
+}
+```
+
+**关联关系:**
+- 自动从示例元数据中派生。
+- 无法在追踪上手动设置。
+
+### `ls_experiment_id`
+
+- **类型:** `string` (UUID)
+- **设置者:** LangSmith 实验系统 (自动设置)
+
+**作用:**
+实验运行的唯一标识符。
+
+**何时使用:**
+在数据集上运行[实验/评估](/langsmith/evaluation-quickstart)时自动添加。用于对同一实验中的所有运行进行分组。
+
+**关联关系:**
+- 将运行链接到特定的实验。
+- 无法手动设置。
+
+## 参数关联关系
+
+### 成本跟踪依赖项
+
+为了让 LangSmith 自动计算成本，多个参数必须配合工作。以下是具体要求：
+
+**主要要求:** [`ls_provider`](#ls-provider) + [`ls_model_name`](#ls-model-name)
+- 两者都应存在，以便进行自动成本计算。
+- 如果缺少 [`ls_model_name`](#ls-model-name)，系统将回退到检查 [`ls_invocation_params`](#ls-invocation-params) 中的模型名称。
+- [`ls_provider`](#ls-provider) 必须与[定价数据库](https://smith.langchain.com/settings/workspaces/models)中的供应商匹配（或使用自定义定价）。
+
+**额外要求:**
+- 运行必须具有 `run_type="llm"`（或者必须启用[任意成本跟踪](/langsmith/cost-tracking#tracking-costs-for-arbitrary-runs)）。
+- 追踪中必须包含[令牌使用数据](/langsmith/log-llm-trace#provide-token-and-cost-information) (prompt_tokens, completion_tokens)。
+- 模型必须存在于定价数据库中，或已[配置了自定义定价](/langsmith/cost-tracking#set-up-model-pricing)。
+
+**回退行为:**
+如果元数据中没有 [`ls_model_name`](#ls-model-name)，系统在放弃成本跟踪之前，会检查 [`ls_invocation_params`](#ls-invocation-params) 中是否存在模型标识符，例如 `"model"`。
+
+### 配置跟踪组
+
+这些参数帮助您跟踪模型设置，但不会影响 LangSmith 的核心功能：
+
+**可选，独立工作:** [`ls_temperature`](#ls-temperature), [`ls_max_tokens`](#ls-max-tokens), [`ls_stop`](#ls-stop)
+- 这些仅用于追踪/显示。
+- 不影响 LangSmith 的行为或成本计算。
+- 对于实验比较和调试很有用。
+
+### 调用参数 (Invocation params) 特殊情况
+
+`ls_invocation_params` 参数具有双重角色，既作为追踪字段，又作为回退机制：
+
+**[`ls_invocation_params`](#ls-invocation-params)**; 部分独立，具有回退角色：
+- 主要存储任意配置用于追踪。
+- 如果缺少 [`ls_model_name`](#ls-model-name)，**可以作为成本跟踪的回退手段**。
+- 当 [`ls_model_name`](#ls-model-name) 存在时，它不直接影响成本计算。
+
+### 系统参数
+
+这些参数由 LangSmith 自动生成，无法手动设置：
+
+**用户无法设置:** [`ls_run_depth`](#ls-run-depth), [`ls_method`](#ls-method), [`ls_example_*`](#ls-example-), [`ls_experiment_id`](#ls-experiment-id)
+- 由系统自动设置。
+- 用于过滤、分析和系统跟踪。
+
+## 按元数据参数过滤追踪
+
+将 `ls_` 元数据参数添加到追踪后，您可以使用它们通过 [API](https://api.smith.langchain.com/redoc#tag/run/operation/query_runs_api_v1_runs_query_post) 以编程方式过滤和搜索追踪，或者在 [LangSmith UI](https://smith.langchain.com) 中以交互方式进行。这使您能够按模型、供应商、配置设置或追踪深度缩小追踪范围。
+
+### 使用 API
+
+使用 [`Client`](https://docs.smith.langchain.com/reference/python/client/langsmith.client.Client) 类及其 [`list_runs()`](https://docs.smith.langchain.com/reference/python/client/langsmith.client.Client#langsmith.client.Client.list_runs) 方法 (Python) 或 [`listRuns()`](https://docs.smith.langchain.com/reference/js/classes/client.Client#listruns) 方法 (TypeScript) 根据元数据值查询追踪。[过滤语法](/langsmith/trace-query-syntax)支持相等检查、比较和逻辑运算符。
+
+::: code-group
+
+```python [Python]
+from langsmith import Client
+
+client = Client()
+
+# 按供应商过滤运行
+runs = client.list_runs(
+    project_name="my-app",
+    filter='metadata_key = "ls_provider" AND metadata_value = "openai"'
+)
+
+# 按特定模型过滤
+runs = client.list_runs(
+    project_name="my-app",
+    filter='metadata_key = "ls_model_name" AND metadata_value = "gpt-4o"'
+)
+
+# 仅过滤根运行 (顶层追踪)
+runs = client.list_runs(
+    project_name="my-app",
+    filter='metadata_key = "ls_run_depth" AND metadata_value = 0'
+)
+
+# 按温度阈值过滤
+runs = client.list_runs(
+    project_name="my-app",
+    filter='metadata_key = "ls_temperature" AND metadata_value > 0.5'
+)
+```
+
+```typescript [TypeScript]
+import { Client } from "langsmith";
+
+const client = new Client();
+
+// 按供应商过滤运行
+const runsByProvider: any[] = [];
+for await (const run of client.listRuns({
+  projectName: "my-app",
+  filter: 'metadata_key = "ls_provider" AND metadata_value = "openai"'
+})) {
+  runsByProvider.push(run);
+}
+
+// 按特定模型过滤
+const runsByModel: any[] = [];
+for await (const run of client.listRuns({
+  projectName: "my-app",
+  filter: 'metadata_key = "ls_model_name" AND metadata_value = "gpt-4o"'
+})) {
+  runsByModel.push(run);
+}
+
+// 仅过滤根运行 (顶层追踪)
+const rootRuns: any[] = [];
+for await (const run of client.listRuns({
+  projectName: "my-app",
+  filter: 'metadata_key = "ls_run_depth" AND metadata_value = 0'
+})) {
+  rootRuns.push(run);
+}
+
+// 按温度阈值过滤
+const highTempRuns: any[] = [];
+for await (const run of client.listRuns({
+  projectName: "my-app",
+  filter: 'metadata_key = "ls_temperature" AND metadata_value > 0.5'
+})) {
+  highTempRuns.push(run);
+}
+```
+
+:::
+
+这些示例展示了常见的过滤模式：
+- **按供应商或模型过滤**，以分析特定模型的用量模式或成本。
+- **按运行深度过滤**，以仅获取根追踪（深度为 0）或特定嵌套级别的子运行。
+- **按配置过滤**，以比较具有不同温度、最大令牌数或其他设置的实验。
+
+### 使用 UI
+
+在 [LangSmith UI](https://smith.langchain.com) 中，使用带有[过滤语法](/langsmith/trace-query-syntax)的过滤/搜索栏：
+
+```
+metadata_key = 'ls_provider' AND metadata_value = 'openai'
+metadata_key = 'ls_model_name' AND metadata_value = 'gpt-4o'
+metadata_key = 'ls_run_depth' AND metadata_value = 0
+```
+
+## 相关资源
+
+- [成本跟踪指南](/langsmith/cost-tracking): 学习如何在 LangSmith 中跟踪和分析 LLM 成本。
+- [记录 LLM 追踪](/langsmith/log-llm-trace): 使用包含正确令牌追踪信息的格式要求来记录 LLM 调用。
+- [追踪查询语法](/langsmith/trace-query-syntax): 完整参考过滤和搜索追踪。
+- [评估快速入门](/langsmith/evaluation-quickstart): 在数据集上运行实验以比较模型配置。
+- [添加元数据和标签](/langsmith/add-metadata-tags): 向追踪添加元数据的通用指南。
+- [在应用程序中过滤追踪](/langsmith/filter-traces-in-application): 在代码中以编程方式过滤追踪。

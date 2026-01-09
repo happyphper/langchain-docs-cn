@@ -1,0 +1,268 @@
+---
+title: ChatReka
+---
+本指南提供了 Reka [聊天模型](/oss/langchain/models) 的快速入门概览。
+
+Reka 提供了多种聊天模型。您可以在 [Reka 文档](https://docs.reka.ai/available-models) 中找到关于其最新模型、成本、上下文窗口和支持的输入类型的信息。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | JS 支持 | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| [ChatReka] | [langchain_community](https://python.langchain.com/api_reference/community/index.html) | ❌ | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain_community?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain_community?style=flat-square&label=%20) |
+
+### 模型特性
+
+| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
+| ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+
+## 设置
+
+要访问 Reka 模型，您需要创建一个 Reka 开发者账户，获取 API 密钥，并通过 `pip install reka-api` 安装 `langchain_community` 集成包和 reka python 包。
+
+### 凭证
+
+前往 [platform.reka.ai/](https://platform.reka.ai/) 注册 Reka 并生成 API 密钥。完成后，设置 REKA_API_KEY 环境变量：
+
+### 安装
+
+LangChain __ModuleName__ 集成位于 `langchain_community` 包中：
+
+```python
+pip install -qU langchain_community reka-api
+```
+
+## 实例化
+
+```python
+import getpass
+import os
+
+os.environ["REKA_API_KEY"] = getpass.getpass("Enter your Reka API key: ")
+```
+
+可选：使用 LangSmith 追踪模型的执行
+
+```python
+import getpass
+import os
+
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+```
+
+```python
+from langchain_community.chat_models import ChatReka
+
+model = ChatReka()
+```
+
+## 调用
+
+```python
+model.invoke("hi")
+```
+
+```text
+AIMessage(content=' Hello! How can I help you today? If you have a question, need assistance, or just want to chat, feel free to let me know. Have a great day!\n\n', additional_kwargs={}, response_metadata={}, id='run-61522ec2-0587-4fd5-a492-5b205fd8860c-0')
+```
+
+# 图像输入
+
+```python
+from langchain.messages import HumanMessage
+
+image_url = "https://v0.docs.reka.ai/_images/000000245576.jpg"
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "describe the weather in this image"},
+        {
+            "type": "image_url",
+            "image_url": {"url": image_url},
+        },
+    ],
+)
+response = model.invoke([message])
+print(response.content)
+```
+
+```text
+The image shows an indoor setting with no visible windows or natural light, and there are no indicators of weather conditions. The focus is on a cat sitting on a computer keyboard, and the background includes a computer monitor and various office supplies.
+```
+
+# 多张图像作为输入
+
+```python
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "What are the difference between the two images? "},
+        {
+            "type": "image_url",
+            "image_url": {
+                "url": "https://cdn.pixabay.com/photo/2019/07/23/13/51/shepherd-dog-4357790_1280.jpg"
+            },
+        },
+        {
+            "type": "image_url",
+            "image_url": {
+                "url": "https://cdn.pixabay.com/photo/2024/02/17/00/18/cat-8578562_1280.jpg"
+            },
+        },
+    ],
+)
+response = model.invoke([message])
+print(response.content)
+```
+
+```text
+ The first image features two German Shepherds, one adult and one puppy, in a vibrant, lush green setting. The adult dog is carrying a large stick in its mouth, running through what appears to be a grassy field, with the puppy following close behind. Both dogs exhibit striking physical characteristics typical of the breed, such as pointed ears and dense fur.
+
+The second image shows a close-up of a single cat with striking blue eyes, likely a breed like the Siberian or Maine Coon, in a natural outdoor setting. The cat's fur is lighter, possibly a mix of white and gray, and it has a more subdued expression compared to the dogs. The background is blurred, suggesting a focus on the cat's face.
+
+Overall, the differences lie in the subjects (two dogs vs. one cat), the setting (lush, vibrant grassy field vs. a more muted outdoor background), and the overall mood and activity depicted (playful and active vs. serene and focused).
+```
+
+## 链式调用
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+
+prompt = ChatPromptTemplate(
+    [
+        (
+            "system",
+            "You are a helpful assistant that translates {input_language} to {output_language}.",
+        ),
+        ("human", "{input}"),
+    ]
+)
+
+chain = prompt | model
+chain.invoke(
+    {
+        "input_language": "English",
+        "output_language": "German",
+        "input": "I love programming.",
+    }
+)
+```
+
+```text
+AIMessage(content=' Ich liebe Programmieren.\n\n', additional_kwargs={}, response_metadata={}, id='run-ffc4ace1-b73a-4fb3-ad0f-57e60a0f9b8d-0')
+```
+
+与 Tavily API 搜索结合使用
+
+# 工具使用与智能体创建
+
+## 定义工具
+
+我们首先需要创建要使用的工具。我们主要选择的工具是 Tavily——一个搜索引擎。LangChain 中有一个内置工具，可以方便地将 Tavily 搜索引擎用作工具。
+
+```python
+import getpass
+import os
+
+os.environ["TAVILY_API_KEY"] = getpass.getpass("Enter your Tavily API key: ")
+```
+
+```python
+from langchain_community.tools.tavily_search import TavilySearchResults
+
+search = TavilySearchResults(max_results=2)
+search_results = search.invoke("what is the weather in SF")
+print(search_results)
+# 如果需要，我们可以创建其他工具。
+# 一旦我们拥有了所有想要的工具，就可以将它们放入一个列表中，稍后引用。
+tools = [search]
+```
+
+```text
+[{'url': 'https://www.weatherapi.com/', 'content': "{'location': {'name': 'San Francisco', 'region': 'California', 'country': 'United States of America', 'lat': 37.775, 'lon': -122.4183, 'tz_id': 'America/Los_Angeles', 'localtime_epoch': 1730484342, 'localtime': '2024-11-01 11:05'}, 'current': {'last_updated_epoch': 1730484000, 'last_updated': '2024-11-01 11:00', 'temp_c': 11.1, 'temp_f': 52.0, 'is_day': 1, 'condition': {'text': 'Mist', 'icon': '//cdn.weatherapi.com/weather/64x64/day/143.png', 'code': 1030}, 'wind_mph': 2.9, 'wind_kph': 4.7, 'wind_degree': 247, 'wind_dir': 'WSW', 'pressure_mb': 1019.0, 'pressure_in': 30.08, 'precip_mm': 0.0, 'precip_in': 0.0, 'humidity': 100, 'cloud': 100, 'feelslike_c': 11.1, 'feelslike_f': 52.0, 'windchill_c': 10.3, 'windchill_f': 50.5, 'heatindex_c': 10.8, 'heatindex_f': 51.5, 'dewpoint_c': 10.4, 'dewpoint_f': 50.6, 'vis_km': 2.8, 'vis_miles': 1.0, 'uv': 3.0, 'gust_mph': 3.8, 'gust_kph': 6.1}}"}, {'url': 'https://weatherspark.com/h/m/557/2024/1/Historical-Weather-in-January-2024-in-San-Francisco-California-United-States', 'content': 'San Francisco Temperature History January 2024\nHourly Temperature in January 2024 in San Francisco\nCompare San Francisco to another city:\nCloud Cover in January 2024 in San Francisco\nDaily Precipitation in January 2024 in San Francisco\nObserved Weather in January 2024 in San Francisco\nHours of Daylight and Twilight in January 2024 in San Francisco\nSunrise & Sunset with Twilight in January 2024 in San Francisco\nSolar Elevation and Azimuth in January 2024 in San Francisco\nMoon Rise, Set & Phases in January 2024 in San Francisco\nHumidity Comfort Levels in January 2024 in San Francisco\nWind Speed in January 2024 in San Francisco\nHourly Wind Speed in January 2024 in San Francisco\nHourly Wind Direction in 2024 in San Francisco\nAtmospheric Pressure in January 2024 in San Francisco\nData Sources\n See all nearby weather stations\nLatest Report — 1:56 PM\nFri, Jan 12, 2024\xa0\xa0\xa0\xa04 min ago\xa0\xa0\xa0\xa0UTC 21:56\nCall Sign KSFO\nTemp.\n54.0°F\nPrecipitation\nNo Report\nWind\n8.1 mph\nCloud Cover\nMostly Cloudy\n14,000 ft\nRaw: KSFO 122156Z 08007KT 10SM FEW030 SCT050 BKN140 12/07 A3022 While having the tremendous advantages of temporal and spatial completeness, these reconstructions: (1) are based on computer models that may have model-based errors, (2) are coarsely sampled on a 50 km grid and are therefore unable to reconstruct the local variations of many microclimates, and (3) have particular difficulty with the weather in some coastal areas, especially small islands.\n We further caution that our travel scores are only as good as the data that underpin them, that weather conditions at any given location and time are unpredictable and variable, and that the definition of the scores reflects a particular set of preferences that may not agree with those of any particular reader.\n January 2024 Weather History in San Francisco California, United States\nThe data for this report comes from the San Francisco International Airport.'}]
+```
+
+现在我们可以看到如何让这个模型进行工具调用。为了启用此功能，我们使用 `.bind_tools` 让语言模型了解这些工具。
+
+```python
+model_with_tools = model.bind_tools(tools)
+```
+
+我们现在可以调用模型。首先用一个普通消息调用它，看看它如何响应。我们可以查看 `content` 字段和 `tool_calls` 字段。
+
+```python
+from langchain.messages import HumanMessage
+
+response = model_with_tools.invoke([HumanMessage(content="Hi!")])
+
+print(f"ContentString: {response.content}")
+print(f"ToolCalls: {response.tool_calls}")
+```
+
+```text
+ContentString:  Hello! How can I help you today? If you have a question or need information on a specific topic, feel free to ask. Just type your search query and I'll do my best to assist using the available function.
+
+ToolCalls: []
+```
+
+现在，让我们尝试用一些期望调用工具的输入来调用它。
+
+```python
+response = model_with_tools.invoke([HumanMessage(content="What's the weather in SF?")])
+
+print(f"ContentString: {response.content}")
+print(f"ToolCalls: {response.tool_calls}")
+```
+
+```text
+ContentString:
+ToolCalls: [{'name': 'tavily_search_results_json', 'args': {'query': 'weather in SF'}, 'id': '2548c622-3553-42df-8220-39fde0632bdb', 'type': 'tool_call'}]
+```
+
+我们可以看到现在没有文本内容，但是有一个工具调用！它希望我们调用 Tavily 搜索工具。
+
+这还不是在调用那个工具——它只是告诉我们去调用。为了实际调用它，我们需要创建我们的智能体。
+
+# 创建智能体
+
+现在我们已经定义了工具和 LLM，我们可以创建智能体。我们将使用 LangGraph 来构建智能体。目前，我们使用一个高级接口来构建智能体，但 LangGraph 的好处在于，这个高级接口背后是一个低级的、高度可控的 API，以防您想要修改智能体逻辑。
+
+现在，我们可以用 LLM 和工具来初始化智能体。
+
+注意，我们传入的是 `model`，而不是 `model_with_tools`。这是因为 @[`create_agent`] 会在底层为我们调用 `.bind_tools`。
+
+```python
+from langchain.agents import create_agent
+
+agent_executor = create_agent(model, tools)
+```
+
+现在让我们在一个应该调用工具的例子中试试
+
+```python
+response = agent_executor.invoke({"messages": [HumanMessage(content="hi!")]})
+
+response["messages"]
+```
+
+```text
+[HumanMessage(content='hi!', additional_kwargs={}, response_metadata={}, id='0ab1f3c7-9079-42d4-8a8a-13af5f6c226b'),
+ AIMessage(content=' Hello! How can I help you today? If you have a question or need information on a specific topic, feel free to ask. For example, you can start with a search query like "latest news on climate change" or "biography of Albert Einstein".\n\n', additional_kwargs={}, response_metadata={}, id='run-276d9dcd-13f3-481d-b562-8fe3962d9ba1-0')]
+```
+
+为了查看底层到底发生了什么（并确保它没有调用工具），我们可以查看 LangSmith 追踪：[smith.langchain.com/public/2372d9c5-855a-45ee-80f2-94b63493563d/r](https://smith.langchain.com/public/2372d9c5-855a-45ee-80f2-94b63493563d/r)
+
+```python
+response = agent_executor.invoke(
+    {"messages": [HumanMessage(content="whats the weather in sf?")]}
+)
+response["messages"]
+```
+
+```json
+[HumanMessage(content='whats the weather in sf?', additional_kwargs={}, response_metadata={}, id='af276c61-3df7-4241-8cb0-81d1f1477bb3'),
+ AIMessage(content='', additional_kwargs={'tool_calls': [{'id': '86da84b8-0d44-444f-8448-7f134f9afa41', 'type': 'function', 'function': {'name': 'tavily_search_results_json', 'arguments': '{"query": "weather in SF"}'}}]}, response_metadata={}, id='run-abe1b8e2-98a6-4f69-8f95-278ac8c141ff-0', tool_calls=[{'name': 'tavily_search_results_json', 'args': {'query': 'weather in SF'}, 'id': '86da84b8-0d44-444f-8448-7f134f9afa41', 'type': 'tool_call'}]),
+ ToolMessage(content='[{"url": "https://www.weatherapi.com/", "content": "{\'location\': {\'name\': \'San Francisco\', \'region\': \'California\', \'country\': \'United States of America\', \'lat\': 37.775, \'lon\': -122.4183, \'tz_id\': \'America/Los_Angeles\', \'localtime_epoch\': 1730483436, \'localtime\': \'2024-11-01 10:50\'}, \'current\': {\'last_updated_epoch\': 1730483100, \'last_updated\': \'2024-11-01 10:45\', \'temp_c\': 11.4, \'temp_f\': 52.5, \'is_day\': 1, \'condition\': {\'text\': \'Mist\', \'icon\': \'//cdn.weatherapi.com/weather/64x64/day/143.png\', \'code\': 1030}, \'wind_mph\': 2.2, \'wind_kph\': 3.6, \'wind_degree\': 237, \'wind_dir\': \'WSW\', \'pressure_mb\': 1019.0, \'pressure_in\': 30.08, \'precip_mm\': 0.0, \'precip_in\': 0.0, \'humidity\': 100, \'cloud\': 100, \'feelslike_c\': 11.8, \'feelslike_f\': 53.2, \'windchill_c\': 11.2, \'windchill_f\': 52.1, \'heatindex_c\': 11.7, \'heatindex_f\': 53.0, \'dewpoint_c\': 10.1, \'dewpoint_f

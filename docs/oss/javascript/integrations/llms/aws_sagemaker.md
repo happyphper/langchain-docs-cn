@@ -1,0 +1,108 @@
+---
+title: AWS SageMaker 终端节点
+---
+LangChain.js 支持与 AWS SageMaker 托管的端点进行集成。请查看 [Amazon SageMaker JumpStart](https://aws.amazon.com/sagemaker/jumpstart/) 以获取可用模型列表以及如何部署您自己的模型。
+
+## 设置
+
+您需要安装官方的 SageMaker SDK 作为对等依赖项：
+
+```bash [npm]
+npm install @aws-sdk/client-sagemaker-runtime
+```
+
+<Tip>
+
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm install @langchain/community @langchain/core
+```
+
+## 用法
+
+```typescript
+import {
+  SageMakerEndpoint,
+  SageMakerLLMContentHandler,
+} from "@langchain/community/llms/sagemaker_endpoint";
+
+interface ResponseJsonInterface {
+  generation: {
+    content: string;
+  };
+}
+
+// 根据您将使用的模型进行自定义
+class LLama213BHandler implements SageMakerLLMContentHandler {
+  contentType = "application/json";
+
+  accepts = "application/json";
+
+  async transformInput(
+    prompt: string,
+    modelKwargs: Record<string, unknown>
+  ): Promise<Uint8Array> {
+    const payload = {
+      inputs: [[{ role: "user", content: prompt }]],
+      parameters: modelKwargs,
+    };
+
+    const stringifiedPayload = JSON.stringify(payload);
+
+    return new TextEncoder().encode(stringifiedPayload);
+  }
+
+  async transformOutput(output: Uint8Array): Promise<string> {
+    const response_json = JSON.parse(
+      new TextDecoder("utf-8").decode(output)
+    ) as ResponseJsonInterface[];
+    const content = response_json[0]?.generation.content ?? "";
+    return content;
+  }
+}
+
+const contentHandler = new LLama213BHandler();
+
+const model = new SageMakerEndpoint({
+  endpointName: "aws-llama-2-13b-chat",
+  modelKwargs: {
+    temperature: 0.5,
+    max_new_tokens: 700,
+    top_p: 0.9,
+  },
+  endpointKwargs: {
+    CustomAttributes: "accept_eula=true",
+  },
+  contentHandler,
+  clientOptions: {
+    region: "YOUR AWS ENDPOINT REGION",
+    credentials: {
+      accessKeyId: "YOUR AWS ACCESS ID",
+      secretAccessKey: "YOUR AWS SECRET ACCESS KEY",
+    },
+  },
+});
+
+const res = await model.invoke(
+  "Hello, my name is John Doe, tell me a joke about llamas "
+);
+
+console.log(res);
+
+/*
+  [
+    {
+      content: "Hello, John Doe! Here's a llama joke for you:
+        Why did the llama become a gardener?
+        Because it was great at llama-scaping!"
+    }
+  ]
+ */
+```
+
+## 相关链接
+
+- [模型指南](/oss/langchain/models)

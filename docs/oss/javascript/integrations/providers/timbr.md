@@ -1,0 +1,33 @@
+---
+title: Timbr
+---
+>什么是 `Timbr`？
+
+>- Timbr 是一个 `语义 SQL 知识图谱平台`，专门通过本体驱动的语义层连接数据。
+>- Timbr 允许您使用业务友好的语言来表示和查询数据，非常适合处理复杂的数据关系和业务逻辑。
+>- Timbr 提供 `自然语言转 SQL` 功能，使得使用简单的英语查询与数据交互变得容易。
+>- 借助 Timbr，您可以实现高性能的 `语义数据查询`，适用于生产级分析和商业智能。
+
+>请访问 [Timbr 网站](https://docs.timbr.ai/doc/docs/getting-started/intro-timbr/) 开始使用。
+
+## 安装与设置
+
+- 使用 `pip install langchain-timbr` 安装 Python SDK
+
+### 可选：与选定的 LLM 提供商一起安装
+
+从以下选项中选择一个：openai, anthropic, google, azure_openai, snowflake, databricks, vertex_ai (或 'all')
+
+```bash
+pip install 'langchain-timbr[<your selected providers, separated by comma without spaces>]'
+```
+
+## 语义 SQL 查询
+
+Timbr 提供了一个围绕其语义层的包装器，该包装器根据自然语言输入生成 SQL 语句，并从您的知识图谱中检索相关信息。
+
+```python
+from langchain_timbr import create_timbr_sql_agent, ExecuteTimbrQueryChain, GenerateTimbrSqlChain
+```
+
+查看 [使用示例](/oss/integrations/graphs/timbr)

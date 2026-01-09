@@ -1,0 +1,26 @@
+---
+title: Yellowbrick
+---
+>[Yellowbrick](https://yellowbrick.com/) 是一家提供
+> 企业数据仓库、即席与流式分析、
+> BI 和 AI 工作负载的供应商。
+
+## 向量存储
+
+我们需要安装一个 Python 包：
+
+::: code-group
+
+```bash [pip]
+pip install psycopg2
+```
+
+```bash [uv]
+uv add psycopg2
+```
+
+:::
+
+```python
+from langchain_community.vectorstores import Yellowbrick
+```

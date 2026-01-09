@@ -1,0 +1,39 @@
+---
+title: Ollama
+---
+本页面涵盖了 LangChain 与 [Ollama](https://ollama.com/) 的所有集成。
+
+Ollama 允许您在本地运行开源模型（例如 [`gpt-oss`](https://ollama.com/library/gpt-oss)）。
+
+有关支持的模型和变体的完整列表，请参阅 [Ollama 模型库](https://ollama.ai/library)。
+
+## 模型接口
+
+<Columns :cols="2">
+
+<Card title="ChatOllama" href="/oss/integrations/chat/ollama" cta="Get started" icon="message" arrow>
+
+Ollama 聊天模型。
+
+</Card>
+
+<Card title="OllamaEmbeddings" href="/oss/integrations/text_embedding/ollama" cta="Get started" icon="microsoft" arrow>
+
+Ollama 嵌入模型。
+
+</Card>
+
+</Columns>
+
+## 其他
+
+<Columns :cols="2">
+
+<Card title="OllamaLLM" href="/oss/integrations/llms/ollama" cta="Get started" icon="i-cursor" arrow>
+
+（旧版）Ollama 文本补全模型。
+
+</Card>
+
+</Columns>
+

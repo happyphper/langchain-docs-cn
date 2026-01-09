@@ -1,0 +1,82 @@
+---
+title: ChatFriendli
+---
+> [Friendli](https://friendli.ai/) 通过可扩展、高效的部署选项提升 AI 应用性能并优化成本节约，专为高需求的 AI 工作负载量身定制。
+
+本教程将指导您如何使用 LangChain 集成 `ChatFriendli` 来构建聊天应用。`ChatFriendli` 为生成对话式 AI 响应提供了灵活的方法，支持同步和异步调用。
+
+## 设置
+
+确保已安装 `@langchain/community`。
+
+<Tip>
+
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm install @langchain/community @langchain/core
+```
+
+登录 [Friendli Suite](https://suite.friendli.ai/) 以创建个人访问令牌，并将其设置为 `FRIENDLI_TOKEN` 环境变量。
+您可以将团队 ID 设置为 `FRIENDLI_TEAM` 环境变量。
+
+您可以通过选择要使用的模型来初始化 Friendli 聊天模型。默认模型是 `meta-llama-3-8b-instruct`。您可以在 [docs.friendli.ai](https://docs.friendli.ai/guides/serverless_endpoints/pricing#text-generation-models) 查看可用模型。
+
+## 用法
+
+```typescript
+import { ChatFriendli } from "@langchain/community/chat_models/friendli";
+
+const model = new ChatFriendli({
+  model: "meta-llama-3-8b-instruct", // 默认值
+  friendliToken: process.env.FRIENDLI_TOKEN,
+  friendliTeam: process.env.FRIENDLI_TEAM,
+  maxTokens: 800,
+  temperature: 0.9,
+  topP: 0.9,
+  frequencyPenalty: 0,
+  stop: [],
+});
+
+const response = await model.invoke(
+  "Draft a cover letter for a role in software engineering."
+);
+
+console.log(response.content);
+
+/*
+Dear [Hiring Manager],
+
+I am excited to apply for the role of Software Engineer at [Company Name]. With my passion for innovation, creativity, and problem-solving, I am confident that I would be a valuable asset to your team.
+
+As a highly motivated and detail-oriented individual, ...
+*/
+
+const stream = await model.stream(
+  "Draft a cover letter for a role in software engineering."
+);
+
+for await (const chunk of stream) {
+  console.log(chunk.content);
+}
+
+/*
+D
+ear
+ [
+H
+iring
+...
+[
+Your
+ Name
+]
+*/
+```
+
+## 相关链接
+
+- 聊天模型[概念指南](/oss/langchain/models)
+- 聊天模型[操作指南](/oss/langchain/models)

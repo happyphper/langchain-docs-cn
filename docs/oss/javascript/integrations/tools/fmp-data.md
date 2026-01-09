@@ -1,0 +1,255 @@
+---
+title: FMP 数据
+---
+通过自然语言查询访问金融市场数据。
+
+## 概述
+
+FMP（Financial Modeling Prep）LangChain 集成提供了一种通过自然语言查询无缝访问金融市场数据的方式。该集成包含两个主要组件：
+
+- `FMPDataToolkit`：基于自然语言查询创建工具集合
+- `FMPDataTool`：一个单一的统一工具，能自动选择并使用合适的 API 端点
+
+该集成利用 LangChain 的语义搜索能力，将用户查询与最相关的 FMP API 端点进行匹配，使金融数据访问更加直观和高效。
+
+## 设置
+
+```python
+!pip install -U langchain-fmp-data
+```
+
+```python
+import os
+
+# 替换为你的实际 API 密钥
+os.environ["FMP_API_KEY"] = "your-fmp-api-key"  # pragma: allowlist secret
+os.environ["OPENAI_API_KEY"] = "your-openai-api-key"  # pragma: allowlist secret
+```
+
+为了获得最佳的观测性，设置 [LangSmith](https://smith.langchain.com/) 也很有帮助（但不是必需的）：
+
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+# os.environ["LANGSMITH_API_KEY"] = getpass.getpass()
+```
+
+## 实例化
+
+有两种主要方式来实例化 FMP LangChain 集成：
+
+1. 使用 FMPDataToolkit
+
+```python
+from langchain_fmp_data import FMPDataToolkit
+
+query = "Get stock market prices and technical indicators"
+# 基础实例化
+toolkit = FMPDataToolkit(query=query)
+
+# 带有特定查询焦点的实例化
+market_toolkit = FMPDataToolkit(
+    query=query,
+    num_results=5,
+)
+
+# 带有自定义配置的实例化
+custom_toolkit = FMPDataToolkit(
+    query="Financial analysis",
+    num_results=3,
+    similarity_threshold=0.4,
+    cache_dir="/custom/cache/path",
+)
+```
+
+2. 使用 FMPDataTool
+
+```python
+from langchain_fmp_data import FMPDataTool
+from langchain_fmp_data.tools import ResponseFormat
+
+# 基础实例化
+tool = FMPDataTool()
+
+# 带有自定义设置的高级实例化
+advanced_tool = FMPDataTool(
+    max_iterations=50,
+    temperature=0.2,
+)
+```
+
+## 调用
+
+可以通过几种方式调用这些工具：
+
+### 直接调用
+
+```python
+# 使用 FMPDataTool
+tool_direct = FMPDataTool()
+
+# 基础查询
+# fmt: off
+result = tool.invoke({"query": "What's Apple's current stock price?"})
+# fmt: on
+
+# 带有特定格式的高级查询
+# fmt: off
+detailed_result = tool_direct.invoke(
+    {
+        "query": "Compare Tesla and Ford's profit margins",
+        "response_format": ResponseFormat.BOTH,
+    }
+)
+# fmt: on
+```
+
+### 与 LangChain 智能体（Agents）一起使用
+
+```python
+from langchain.agents import AgentExecutor, create_openai_functions_agent
+from langchain_openai import ChatOpenAI
+
+# 设置
+llm = ChatOpenAI(temperature=0)
+toolkit = FMPDataToolkit(
+    query="Stock analysis",
+    num_results=3,
+)
+tools = toolkit.get_tools()
+
+# 创建智能体
+prompt = "You are a helpful assistant. Answer the user's questions based on the provided context."
+agent = create_openai_functions_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+)
+
+# 运行查询
+# fmt: off
+response = agent_executor.invoke({"input": "What's the PE ratio of Microsoft?"})
+# fmt: on
+```
+
+## 高级用法
+
+你可以自定义工具的行为：
+
+```python
+# 使用自定义设置初始化
+advanced_tool = FMPDataTool(
+    max_iterations=50,  # 为复杂查询增加最大迭代次数
+    temperature=0.2,  # 调整温度以获得更聚焦/更分散的响应
+)
+
+# 复杂多部分分析的示例
+query = """
+Analyze Apple's financial health by:
+1. Examining current ratios and debt levels
+2. Comparing profit margins to industry average
+3. Looking at cash flow trends
+4. Assessing growth metrics
+"""
+# fmt: off
+response = advanced_tool.invoke(
+    {
+        "query": query,
+        "response_format": ResponseFormat.BOTH}
+)
+# fmt: on
+print("Detailed Financial Analysis:")
+print(response)
+```
+
+## 链式调用
+
+你可以通过使用所需的模型创建链，像使用其他工具一样链式调用此工具。
+
+```python
+from langchain_core.output_parsers import StrOutputParser
+from langchain_openai import ChatOpenAI
+
+# 设置
+llm = ChatOpenAI(temperature=0)
+toolkit = FMPDataToolkit(query="Stock analysis", num_results=3)
+tools = toolkit.get_tools()
+
+llm_with_tools = llm.bind(functions=tools)
+output_parser = StrOutputParser()
+# 创建链
+runner = llm_with_tools | output_parser
+
+# 运行链
+# fmt: off
+response = runner.invoke(
+    {
+        "input": "What's the PE ratio of Microsoft?"
+    }
+)
+# fmt: on
+```
+
+## API 参考
+
+### FMPDataToolkit
+
+用于创建 FMP API 工具集合的主类：
+
+```python
+from typing import Any
+
+from langchain.tools import Tool
+
+class FMPDataToolkit:
+    """Creates a collection of FMP data tools based on queries."""
+
+    def __init__(
+        self,
+        query: str | None = None,
+        num_results: int = 3,
+        similarity_threshold: float = 0.3,
+        cache_dir: str | None = None,
+    ): ...
+
+    def get_tools(self) -> list[Tool]:
+        """Returns a list of relevant FMP API tools based on the query."""
+        ...
+```
+
+### FMPDataTool
+
+自动选择合适 FMP 端点的统一工具：
+
+```python
+# fmt: off
+class FMPDataTool:
+    """Single unified tool for accessing FMP data through natural language."""
+
+    def __init__(
+            self,
+            max_iterations: int = 3,
+            temperature: float = 0.0,
+    ): ...
+
+    def invoke(
+            self,
+            input: dict[str, Any],
+    ) -> str | dict[str, Any]:
+        """Execute a natural language query against FMP API."""
+        ...
+
+# fmt: on
+```
+
+### ResponseFormat
+
+用于控制响应格式的枚举：
+
+```python
+from enum import Enum
+
+class ResponseFormat(str, Enum):
+    RAW = "raw"  # 原始 API 响应
+    ANALYSIS = "text"  # 自然语言分析
+    BOTH = "both"  # 原始数据和分析两者
+```

@@ -1,0 +1,45 @@
+---
+title: Bright Data
+---
+[Bright Data](https://brightdata.com) 是一个网络数据平台，提供网络爬取、搜索引擎结果页面（SERP）收集以及访问地理限制内容的工具。
+
+Bright Data 允许开发者从网站提取结构化数据、执行搜索引擎查询，并访问那些可能被屏蔽或受地理限制的内容。该平台旨在帮助克服常见的网络爬取挑战，包括反机器人系统、验证码（CAPTCHA）和 IP 封锁。
+
+## 安装与设置
+
+::: code-group
+
+```bash [pip]
+pip install langchain-brightdata
+```
+
+```bash [uv]
+uv add langchain-brightdata
+```
+
+:::
+
+你需要设置你的 Bright Data API 密钥：
+
+在 [Bright Data](https://brightdata.com/?utm_source=tech-partner&utm_medium=link&utm_campaign=langchain&hs_signup=1) 注册，并从账户设置中获取你的 API 密钥。在下面的示例中，将 `"your-api-key"` 替换为你实际的 API 密钥：
+
+```python
+import os
+os.environ["BRIGHT_DATA_API_KEY"] = "your-api-key"
+```
+
+或者，你也可以在初始化工具时直接传入：
+
+```python
+from langchain_brightdata import BrightDataSERP
+
+tool = BrightDataSERP(bright_data_api_key="your-api-key")
+```
+
+## 工具
+
+Bright Data 集成提供了以下几种工具：
+
+- [BrightDataSERP](/oss/integrations/tools/brightdata_serp) - 支持地理定位和自定义区域的搜索引擎结果收集
+- [BrightDataUnlocker](/oss/integrations/tools/brightdata_unlocker) - 访问任何可能受地理限制或受机器人保护的公共网站
+- [BrightDataWebScraperAPI](/oss/integrations/tools/brightdata-webscraperapi) - 从 44 个热门域名（包括 Amazon、LinkedIn、Instagram、TikTok 等）提取结构化数据

@@ -1,0 +1,212 @@
+---
+title: Timbr
+---
+>[Timbr](https://docs.timbr.ai/doc/docs/integration/langchain-sdk/) 将自然语言输入与 Timbr 的基于本体的语义层集成。利用 Timbr 强大的本体能力，该 SDK 与 Timbr 数据模型集成，并利用语义关系和注解，使用户能够使用业务友好的语言查询数据。
+
+>Timbr 提供了一个预构建的 SQL 代理 `TimbrSqlAgent`，可用于从用户提示开始，经过语义 SQL 查询生成和验证，到查询执行和结果分析的端到端目的。
+
+>对于自定义和部分使用场景，您可以将 LangChain 链和 LangGraph 节点与我们的 5 个主要工具结合使用：
+
+>- `IdentifyTimbrConceptChain` 和 `IdentifyConceptNode` - 从用户提示中识别相关概念
+>- `GenerateTimbrSqlChain` 和 `GenerateTimbrSqlNode` - 根据自然语言提示生成 SQL 查询
+>- `ValidateTimbrSqlChain` 和 `ValidateSemanticSqlNode` - 根据 Timbr 知识图谱模式验证 SQL 查询
+>- `ExecuteTimbrQueryChain` 和 `ExecuteSemanticQueryNode` - 对 Timbr 知识图谱数据库执行（语义和常规）SQL 查询
+>- `GenerateAnswerChain` 和 `GenerateResponseNode` - 根据给定的提示和数据行生成人类可读的答案
+
+>此外，`langchain-timbr` 提供了 `TimbrLlmConnector`，用于通过 LLM 提供商手动集成 Timbr 的语义层。
+
+有关 `langchain-timbr` 集成的完整示例，请参阅 [演示笔记本](https://github.com/WPSemantix/Timbr-GenAI/tree/main/LangChain/LangChain_Timbr_Demo.ipynb)。
+
+## 设置
+
+### 安装
+
+#### 安装包
+
+```bash
+pip install langchain-timbr
+```
+
+#### 可选：安装选定的 LLM 提供商
+
+选择以下之一：`openai, anthropic, google, azure_openai, snowflake, databricks, vertex_ai (或 'all')`
+
+```bash
+pip install 'langchain-timbr[<您选择的提供商，用逗号分隔，不带空格>]'
+```
+
+本指南默认使用 OpenAI 模型。
+
+```python
+import getpass
+import os
+
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("OpenAI API Key:")
+```
+
+## 配置
+
+从 `langchain-timbr` v2.0.0 开始，所有链、代理和节点都支持可选的基于环境的配置。您可以设置以下环境变量来提供默认值并简化所提供工具的设置：
+
+### Timbr 连接参数
+
+- `TIMBR_URL`: 默认的 Timbr 服务器 URL
+- `TIMBR_TOKEN`: 默认的 Timbr 认证令牌
+- `TIMBR_ONTOLOGY`: 默认的本体/知识图谱名称
+
+当设置了这些环境变量时，所有链和代理构造函数中的相应参数（`url`、`token`、`ontology`）将变为可选，并将使用环境值作为默认值。
+
+### LLM 配置参数
+
+- **LLM_TYPE**: LLM 提供商的类型（langchain_timbr LlmTypes 枚举之一：'openai-chat', 'anthropic-chat', 'chat-google-generative-ai', 'azure-openai-chat', 'snowflake-cortex', 'chat-databricks'）
+- **LLM_API_KEY**: 用于向 LLM 提供商认证的 API 密钥
+- **LLM_MODEL**: 要使用的模型名称或部署
+- **LLM_TEMPERATURE**: LLM 的温度设置
+- **LLM_ADDITIONAL_PARAMS**: 其他参数，作为字典或 JSON 字符串
+
+当设置了 LLM 环境变量时，`llm` 参数将变为可选，并将使用带有环境配置的 `LlmWrapper`。
+
+环境设置示例：
+
+```bash
+# Timbr 连接
+export TIMBR_URL="https://your-timbr-app.com/"
+export TIMBR_TOKEN="tk_XXXXXXXXXXXXXXXXXXXXXXXX"
+export TIMBR_ONTOLOGY="timbr_knowledge_graph"
+
+# LLM 配置
+export LLM_TYPE="openai-chat"
+export LLM_API_KEY="your-openai-api-key"
+export LLM_MODEL="gpt-4o"
+export LLM_TEMPERATURE="0.1"
+export LLM_ADDITIONAL_PARAMS='{"max_tokens": 1000}'
+```
+
+## 查询语义层
+
+我们现在可以使用 Timbr 的链来查询语义层。导入并使用您打算使用的链/节点，或使用 TimbrLlmConnector 手动集成 Timbr 的语义层。
+
+```python
+from langchain_timbr import ExecuteTimbrQueryChain
+from langchain_openai import ChatOpenAI
+```
+
+```python
+# 您可以使用标准的 LangChain ChatOpenAI/ChatAnthropic 模型
+# 或任何其他基于 langchain_core.language_models.chat.BaseChatModel 的 LLM 模型
+llm = ChatOpenAI(model="gpt-4o", temperature=0, openai_api_key="open-ai-api-key")
+
+# 可选替代方案：使用 Timbr 的 LlmWrapper，它提供与不同 LLM 提供商的通用连接
+from langchain_timbr import LlmWrapper, LlmTypes
+llm = LlmWrapper(llm_type=LlmTypes.OpenAI, api_key="open-ai-api-key", model="gpt-4o")
+```
+
+### ExecuteTimbrQueryChain 示例
+
+```python
+execute_timbr_query_chain = ExecuteTimbrQueryChain(
+    llm=llm,
+    url="https://your-timbr-app.com/",
+    token="tk_XXXXXXXXXXXXXXXXXXXXXXXX",
+    ontology="timbr_knowledge_graph",
+    schema="dtimbr",              # 可选
+    concept="Sales",              # 可选
+    concepts_list=["Sales","Orders"],  # 可选
+    views_list=["sales_view"],         # 可选
+    note="We only need sums",     # 可选
+    retries=3,                    # 可选
+    should_validate_sql=True      # 可选
+)
+
+result = execute_timbr_query_chain.invoke({"prompt": "What are the total sales for last month?"})
+rows = result["rows"]
+sql = result["sql"]
+concept = result["concept"]
+schema = result["schema"]
+error = result.get("error", None)
+
+usage_metadata = result.get("execute_timbr_usage_metadata", {})
+determine_concept_usage = usage_metadata.get('determine_concept', {})
+generate_sql_usage = usage_metadata.get('generate_sql', {})
+# 每个 usage_metadata 项包含：
+# * 'approximate': 在调用 LLM 之前计算的估计令牌数
+# * 'input_tokens'/'output_tokens'/'total_tokens'/等：LLM 返回的实际令牌使用指标
+```
+
+```python
+{'rows': [{'total_sales': 150000}], 'sql': 'SELECT SUM(amount) as total_sales FROM sales WHERE date >= DATEADD(month, -1, GETDATE())', 'concept': 'Sales', 'schema': 'dtimbr'}
+```
+
+### 使用 SequentialChain 组合多个链
+
+您可以组合多个 Timbr 链来创建更复杂的工作流。
+
+```python
+from langchain_classic.chains import SequentialChain
+from langchain_timbr import ExecuteTimbrQueryChain, GenerateAnswerChain
+
+execute_timbr_query_chain = ExecuteTimbrQueryChain(
+    llm=llm,
+    url='https://your-timbr-app.com/',
+    token='tk_XXXXXXXXXXXXXXXXXXXXXXXX',
+    ontology='timbr_knowledge_graph',
+)
+
+generate_answer_chain = GenerateAnswerChain(
+    llm=llm,
+    url='https://your-timbr-app.com/',
+    token='tk_XXXXXXXXXXXXXXXXXXXXXXXX',
+)
+
+pipeline = SequentialChain(
+    chains=[execute_timbr_query_chain, generate_answer_chain],
+    input_variables=["prompt"],
+    output_variables=["answer", "sql"]
+)
+
+result = pipeline.invoke({"prompt": "What are the total sales for last month?"})
+```
+
+```python
+{'prompt': 'What are the total sales for last month?', 'answer': 'Based on the query results, the total sales for last month amount to $150,000.', 'sql': 'SELECT SUM(amount) as total_sales FROM sales WHERE date >= DATEADD(month, -1, GETDATE())'}
+```
+
+## 使用 TimbrLlmConnector
+
+对于手动集成 Timbr 的语义层，您可以使用 `TimbrLlmConnector`，它包含以下方法：
+
+- `get_ontologies` - 列出 Timbr 的语义知识图谱
+- `get_concepts` - 列出选定知识图谱的本体表示概念
+- `get_views` - 列出选定知识图谱的本体表示视图
+- `determine_concept` - 从用户提示中识别相关概念
+- `generate_sql` - 根据自然语言提示生成 SQL 查询
+- `validate_sql` - 根据 Timbr 知识图谱模式验证 SQL 查询
+- `run_timbr_query` - 对 Timbr 知识图谱数据库执行（语义和常规）SQL 查询
+- `run_llm_query` - 执行代理管道以确定概念、生成 SQL 并从自然语言提示运行查询
+
+```python
+from langchain_timbr import TimbrLlmConnector
+
+connector = TimbrLlmConnector(
+    llm=llm,
+    url="https://your-timbr-app.com/",
+    token="tk_XXXXXXXXXXXXXXXXXXXXXXXX",
+    ontology="timbr_knowledge_graph"
+)
+
+# 获取可用概念
+concepts = connector.get_concepts()
+print("Available concepts:", concepts)
+
+# 运行完整的查询管道
+result = connector.run_llm_query("What are the top 5 customers by revenue?")
+print("Query result:", result)
+```
+
+## 其他资源
+
+- [PyPI](https://pypi.org/project/langchain-timbr)
+- [GitHub](https://github.com/WPSemantix/langchain-timbr)
+- [LangChain Timbr 文档](https://docs.timbr.ai/doc/docs/integration/langchain-sdk/)
+- [LangGraph Timbr 文档](https://docs.timbr.ai/doc/docs/integration/langgraph-sdk)

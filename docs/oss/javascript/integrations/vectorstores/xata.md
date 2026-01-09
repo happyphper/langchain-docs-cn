@@ -1,0 +1,189 @@
+---
+title: Xata
+---
+[Xata](https://xata.io) 是一个基于 PostgreSQL 的无服务器数据平台。它提供了一个类型安全的 TypeScript/JavaScript SDK 用于与数据库交互，以及一个用于管理数据的 UI。
+
+Xata 具有原生的向量类型，可以添加到任何表中，并支持相似性搜索。LangChain 直接将向量插入到 Xata 中，并查询给定向量的最近邻，因此您可以将所有 LangChain Embeddings 集成与 Xata 一起使用。
+
+## 设置
+
+### 安装 Xata CLI
+
+```bash
+npm install @xata.io/cli -g
+```
+
+### 创建用作向量存储的数据库
+
+在 [Xata UI](https://app.xata.io) 中创建一个新数据库。您可以随意命名，但在此示例中，我们将使用 `langchain`。
+创建一个表，同样可以随意命名，但我们将使用 `vectors`。通过 UI 添加以下列：
+
+- `content`，类型为 "Text"。用于存储 `Document.pageContent` 值。
+- `embedding`，类型为 "Vector"。使用您计划使用的模型的维度（OpenAI 为 1536）。
+- 您想用作元数据的任何其他列。它们从 `Document.metadata` 对象填充。例如，如果在 `Document.metadata` 对象中有一个 `title` 属性，您可以在表中创建一个 `title` 列，它将被填充。
+
+### 初始化项目
+
+在您的项目中运行：
+
+```bash
+xata init
+```
+
+然后选择上面创建的数据库。这还将生成一个 `xata.ts` 或 `xata.js` 文件，其中定义了可用于与数据库交互的客户端。有关使用 Xata JavaScript/TypeScript SDK 的更多详细信息，请参阅 [Xata 入门文档](https://xata.io/docs/getting-started/installation)。
+
+## 使用方法
+
+<Tip>
+
+有关安装 LangChain 包的一般说明，请参阅[此部分](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm install @langchain/openai @langchain/community @langchain/core
+```
+
+### 示例：使用 OpenAI 和 Xata 作为向量存储的问答聊天机器人
+
+此示例使用 `VectorDBQAChain` 搜索存储在 Xata 中的文档，然后将它们作为上下文传递给 OpenAI 模型，以回答用户提出的问题。
+
+```typescript
+import { XataVectorSearch } from "@langchain/community/vectorstores/xata";
+import { OpenAIEmbeddings, OpenAI } from "@langchain/openai";
+import { BaseClient } from "@xata.io/client";
+import { VectorDBQAChain } from "@langchain/classic/chains";
+import { Document } from "@langchain/core/documents";
+
+// 首先，按照设置说明操作
+// https://js.langchain.com/docs/modules/data_connection/vectorstores/integrations/xata
+
+// 如果您使用生成的客户端，则不需要此函数。
+// 只需从生成的 xata.ts 中导入 getXataClient 即可。
+const getXataClient = () => {
+  if (!process.env.XATA_API_KEY) {
+    throw new Error("XATA_API_KEY not set");
+  }
+
+  if (!process.env.XATA_DB_URL) {
+    throw new Error("XATA_DB_URL not set");
+  }
+  const xata = new BaseClient({
+    databaseURL: process.env.XATA_DB_URL,
+    apiKey: process.env.XATA_API_KEY,
+    branch: process.env.XATA_BRANCH || "main",
+  });
+  return xata;
+};
+
+export async function run() {
+  const client = getXataClient();
+
+  const table = "vectors";
+  const embeddings = new OpenAIEmbeddings();
+  const store = new XataVectorSearch(embeddings, { client, table });
+
+  // 添加文档
+  const docs = [
+    new Document({
+      pageContent: "Xata is a Serverless Data platform based on PostgreSQL",
+    }),
+    new Document({
+      pageContent:
+        "Xata offers a built-in vector type that can be used to store and query vectors",
+    }),
+    new Document({
+      pageContent: "Xata includes similarity search",
+    }),
+  ];
+
+  const ids = await store.addDocuments(docs);
+
+  // eslint-disable-next-line no-promise-executor-return
+  await new Promise((r) => setTimeout(r, 2000));
+
+  const model = new OpenAI();
+  const chain = VectorDBQAChain.fromLLM(model, store, {
+    k: 1,
+    returnSourceDocuments: true,
+  });
+  const response = await chain.invoke({ query: "What is Xata?" });
+
+  console.log(JSON.stringify(response, null, 2));
+
+  await store.delete({ ids });
+}
+```
+
+### 示例：带有元数据过滤器的相似性搜索
+
+此示例展示了如何使用 LangChain.js 和 Xata 实现语义搜索。运行之前，请确保在 Xata 的 `vectors` 表中添加一个类型为 String 的 `author` 列。
+
+```typescript
+import { XataVectorSearch } from "@langchain/community/vectorstores/xata";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { BaseClient } from "@xata.io/client";
+import { Document } from "@langchain/core/documents";
+
+// 首先，按照设置说明操作
+// https://js.langchain.com/docs/modules/data_connection/vectorstores/integrations/xata
+// 另外，向 "vectors" 表添加一个名为 "author" 的列。
+
+// 如果您使用生成的客户端，则不需要此函数。
+// 只需从生成的 xata.ts 中导入 getXataClient 即可。
+const getXataClient = () => {
+  if (!process.env.XATA_API_KEY) {
+    throw new Error("XATA_API_KEY not set");
+  }
+
+  if (!process.env.XATA_DB_URL) {
+    throw new Error("XATA_DB_URL not set");
+  }
+  const xata = new BaseClient({
+    databaseURL: process.env.XATA_DB_URL,
+    apiKey: process.env.XATA_API_KEY,
+    branch: process.env.XATA_BRANCH || "main",
+  });
+  return xata;
+};
+
+export async function run() {
+  const client = getXataClient();
+  const table = "vectors";
+  const embeddings = new OpenAIEmbeddings();
+  const store = new XataVectorSearch(embeddings, { client, table });
+  // 添加文档
+  const docs = [
+    new Document({
+      pageContent: "Xata works great with LangChain.js",
+      metadata: { author: "Xata" },
+    }),
+    new Document({
+      pageContent: "Xata works great with LangChain",
+      metadata: { author: "LangChain" },
+    }),
+    new Document({
+      pageContent: "Xata includes similarity search",
+      metadata: { author: "Xata" },
+    }),
+  ];
+  const ids = await store.addDocuments(docs);
+
+  // eslint-disable-next-line no-promise-executor-return
+  await new Promise((r) => setTimeout(r, 2000));
+
+  // author 作为预过滤器应用于相似性搜索
+  const results = await store.similaritySearchWithScore("xata works great", 6, {
+    author: "LangChain",
+  });
+
+  console.log(JSON.stringify(results, null, 2));
+
+  await store.delete({ ids });
+}
+```
+
+## 相关链接
+
+- 向量存储[概念指南](/oss/integrations/vectorstores)
+- 向量存储[操作指南](/oss/integrations/vectorstores)

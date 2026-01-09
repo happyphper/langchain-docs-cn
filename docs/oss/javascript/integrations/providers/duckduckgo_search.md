@@ -1,0 +1,31 @@
+---
+title: DuckDuckGo 搜索
+---
+>[DuckDuckGo Search](https://github.com/deedy5/duckduckgo_search) 是一个软件包，它使用 `DuckDuckGo.com` 搜索引擎来搜索词语、文档、图片、视频、新闻、地图和文本翻译。它可以将文件和图片下载到本地硬盘。
+
+## 安装与设置
+
+你需要安装一个 Python 包：
+
+::: code-group
+
+```bash [pip]
+pip install duckduckgo-search
+```
+
+```bash [uv]
+uv add duckduckgo-search
+```
+
+:::
+
+## 工具
+
+查看[使用示例](/oss/integrations/tools/ddg)。
+
+目前有两个可用的工具：
+
+```python
+from langchain_community.tools import DuckDuckGoSearchRun
+from langchain_community.tools import DuckDuckGoSearchResults
+```

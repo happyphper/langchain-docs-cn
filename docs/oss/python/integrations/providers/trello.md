@@ -1,0 +1,29 @@
+---
+title: Trello
+---
+>[Trello](https://www.atlassian.com/software/trello) 是一款基于网络的项目管理和协作工具，允许个人和团队组织并跟踪他们的任务和项目。它提供了一个被称为“看板”的可视化界面，用户可以在其中创建列表和卡片来表示他们的任务和活动。
+>TrelloLoader 允许我们从 `Trello` 看板加载卡片。
+
+## 安装与设置
+
+::: code-group
+
+```bash [pip]
+pip install py-trello beautifulsoup4
+```
+
+```bash [uv]
+uv add py-trello beautifulsoup4
+```
+
+:::
+
+请参阅 [设置说明](/oss/integrations/document_loaders/trello)。
+
+## 文档加载器
+
+请参阅 [使用示例](/oss/integrations/document_loaders/trello)。
+
+```python
+from langchain_community.document_loaders import TrelloLoader
+```

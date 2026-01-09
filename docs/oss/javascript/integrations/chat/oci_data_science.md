@@ -1,0 +1,265 @@
+---
+title: ChatOCIModelDeployment
+---
+这将帮助您开始使用 OCIModelDeployment [聊天模型](/oss/langchain/models)。有关 ChatOCIModelDeployment 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.oci_data_science.ChatOCIModelDeployment.html)。
+
+[OCI Data Science](https://docs.oracle.com/en-us/iaas/data-science/using/home.htm) 是一个完全托管且无服务器的平台，供数据科学团队在 Oracle 云基础设施中构建、训练和管理机器学习模型。您可以使用 [AI Quick Actions](https://blogs.oracle.com/ai-and-datascience/post/ai-quick-actions-in-oci-data-science) 在 [OCI Data Science 模型部署服务](https://docs.oracle.com/en-us/iaas/data-science/using/model-dep-about.htm) 上轻松部署 LLMs。您可以选择使用流行的推理框架（如 vLLM 或 TGI）来部署模型。默认情况下，模型部署端点模拟 OpenAI API 协议。
+
+> 有关最新更新、示例和实验性功能，请参阅 [ADS LangChain 集成](https://accelerated-data-science.readthedocs.io/en/latest/user_guide/large_language_model/langchain_models.html)。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | JS 支持 | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| [ChatOCIModelDeployment](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.oci_data_science.ChatOCIModelDeployment.html) | [langchain-community](https://python.langchain.com/api_reference/community/index.html) | beta | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-community?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-community?style=flat-square&label=%20) |
+
+### 模型功能
+
+| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
+| 取决于 | 取决于 | 取决于 | 取决于 | 取决于 | ✅ | ✅ | ✅ | ✅ |
+
+一些模型功能，包括工具调用、结构化输出和多模态输入，取决于所部署的模型。
+
+## 设置
+
+要使用 ChatOCIModelDeployment，您需要部署一个具有聊天补全端点的聊天模型，并安装 `langchain-community`、`langchain-openai` 和 `oracle-ads` 集成包。
+
+您可以使用 OCI Data Science 模型部署上的 [AI Quick Actions](https://github.com/oracle-samples/oci-data-science-ai-samples/blob/main/ai-quick-actions/model-deployment-tips.md) 轻松部署基础模型。有关更多部署示例，请访问 [Oracle GitHub 示例仓库](https://github.com/oracle-samples/oci-data-science-ai-samples/tree/main/ai-quick-actions)。
+
+### 策略
+
+确保拥有访问 OCI Data Science 模型部署端点所需的 [策略](https://docs.oracle.com/en-us/iaas/data-science/using/model-dep-policies-auth.htm#model_dep_policies_auth__predict-endpoint)。
+
+### 凭证
+
+您可以通过 Oracle ADS 设置身份验证。当您在 OCI Data Science Notebook Session 中工作时，可以利用资源主体来访问其他 OCI 资源。
+
+```python
+import ads
+
+# 通过 ads 设置身份验证
+# 当您在配置了基于资源主体身份验证的
+# OCI 服务中操作时，使用资源主体
+ads.set_auth("resource_principal")
+```
+
+或者，您可以使用以下环境变量配置凭证。例如，要使用具有特定配置文件的 API 密钥：
+
+```python
+import os
+
+# 通过环境变量设置身份验证
+# 当您从本地工作站或
+# 不支持资源主体的平台工作时，使用 API 密钥设置。
+os.environ["OCI_IAM_TYPE"] = "api_key"
+os.environ["OCI_CONFIG_PROFILE"] = "default"
+os.environ["OCI_CONFIG_LOCATION"] = "~/.oci"
+```
+
+查看 [Oracle ADS 文档](https://accelerated-data-science.readthedocs.io/en/latest/user_guide/cli/authentication.html) 以查看更多选项。
+
+### 安装
+
+LangChain OCIModelDeployment 集成位于 `langchain-community` 包中。以下命令将安装 `langchain-community` 和所需的依赖项。
+
+```python
+pip install -qU langchain-community langchain-openai oracle-ads
+```
+
+## 实例化
+
+您可以使用通用的 `ChatOCIModelDeployment` 或特定框架的类（如 `ChatOCIModelDeploymentVLLM`）来实例化模型。
+
+* 当您需要一个通用的模型部署入口点时，使用 `ChatOCIModelDeployment`。您可以在实例化此类时通过 `model_kwargs` 传递模型参数。这提供了灵活性和易于配置性，而无需依赖特定框架的细节。
+
+```python
+from langchain_community.chat_models import ChatOCIModelDeployment
+
+# 创建 OCI 模型部署端点的实例
+# 将端点 uri 替换为您自己的
+# 使用通用类作为入口点，您将能够
+# 在实例化期间通过 model_kwargs 传递模型参数。
+chat = ChatOCIModelDeployment(
+    endpoint="https://modeldeployment.<region>.oci.customer-oci.com/<ocid>/predict",
+    streaming=True,
+    max_retries=1,
+    model_kwargs={
+        "temperature": 0.2,
+        "max_tokens": 512,
+    },  # 其他模型参数...
+    default_headers={
+        "route": "/v1/chat/completions",
+        # 其他请求头 ...
+    },
+)
+```
+
+* 使用特定框架的类，如 `ChatOCIModelDeploymentVLLM`：当您使用特定框架（例如 `vLLM`）并需要通过构造函数直接传递模型参数以简化设置过程时，这很合适。
+
+```python
+from langchain_community.chat_models import ChatOCIModelDeploymentVLLM
+
+# 创建 OCI 模型部署端点的实例
+# 将端点 uri 替换为您自己的
+# 使用特定框架的类作为入口点，您将
+# 能够在构造函数中传递模型参数。
+chat = ChatOCIModelDeploymentVLLM(
+    endpoint="https://modeldeployment.<region>.oci.customer-oci.com/<md_ocid>/predict",
+)
+```
+
+## 调用
+
+```python
+messages = [
+    (
+        "system",
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+    ),
+    ("human", "I love programming."),
+]
+
+ai_msg = chat.invoke(messages)
+ai_msg
+```
+
+```text
+AIMessage(content="J'adore programmer.", response_metadata={'token_usage': {'prompt_tokens': 44, 'total_tokens': 52, 'completion_tokens': 8}, 'model_name': 'odsc-llm', 'system_fingerprint': '', 'finish_reason': 'stop'}, id='run-ca145168-efa9-414c-9dd1-21d10766fdd3-0')
+```
+
+```python
+print(ai_msg.content)
+```
+
+```text
+J'adore programmer.
+```
+
+## 链式调用
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "You are a helpful assistant that translates {input_language} to {output_language}.",
+        ),
+        ("human", "{input}"),
+    ]
+)
+
+chain = prompt | chat
+chain.invoke(
+    {
+        "input_language": "English",
+        "output_language": "German",
+        "input": "I love programming.",
+    }
+)
+```
+
+```text
+AIMessage(content='Ich liebe Programmierung.', response_metadata={'token_usage': {'prompt_tokens': 38, 'total_tokens': 48, 'completion_tokens': 10}, 'model_name': 'odsc-llm', 'system_fingerprint': '', 'finish_reason': 'stop'}, id='run-5dd936b0-b97e-490e-9869-2ad3dd524234-0')
+```
+
+## 异步调用
+
+```python
+from langchain_community.chat_models import ChatOCIModelDeployment
+
+system = "You are a helpful translator that translates {input_language} to {output_language}."
+human = "{text}"
+prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
+
+chat = ChatOCIModelDeployment(
+    endpoint="https://modeldeployment.us-ashburn-1.oci.customer-oci.com/<ocid>/predict"
+)
+chain = prompt | chat
+
+await chain.ainvoke(
+    {
+        "input_language": "English",
+        "output_language": "Chinese",
+        "text": "I love programming",
+    }
+)
+```
+
+```text
+AIMessage(content='我喜欢编程', response_metadata={'token_usage': {'prompt_tokens': 37, 'total_tokens': 50, 'completion_tokens': 13}, 'model_name': 'odsc-llm', 'system_fingerprint': '', 'finish_reason': 'stop'}, id='run-a2dc9393-f269-41a4-b908-b1d8a92cf827-0')
+```
+
+## 流式调用
+
+```python
+import os
+import sys
+
+from langchain_community.chat_models import ChatOCIModelDeployment
+from langchain_core.prompts import ChatPromptTemplate
+
+prompt = ChatPromptTemplate.from_messages(
+    [("human", "List out the 5 states in the United State.")]
+)
+
+chat = ChatOCIModelDeployment(
+    endpoint="https://modeldeployment.us-ashburn-1.oci.customer-oci.com/<ocid>/predict"
+)
+
+chain = prompt | chat
+
+for chunk in chain.stream({}):
+    sys.stdout.write(chunk.content)
+    sys.stdout.flush()
+```
+
+```text
+1. California
+2. Texas
+3. Florida
+4. New York
+5. Illinois
+```
+
+## 结构化输出
+
+```python
+from langchain_community.chat_models import ChatOCIModelDeployment
+from pydantic import BaseModel
+
+class Joke(BaseModel):
+    """A setup to a joke and the punchline."""
+
+    setup: str
+    punchline: str
+
+chat = ChatOCIModelDeployment(
+    endpoint="https://modeldeployment.us-ashburn-1.oci.customer-oci.com/<ocid>/predict",
+)
+structured_llm = chat.with_structured_output(Joke, method="json_mode")
+output = structured_llm.invoke(
+    "Tell me a joke about cats, respond in JSON with `setup` and `punchline` keys"
+)
+
+output.dict()
+```
+
+```text
+{'setup': 'Why did the cat get stuck in the tree?',
+ 'punchline': 'Because it was chasing its tail!'}
+```
+
+---
+
+## API 参考
+
+有关所有功能和配置的全面详细信息，请参阅每个类的 API 参考文档：
+
+* [ChatOCIModelDeployment](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.oci_data_science.ChatOCIModelDeployment.html)
+* [ChatOCIModelDeploymentVLLM](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.oci_data_science.ChatOCIModelDeploymentVLLM.html)
+* [ChatOCIModelDeploymentTGI](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.oci_data_science.ChatOCIModelDeploymentTGI.html)

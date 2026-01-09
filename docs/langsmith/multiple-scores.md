@@ -1,0 +1,71 @@
+---
+title: 如何在一个评估器中返回多个分数
+sidebarTitle: Return multiple scores in one evaluator
+---
+有时，自定义评估器或总结评估器返回多个指标会很有用。例如，如果有一个由 LLM 评判器生成的多个指标，通过一次 LLM 调用生成多个指标，而不是进行多次 LLM 调用，可以节省时间和成本。
+
+要使用 Python SDK 返回多个分数，只需返回以下形式的字典/对象列表：
+
+```python
+[
+    # 'key' 是指标名称
+    # 'score' 是数值型指标的值
+    {"key": string, "score": number},
+    # 'value' 是分类型指标的值
+    {"key": string, "value": string},
+    ... # 你可以记录任意多个
+]
+```
+
+要使用 JS/TS SDK 实现，返回一个包含 'results' 键的对象，然后是一个上述形式的列表
+
+```typescript
+{results: [{ key: string, score: number }, ...]};
+```
+
+这些字典中的每一个都可以包含[反馈字段](/langsmith/feedback-data-format)中的任意或全部字段；请查看链接文档以获取更多信息。
+
+示例：
+
+- Python：需要 `langsmith>=0.2.0`
+- TypeScript：`langsmith@0.1.32` 及更高版本支持多个分数
+
+::: code-group
+
+```python [Python]
+def multiple_scores(outputs: dict, reference_outputs: dict) -> list[dict]:
+    # 替换为真实的评估逻辑。
+    precision = 0.8
+    recall = 0.9
+    f1 = 0.85
+    return [
+        {"key": "precision", "score": precision},
+        {"key": "recall", "score": recall},
+        {"key": "f1", "score": f1},
+    ]
+```
+
+```typescript [TypeScript]
+import type { Run, Example } from "langsmith/schemas";
+
+function multipleScores(rootRun: Run, example: Example) {
+  // 在此处编写你的评估逻辑
+  return {
+      results: [
+          { key: "precision", score: 0.8 },
+          { key: "recall", score: 0.9 },
+          { key: "f1", score: 0.85 },
+      ],
+  };
+}
+```
+
+:::
+
+生成的实验中的行将显示每个分数。
+
+![multiple_scores.png](/langsmith/images/multiple-scores.png)
+
+## 相关
+
+* [返回分类指标与数值指标](/langsmith/metric-type)

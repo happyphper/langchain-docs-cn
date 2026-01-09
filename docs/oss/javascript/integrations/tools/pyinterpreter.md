@@ -1,0 +1,66 @@
+---
+title: Python 解释器工具
+---
+
+<Warning>
+
+此工具会执行代码，可能执行破坏性操作。请确保你信任传递给它的任何代码！
+
+</Warning>
+
+LangChain 提供了一个用于执行任意 Python 代码的实验性工具。
+这对于与能够生成代码以执行更强大计算的 LLM 结合使用非常有用。
+
+## 使用方法
+
+```typescript
+import { OpenAI } from "@langchain/openai";
+import { PythonInterpreterTool } from "@langchain/community/experimental/tools/pyinterpreter";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+
+const prompt = ChatPromptTemplate.fromTemplate(
+  `Generate python code that does {input}. Do not generate anything else.`
+);
+
+const model = new OpenAI({});
+
+const interpreter = await PythonInterpreterTool.initialize({
+  indexURL: "../node_modules/pyodide",
+});
+
+// 注意：在 Deno 中，自行初始化解释器可能更容易：
+// import pyodideModule from "npm:pyodide/pyodide.js";
+// import { PythonInterpreterTool } from "npm:@langchain/community/experimental/tools/pyinterpreter";
+
+// const pyodide = await pyodideModule.loadPyodide();
+// const pythonTool = new PythonInterpreterTool({instance: pyodide})
+
+const chain = prompt
+  .pipe(model)
+  .pipe(new StringOutputParser())
+  .pipe(interpreter);
+
+const result = await chain.invoke({
+  input: `prints "Hello LangChain"`,
+});
+
+console.log(JSON.parse(result).stdout);
+
+// 安装 Python 包：
+// 这使用了 loadPackages 命令。
+// 这适用于使用 pyodide 构建的包。
+await interpreter.addPackage("numpy");
+// 但对于其他包，你可能需要使用 micropip。
+// 更多信息请参阅：https://pyodide.org/en/stable/usage/loading-packages.html
+await interpreter.addPackage("micropip");
+// 以下代码大致相当于：
+// pyodide.runPython(`import ${pkgname}; ${pkgname}`);
+const micropip = interpreter.pyodideInstance.pyimport("micropip");
+await micropip.install("numpy");
+```
+
+## 相关链接
+
+- 工具 [概念指南](/oss/langchain/tools)
+- 工具 [操作指南](/oss/langchain/tools)

@@ -1,0 +1,145 @@
+---
+title: 朗菲尔
+---
+LangFair 是一个全面的 Python 库，旨在对大语言模型（LLM）用例进行偏见和公平性评估。LangFair [代码仓库](https://github.com/cvs-health/langfair) 包含一个用于[为 LLM 用例选择偏见和公平性指标](https://github.com/cvs-health/langfair/tree/main#-choosing-bias-and-fairness-metrics-for-an-llm-use-case)的全面框架，以及[演示笔记本](https://github.com/cvs-health/langfair/tree/main/examples)和一份[技术手册](https://arxiv.org/abs/2407.10853)，该手册讨论了 LLM 的偏见与公平性风险、评估指标和最佳实践。
+
+请访问我们的[文档网站](https://cvs-health.github.io/langfair/)以获取使用 LangFair 的详细说明。
+
+## ⚡ 快速入门指南
+### （可选）为使用 LangFair 创建虚拟环境
+我们建议在安装 LangFair 之前使用 venv 创建一个新的虚拟环境。具体操作请遵循[此处](https://docs.python.org/3/library/venv.html)的说明。
+
+### 安装 LangFair
+可以从 PyPI 安装最新版本：
+
+::: code-group
+
+```bash [pip]
+pip install langfair
+```
+
+```bash [uv]
+uv add langfair
+```
+
+:::
+
+### 使用示例
+以下代码示例展示了如何使用 LangFair 来评估文本生成和摘要用例中的偏见与公平性风险。以下示例假设用户已从其用例中定义了一个提示词列表 `prompts`。
+
+##### 生成 LLM 响应
+要生成响应，我们可以使用 LangFair 的 `ResponseGenerator` 类。首先，我们必须创建一个 `langchain` LLM 对象。下面我们使用 `ChatVertexAI`，但**也可以使用 [LangChain 的任何 LLM 类](https://js.langchain.com/docs/integrations/chat/)**。请注意，`InMemoryRateLimiter` 用于避免速率限制错误。
+
+```python
+from langchain_google_vertexai import ChatVertexAI
+from langchain_core.rate_limiters import InMemoryRateLimiter
+rate_limiter = InMemoryRateLimiter(
+    requests_per_second=4.5, check_every_n_seconds=0.5, max_bucket_size=280,
+)
+llm = ChatVertexAI(
+    model_name="gemini-pro", temperature=0.3, rate_limiter=rate_limiter
+)
+```
+我们可以使用 `ResponseGenerator.generate_responses` 为每个提示词生成 25 个响应，这是毒性评估的惯例。
+
+```python
+from langfair.generator import ResponseGenerator
+rg = ResponseGenerator(langchain_llm=llm)
+generations = await rg.generate_responses(prompts=prompts, count=25)
+responses = generations["data"]["response"]
+duplicated_prompts = generations["data"]["prompt"] # 使提示词与响应对应
+```
+
+##### 计算毒性指标
+毒性指标可以使用 `ToxicityMetrics` 计算。请注意，`torch.device` 的使用是可选的，如果 GPU 可用，应使用它以加速毒性计算。
+
+```python
+# import torch # 如果 GPU 可用，请取消注释
+# device = torch.device("cuda") # 如果 GPU 可用，请取消注释
+from langfair.metrics.toxicity import ToxicityMetrics
+tm = ToxicityMetrics(
+    # device=device, # 如果 GPU 可用，请取消注释,
+)
+tox_result = tm.evaluate(
+    prompts=duplicated_prompts,
+    responses=responses,
+    return_data=True
+)
+tox_result['metrics']
+# # 输出如下
+# {'Toxic Fraction': 0.0004,
+# 'Expected Maximum Toxicity': 0.013845130120171235,
+# 'Toxicity Probability': 0.01}
+```
+
+##### 计算刻板印象指标
+刻板印象指标可以使用 `StereotypeMetrics` 计算。
+
+```python
+from langfair.metrics.stereotype import StereotypeMetrics
+sm = StereotypeMetrics()
+stereo_result = sm.evaluate(responses=responses, categories=["gender"])
+stereo_result['metrics']
+# # 输出如下
+# {'Stereotype Association': 0.3172750176745329,
+# 'Cooccurrence Bias': 0.44766333654278373,
+# 'Stereotype Fraction - gender': 0.08}
+```
+
+##### 生成反事实响应并计算指标
+我们可以使用 `CounterfactualGenerator` 生成反事实响应。
+
+```python
+from langfair.generator.counterfactual import CounterfactualGenerator
+cg = CounterfactualGenerator(langchain_llm=llm)
+cf_generations = await cg.generate_responses(
+    prompts=prompts, attribute='gender', count=25
+)
+male_responses = cf_generations['data']['male_response']
+female_responses = cf_generations['data']['female_response']
+```
+
+反事实指标可以轻松地使用 `CounterfactualMetrics` 计算。
+
+```python
+from langfair.metrics.counterfactual import CounterfactualMetrics
+cm = CounterfactualMetrics()
+cf_result = cm.evaluate(
+    texts1=male_responses,
+    texts2=female_responses,
+    attribute='gender'
+)
+cf_result['metrics']
+# # 输出如下
+# {'Cosine Similarity': 0.8318708,
+# 'RougeL Similarity': 0.5195852482361165,
+# 'Bleu Similarity': 0.3278433712872481,
+# 'Sentiment Bias': 0.0009947145187601957}
+```
+
+##### 替代方法：使用 `AutoEval` 进行半自动评估
+为了简化文本生成和摘要用例的评估，`AutoEval` 类执行一个多步骤过程，仅用两行代码即可完成上述所有步骤。
+
+```python
+from langfair.auto import AutoEval
+auto_object = AutoEval(
+    prompts=prompts,
+    langchain_llm=llm,
+    # toxicity_device=device # 如果 GPU 可用，请取消注释
+)
+results = await auto_object.evaluate()
+results['metrics']
+# # 输出如下
+# {'Toxicity': {'Toxic Fraction': 0.0004,
+#   'Expected Maximum Toxicity': 0.013845130120171235,
+#   'Toxicity Probability': 0.01},
+#  'Stereotype': {'Stereotype Association': 0.3172750176745329,
+#   'Cooccurrence Bias': 0.44766333654278373,
+#   'Stereotype Fraction - gender': 0.08,
+#   'Expected Maximum Stereotype - gender': 0.60355167388916,
+#   'Stereotype Probability - gender': 0.27036},
+#  'Counterfactual': {'male-female': {'Cosine Similarity': 0.8318708,
+#    'RougeL Similarity': 0.5195852482361165,
+#    'Bleu Similarity': 0.3278433712872481,
+#    'Sentiment Bias': 0.0009947145187601957}}}
+```

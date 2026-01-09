@@ -1,0 +1,208 @@
+
+<Tabs>
+
+<Tab title="OpenAI">
+
+👉 阅读 [OpenAI 聊天模型集成文档](/oss/python/integrations/chat/openai/)
+
+```shell
+pip install -U "langchain[openai]"
+```
+
+::: code-group
+
+```python [init_chat_model]
+import os
+from langchain.chat_models import init_chat_model
+
+os.environ["OPENAI_API_KEY"] = "sk-..."
+
+model = init_chat_model("gpt-4.1")
+```
+```python [Model Class]
+import os
+from langchain_openai import ChatOpenAI
+
+os.environ["OPENAI_API_KEY"] = "sk-..."
+
+model = ChatOpenAI(model="gpt-4.1")
+```
+
+:::
+
+</Tab>
+
+<Tab title="Anthropic">
+
+👉 阅读 [Anthropic 聊天模型集成文档](/oss/python/integrations/chat/anthropic/)
+```shell
+pip install -U "langchain[anthropic]"
+```
+
+::: code-group
+
+```python [init_chat_model]
+import os
+from langchain.chat_models import init_chat_model
+
+os.environ["ANTHROPIC_API_KEY"] = "sk-..."
+
+model = init_chat_model("claude-sonnet-4-5-20250929")
+```
+```python [Model Class]
+import os
+from langchain_anthropic import ChatAnthropic
+
+os.environ["ANTHROPIC_API_KEY"] = "sk-..."
+
+model = ChatAnthropic(model="claude-sonnet-4-5-20250929")
+```
+
+:::
+
+</Tab>
+
+<Tab title="Azure">
+
+👉 阅读 [Azure 聊天模型集成文档](/oss/python/integrations/chat/azure_chat_openai/)
+```shell
+pip install -U "langchain[openai]"
+```
+
+::: code-group
+
+```python [init_chat_model]
+import os
+from langchain.chat_models import init_chat_model
+
+os.environ["AZURE_OPENAI_API_KEY"] = "..."
+os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
+os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
+
+model = init_chat_model(
+    "azure_openai:gpt-4.1",
+    azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
+)
+```
+```python [Model Class]
+import os
+from langchain_openai import AzureChatOpenAI
+
+os.environ["AZURE_OPENAI_API_KEY"] = "..."
+os.environ["AZURE_OPENAI_ENDPOINT"] = "..."
+os.environ["OPENAI_API_VERSION"] = "2025-03-01-preview"
+
+model = AzureChatOpenAI(
+    model="gpt-4.1",
+    azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"]
+)
+```
+
+:::
+
+</Tab>
+
+<Tab title="Google Gemini">
+
+👉 阅读 [Google GenAI 聊天模型集成文档](/oss/python/integrations/chat/google_generative_ai/)
+```shell
+pip install -U "langchain[google-genai]"
+```
+
+::: code-group
+
+```python [init_chat_model]
+import os
+from langchain.chat_models import init_chat_model
+
+os.environ["GOOGLE_API_KEY"] = "..."
+
+model = init_chat_model("google_genai:gemini-2.5-flash-lite")
+```
+```python [Model Class]
+import os
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+os.environ["GOOGLE_API_KEY"] = "..."
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite")
+```
+
+:::
+
+</Tab>
+
+<Tab title="AWS Bedrock">
+
+👉 阅读 [AWS Bedrock 聊天模型集成文档](/oss/python/integrations/chat/bedrock/)
+```shell
+pip install -U "langchain[aws]"
+```
+
+::: code-group
+
+```python [init_chat_model]
+from langchain.chat_models import init_chat_model
+
+# 请按照此处的步骤配置您的凭证：
+# https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html
+
+model = init_chat_model(
+    "anthropic.claude-3-5-sonnet-20240620-v1:0",
+    model_provider="bedrock_converse",
+)
+```
+```python [Model Class]
+from langchain_aws import ChatBedrock
+
+model = ChatBedrock(model="anthropic.claude-3-5-sonnet-20240620-v1:0")
+```
+
+:::
+
+</Tab>
+
+<Tab title="HuggingFace">
+
+👉 阅读 [HuggingFace 聊天模型集成文档](/oss/python/integrations/chat/huggingface/)
+
+```shell
+pip install -U "langchain[huggingface]"
+```
+
+::: code-group
+
+```python [init_chat_model]
+import os
+from langchain.chat_models import init_chat_model
+
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = "hf_..."
+
+model = init_chat_model(
+    "microsoft/Phi-3-mini-4k-instruct",
+    model_provider="huggingface",
+    temperature=0.7,
+    max_tokens=1024,
+)
+```
+
+```python [Model Class]
+import os
+from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = "hf_..."
+
+llm = HuggingFaceEndpoint(
+    repo_id="microsoft/Phi-3-mini-4k-instruct",
+    temperature=0.7,
+    max_length=1024,
+)
+model = ChatHuggingFace(llm=llm)
+```
+
+:::
+
+</Tab>
+
+</Tabs>
+

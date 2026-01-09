@@ -1,0 +1,235 @@
+---
+title: 在 Kubernetes 上自托管 LangSmith
+sidebarTitle: Install on Kubernetes
+---
+
+<Info>
+
+自托管 LangSmith 是企业版计划的一项附加功能，专为我们规模最大、最注重安全的客户设计。详情请参阅我们的[定价页面](https://www.langchain.com/pricing)，如果您希望获取许可证密钥以在您的环境中试用 LangSmith，请[联系我们的销售团队](https://www.langchain.com/contact-sales)。
+
+</Info>
+
+本页描述了如何在 Kubernetes 集群中设置 **LangSmith**（可观测性、追踪和评估）。您将使用 Helm 来安装 LangSmith 及其依赖项。
+
+完成本页内容后，您将拥有：
+
+- **LangSmith UI 和 API**：用于[可观测性](/langsmith/observability)、追踪和[评估](/langsmith/evaluation)。
+- **后端服务**：（队列、playground、ACE）。
+- **数据存储**：（PostgreSQL、Redis、ClickHouse，可选的对象存储）。
+
+关于[智能体部署](/langsmith/deployments)：要添加部署功能，请先完成本指南，然后按照[启用 LangSmith 部署](/langsmith/deploy-self-hosted-full-platform)进行操作。
+
+LangChain 已在以下 Kubernetes 发行版上成功测试过 LangSmith：
+
+- Google Kubernetes Engine (GKE)
+- Amazon Elastic Kubernetes Service (EKS)：有关架构模式和实践，请参阅[在 AWS 上自托管](/langsmith/aws-self-hosted)。
+- Azure Kubernetes Service (AKS)：有关架构模式和实践，请参阅[在 Azure 上自托管](/langsmith/azure-self-hosted)。
+- OpenShift (4.14+)
+- Minikube 和 Kind（用于开发目的）
+
+<Note>
+
+LangChain 提供了 Terraform 模块来帮助为 LangSmith 配置基础设施。这些模块可以快速为您的部署设置 Kubernetes 集群、存储和网络。
+
+可用模块：
+- [AWS Terraform 模块](https://github.com/langchain-ai/terraform/tree/main/modules/aws)
+- [Azure Terraform 模块](https://github.com/langchain-ai/terraform/tree/main/modules/azure)
+
+查看[完整的 Terraform 仓库](https://github.com/langchain-ai/terraform)以获取文档和其他资源。
+
+</Note>
+
+## 先决条件
+
+确保您已准备好以下工具/项目。部分项目标记为可选：
+
+1.  LangSmith 许可证密钥
+    1.  您可以从您的 LangChain 代表处获取。更多信息请[联系我们的销售团队](https://www.langchain.com/contact-sales)。
+2.  Api Key Salt
+    1.  这是一个您可以生成的密钥。它应该是一个随机字符串。
+    2.  您可以使用以下命令生成：
+```bash
+openssl rand -base64 32
+```
+3.  JWT 密钥（可选，但用于基本身份验证）
+    1.  这是一个您可以生成的密钥。它应该是一个随机字符串。
+    2.  您可以使用以下命令生成：
+```bash
+openssl rand -base64 32
+```
+
+### 数据库
+
+LangSmith 使用 PostgreSQL 数据库、Redis 缓存和 ClickHouse 数据库来存储追踪数据。默认情况下，这些服务会安装在您的 Kubernetes 集群内部。但是，我们强烈建议使用外部数据库。对于 PostgreSQL 和 Redis，最佳选择是您云提供商的托管服务。
+
+有关更多信息，请参阅以下外部服务设置指南：
+
+-   [PostgreSQL](/langsmith/self-host-external-postgres)
+-   [Redis](/langsmith/self-host-external-redis)
+-   [ClickHouse](/langsmith/self-host-external-clickhouse)
+
+### Kubernetes 集群要求
+
+1.  您需要一个可以通过 `kubectl` 访问的正常运行的 Kubernetes 集群。您的集群应满足以下最低要求：
+
+    1.  推荐：至少 16 个 vCPU，64GB 可用内存
+ *   您可能需要根据组织规模/使用情况调整我们所有不同服务的资源请求/限制。我们的建议可以在[此处](/langsmith/self-host-scale)找到。
+ *   我们建议使用集群自动扩缩器来处理基于资源使用情况的节点扩缩。
+ *   我们建议设置 metrics server 以便启用自动扩缩。
+ *   如果您在集群内运行 Clickhouse，则必须有一个节点具有至少 4 个 vCPU 和 16GB **可分配**内存，因为 ClickHouse 默认会请求此数量的资源。
+    2.  有效的动态 PV 供应程序或集群上可用的 PV（仅在集群内运行数据库时需要）
+ *   为了启用持久化，我们将尝试为任何在集群内运行的数据库配置卷。
+ *   如果在集群中使用 PV，我们强烈建议在生产环境中设置备份。
+ *   **我们强烈建议使用由 SSD 支持的存储类以获得更好的性能。我们建议 7000 IOPS 和 1000 MiB/s 的吞吐量。**
+ *   在 EKS 上，您可能需要确保已安装并配置了 `ebs-csi-driver` 以进行动态供应。更多信息请参阅 [EBS CSI 驱动程序文档](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html)。
+
+您可以通过运行以下命令来验证：
+
+```bash
+kubectl get storageclass
+```
+
+输出应显示至少一个存储类，其供应程序支持动态供应。例如：
+
+```bash
+NAME            PROVISIONER                 RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+gp2 (default)   ebs.csi.eks.amazonaws.com   Delete          WaitForFirstConsumer   true                   161d
+```
+
+<Note>
+
+我们强烈建议使用支持卷扩展的存储类。这是因为追踪数据可能占用大量磁盘空间，您的卷可能需要随时间调整大小。
+
+</Note>
+
+有关存储类的更多信息，请参阅 [Kubernetes 文档](https://kubernetes.io/do/langsmith/observability-concepts/storage/storage-classes/)。
+
+2.  Helm
+    1.  要安装 `helm`，请参阅 [Helm 文档](https://helm.sh/docs/intro/install/)
+3.  到 `https://beacon.langchain.com` 的出站连接（如果不在离线模式下运行）
+    1.  LangSmith 需要出站连接到 `https://beacon.langchain.com` 以进行许可证验证和使用情况报告。这是 LangSmith 正常运行所必需的。您可以在[出站连接](/langsmith/self-host-egress)部分找到更多关于出站要求的信息。
+
+## 配置您的 Helm Charts：
+
+1.  使用上一步中的配置选项创建一个名为 `langsmith_config.yaml` 的新文件。
+    1.  您可以在 `langsmith_config.yaml` 文件中设置多个配置选项。您可以在[配置](/langsmith/self-hosted)部分找到有关特定配置选项的更多信息。
+    2.  如果您是 Kubernetes 或 Helm 的新手，我们建议从 Helm Chart 仓库示例目录中的某个示例配置开始：[LangSmith helm chart 示例](https://github.com/langchain-ai/helm/tree/main/charts/langsmith/examples)。
+    3.  您可以在 Helm Chart 仓库的 `values.yaml` 文件中查看完整的配置选项列表：[LangSmith Helm Chart](https://github.com/langchain-ai/helm/tree/main/charts/langsmith/values.yaml)
+
+<Warning>
+
+仅在 `langsmith_config.yaml` 中覆盖您需要的设置；不要复制整个 `values.yaml`。
+保持配置最小化可确保您继续从 Helm chart 继承新的默认值和升级。
+
+</Warning>
+
+2.  至少，您需要设置以下配置选项（使用基本身份验证）：
+
+```yaml
+config:
+  langsmithLicenseKey: "<your license key>"
+  apiKeySalt: "<your api key salt>"
+  authType: mixed
+  basicAuth:
+    enabled: true
+    initialOrgAdminEmail: "admin@langchain.dev" # 将此更改为您的管理员电子邮件地址
+    initialOrgAdminPassword: "secure-password" # 必须至少 12 个字符，并且至少包含一个小写字母、一个大写字母和一个符号
+    jwtSecret: <your jwt salt> # 用于为基本身份验证签署 JWT 令牌的随机字符串。
+```
+您还需要为正在使用的任何外部数据库指定连接详细信息。
+
+## 部署到 Kubernetes：
+
+1.  验证您可以连接到您的 Kubernetes 集群（注意：我们强烈建议安装到空命名空间中）
+    1.  运行 `kubectl get pods`
+输出应类似于：
+```bash
+kubectl get pods                                                                                                                                                                     ⎈ langsmith-eks-2vauP7wf 21:07:46No resources found in default namespace.
+```
+
+<Note>
+
+如果您使用的不是默认命名空间，则需要使用 `-n <namespace>` 标志在 `helm` 和 `kubectl` 命令中指定命名空间。
+
+</Note>
+
+2.  确保您已添加 LangChain Helm 仓库。（如果使用本地 charts，请跳过此步骤）
+```bash
+helm repo add langchain https://langchain-ai.github.io/helm/"langchain" has been added to your repositories
+```
+3.  查找 chart 的最新版本。您可以在 [Helm Chart 仓库](https://github.com/langchain-ai/helm/releases)中找到可用版本。
+    *   我们通常建议使用最新版本。
+    *   您也可以运行 `helm search repo langchain/langsmith --versions` 来查看可用版本。输出将类似于：
+```
+langchain/langsmith     0.10.14         0.10.32         Helm chart to deploy the langsmith application ...
+langchain/langsmith     0.10.13         0.10.32         Helm chart to deploy the langsmith application ...
+langchain/langsmith     0.10.12         0.10.32         Helm chart to deploy the langsmith application ...
+langchain/langsmith     0.10.11         0.10.29         Helm chart to deploy the langsmith application ...
+langchain/langsmith     0.10.10         0.10.29         Helm chart to deploy the langsmith application ...
+```
+4.  运行 `helm upgrade -i langsmith langchain/langsmith --values langsmith_config.yaml --version <version> -n <namespace> --wait --debug`
+    *   将 `<namespace>` 替换为您要部署 LangSmith 的命名空间。
+    *   将 `<version>` 替换为上一步中您要安装的 LangSmith 版本。大多数用户应安装可用的最新版本。
+一旦 `helm install` 命令成功运行并完成，您应该会看到类似以下的输出：
+```
+NAME: langsmith
+LAST DEPLOYED: Fri Sep 17 21:08:47 2021
+NAMESPACE: langsmith
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+```
+这可能需要几分钟才能完成，因为它将创建多个 Kubernetes 资源并运行多个作业来初始化数据库和其他服务。
+5.  运行 `kubectl get pods` 输出现在应类似于这样（注意确切的 Pod 名称可能因您使用的版本和配置而异）：
+```
+langsmith-backend-6ff46c99c4-wz22d       1/1     Running   0          3h2m
+langsmith-frontend-6bbb94c5df-8xrlr      1/1     Running   0          3h2m
+langsmith-hub-backend-5cc68c888c-vppjj   1/1     Running   0          3h2m
+langsmith-playground-6d95fd8dc6-x2d9b    1/1     Running   0          3h2m
+langsmith-postgres-0                     1/1     Running   0          9h
+langsmith-queue-5898b9d566-tv6q8         1/1     Running   0          3h2m
+langsmith-redis-0                        1/1     Running   0          9h
+```
+
+## 验证您的部署：
+
+1.  运行 `kubectl get services`
+输出应类似于：
+```
+NAME                    TYPE           CLUSTER-IP       EXTERNAL-IP                                                               PORT(S)        AGE
+langsmith-backend       ClusterIP      172.20.140.77    <none>                                                                    1984/TCP       35h
+langsmith-frontend      LoadBalancer   172.20.253.251   <external ip>                                                             80:31591/TCP   35h
+langsmith-hub-backend   ClusterIP      172.20.112.234   <none>                                                                    1985/TCP       35h
+langsmith-playground    ClusterIP      172.20.153.194   <none>                                                                    3001/TCP       9h
+langsmith-postgres      ClusterIP      172.20.244.82    <none>                                                                    5432/TCP       35h
+langsmith-redis         ClusterIP      172.20.81.217    <none>                                                                    6379/TCP       35h
+```
+2.  对 `langsmith-frontend` 服务的外部 IP 执行 curl 请求：
+```bash
+curl <external ip>/api/tenants
+```
+预期输出：
+```json
+[{"id":"00000000-0000-0000-0000-000000000000","has_waitlist_access":true,"created_at":"2023-09-13T18:25:10.488407","display_name":"Personal","config":{"is_personal":true,"max_identities":1},"tenant_handle":"default"}]
+```
+3.  在浏览器中访问 `langsmith-frontend` 服务的外部 IP
+LangSmith UI 应该可见/可操作
+![Langsmith ui](/langsmith/images/langsmith-ui.png)
+
+## 使用 LangSmith
+
+现在 LangSmith 正在运行，您可以开始使用它来追踪您的代码。您可以在[自托管使用指南](/langsmith/self-hosted)中找到有关如何使用自托管 LangSmith 的更多信息。
+
+您的 LangSmith 实例现在正在运行，但可能尚未完全设置。
+
+如果您使用了基本配置之一，系统会为您创建一个默认的管理员用户帐户。您可以使用在 `langsmith_config.yaml` 文件中指定的电子邮件地址和密码登录。
+
+作为下一步，强烈建议您与您的基础设施管理员合作：
+
+*   为您的 LangSmith 实例设置 DNS 以便更轻松地访问
+*   配置 SSL 以确保提交到 LangSmith 的追踪数据在传输过程中加密
+*   使用[单点登录](/langsmith/self-host-sso)配置 LangSmith 以保护您的 LangSmith 实例
+*   将 LangSmith 连接到外部 Postgres 和 Redis 实例
+*   设置[对象存储](/langsmith/self-host-blob-storage)以存储大文件
+
+查看我们的[配置部分](/langsmith/self-hosted)以获取有关如何配置这些选项的更多信息。

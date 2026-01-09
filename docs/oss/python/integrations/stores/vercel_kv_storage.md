@@ -1,0 +1,96 @@
+---
+title: Vercel KV
+---
+本示例演示了如何使用 `VercelKVStore` <a href="https://reference.langchain.com/python/langsmith/deployment/remote_graph/" target="_blank" rel="noreferrer" class="link"><code>BaseStore</code></a> 集成来设置聊天历史存储。
+
+## 设置
+
+```bash [npm]
+npm install @langchain/community @langchain/core @vercel/kv
+```
+
+## 用法
+
+```typescript
+import { createClient } from "@vercel/kv";
+import { VercelKVStore } from "@langchain/community/storage/vercel_kv";
+import { AIMessage, HumanMessage } from "@langchain/core/messages";
+
+// 专业建议：定义一个辅助函数来获取客户端，
+// 并处理环境变量未设置的情况。
+const getClient = () => {
+  if (!process.env.VERCEL_KV_API_URL || !process.env.VERCEL_KV_API_TOKEN) {
+    throw new Error(
+      "环境变量中必须设置 VERCEL_KV_API_URL 和 VERCEL_KV_API_TOKEN"
+    );
+  }
+  const client = createClient({
+    url: process.env.VERCEL_KV_API_URL,
+    token: process.env.VERCEL_KV_API_TOKEN,
+  });
+  return client;
+};
+
+// 定义客户端和存储
+const client = getClient();
+const store = new VercelKVStore({
+  client,
+});
+// 定义用于在字符串和 Uint8Arrays 之间转换的编码器/解码器
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+/**
+ * 在这里，您将定义您的 LLM 和聊天链，调用
+ * LLM 并最终获得消息列表。
+ * 对于此示例，我们假设已经有一个列表。
+ */
+const messages = Array.from({ length: 5 }).map((_, index) => {
+  if (index % 2 === 0) {
+    return new AIMessage("ai stuff...");
+  }
+  return new HumanMessage("human stuff...");
+});
+// 将消息设置到存储中
+// 键将以 `message:id:` 为前缀，并以索引结尾。
+await store.mset(
+  messages.map((message, index) => [
+    `message:id:${index}`,
+    encoder.encode(JSON.stringify(message)),
+  ])
+);
+// 现在您可以从存储中获取消息
+const retrievedMessages = await store.mget(["message:id:0", "message:id:1"]);
+// 确保解码值
+console.log(retrievedMessages.map((v) => decoder.decode(v)));
+/**
+[
+  '{"id":["langchain","AIMessage"],"kwargs":{"content":"ai stuff..."}}',
+  '{"id":["langchain","HumanMessage"],"kwargs":{"content":"human stuff..."}}'
+]
+ */
+// 或者，如果您想获取所有键，可以调用
+// `yieldKeys` 方法。
+// 可选地，您可以传递一个键前缀，以便只获取
+// 匹配该前缀的键。
+const yieldedKeys = [];
+for await (const key of store.yieldKeys("message:id:")) {
+  yieldedKeys.push(key);
+}
+// 键未编码，因此无需解码
+console.log(yieldedKeys);
+/**
+[
+  'message:id:2',
+  'message:id:1',
+  'message:id:3',
+  'message:id:0',
+  'message:id:4'
+]
+ */
+// 最后，让我们从存储中删除这些键
+await store.mdelete(yieldedKeys);
+```
+
+## 相关链接
+
+- [键值存储概念指南](/oss/integrations/stores)

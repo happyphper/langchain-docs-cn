@@ -1,0 +1,130 @@
+---
+title: Ollama
+---
+
+<Warning>
+
+<strong>您当前正在查阅的是关于使用 Ollama 模型作为文本补全模型的文档。Ollama 上提供的许多流行模型是[聊天补全模型](/oss/langchain/models)。</strong>
+
+您可能正在寻找[这个页面](/oss/integrations/chat/ollama/)。
+
+</Warning>
+
+本文将帮助您开始使用 LangChain 与 Ollama 文本补全模型（LLMs）。关于 `Ollama` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_ollama.Ollama.html)。
+
+## 概述
+
+### 集成详情
+
+[Ollama](https://ollama.ai/) 允许您在本地运行开源大语言模型（LLMs），例如 Llama 3。
+
+Ollama 将模型权重、配置和数据打包成一个由 Modelfile 定义的单一包。它优化了设置和配置细节，包括 GPU 使用。
+
+本示例将介绍如何使用 LangChain 与 Ollama 运行的 Llama 2 7b 实例进行交互。
+有关支持的模型和模型变体的完整列表，请参阅 [Ollama 模型库](https://github.com/jmorganca/ollama#model-library)。
+
+| 类 | 包 | 本地 | 可序列化 | [PY 支持](https://python.langchain.com/docs/integrations/llms/ollama/) | 下载量 | 版本 |
+| :--- | :--- | :---: | :---: |  :---: | :---: | :---: |
+| [`Ollama`](https://api.js.langchain.com/classes/langchain_ollama.Ollama.html) | [`@langchain/ollama`](https://npmjs.com/@langchain/ollama) | ✅ | ❌ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/ollama?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/ollama?style=flat-square&label=%20&) |
+
+## 设置
+
+要访问 Ollama 嵌入模型，您需要按照[这些说明](https://github.com/jmorganca/ollama)安装 Ollama，并安装 `@langchain/ollama` 集成包。
+
+### 凭证
+
+如果您希望自动追踪模型调用，也可以通过取消注释以下内容来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```bash
+# export LANGSMITH_TRACING="true"
+# export LANGSMITH_API_KEY="your-api-key"
+```
+
+### 安装
+
+LangChain Ollama 集成位于 `@langchain/ollama` 包中：
+
+::: code-group
+
+```bash [npm]
+npm install @langchain/ollama @langchain/core
+```
+
+```bash [yarn]
+yarn add @langchain/ollama @langchain/core
+```
+
+```bash [pnpm]
+pnpm add @langchain/ollama @langchain/core
+```
+
+:::
+
+## 实例化
+
+现在我们可以实例化我们的模型对象并生成文本补全：
+
+```typescript
+import { Ollama } from "@langchain/ollama"
+
+const llm = new Ollama({
+  model: "llama3", // 默认值
+  temperature: 0,
+  maxRetries: 2,
+  // 其他参数...
+})
+```
+
+## 调用
+
+```typescript
+const inputText = "Ollama is an AI company that "
+
+const completion = await llm.invoke(inputText)
+completion
+```
+
+```text
+I think you meant to say "Olivia" instead of "Ollama". Olivia is not a well-known AI company, but there are several other AI companies with similar names. Here are a few examples:
+
+* Oliva AI: A startup that uses artificial intelligence to help businesses optimize their operations and improve customer experiences.
+* Olivia Technologies: A company that develops AI-powered solutions for industries such as healthcare, finance, and education.
+* Olivia.ai: A platform that uses AI to help businesses automate their workflows and improve productivity.
+
+If you meant something else by "Ollama", please let me know and I'll do my best to help!
+```
+
+## 多模态模型
+
+Ollama 在 0.1.15 及更高版本中支持开源多模态模型，如 [LLaVA](https://ollama.ai/library/llava)。
+您可以将 base64 编码的图像数据绑定到支持多模态的模型上，用作上下文，如下所示：
+
+```typescript
+import { Ollama } from "@langchain/ollama";
+import * as fs from "node:fs/promises";
+
+const imageData = await fs.readFile("../../../../../examples/hotdog.jpg");
+
+const model = new Ollama({
+  model: "llava",
+}).bind({
+  images: [imageData.toString("base64")],
+});
+
+const res = await model.invoke("What's in this image?");
+console.log(res);
+```
+
+```text
+The image shows a hot dog placed inside what appears to be a bun that has been specially prepared to resemble a hot dog bun. This is an example of a creative or novelty food item, where the bread used for the bun looks similar to a cooked hot dog itself, playing on the name "hot dog." The image also shows the typical garnishes like ketchup and mustard on the side.
+```
+
+## 相关链接
+
+- [模型指南](/oss/langchain/models)
+
+---
+
+## API 参考
+
+有关所有 `Ollama` 功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_ollama.Ollama.html)

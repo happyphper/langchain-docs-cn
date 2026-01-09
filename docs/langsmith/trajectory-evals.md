@@ -1,0 +1,604 @@
+---
+title: 如何使用轨迹评估来评估您的智能体
+sidebarTitle: 评估智能体轨迹
+---
+
+许多智能体（agent）的行为只有在实际使用 LLM 时才会显现，例如智能体决定调用哪个工具、如何格式化响应，或者提示词的修改是否会影响整个执行轨迹。LangChain 的 [`agentevals`](https://github.com/langchain-ai/agentevals) 包提供了专门设计用于测试智能体轨迹的评估器，支持实时模型测试。
+
+<Note>
+
+本指南涵盖了开源的 [LangChain](/oss/langchain/overview) `agentevals` 包，该包与 LangSmith 集成以进行轨迹评估。
+
+</Note>
+
+AgentEvals 允许您通过执行**轨迹匹配（trajectory match）**或使用 **LLM 评判者（LLM judge）**来评估智能体的轨迹（消息的确切序列，包括工具调用）：
+
+<Card title="轨迹匹配" icon="equals" arrow="true" href="#trajectory-match-evaluator">
+
+为给定的输入硬编码一个参考轨迹，并通过逐步比较来验证运行情况。
+
+非常适合测试行为预期的明确定义的工作流。当您对应该调用哪些工具以及调用顺序有特定期望时使用。这种方法具有确定性、快速且成本效益高，因为它不需要额外的 LLM 调用。
+
+</Card>
+
+<Card title="LLM 评判者" icon="gavel" arrow="true" href="#llm-as-judge-evaluator">
+
+使用 LLM 定性验证智能体的执行轨迹。“评判者” LLM 根据提示词准则（可以包含参考轨迹）来审查智能体的决策。
+
+更灵活，可以评估效率和适当性等细微方面，但需要 LLM 调用且确定性较低。当您希望评估智能体轨迹的整体质量和合理性，而没有严格的工具调用或顺序要求时使用。
+
+</Card>
+
+## 安装 AgentEvals
+
+::: code-group
+
+```bash [Python]
+pip install agentevals
+```
+
+```bash [TypeScript]
+npm install agentevals @langchain/core
+```
+
+:::
+
+或者，直接克隆 [AgentEvals 仓库](https://github.com/langchain-ai/agentevals)。
+
+## 轨迹匹配评估器
+
+AgentEvals 在 Python 中提供了 `create_trajectory_match_evaluator` 函数，在 TypeScript 中提供了 `createTrajectoryMatchEvaluator` 函数，用于将智能体的轨迹与参考轨迹进行匹配。
+
+您可以使用以下模式：
+
+| 模式 | 描述 | 使用场景 |
+|------|-------------|----------|
+| [`strict`](#strict-match) | 消息和工具调用的顺序完全一致 | 测试特定的序列（例如：在授权前必须进行策略查找） |
+| [`unordered`](#unordered-match) | 同一组工具调用，允许顺序不同 | 在顺序无关紧要的情况下验证信息检索 |
+| [`subset`](#subset-and-superset-match) | 智能体仅调用参考中的工具（无额外调用） | 确保智能体没有超出预期的范围 |
+| [`superset`](#subset-and-superset-match) | 智能体至少调用了参考中的工具（允许额外调用） | 验证是否执行了所需的最少操作 |
+
+### 严格匹配
+
+`strict` 模式确保轨迹包含完全相同的消息序列、相同的工具调用和相同的顺序，但允许消息内容存在差异。当您需要强制执行特定的操作序列时，这很有用，例如要求在授权操作之前进行策略查找。
+
+::: code-group
+
+```python [Python]
+from langchain.agents import create_agent
+from langchain.tools import tool
+from langchain.messages import HumanMessage, AIMessage, ToolMessage
+from agentevals.trajectory.match import create_trajectory_match_evaluator
+
+@tool
+def get_weather(city: str):
+    """获取城市的实时天气。"""
+    return f"{city}的天气由晴转多云，气温 75 华氏度。"
+
+agent = create_agent("gpt-4o", tools=[get_weather])
+
+evaluator = create_trajectory_match_evaluator(  # [!code highlight]
+    trajectory_match_mode="strict",  # [!code highlight]
+)  # [!code highlight]
+
+def test_weather_tool_called_strict():
+    result = agent.invoke({
+        "messages": [HumanMessage(content="旧金山的天气怎么样？")]
+    })
+
+    reference_trajectory = [
+        HumanMessage(content="旧金山的天气怎么样？"),
+        AIMessage(content="", tool_calls=[
+            {"id": "call_1", "name": "get_weather", "args": {"city": "San Francisco"}}
+        ]),
+        ToolMessage(content="旧金山的天气由晴转多云，气温 75 华氏度。", tool_call_id="call_1"),
+        AIMessage(content="旧金山现在的天气是 75 华氏度，由晴转多云。"),
+    ]
+
+    evaluation = evaluator(
+        outputs=result["messages"],
+        reference_outputs=reference_trajectory
+    )
+    # {
+    #     'key': 'trajectory_strict_match',
+    #     'score': True,
+    #     'comment': None,
+    # }
+    assert evaluation["score"] is True
+```
+
+```ts [TypeScript]
+import { createAgent, tool, HumanMessage, AIMessage, ToolMessage } from "langchain"
+import { createTrajectoryMatchEvaluator } from "agentevals";
+import * as z from "zod";
+
+const getWeather = tool(
+  async ({ city }: { city: string }) => {
+    return `旧金山的天气由晴转多云，气温 75 华氏度。`;
+  },
+  {
+    name: "get_weather",
+    description: "获取城市的实时天气。",
+    schema: z.object({
+      city: z.string(),
+    }),
+  }
+);
+
+const agent = createAgent({
+  model: "gpt-4o",
+  tools: [getWeather]
+});
+
+const evaluator = createTrajectoryMatchEvaluator({  // [!code highlight]
+  trajectoryMatchMode: "strict",  // [!code highlight]
+});  // [!code highlight]
+
+async function testWeatherToolCalledStrict() {
+  const result = await agent.invoke({
+    messages: [new HumanMessage("旧金山的天气怎么样？")]
+  });
+
+  const referenceTrajectory = [
+    new HumanMessage("旧金山的天气怎么样？"),
+    new AIMessage({
+      content: "",
+      tool_calls: [
+        { id: "call_1", name: "get_weather", args: { city: "San Francisco" } }
+      ]
+    }),
+    new ToolMessage({
+      content: "旧金山的天气由晴转多云，气温 75 华氏度。",
+      tool_call_id: "call_1"
+    }),
+    new AIMessage("旧金山现在的天气是 75 华氏度，由晴转多云。"),
+  ];
+
+  const evaluation = await evaluator({
+    outputs: result.messages,
+    referenceOutputs: referenceTrajectory
+  });
+  // {
+  //     'key': 'trajectory_strict_match',
+  //     'score': true,
+  //     'comment': null,
+  // }
+  expect(evaluation.score).toBe(true);
+}
+```
+
+:::
+
+### 无序匹配
+
+`unordered` 模式允许以任意顺序进行相同的工具调用，当您希望验证是否调用了正确的工具集但不关心顺序时，这很有帮助。例如，智能体可能需要同时检查城市的天气和活动，但顺序无关紧要。
+
+::: code-group
+
+```python [Python]
+from langchain.agents import create_agent
+from langchain.tools import tool
+from langchain.messages import HumanMessage, AIMessage, ToolMessage
+from agentevals.trajectory.match import create_trajectory_match_evaluator
+
+@tool
+def get_weather(city: str):
+    """获取城市的实时天气。"""
+    return f"{city}的天气由晴转多云，气温 75 华氏度。"
+
+@tool
+def get_events(city: str):
+    """获取城市正在发生的活动。"""
+    return f"今晚在{city}的公园有音乐会。"
+
+agent = create_agent("gpt-4o", tools=[get_weather, get_events])
+
+evaluator = create_trajectory_match_evaluator(  # [!code highlight]
+    trajectory_match_mode="unordered",  # [!code highlight]
+)  # [!code highlight]
+
+def test_multiple_tools_any_order():
+    result = agent.invoke({
+        "messages": [HumanMessage(content="旧金山今天有什么新鲜事？")]
+    })
+
+    # 参考轨迹中的工具调用顺序与实际执行顺序可能不同
+    reference_trajectory = [
+        HumanMessage(content="旧金山今天有什么新鲜事？"),
+        AIMessage(content="", tool_calls=[
+            {"id": "call_1", "name": "get_events", "args": {"city": "SF"}},
+            {"id": "call_2", "name": "get_weather", "args": {"city": "SF"}},
+        ]),
+        ToolMessage(content="今晚在旧金山的公园有音乐会。", tool_call_id="call_1"),
+        ToolMessage(content="旧金山的天气由晴转多云，气温 75 华氏度。", tool_call_id="call_2"),
+        AIMessage(content="旧金山今天：气温 75 华氏度，由晴转多云，今晚公园还有音乐会。"),
+    ]
+
+    evaluation = evaluator(
+        outputs=result["messages"],
+        reference_outputs=reference_trajectory,
+    )
+    # {
+    #     'key': 'trajectory_unordered_match',
+    #     'score': True,
+    # }
+    assert evaluation["score"] is True
+```
+
+```ts [TypeScript]
+import { createAgent, tool, HumanMessage, AIMessage, ToolMessage } from "langchain"
+import { createTrajectoryMatchEvaluator } from "agentevals";
+import * as z from "zod";
+
+const getWeather = tool(
+  async ({ city }: { city: string }) => {
+    return `旧金山的天气由晴转多云，气温 75 华氏度。`;
+  },
+  {
+    name: "get_weather",
+    description: "获取城市的实时天气。",
+    schema: z.object({ city: z.string() }),
+  }
+);
+
+const getEvents = tool(
+  async ({ city }: { city: string }) => {
+    return `今晚在${city}的公园有音乐会。`;
+  },
+  {
+    name: "get_events",
+    description: "获取城市正在发生的活动。",
+    schema: z.object({ city: z.string() }),
+  }
+);
+
+const agent = createAgent({
+  model: "gpt-4o",
+  tools: [getWeather, getEvents]
+});
+
+const evaluator = createTrajectoryMatchEvaluator({  // [!code highlight]
+  trajectoryMatchMode: "unordered",  // [!code highlight]
+});  // [!code highlight]
+
+async function testMultipleToolsAnyOrder() {
+  const result = await agent.invoke({
+    messages: [new HumanMessage("旧金山今天有什么新鲜事？")]
+  });
+
+  // 参考轨迹中的工具调用顺序与实际执行顺序可能不同
+  const referenceTrajectory = [
+    new HumanMessage("旧金山今天有什么新鲜事？"),
+    new AIMessage({
+      content: "",
+      tool_calls: [
+        { id: "call_1", name: "get_events", args: { city: "SF" } },
+        { id: "call_2", name: "get_weather", args: { city: "SF" } },
+      ]
+    }),
+    new ToolMessage({
+      content: "今晚在旧金山的公园有音乐会。",
+      tool_call_id: "call_1"
+    }),
+    new ToolMessage({
+      content: "旧金山的天气由晴转多云，气温 75 华氏度。",
+      tool_call_id: "call_2"
+    }),
+    new AIMessage("旧金山今天：气温 75 华氏度，由晴转多云，今晚公园还有音乐会。"),
+  ];
+
+  const evaluation = await evaluator({
+    outputs: result.messages,
+    referenceOutputs: referenceTrajectory,
+  });
+  // {
+  //     'key': 'trajectory_unordered_match',
+  //     'score': true,
+  // }
+  expect(evaluation.score).toBe(true);
+}
+```
+
+:::
+
+### 子集与超集匹配
+
+`superset` 和 `subset` 模式关注的是调用了哪些工具，而不是其调用顺序，这允许您控制智能体工具调用与参考轨迹的一致性严格程度。
+
+- 当您希望验证执行中是否调用了几个关键工具，但允许智能体调用额外工具时，请使用 `superset` 模式。智能体的轨迹必须至少包含参考轨迹中的所有工具调用，且可以包含超出参考的额外调用。
+- 使用 `subset` 模式可以通过验证智能体没有调用参考范围之外的任何无关或不必要的工具来确保智能体的效率。智能体的轨迹必须仅包含出现在参考轨迹中的工具调用。
+
+以下示例演示了 `superset` 模式，其中参考轨迹仅要求调用 `get_weather` 工具，但允许智能体调用额外的工具：
+
+::: code-group
+
+```python [Python]
+from langchain.agents import create_agent
+from langchain.tools import tool
+from langchain.messages import HumanMessage, AIMessage, ToolMessage
+from agentevals.trajectory.match import create_trajectory_match_evaluator
+
+@tool
+def get_weather(city: str):
+    """获取城市的实时天气。"""
+    return f"{city}的天气由晴转多云，气温 75 华氏度。"
+
+@tool
+def get_detailed_forecast(city: str):
+    """获取城市的详细天气预报。"""
+    return f"{city}的详细预报：本周持续晴天。"
+
+agent = create_agent("gpt-4o", tools=[get_weather, get_detailed_forecast])
+
+evaluator = create_trajectory_match_evaluator(  # [!code highlight]
+    trajectory_match_mode="superset",  # [!code highlight]
+)  # [!code highlight]
+
+def test_agent_calls_required_tools_plus_extra():
+    result = agent.invoke({
+        "messages": [HumanMessage(content="波士顿的天气怎么样？")]
+    })
+
+    # 参考轨迹仅要求调用 get_weather，但智能体可能会调用额外的工具
+    reference_trajectory = [
+        HumanMessage(content="波士顿的天气怎么样？"),
+        AIMessage(content="", tool_calls=[
+            {"id": "call_1", "name": "get_weather", "args": {"city": "Boston"}},
+        ]),
+        ToolMessage(content="波士顿的天气由晴转多云，气温 75 华氏度。", tool_call_id="call_1"),
+        AIMessage(content="波士顿现在的天气是 75 华氏度，由晴转多云。"),
+    ]
+
+    evaluation = evaluator(
+        outputs=result["messages"],
+        reference_outputs=reference_trajectory,
+    )
+    # {
+    #     'key': 'trajectory_superset_match',
+    #     'score': True,
+    #     'comment': None,
+    # }
+    assert evaluation["score"] is True
+```
+
+```ts [TypeScript]
+import { createAgent } from "langchain"
+import { tool } from "@langchain/core/tools";
+import { HumanMessage, AIMessage, ToolMessage } from "@langchain/core/messages";
+import { createTrajectoryMatchEvaluator } from "agentevals";
+import * as z from "zod";
+
+const getWeather = tool(
+  async ({ city }: { city: string }) => {
+    return `波士顿的天气由晴转多云，气温 75 华氏度。`;
+  },
+  {
+    name: "get_weather",
+    description: "获取城市的实时天气。",
+    schema: z.object({ city: z.string() }),
+  }
+);
+
+const getDetailedForecast = tool(
+  async ({ city }: { city: string }) => {
+    return `波士顿的详细预报：本周持续晴天。`;
+  },
+  {
+    name: "get_detailed_forecast",
+    description: "获取城市的详细天气预报。",
+    schema: z.object({ city: z.string() }),
+  }
+);
+
+const agent = createAgent({
+  model: "gpt-4o",
+  tools: [getWeather, getDetailedForecast]
+});
+
+const evaluator = createTrajectoryMatchEvaluator({  // [!code highlight]
+  trajectoryMatchMode: "superset",  // [!code highlight]
+});  // [!code highlight]
+
+async function testAgentCallsRequiredToolsPlusExtra() {
+  const result = await agent.invoke({
+    messages: [new HumanMessage("波士顿的天气怎么样？")]
+  });
+
+  // 参考轨迹仅要求调用 get_weather，但智能体可能会调用额外的工具
+  const referenceTrajectory = [
+    new HumanMessage("波士顿的天气怎么样？"),
+    new AIMessage({
+      content: "",
+      tool_calls: [
+        { id: "call_1", name: "get_weather", args: { city: "Boston" } },
+      ]
+    }),
+    new ToolMessage({
+      content: "波士顿的天气由晴转多云，气温 75 华氏度。",
+      tool_call_id: "call_1"
+    }),
+    new AIMessage("波士顿现在的天气是 75 华氏度，由晴转多云。"),
+  ];
+
+  const evaluation = await evaluator({
+    outputs: result.messages,
+    referenceOutputs: referenceTrajectory,
+  });
+  // {
+  //     'key': 'trajectory_superset_match',
+  //     'score': true,
+  //     'comment': null,
+  // }
+  expect(evaluation.score).toBe(true);
+}
+```
+
+:::
+
+<Info>
+
+您还可以通过设置 `tool_args_match_mode` (Python) 或 `toolArgsMatchMode` (TypeScript) 属性，以及 `tool_args_match_overrides` (Python) 或 `toolArgsMatchOverrides` (TypeScript) 属性，来自定义评估器如何判定实际轨迹与参考轨迹之间工具调用的相等性。默认情况下，只有参数相同且调用工具相同的工具调用才被视为相等。访问[代码仓库](https://github.com/langchain-ai/agentevals?tab=readme-ov-file#tool-args-match-modes)了解更多详情。
+
+</Info>
+
+## LLM 评判者评估器
+
+<Note>
+
+本节涵盖了 `agentevals` 包中特定于轨迹的 LLM 评判者评估器。有关 LangSmith 中通用的 LLM 评判者评估器，请参阅 [LLM 评判者评估器](/langsmith/llm-as-judge)。
+
+</Note>
+
+您也可以使用 LLM 来评估智能体的执行路径。与轨迹匹配评估器不同，它不需要参考轨迹，但如果有参考轨迹也可以提供。
+
+### 无参考轨迹
+
+::: code-group
+
+```python [Python]
+from langchain.agents import create_agent
+from langchain.tools import tool
+from langchain.messages import HumanMessage, AIMessage, ToolMessage
+from agentevals.trajectory.llm import create_trajectory_llm_as_judge, TRAJECTORY_ACCURACY_PROMPT
+
+@tool
+def get_weather(city: str):
+    """获取城市的实时天气。"""
+    return f"{city}的天气由晴转多云，气温 75 华氏度。"
+
+agent = create_agent("gpt-4o", tools=[get_weather])
+
+evaluator = create_trajectory_llm_as_judge(  # [!code highlight]
+    model="openai:o3-mini",  # [!code highlight]
+    prompt=TRAJECTORY_ACCURACY_PROMPT,  # [!code highlight]
+)  # [!code highlight]
+
+def test_trajectory_quality():
+    result = agent.invoke({
+        "messages": [HumanMessage(content="西雅图的天气怎么样？")]
+    })
+
+    evaluation = evaluator(
+        outputs=result["messages"],
+    )
+    # {
+    #     'key': 'trajectory_accuracy',
+    #     'score': True,
+    #     'comment': '所提供的智能体轨迹是合理的...'
+    # }
+    assert evaluation["score"] is True
+```
+
+```ts [TypeScript]
+import { createAgent } from "langchain"
+import { tool } from "@langchain/core/tools";
+import { HumanMessage, AIMessage, ToolMessage } from "@langchain/core/messages";
+import { createTrajectoryLLMAsJudge, TRAJECTORY_ACCURACY_PROMPT } from "agentevals";
+import * as z from "zod";
+
+const getWeather = tool(
+  async ({ city }: { city: string }) => {
+    return `西雅图的天气由晴转多云，气温 75 华氏度。`;
+  },
+  {
+    name: "get_weather",
+    description: "获取城市的实时天气。",
+    schema: z.object({ city: z.string() }),
+  }
+);
+
+const agent = createAgent({
+  model: "gpt-4o",
+  tools: [getWeather]
+});
+
+const evaluator = createTrajectoryLLMAsJudge({  // [!code highlight]
+  model: "openai:o3-mini",  // [!code highlight]
+  prompt: TRAJECTORY_ACCURACY_PROMPT,  // [!code highlight]
+});  // [!code highlight]
+
+async function testTrajectoryQuality() {
+  const result = await agent.invoke({
+    messages: [new HumanMessage("西雅图的天气怎么样？")]
+  });
+
+  const evaluation = await evaluator({
+    outputs: result.messages,
+  });
+  // {
+  //     'key': 'trajectory_accuracy',
+  //     'score': true,
+  //     'comment': '所提供的智能体轨迹是合理的...'
+  // }
+  expect(evaluation.score).toBe(true);
+}
+```
+
+:::
+
+### 有参考轨迹
+
+如果您有参考轨迹，可以在提示词中添加额外变量，并传入参考轨迹。在下面的示例中，我们使用预构建的 `TRAJECTORY_ACCURACY_PROMPT_WITH_REFERENCE` 提示词，并配置 `reference_outputs` 变量：
+
+::: code-group
+
+```python [Python]
+evaluator = create_trajectory_llm_as_judge(
+    model="openai:o3-mini",
+    prompt=TRAJECTORY_ACCURACY_PROMPT_WITH_REFERENCE,
+)
+evaluation = evaluator(
+    outputs=result["messages"],
+    reference_outputs=reference_trajectory,
+)
+```
+
+```ts [TypeScript]
+import { TRAJECTORY_ACCURACY_PROMPT_WITH_REFERENCE } from "agentevals";
+
+const evaluator = createTrajectoryLLMAsJudge({
+  model: "openai:o3-mini",
+  prompt: TRAJECTORY_ACCURACY_PROMPT_WITH_REFERENCE,
+});
+
+const evaluation = await evaluator({
+  outputs: result.messages,
+  referenceOutputs: referenceTrajectory,
+});
+```
+
+:::
+
+<Info>
+
+有关如何让 LLM 评估轨迹的更多可配置性，请访问[代码仓库](https://github.com/langchain-ai/agentevals?tab=readme-ov-file#trajectory-llm-as-judge)。
+
+</Info>
+
+## 异步支持 (Python)
+
+所有 `agentevals` 评估器都支持 Python asyncio。对于使用工厂函数的评估器，可以通过在函数名中的 `create_` 之后添加 `async` 来使用异步版本。
+
+以下是使用异步评判者和评估器的示例：
+
+```python
+from agentevals.trajectory.llm import create_async_trajectory_llm_as_judge, TRAJECTORY_ACCURACY_PROMPT
+from agentevals.trajectory.match import create_async_trajectory_match_evaluator
+
+async_judge = create_async_trajectory_llm_as_judge(
+    model="openai:o3-mini",
+    prompt=TRAJECTORY_ACCURACY_PROMPT,
+)
+
+async_evaluator = create_async_trajectory_match_evaluator(
+    trajectory_match_mode="strict",
+)
+
+async def test_async_evaluation():
+    result = await agent.ainvoke({
+        "messages": [HumanMessage(content="天气怎么样？")]
+    })
+
+    evaluation = await async_judge(outputs=result["messages"])
+    assert evaluation["score"] is True
+```

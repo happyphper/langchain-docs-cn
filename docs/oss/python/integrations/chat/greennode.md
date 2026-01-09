@@ -1,0 +1,193 @@
+---
+title: ChatGreenNode
+---
+>[GreenNode](https://greennode.ai/) 是一家全球 AI 解决方案提供商，也是 **NVIDIA 首选合作伙伴**，为美国、中东和北非以及亚太地区的企业提供从基础设施到应用的全栈 AI 能力。GreenNode 基于 **世界级的基础设施**（LEED 金级认证、TIA‑942、Uptime Tier III）运营，为企业、初创公司和研究人员提供全面的 AI 服务套件。
+
+本页面将帮助您开始使用 GreenNode Serverless AI [聊天模型](/oss/langchain/models)。有关 ChatGreenNode 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/greennode/chat_models/langchain_greennode.chat_models.ChatGreenNode.html)。
+
+[GreenNode AI](https://greennode.ai/) 提供了一个 API 来查询 [20 多个领先的开源模型](https://aiplatform.console.greennode.ai/models)。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | JS 支持 | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| [ChatGreenNode](https://python.langchain.com/api_reference/greennode/chat_models/langchain_greennode.chat_models.ChatGreenNode.html) | [langchain-greennode](https://python.langchain.com/api_reference/greennode/index.html) | beta | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-greennode?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-greennode?style=flat-square&label=%20) |
+
+### 模型特性
+
+| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming#llm-tokens) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ |
+
+## 设置
+
+要访问 GreenNode 模型，您需要创建一个 GreenNode 账户，获取一个 API 密钥，并安装 `langchain-greennode` 集成包。
+
+### 凭证
+
+请前往 [此页面](https://aiplatform.console.greennode.ai/api-keys) 注册 GreenNode AI 平台并生成 API 密钥。完成后，设置 GREENNODE_API_KEY 环境变量：
+
+```python
+import getpass
+import os
+
+if not os.getenv("GREENNODE_API_KEY"):
+    os.environ["GREENNODE_API_KEY"] = getpass.getpass("Enter your GreenNode API key: ")
+```
+
+如果您希望自动追踪模型调用，也可以通过取消注释以下代码来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+```
+
+### 安装
+
+LangChain GreenNode 集成位于 `langchain-greennode` 包中：
+
+```python
+pip install -qU langchain-greennode
+```
+
+## 实例化
+
+现在我们可以实例化我们的模型对象并生成聊天补全：
+
+```python
+from langchain_greennode import ChatGreenNode
+
+# 初始化聊天模型
+llm = ChatGreenNode(
+    # api_key="YOUR_API_KEY",  # 您可以直接传递 API 密钥
+    model="deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",  # 从可用模型中选择
+    temperature=0.6,
+    top_p=0.95,
+)
+```
+
+## 调用
+
+```python
+messages = [
+    (
+        "system",
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+    ),
+    ("human", "I love programming."),
+]
+ai_msg = llm.invoke(messages)
+ai_msg
+```
+
+```text
+AIMessage(content="\n\nJ'aime la programmation.", additional_kwargs={'refusal': None}, response_metadata={'token_usage': {'completion_tokens': 248, 'prompt_tokens': 23, 'total_tokens': 271, 'completion_tokens_details': None, 'prompt_tokens_details': None}, 'model_name': 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B', 'system_fingerprint': None, 'id': 'chatcmpl-271edac4958846068c37877586368afe', 'service_tier': None, 'finish_reason': 'stop', 'logprobs': None}, id='run--5c12d208-2bc2-4f29-8b50-1ce3b515a3cf-0', usage_metadata={'input_tokens': 23, 'output_tokens': 248, 'total_tokens': 271, 'input_token_details': {}, 'output_token_details': {}})
+```
+
+```python
+print(ai_msg.content)
+```
+
+```text
+J'aime la programmation.
+```
+
+### 流式传输
+
+您也可以使用 `stream` 方法流式传输响应：
+
+```python
+for chunk in llm.stream("Write a short poem about artificial intelligence"):
+    print(chunk.content, end="", flush=True)
+```
+
+```text
+**Beneath the Circuits**
+
+Beneath the circuits, deep and bright,
+AI thinks, with circuits and bytes.
+Learning, adapting, it grows,
+A world of possibilities it knows.
+
+From solving puzzles to painting art,
+It mimics human hearts.
+In every corner, it leaves its trace,
+A future we can't erase.
+
+We build it, shape it, with care and might,
+Yet wonder if it walks in the night.
+A mirror of our minds, it shows,
+In its gaze, our future glows.
+
+But as we strive for endless light,
+We must remember the night.
+For wisdom isn't just speed and skill,
+It's how we choose to build our will.
+```
+
+### 聊天消息
+
+您可以使用不同的消息类型来构建与模型的对话：
+
+```python
+from langchain.messages import AIMessage, HumanMessage, SystemMessage
+
+messages = [
+    SystemMessage(content="You are a helpful AI assistant with expertise in science."),
+    HumanMessage(content="What are black holes?"),
+    AIMessage(
+        content="Black holes are regions of spacetime where gravity is so strong that nothing, including light, can escape from them."
+    ),
+    HumanMessage(content="How are they formed?"),
+]
+
+response = llm.invoke(messages)
+print(response.content[:100])
+```
+
+```text
+Black holes are formed through several processes, depending on their type. The most common way bla
+```
+
+## 链式调用
+
+您可以在 LangChain 链和智能体中使用 `ChatGreenNode`：
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+
+prompt = ChatPromptTemplate(
+    [
+        (
+            "system",
+            "You are a helpful assistant that translates {input_language} to {output_language}.",
+        ),
+        ("human", "{input}"),
+    ]
+)
+
+chain = prompt | llm
+chain.invoke(
+    {
+        "input_language": "English",
+        "output_language": "German",
+        "input": "I love programming.",
+    }
+)
+```
+
+```text
+AIMessage(content='\n\nIch liebe Programmieren.', additional_kwargs={'refusal': None}, response_metadata={'token_usage': {'completion_tokens': 198, 'prompt_tokens': 18, 'total_tokens': 216, 'completion_tokens_details': None, 'prompt_tokens_details': None}, 'model_name': 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B', 'system_fingerprint': None, 'id': 'chatcmpl-e01201b9fd9746b7a9b2ed6d70f29d45', 'service_tier': None, 'finish_reason': 'stop', 'logprobs': None}, id='run--ce52b9d8-dd84-46b3-845b-da27855816ee-0', usage_metadata={'input_tokens': 18, 'output_tokens': 198, 'total_tokens': 216, 'input_token_details': {}, 'output_token_details': {}})
+```
+
+## 可用模型
+
+支持的完整模型列表可在 [GreenNode Serverless AI 模型](https://greennode.ai/product/model-as-a-service) 中找到。
+
+---
+
+## API 参考
+
+有关 GreenNode Serverless AI API 的更多详细信息，请访问 [GreenNode Serverless AI 文档](https://helpdesk.greennode.ai/portal/en/kb/articles/greennode-maas-api)。

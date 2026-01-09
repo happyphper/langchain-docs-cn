@@ -1,0 +1,89 @@
+---
+title: Jenkins
+---
+用于与 [Jenkins](https://www.jenkins.io/) 交互的工具。
+
+## 概述
+
+`langchain-jenkins` 包允许您执行和控制 Jenkins 的 CI/CD 流水线。
+
+### 安装
+
+安装 `langchain-jenkins`：
+
+```python
+pip install -qU langchain-jenkins
+```
+
+### 凭证
+
+您需要设置或获取访问 Jenkins 服务器的授权。
+
+```python
+import getpass
+import os
+
+def _set_env(var: str):
+    if not os.environ.get(var):
+        os.environ[var] = getpass.getpass(f"{var}: ")
+
+_set_env("PASSWORD")
+```
+
+## 实例化
+
+要禁用 SSL 验证，请设置 `os.environ["PYTHONHTTPSVERIFY"] = "0"`
+
+```python
+from langchain_jenkins import JenkinsAPIWrapper, JenkinsJobRun
+
+tools = [
+    JenkinsJobRun(
+        api_wrapper=JenkinsAPIWrapper(
+            jenkins_server="https://example.com",
+            username="admin",
+            password=os.environ["PASSWORD"],
+        )
+    )
+]
+```
+
+## 调用
+
+您现在可以调用 `invoke` 并传递参数。
+
+1.  创建 Jenkins 任务
+
+```python
+jenkins_job_content = ""
+src_file = "job1.xml"
+with open(src_file) as fread:
+    jenkins_job_content = fread.read()
+tools[0].invoke({"job": "job01", "config_xml": jenkins_job_content, "action": "create"})
+```
+
+2.  运行 Jenkins 任务
+
+```python
+tools[0].invoke({"job": "job01", "parameters": {}, "action": "run"})
+```
+
+3.  获取任务信息
+
+```python
+resp = tools[0].invoke({"job": "job01", "number": 1, "action": "status"})
+if not resp["inProgress"]:
+    print(resp["result"])
+```
+
+4.  删除 Jenkins 任务
+
+```python
+tools[0].invoke({"job": "job01", "action": "delete"})
+```
+
+---
+
+## API 参考
+
+详细文档请参阅 [API 参考](https://python.langchain.com/docs/integrations/tools/jenkins/)

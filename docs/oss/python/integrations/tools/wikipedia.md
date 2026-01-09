@@ -1,0 +1,24 @@
+---
+title: 维基百科工具
+---
+`WikipediaQueryRun` 工具可将您的智能体（agents）和链（chains）连接到维基百科。
+
+## 使用方法
+
+```typescript
+import { WikipediaQueryRun } from "@langchain/community/tools/wikipedia_query_run";
+
+const tool = new WikipediaQueryRun({
+  topKResults: 3,
+  maxDocContentLength: 4000,
+});
+
+const res = await tool.invoke("LangChain");
+
+console.log(res);
+```
+
+## 相关链接
+
+- 工具 [概念指南](/oss/langchain/tools)
+- 工具 [操作指南](/oss/langchain/tools)

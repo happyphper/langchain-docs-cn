@@ -1,0 +1,173 @@
+---
+title: 泰加
+---
+本指南提供了在 [langchain_taiga](https://github.com/Shikenso-Analytics/langchain-taiga/blob/main/docs/tools.ipynb) 中开始使用 Taiga 工具的快速概览。有关每个工具和配置的更多详细信息，请参阅您仓库中的文档字符串或相关文档页面。
+
+## 概述
+
+### 集成详情
+
+| 类                                                                                                | 包                                                                    | 可序列化 | JS 支持 |                                        版本                                        |
+|:-----------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------| :---: |:------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------:|
+| `create_entity_tool`, `search_entities_tool`, `get_entity_by_ref_tool`, `update_entity_by_ref_tool` , `add_comment_by_ref_tool`, `add_attachment_by_ref_tool` | [langchain-taiga](https://github.com/Shikenso-Analytics/langchain-taiga)   | N/A   |                                      TBD                                       | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-taiga?style=flat-square&label=%20) |
+
+### 工具功能
+
+- **`create_entity_tool`**: 在 Taiga 中创建用户故事、任务和问题。
+- **`search_entities_tool`**: 在 Taiga 中搜索用户故事、任务和问题。
+- **`get_entity_by_ref_tool`**: 通过引用获取用户故事、任务或问题。
+- **`update_entity_by_ref_tool`**: 通过引用更新用户故事、任务或问题。
+- **`add_comment_by_ref_tool`**: 向用户故事、任务或问题添加评论。
+- **`add_attachment_by_ref_tool`**: 向用户故事、任务或问题添加附件。
+
+## 设置
+
+该集成位于 `langchain-taiga` 包中。
+
+```python
+pip install --quiet -U langchain-taiga
+```
+
+### 凭证
+
+此集成要求您设置 `TAIGA_URL`、`TAIGA_API_URL`、`TAIGA_USERNAME`、`TAIGA_PASSWORD` 和 `OPENAI_API_KEY` 作为环境变量，以便与 Taiga 进行身份验证。
+
+```bash
+export TAIGA_URL="https://taiga.xyz.org/"
+export TAIGA_API_URL="https://taiga.xyz.org/"
+export TAIGA_USERNAME="username"
+export TAIGA_PASSWORD="pw"
+export OPENAI_API_KEY="OPENAI_API_KEY"
+```
+
+设置 [LangSmith](https://smith.langchain.com/) 以获得一流的可观测性也很有帮助（但不是必需的）：
+
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+# os.environ["LANGSMITH_API_KEY"] = getpass.getpass()
+```
+
+## 实例化
+
+以下示例展示了如何在 `langchain_taiga` 中实例化 Taiga 工具。请根据您的具体使用情况进行调整。
+
+```python
+from langchain_taiga.tools.discord_read_messages import create_entity_tool
+from langchain_taiga.tools.discord_send_messages import search_entities_tool
+
+create_tool = create_entity_tool
+search_tool = search_entities_tool
+```
+
+## 调用
+
+### 使用参数直接调用
+
+以下是一个简单的示例，展示了如何使用字典中的关键字参数调用工具。
+
+```python
+from langchain_taiga.tools.taiga_tools import (
+    add_attachment_by_ref_tool,
+    add_comment_by_ref_tool,
+    create_entity_tool,
+    get_entity_by_ref_tool,
+    search_entities_tool,
+    update_entity_by_ref_tool,
+)
+
+response = create_entity_tool.invoke(
+    {
+        "project_slug": "slug",
+        "entity_type": "us",
+        "subject": "subject",
+        "status": "new",
+        "description": "desc",
+        "parent_ref": 5,
+        "assign_to": "user",
+        "due_date": "2022-01-01",
+        "tags": ["tag1", "tag2"],
+    }
+)
+
+response = search_entities_tool.invoke(
+    {"project_slug": "slug", "query": "query", "entity_type": "task"}
+)
+
+response = get_entity_by_ref_tool.invoke(
+    {"entity_type": "user_story", "project_id": 1, "ref": "1"}
+)
+
+response = update_entity_by_ref_tool.invoke(
+    {"project_slug": "slug", "entity_ref": 555, "entity_type": "us"}
+)
+
+response = add_comment_by_ref_tool.invoke(
+    {"project_slug": "slug", "entity_ref": 3, "entity_type": "us", "comment": "new"}
+)
+
+response = add_attachment_by_ref_tool.invoke(
+    {
+        "project_slug": "slug",
+        "entity_ref": 3,
+        "entity_type": "us",
+        "attachment_url": "url",
+        "content_type": "png",
+        "description": "desc",
+    }
+)
+```
+
+### 使用 ToolCall 调用
+
+如果您有一个模型生成的 `ToolCall`，请按照下面显示的格式将其传递给 `tool.invoke()`。
+
+```python
+# 这通常由模型生成，但为了演示目的，我们将直接创建一个工具调用。
+model_generated_tool_call = {
+    "args": {"project_slug": "slug", "query": "query", "entity_type": "task"},
+    "id": "1",
+    "name": search_entities_tool.name,
+    "type": "tool_call",
+}
+tool.invoke(model_generated_tool_call)
+```
+
+## 链式调用
+
+以下是一个更完整的示例，展示了如何在链或代理中将 `create_entity_tool` 和 `search_entities_tool` 工具与 LLM 集成。此示例假设您有一个函数（如 @[`create_agent`]），可以设置一个能够在适当时调用工具的 LangChain 风格代理。
+
+```python
+# 示例：在代理中使用 Taiga 工具
+
+from langchain.agents import create_agent
+from langchain_taiga.tools.taiga_tools import create_entity_tool, search_entities_tool
+
+# 1. 实例化或配置您的语言模型
+# (替换为您的实际 LLM，例如 ChatOpenAI(temperature=0))
+model = ...
+
+# 2. 构建一个可以访问这些工具的代理
+agent_executor = create_agent(model, [create_entity_tool, search_entities_tool])
+
+# 4. 制定一个可能调用一个或两个工具的用户查询
+example_query = "请在 slug 项目中创建一个主题为 'subject' 的新用户故事"
+
+# 5. 以流模式（或根据您的代码结构）执行代理
+events = agent_executor.stream(
+    {"messages": [("user", example_query)]},
+    stream_mode="values",
+)
+
+# 6. 打印模型响应（以及任何工具输出）
+for event in events:
+    event["messages"][-1].pretty_print()
+```
+
+---
+
+## API 参考
+
+请参阅以下文件中的文档字符串以获取使用详情、参数和高级配置：
+
+- [taiga_tools.py](https://github.com/Shikenso-Analytics/langchain-taiga/blob/main/langchain_taiga/tools/taiga_tools.py)
+- [toolkits.py](https://github.com/Shikenso-Analytics/langchain-taiga/blob/main/langchain_taiga/toolkits.py)

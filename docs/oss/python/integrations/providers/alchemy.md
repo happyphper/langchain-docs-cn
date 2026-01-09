@@ -1,0 +1,21 @@
+---
+title: 炼金术
+---
+>[Alchemy](https://www.alchemy.com) 是构建区块链应用程序的平台。
+
+## 安装与设置
+
+请查看[安装指南](/oss/integrations/document_loaders/blockchain)。
+
+## 文档加载器
+
+### Alchemy 平台上的 BlockchainLoader
+
+查看[使用示例](/oss/integrations/document_loaders/blockchain)。
+
+```python
+from langchain_community.document_loaders.blockchain import (
+    BlockchainDocumentLoader,
+    BlockchainType,
+)
+```

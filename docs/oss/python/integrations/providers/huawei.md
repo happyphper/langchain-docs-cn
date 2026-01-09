@@ -1,0 +1,42 @@
+---
+title: 华为
+---
+>[华为技术有限公司](https://www.huawei.com/) 是一家中国跨国数字通信技术公司。
+>
+>[华为云](https://www.huaweicloud.com/intl/en-us/product/) 提供全面的全球云计算服务套件。
+
+## 安装与设置
+
+要访问 `华为云`，您需要一个访问令牌。
+
+您还需要安装一个 Python 库：
+
+::: code-group
+
+```bash [pip]
+pip install -U esdk-obs-python
+```
+
+```bash [uv]
+uv add esdk-obs-python
+```
+
+:::
+
+## 文档加载器
+
+### 华为 OBS 目录
+
+查看 [使用示例](/oss/integrations/document_loaders/huawei_obs_directory)。
+
+```python
+from langchain_community.document_loaders import OBSDirectoryLoader
+```
+
+### 华为 OBS 文件
+
+查看 [使用示例](/oss/integrations/document_loaders/huawei_obs_file)。
+
+```python
+from langchain_community.document_loaders.obs_file import OBSFileLoader
+```

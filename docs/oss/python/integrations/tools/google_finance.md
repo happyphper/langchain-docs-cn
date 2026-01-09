@@ -1,0 +1,106 @@
+---
+title: Google Finance
+---
+本笔记本将介绍如何使用 Google Finance 工具从 Google Finance 页面获取信息。
+
+要获取 SerpApi 密钥，请在此处注册：[serpapi.com/users/sign_up](https://serpapi.com/users/sign_up)。
+
+要在 LangChain 中使用该工具，请安装以下包：
+
+```python
+pip install -qU google-search-results langchain-community
+```
+
+然后将环境变量 `SERPAPI_API_KEY` 设置为您的 SerpApi 密钥，或者将密钥作为参数传递给包装器 `serp_api_key="your secret key"`。
+
+```python
+import os
+
+os.environ["SERPAPI_API_KEY"] = ""
+```
+
+```python
+from langchain_community.tools.google_finance import GoogleFinanceQueryRun
+from langchain_community.utilities.google_finance import GoogleFinanceAPIWrapper
+
+tool = GoogleFinanceQueryRun(api_wrapper=GoogleFinanceAPIWrapper())
+```
+
+```python
+tool.run("Google")
+```
+
+```text
+'\nQuery: Google\nstock: GOOGL:NASDAQ\nprice: $159.96\npercentage: 0.94\nmovement: Up\nus: price = 42210.57, movement = Down\neurope: price = 23638.56, movement = Up\nasia: price = 38183.26, movement = Up\n'
+```
+
+为了创建一个使用 Google Finance 工具的智能体，请安装 LangGraph：
+
+```python
+pip install -qU langgraph langchain-openai
+```
+
+并使用 `<a href="https://reference.langchain.com/python/langchain/agents/#langchain.agents.create_agent" target="_blank" rel="noreferrer" class="link"><code>create_agent</code></a>` 功能来初始化一个 ReAct 智能体。您还需要设置您的 `OPENAI_API_KEY`（访问 [platform.openai.com](https://platform.openai.com)）以便访问 OpenAI 的聊天模型。
+
+```python
+import os
+
+os.environ["OPENAI_API_KEY"] = ""
+os.environ["SERP_API_KEY"] = ""
+```
+
+```python
+from langchain.chat_models import init_chat_model
+
+model = init_chat_model("gpt-4o-mini", model_provider="openai")
+```
+
+```python
+from langchain_community.agent_toolkits.load_tools import load_tools
+
+tools = load_tools(["google-scholar", "google-finance"], llm=model)
+```
+
+```python
+from langchain.agents import create_agent
+
+agent = create_agent(model, tools)
+
+events = agent.stream(
+    {"messages": [("user", "What is Google's stock?")]},
+    stream_mode="values",
+)
+for event in events:
+    event["messages"][-1].pretty_print()
+```
+
+```text
+================================ Human Message =================================
+
+What is Google's stock?
+================================== Ai Message ==================================
+Tool Calls:
+  google_finance (call_8m0txCtxNuQaAv9UlomPhSA1)
+ Call ID: call_8m0txCtxNuQaAv9UlomPhSA1
+  Args:
+    query: Google
+================================= Tool Message =================================
+Name: google_finance
+
+Query: Google
+stock: GOOGL:NASDAQ
+price: $159.96
+percentage: 0.94
+movement: Up
+us: price = 42210.57, movement = Down
+europe: price = 23638.56, movement = Up
+asia: price = 38183.26, movement = Up
+
+================================== Ai Message ==================================
+
+Google's stock, listed as GOOGL on NASDAQ, is currently priced at $159.96, with a movement up by 0.94%.
+```
+
+```python
+
+```

@@ -1,0 +1,148 @@
+---
+title: Tableau
+---
+本指南提供了快速入门 [Tableau](https://help.tableau.com/current/api/vizql-data-service/en-us/index.html) 的概览。
+
+### 概述
+
+Tableau 的 VizQL 数据服务（简称 VDS）为开发者提供了对其 Tableau 已发布数据源的编程访问能力，使他们能够为任何自定义工作负载或应用程序（包括 AI 智能体）扩展其业务语义。`simple_datasource_qa` 工具将 VDS 集成到 LangChain 框架中。本笔记本将展示如何使用它来构建能够基于企业语义模型回答分析性问题的智能体。
+
+请关注 [tableau-langchain](https://github.com/Tab-SE/tableau_langchain) 项目，更多工具即将推出！
+
+#### 环境设置
+
+确保您正在运行并拥有以下环境的访问权限：
+
+1.  Python 版本 3.12.2 或更高
+2.  一个 Tableau Cloud 或 Server 环境，其中至少包含 1 个已发布的数据源
+
+首先，安装和/或导入所需的包：
+
+```python
+# pip install langchain-openai
+```
+
+```python
+# pip install langgraph
+```
+
+```python
+# pip install langchain-tableau --upgrade
+```
+
+```text
+Requirement already satisfied: regex>=2022.1.18 in /Users/joe.constantino/.pyenv/versions/3.12.2/lib/python3.12/site-packages (from tiktoken<1,>=0.7->langchain-openai->langchain-tableau) (2024.11.6)
+Requirement already satisfied: httpcore==1.* in /Users/joe.constantino/.pyenv/versions/3.12.2/lib/python3.12/site-packages (from httpx>=0.25.2->langgraph-sdk<0.2.0,>=0.1.42->langgraph->langchain-tableau) (1.0.7)
+Requirement already satisfied: h11<0.15,>=0.13 in /Users/joe.constantino/.pyenv/versions/3.12.2/lib/python3.12/site-packages (from httpcore==1.*->httpx>=0.25.2->langgraph-sdk<0.2.0,>=0.1.42->langgraph->langchain-tableau) (0.14.0)
+```
+
+注意：您可能需要重启内核才能使用更新后的包。
+
+### 凭证
+
+您可以显式声明环境变量，如本文档中多个示例所示。但是，如果未提供这些参数，`simple_datasource_qa` 工具将尝试自动从环境变量中读取它们。
+
+对于您选择查询的数据源，请确保您已在 Tableau 中更新了 `VizqlDataApiAccess` 权限，以允许 VDS API 通过 REST 访问该数据源。更多信息请参见[此处](https://help.tableau.com/current/server/en-us/permissions_capabilities.htm#data-sources)。
+
+```python
+# langchain 包导入
+from langchain_openai import ChatOpenAI
+
+# langchain_tableau 和 langgraph 导入
+from langchain_tableau.tools.simple_datasource_qa import initialize_simple_datasource_qa
+from langchain.agents import create_agent
+```
+
+## 认证变量
+
+您可以显式声明环境变量，如本指南中多个示例所示。但是，如果未提供这些参数，`simple_datasource_qa` 工具将尝试自动从环境变量中读取它们。
+
+对于您选择的数据源，请确保您已在 Tableau 中更新了 `VizqlDataApiAccess` 权限，以允许 VDS API 通过 REST 访问该数据源。更多信息请参见[此处](https://help.tableau.com/current/server/en-us/permissions_capabilities.htm#data-sources)。
+
+```python
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+tableau_server = "https://stage-dataplane2.tableau.sfdc-shbmgi.svc.sfdcfc.net/"  # 替换为您的 Tableau 服务器名称
+tableau_site = "vizqldataservicestage02"  # 替换为您的 Tableau 站点
+tableau_jwt_client_id = os.getenv(
+    "TABLEAU_JWT_CLIENT_ID"
+)  # JWT 客户端 ID（通过 Tableau 管理界面获取）
+tableau_jwt_secret_id = os.getenv(
+    "TABLEAU_JWT_SECRET_ID"
+)  # JWT 密钥 ID（通过 Tableau 管理界面获取）
+tableau_jwt_secret = os.getenv(
+    "TABLEAU_JWT_SECRET"
+)  # JWT 密钥（通过 Tableau 管理界面获取）
+tableau_api_version = "3.21"  # 当前的 Tableau REST API 版本
+tableau_user = "joe.constantino@salesforce.com"  # 输入查询目标 Tableau 数据源的用户名
+
+# 在本指南中，我们连接到每个 Tableau 服务器默认自带的 Superstore 数据集
+datasource_luid = (
+    "0965e61b-a072-43cf-994c-8c6cf526940d"  # 此工具的目标数据源
+)
+model_provider = "openai"  # 您为智能体使用的模型提供商的名称
+# 添加变量以控制智能体和工具的 LLM 模型
+os.environ["OPENAI_API_KEY"]  # 将您的模型 API 密钥设置为环境变量
+tooling_llm_model = "gpt-4o-mini"
+```
+
+## 实例化
+
+`initialize_simple_datasource_qa` 初始化了一个名为 [simple_datasource_qa](https://github.com/Tab-SE/tableau_langchain/blob/3ff9047414479cd55d797c18a78f834d57860761/pip_package/langchain_tableau/tools/simple_datasource_qa.py#L101) 的 LangGraph 工具，该工具可用于对 Tableau 数据源进行分析性问答。
+
+此初始化函数：
+
+1.  使用 Tableau 的 connected-app 框架进行基于 JWT 的身份验证以连接到 Tableau。所有必需的变量必须在运行时定义或作为环境变量提供。
+2.  异步查询 `datasource_luid` 变量指定的目标数据源的字段元数据。
+3.  基于目标数据源的元数据，将自然语言问题转换为执行 VDS `query-datasource` 请求所需的 JSON 格式查询负载。
+4.  向 VDS 执行 POST 请求。
+5.  以结构化响应的形式格式化并返回结果。
+
+```python
+# 初始化 simple_datasource_qa，用于通过 VDS 查询 Tableau 数据源
+analyze_datasource = initialize_simple_datasource_qa(
+    domain=tableau_server,
+    site=tableau_site,
+    jwt_client_id=tableau_jwt_client_id,
+    jwt_secret_id=tableau_jwt_secret_id,
+    jwt_secret=tableau_jwt_secret,
+    tableau_api_version=tableau_api_version,
+    tableau_user=tableau_user,
+    datasource_luid=datasource_luid,
+    tooling_llm_model=tooling_llm_model,
+    model_provider=model_provider,
+)
+
+# 加载将由智能体使用的工具列表。在本例中，我们只加载我们的数据源问答工具。
+tools = [analyze_datasource]
+```
+
+## 调用 - LangGraph 示例
+
+首先，我们将初始化我们选择的 LLM。然后，我们使用 langgraph 智能体构造器类定义一个智能体，并使用与目标数据源相关的查询来调用它。
+
+```python
+from IPython.display import Markdown, display
+
+model = ChatOpenAI(model="gpt-4o", temperature=0)
+
+tableauAgent = create_agent(model, tools)
+
+# 运行智能体
+messages = tableauAgent.invoke(
+    {
+        "messages": [
+            (
+                "human",
+                "what's going on with table sales?",
+            )
+        ]
+    }
+)
+messages
+# display(Markdown(messages['messages'][3].content)) # 为成功的生成结果显示格式美观的答案
+```

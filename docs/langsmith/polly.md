@@ -1,0 +1,130 @@
+---
+title: LangSmith Polly
+sidebarTitle: Polly (Beta)
+---
+
+<Callout color="#4F46E5">
+
+<strong>Polly 处于测试阶段。</strong> 在团队完善其功能的过程中，您对 Polly 的[反馈](https://forum.langchain.com)非常宝贵。
+
+</Callout>
+
+**LangSmith Polly** 是一个直接嵌入到您 LangSmith [工作区](/langsmith/administration-overview#workspaces) 的 AI 助手，旨在帮助您分析和理解您的应用程序数据。
+
+Polly 帮助您从追踪记录、对话线程和提示中获取洞察，而无需手动挖掘数据。通过提出自然语言问题，您可以快速了解智能体性能、调试问题并分析用户情绪。
+
+<img src="/langsmith/images/polly.png" alt="LangSmith Polly icon" /> Polly 出现在 [LangSmith UI](https://smith.langchain.com) 中以下位置的右下角，针对不同的用例进行了优化：
+
+- [追踪页面](#tracing-page)
+- [线程视图](#thread-views)
+- [提示词游乐场](#prompt-playground)
+
+### 追踪页面
+
+在单个[追踪记录](/langsmith/observability-concepts#traces)上，Polly 会提取页面上下文并分析[运行记录](/langsmith/observability-concepts#runs)。Polly 会读取运行数据和轨迹，帮助您了解发生了什么并识别需要改进的地方。
+
+要向 Polly 询问关于追踪的问题：
+
+1.  在您的**追踪项目**中，点击一个追踪记录以查看其详情页面。
+2.  在追踪记录中选择一个运行记录。
+3.  在页面右下角打开 Polly，询问与此运行记录相关的问题。
+4.  向 Polly 提出一个关于您数据的问题。您可以使用示例问题，或者询问类似以下的问题：
+    - "智能体在这里有什么可以做得更好的地方吗？"
+    - "为什么这次运行失败了？"
+    - "这个追踪记录中什么环节耗时最长？"
+    - "这次运行期间发生了什么错误？"
+    - "总结一下这个追踪记录中发生了什么"
+
+在分析运行记录时，Polly 会检查完整的追踪上下文，包括[运行元数据](/langsmith/observability-concepts#metadata)、输入、输出、中间步骤和配置，以提供可操作的见解。这有助于您诊断问题，而无需手动展开追踪树中的每个步骤或交叉引用多个运行记录。
+
+### 线程视图
+
+在**线程**标签页下，Polly 通过提取用户交互的相关信息来分析对话[线程](/langsmith/observability-concepts#threads)。这有助于您理解用户情绪和对话结果。
+
+要向 Polly 询问关于线程的问题：
+
+1.  选择一个线程。
+2.  在页面右下角打开 Polly，询问与此线程相关的问题。
+3.  向 Polly 提出一个关于对话线程的问题。您可以询问类似以下的问题：
+    - "用户似乎感到沮丧吗？"
+    - "用户遇到了什么问题？"
+    - "这次对话是如何解决的？"
+    - "用户的问题解决了吗？"
+    - "这个线程的主要话题是什么？"
+
+在线程视图中使用 Polly，可以深入了解用户如何与您的应用程序交互。通过线程分析，了解对话结果和问题是否得到解决，识别常见的用户痛点，并跟踪用户情绪。这有助于您通过了解应用程序响应中哪些部分有效、哪些需要改进来提升用户体验。
+
+### 提示词游乐场
+
+当您在[游乐场](/langsmith/prompt-engineering-concepts#prompt-playground)中打开一个[提示词](/langsmith/prompt-engineering-concepts#prompt-in-langsmith)时，Polly 可以根据您的指令帮助您编辑和改进提示词。Polly 会读取提示词并提出修改建议。
+
+要向 Polly 询问关于提示词的问题：
+
+1.  从左侧导航栏或追踪视图进入**游乐场**。
+2.  选择一个提示词进行实验。
+3.  在页面右下角打开 Polly，对此提示词进行操作。
+4.  您可以使用 Polly 建议的自动化选项之一：
+    - <Icon icon="play" /> **优化提示词**：Polly 将分析当前提示词并进行编辑，并提供更改摘要。
+    - <Icon icon="wrench" /> **生成工具**：向 Polly 提供您想要添加的工具的详细信息。它将为您的提示词模板生成一个工具。它还可以帮助您修改现有的工具或关于工具的系统消息。然后，让 Polly 通过使用该工具的模型样本输出来测试工具配置。
+    - <Icon icon="brackets-curly" /> **生成输出模式**：Polly 将创建一个 JSON 模式，定义您希望模型生成的输出结构。当您需要模型以特定格式返回数据时，这非常有用。选择此选项，然后向 Polly 提供数据类型、字段/属性以及您可能需要的任何其他约束。
+
+或者，您可以提出自己的问题，例如：
+
+    - "让它用意大利语回复"
+    - "添加更多关于用户角色的上下文"
+    - "让语气更专业"
+    - "简化指令"
+    - "在提示词中添加示例"
+
+    <img src="/langsmith/images/polly-prompt-tool.png" alt="Prompt Playground showing Polly chat in the sidebar with information on a generated tool." />
+
+    <img src="/langsmith/images/polly-prompt-tool-dark.png" alt="Prompt Playground showing Polly chat in the sidebar with information on a generated tool." />
+
+## 下一步
+
+了解更多 Polly 帮助您探索的功能：
+
+<CardGroup :cols="2">
+
+<Card
+title="可观测性"
+icon="magnifying-glass"
+href="/langsmith/observability"
+>
+
+了解更多关于追踪和监控您的 LLM 应用程序的信息
+
+</Card>
+
+<Card
+title="线程"
+icon="comments"
+href="/langsmith/threads"
+>
+
+了解线程在 LangSmith 中如何工作
+
+</Card>
+
+<Card
+title="提示词工程"
+icon="wand-magic-sparkles"
+href="/langsmith/prompt-engineering"
+>
+
+在游乐场中创建和迭代提示词
+
+</Card>
+
+<Card
+title="评估"
+icon="clipboard-check"
+href="/langsmith/evaluation"
+>
+
+系统地评估和测试您的应用程序
+
+</Card>
+
+</CardGroup>
+

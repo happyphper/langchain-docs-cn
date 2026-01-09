@@ -1,0 +1,347 @@
+---
+title: LangChain 装饰器
+---
+~~~
+免责声明：`LangChain decorators` 并非由 LangChain 团队创建，也不受其支持。
+~~~
+
+>`LangChain decorators` 是构建在 LangChain 之上的一个层，它为编写自定义的 langchain 提示词（prompts）和链（chains）提供了语法糖 🍭。
+>
+>如需反馈、报告问题或贡献代码，请在此处提交 issue：
+>[ju-bezdek/langchain-decorators](https://github.com/ju-bezdek/langchain-decorators)
+
+主要原则和优势：
+
+- 更 `pythonic` 的代码编写方式
+- 编写多行提示词，不会因缩进而破坏代码流程
+- 利用 IDE 内置的**提示**、**类型检查**和**文档弹窗**支持，快速查看函数内部的提示词、消耗的参数等
+- 充分利用 🦜🔗 LangChain 生态系统的所有功能
+- 增加对**可选参数**的支持
+- 通过将参数绑定到一个类，轻松地在提示词之间共享参数
+
+以下是一个使用 **LangChain Decorators ✨** 编写的简单代码示例：
+
+``` python
+@llm_prompt
+def write_me_short_post(topic:str, platform:str="twitter", audience:str = "developers")->str:
+    """
+    Write me a short header for my post about {topic} for {platform} platform.
+    It should be for {audience} audience.
+    (Max 15 words)
+    """
+    return
+
+# run it naturally
+write_me_short_post(topic="starwars")
+# or
+write_me_short_post(topic="starwars", platform="redit")
+```
+
+# 快速开始
+
+## 安装
+
+::: code-group
+
+```bash
+pip install langchain_decorators
+```
+
+```bash [uv]
+uv add langchain_decorators
+```
+
+:::
+
+## 示例
+
+了解如何开始的一个好方法是查看这里的示例：
+    - [jupyter notebook](https://github.com/ju-bezdek/langchain-decorators/blob/main/example_notebook.ipynb)
+    - [colab notebook](https://colab.research.google.com/drive/1no-8WfeP6JaLD9yUtkPgym6x0G9ZYZOG#scrollTo=N4cf__D0E2Yk)
+
+# 定义其他参数
+在这里，我们只是用 `llm_prompt` 装饰器将一个函数标记为提示词，从而有效地将其转换为一个 LLMChain。而不是直接运行它。
+
+标准的 LLMchain 接受的初始化参数远不止 `inputs_variables` 和 `prompt`... 这些实现细节被隐藏在装饰器中。
+其工作原理如下：
+
+1. 使用**全局设置**：
+
+``` python
+# 为所有提示词定义全局设置（如果未设置，chatGPT 是当前的默认值）
+from langchain_decorators import GlobalSettings
+
+GlobalSettings.define_settings(
+    default_llm=ChatOpenAI(temperature=0.0), # 这是默认值... 可以在这里全局更改
+    default_streaming_llm=ChatOpenAI(temperature=0.0,streaming=True), # 这是默认值... 可以在这里为所有...更改，将用于流式处理
+)
+```
+2. 使用预定义的**提示词类型**
+
+``` python
+# 你可以更改默认的提示词类型
+from langchain_decorators import PromptTypes, PromptTypeSettings
+
+PromptTypes.AGENT_REASONING.llm = ChatOpenAI()
+
+# 或者你可以直接定义自己的类型：
+class MyCustomPromptTypes(PromptTypes):
+    GPT4=PromptTypeSettings(llm=ChatOpenAI(model="gpt-4"))
+
+@llm_prompt(prompt_type=MyCustomPromptTypes.GPT4)
+def write_a_complicated_code(app_idea:str)->str:
+    ...
+```
+3.  直接在装饰器中定义设置
+
+``` python
+from langchain_openai import OpenAI
+
+@llm_prompt(
+    llm=OpenAI(temperature=0.7),
+    stop_tokens=["\nObservation"],
+    ...
+    )
+def creative_writer(book_title:str)->str:
+    ...
+```
+## 传递记忆（memory）和/或回调（callbacks）：
+
+要传递这些参数中的任何一个，只需在函数中声明它们（或使用 kwargs 传递任何内容）
+
+```python
+
+@llm_prompt()
+async def write_me_short_post(topic:str, platform:str="twitter", memory:SimpleMemory = None):
+    """
+    {history_key}
+    Write me a short header for my post about {topic} for {platform} platform.
+    It should be for {audience} audience.
+    (Max 15 words)
+    """
+    pass
+
+await write_me_short_post(topic="old movies")
+```
+# 简化的流式处理
+
+如果我们想利用流式处理：
+ - 需要将提示词函数定义为异步函数
+ - 在装饰器上开启流式处理，或者我们可以定义一个开启流式处理的 PromptType
+ - 使用 StreamingContext 捕获流
+
+这样，我们只需标记哪些提示词应该被流式处理，而不需要调整应该使用哪个 LLM，也不需要将创建和分发流式处理程序传递到链的特定部分... 只需在提示词/提示词类型上开启/关闭流式处理...
+
+流式处理只会在我们于流式上下文中调用它时发生... 在那里我们可以定义一个简单的函数来处理流
+
+``` python
+# 此代码示例是完整的，应该可以直接运行
+
+from langchain_decorators import StreamingContext, llm_prompt
+
+# 这将标记该提示词用于流式处理（如果我们只想在应用中流式处理某些提示词... 但又不想传递分发回调处理程序时很有用）
+# 注意只有异步函数可以被流式处理（如果不是异步函数会出错）
+@llm_prompt(capture_stream=True)
+async def write_me_short_post(topic:str, platform:str="twitter", audience:str = "developers"):
+    """
+    Write me a short header for my post about {topic} for {platform} platform.
+    It should be for {audience} audience.
+    (Max 15 words)
+    """
+    pass
+
+# 只是一个用于演示流式处理的任意函数... 在真实场景中会是某些 websockets 代码
+tokens=[]
+def capture_stream_func(new_token:str):
+    tokens.append(new_token)
+
+# 如果我们想捕获流，需要将执行包装在 StreamingContext 中...
+# 这样即使提示词调用隐藏在更高级的方法中，我们也能捕获到流
+# 只有标记了 capture_stream 的提示词才会在这里被捕获
+with StreamingContext(stream_to_stdout=True, callback=capture_stream_func):
+    result = await run_prompt()
+    print("Stream finished ... we can distinguish tokens thanks to alternating colors")
+
+print("\nWe've captured",len(tokens),"tokens🎉\n")
+print("Here is the result:")
+print(result)
+```
+# 提示词声明
+默认情况下，整个函数的文档字符串就是提示词，除非你标记了你的提示词。
+
+## 为你的提示词添加文档
+
+我们可以通过指定一个带有 `<prompt>` 语言标签的代码块，来指定文档字符串的哪一部分是提示词定义。
+
+``` python
+@llm_prompt
+def write_me_short_post(topic:str, platform:str="twitter", audience:str = "developers"):
+    """
+    这是一种将提示词作为函数文档字符串一部分的好方法，同时为开发者提供额外的文档。
+
+    它需要是一个代码块，标记为 `<prompt>` 语言
+```<prompt>
+Write me a short header for my post about {topic} for {platform} platform.
+It should be for {audience} audience.
+(Max 15 words)
+```
+现在只有上面的代码块会被用作提示词，文档字符串的其余部分将用作开发者的描述。
+（它还有一个好处是，IDE（如 VS code）会正确显示提示词（不会尝试将其解析为 markdown，从而不会正确显示换行符））
+"""
+return
+```
+
+## 聊天消息提示词
+
+对于聊天模型，将提示词定义为一组消息模板非常有用... 具体做法如下：
+
+``` python
+@llm_prompt
+def simulate_conversation(human_input:str, agent_role:str="a pirate"):
+    """
+    ## 系统消息
+     - 注意 `<prompt:_role_>` 标签内的 `:system` 后缀
+
+```prompt:system
+You are a {agent_role} hacker. You mus act like one.
+You reply always in code, using python or javascript code block...
+for example:
+
+... do not reply with anything else.. just with code - respecting your role.
+```
+# 人类消息
+（我们使用的是 LLM 强制执行的真实角色 - GPT 支持 system、assistant、user）
+``` prompt:user
+Helo, who are you
+```
+一个回复：
+``` prompt:assistant
+\``` python <<- 使用 \ 转义内部代码块，该代码块应作为提示词的一部分
+def hello():
+print("Argh... hello you pesky pirate")
+\```
+```
+
+我们也可以使用占位符添加一些历史记录
+```prompt:placeholder
+{history}
+```
+```prompt:user
+{human_input}
+```
+
+现在只有上面的代码块会被用作提示词，文档字符串的其余部分将用作开发者的描述。
+（它还有一个好处是，IDE（如 VS code）会正确显示提示词（不会尝试将其解析为 markdown，从而不会正确显示换行符））
+"""
+pass
+```
+
+这里的角色是模型原生角色（对于 chatGPT 是 assistant、user、system）
+
+# 可选部分
+- 你可以定义提示词中整个应该可选的部分
+- 如果该部分中的任何输入缺失，整个部分将不会被渲染
+
+语法如下：
+
+``` python
+@llm_prompt
+def prompt_with_optional_partials():
+    """
+    this text will be rendered always, but
+
+    {? anything inside this block will be rendered only if all the {value}s parameters are not empty (None | "")   ?}
+
+    you can also place it in between the words
+    this too will be rendered{? , but
+        this  block will be rendered only if {this_value} and {this_value}
+        is not empty?} !
+    """
+```
+# 输出解析器
+
+- `llm_prompt` 装饰器原生地尝试根据输出类型检测最佳的输出解析器。（如果未设置，则返回原始字符串）
+- 列表、字典和 pydantic 输出也得到原生支持（自动）
+
+``` python
+# 此代码示例是完整的，应该可以直接运行
+
+from langchain_decorators import llm_prompt
+
+@llm_prompt
+def write_name_suggestions(company_business:str, count:int)->list:
+    """ Write me {count} good name suggestions for company that {company_business}
+    """
+    pass
+
+write_name_suggestions(company_business="sells cookies", count=5)
+```
+## 更复杂的结构
+
+对于字典 / pydantic，你需要指定格式化指令...
+这可能很繁琐，这就是为什么你可以让输出解析器根据模型（pydantic）为你生成指令。
+
+``` python
+from langchain_decorators import llm_prompt
+from pydantic import BaseModel, Field
+
+class TheOutputStructureWeExpect(BaseModel):
+    name:str = Field (description="The name of the company")
+    headline:str = Field( description="The description of the company (for landing page)")
+    employees:list[str] = Field(description="5-8 fake employee names with their positions")
+
+@llm_prompt()
+def fake_company_generator(company_business:str)->TheOutputStructureWeExpect:
+    """ Generate a fake company that {company_business}
+    {FORMAT_INSTRUCTIONS}
+    """
+    return
+
+company = fake_company_generator(company_business="sells cookies")
+
+# print the result nicely formatted
+print("Company name: ",company.name)
+print("company headline: ",company.headline)
+print("company employees: ",company.employees)
+```
+# 将提示词绑定到对象
+
+``` python
+from pydantic import BaseModel
+from langchain_decorators import llm_prompt
+
+class AssistantPersonality(BaseModel):
+    assistant_name:str
+    assistant_role:str
+    field:str
+
+    @property
+    def a_property(self):
+        return "whatever"
+
+    def hello_world(self, function_kwarg:str=None):
+        """
+        We can reference any {field} or {a_property} inside our prompt... and combine it with {function_kwarg} in the method
+        """
+
+    @llm_prompt
+    def introduce_your_self(self)->str:
+        """
+``` prompt:system
+You are an assistant named {assistant_name}.
+Your role is to act as {assistant_role}
+```
+```prompt:user
+Introduce your self (in less than 20 words)
+```
+        """
+
+personality = AssistantPersonality(assistant_name="John", assistant_role="a pirate")
+
+print(personality.introduce_your_self(personality))
+```
+
+# 更多示例：
+
+- 这些以及更多示例也可以在 [colab notebook 这里](https://colab.research.google.com/drive/1no-8WfeP6JaLD9yUtkPgym6x0G9ZYZOG#scrollTo=N4cf__D0E2Yk) 找到
+- 包括使用纯 langchain decorators 实现的 [ReAct Agent 重新实现](https://colab.research.google.com/drive/1no-8WfeP6JaLD9yUtkPgym6x0G9ZYZOG#scrollTo=3bID5fryE2Yp)

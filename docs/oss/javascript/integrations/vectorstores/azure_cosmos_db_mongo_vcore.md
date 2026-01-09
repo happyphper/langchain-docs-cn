@@ -1,0 +1,265 @@
+---
+title: Azure Cosmos DB Mongo vCore
+---
+本笔记本展示了如何利用这个集成的[向量数据库](https://learn.microsoft.com/en-us/azure/cosmos-db/vector-database)将文档存储到集合中、创建索引，并使用近似最近邻算法（如 COS（余弦距离）、L2（欧几里得距离）和 IP（内积））执行向量搜索查询，以查找与查询向量接近的文档。
+
+Azure Cosmos DB 是为 OpenAI 的 ChatGPT 服务提供支持的数据库。它提供个位数毫秒级的响应时间、自动即时扩展性，并保证在任何规模下的速度。
+
+[Azure Cosmos DB for MongoDB vCore](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/) 为开发人员提供了一个完全托管的、与 MongoDB 兼容的数据库服务，用于使用熟悉的架构构建现代应用程序。您可以将您的 MongoDB 经验应用到其中，并通过将应用程序指向 API for MongoDB vCore 帐户的连接字符串，继续使用您喜欢的 MongoDB 驱动程序、SDK 和工具。
+
+立即[注册](https://azure.microsoft.com/en-us/free/)，获取终身免费访问权限以开始使用。
+
+```python
+pip install -qU pymongo langchain-openai langchain-azure-ai
+```
+
+```python
+import os
+
+CONNECTION_STRING = "YOUR_CONNECTION_STRING"
+INDEX_NAME = "langchain-test-index"
+NAMESPACE = "langchain_test_db.langchain_test_collection"
+DB_NAME, COLLECTION_NAME = NAMESPACE.split(".")
+```
+
+我们希望使用 `AzureOpenAIEmbeddings`，因此需要设置我们的 Azure OpenAI API 密钥以及其他环境变量。
+
+```python
+# 设置 OpenAI 环境变量
+
+os.environ["AZURE_OPENAI_API_KEY"] = "YOUR_AZURE_OPENAI_API_KEY"
+os.environ["AZURE_OPENAI_ENDPOINT"] = "YOUR_AZURE_OPENAI_ENDPOINT"
+os.environ["AZURE_OPENAI_API_VERSION"] = "2023-05-15"
+os.environ["OPENAI_EMBEDDINGS_MODEL_NAME"] = "text-embedding-ada-002"
+os.environ["OPENAI_EMBEDDINGS_DEPLOYMENT"] = "text-embedding-ada-002"
+```
+
+现在，我们需要将文档加载到集合中，创建索引，然后针对索引运行查询以检索匹配项。
+
+如果您对某些参数有疑问，请参考[文档](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/vector-search)
+
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_azure_ai.vectorstores.azure_cosmos_db_mongo_vcore import (
+    AzureCosmosDBMongoVCoreVectorSearch,
+    CosmosDBSimilarityType,
+    CosmosDBVectorSearchType,
+)
+from langchain_openai import AzureOpenAIEmbeddings
+from langchain_text_splitters import CharacterTextSplitter
+
+SOURCE_FILE_NAME = "../../how_to/state_of_the_union.txt"
+
+loader = TextLoader(SOURCE_FILE_NAME)
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+
+# OpenAI 设置
+model_deployment = os.getenv(
+    "OPENAI_EMBEDDINGS_DEPLOYMENT", "smart-agent-embedding-ada"
+)
+model_name = os.getenv("OPENAI_EMBEDDINGS_MODEL_NAME", "text-embedding-ada-002")
+
+openai_embeddings: AzureOpenAIEmbeddings = AzureOpenAIEmbeddings(
+    model=model_name, chunk_size=1
+)
+```
+
+```python
+docs[0]
+```
+
+```text
+Document(metadata={'source': '../../how_to/state_of_the_union.txt'}, page_content='Madam Speaker, Madam Vice President, our First Lady and Second Gentleman. Members of Congress and the Cabinet. Justices of the Supreme Court. My fellow Americans.  \n\nLast year COVID-19 kept us apart. This year we are finally together again. \n\nTonight, we meet as Democrats Republicans and Independents. But most importantly as Americans. \n\nWith a duty to one another to the American people to the Constitution. \n\nAnd with an unwavering resolve that freedom will always triumph over tyranny. \n\nSix days ago, Russia’s Vladimir Putin sought to shake the foundations of the free world thinking he could make it bend to his menacing ways. But he badly miscalculated. \n\nHe thought he could roll into Ukraine and the world would roll over. Instead he met a wall of strength he never imagined. \n\nHe met the Ukrainian people. \n\nFrom President Zelenskyy to every Ukrainian, their fearlessness, their courage, their determination, inspires the world.')
+```
+
+```python
+from pymongo import MongoClient
+
+# INDEX_NAME = "izzy-test-index-2"
+# NAMESPACE = "izzy_test_db.izzy_test_collection"
+# DB_NAME, COLLECTION_NAME = NAMESPACE.split(".")
+
+client: MongoClient = MongoClient(CONNECTION_STRING)
+collection = client[DB_NAME][COLLECTION_NAME]
+
+model_deployment = os.getenv(
+    "OPENAI_EMBEDDINGS_DEPLOYMENT", "smart-agent-embedding-ada"
+)
+model_name = os.getenv("OPENAI_EMBEDDINGS_MODEL_NAME", "text-embedding-ada-002")
+
+vectorstore = AzureCosmosDBMongoVCoreVectorSearch.from_documents(
+    docs,
+    openai_embeddings,
+    collection=collection,
+    index_name=INDEX_NAME,
+)
+
+# 在此处详细了解这些变量。 https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/vector-search
+num_lists = 100
+dimensions = 1536
+similarity_algorithm = CosmosDBSimilarityType.COS
+kind = CosmosDBVectorSearchType.VECTOR_IVF
+m = 16
+ef_construction = 64
+ef_search = 40
+score_threshold = 0.1
+
+vectorstore.create_index(
+    num_lists, dimensions, similarity_algorithm, kind, m, ef_construction
+)
+
+"""
+# DiskANN vectorstore
+maxDegree = 40
+dimensions = 1536
+similarity_algorithm = CosmosDBSimilarityType.COS
+kind = CosmosDBVectorSearchType.VECTOR_DISKANN
+lBuild = 20
+
+vectorstore.create_index(
+            dimensions=dimensions,
+            similarity=similarity_algorithm,
+            kind=kind ,
+            max_degree=maxDegree,
+            l_build=lBuild,
+        )
+
+# -----------------------------------------------------------
+
+# HNSW vectorstore
+dimensions = 1536
+similarity_algorithm = CosmosDBSimilarityType.COS
+kind = CosmosDBVectorSearchType.VECTOR_HNSW
+m = 16
+ef_construction = 64
+
+vectorstore.create_index(
+            dimensions=dimensions,
+            similarity=similarity_algorithm,
+            kind=kind ,
+            m=m,
+            ef_construction=ef_construction,
+        )
+"""
+```
+
+```text
+'\n# DiskANN vectorstore\nmaxDegree = 40\ndimensions = 1536\nsimilarity_algorithm = CosmosDBSimilarityType.COS\nkind = CosmosDBVectorSearchType.VECTOR_DISKANN\nlBuild = 20\n\nvectorstore.create_index(\n            dimensions=dimensions,\n            similarity=similarity_algorithm,\n            kind=kind ,\n            max_degree=maxDegree,\n            l_build=lBuild,\n        )\n\n# -----------------------------------------------------------\n\n# HNSW vectorstore\ndimensions = 1536\nsimilarity_algorithm = CosmosDBSimilarityType.COS\nkind = CosmosDBVectorSearchType.VECTOR_HNSW\nm = 16\nef_construction = 64\n\nvectorstore.create_index(\n            dimensions=dimensions,\n            similarity=similarity_algorithm,\n            kind=kind ,\n            m=m,\n            ef_construction=ef_construction,\n        )\n'
+```
+
+```python
+# 在查询的嵌入向量和文档的嵌入向量之间执行相似性搜索
+query = "What did the president say about Ketanji Brown Jackson"
+docs = vectorstore.similarity_search(query)
+```
+
+```python
+print(docs[0].page_content)
+```
+
+```text
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
+
+Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
+
+One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
+
+And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
+```
+
+文档加载完毕且索引创建完成后，您现在可以直接实例化向量存储并针对索引运行查询
+
+```python
+vectorstore = AzureCosmosDBMongoVCoreVectorSearch.from_connection_string(
+    CONNECTION_STRING, NAMESPACE, openai_embeddings, index_name=INDEX_NAME
+)
+
+# 在查询和已摄入的文档之间执行相似性搜索
+query = "What did the president say about Ketanji Brown Jackson"
+docs = vectorstore.similarity_search(query)
+
+print(docs[0].page_content)
+```
+
+```text
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
+
+Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
+
+One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
+
+And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
+```
+
+```python
+vectorstore = AzureCosmosDBMongoVCoreVectorSearch(
+    collection, openai_embeddings, index_name=INDEX_NAME
+)
+
+# 在查询和已摄入的文档之间执行相似性搜索
+query = "What did the president say about Ketanji Brown Jackson"
+docs = vectorstore.similarity_search(query)
+
+print(docs[0].page_content)
+```
+
+```text
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
+
+Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
+
+One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
+
+And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
+```
+
+## 带过滤的向量搜索（预览版）
+
+Azure Cosmos DB for MongoDB 支持使用 `$lt`、`$lte`、`$eq`、`$neq`、`$gte`、`$gt`、`$in`、`$nin` 和 `$regex` 进行预过滤。要使用此功能，请在 Azure 订阅的“预览功能”选项卡中启用 `"filtering vector search"`。在此处了解更多关于预览功能的信息[此处](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/vector-search#filtered-vector-search-preview)。
+
+```python
+# 创建过滤索引
+vectorstore.create_filter_index(
+    property_to_filter="metadata.source", index_name="filter_index"
+)
+```
+
+```text
+{'raw': {'defaultShard': {'numIndexesBefore': 3,
+   'numIndexesAfter': 4,
+   'createdCollectionAutomatically': False,
+   'ok': 1}},
+ 'ok': 1}
+```
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+docs = vectorstore.similarity_search(
+    query, pre_filter={"metadata.source": {"$ne": "filter content"}}
+)
+```
+
+```python
+len(docs)
+```
+
+```text
+4
+```
+
+```python
+docs = vectorstore.similarity_search(
+    query,
+    pre_filter={"metadata.source": {"$ne": "../../how_to/state_of_the_union.txt"}},
+)
+```
+
+```python
+len(docs)
+```
+
+```text
+0
+```

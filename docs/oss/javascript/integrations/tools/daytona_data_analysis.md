@@ -1,0 +1,245 @@
+---
+title: Daytona数据分析工具
+---
+本指南提供了快速入门 `DaytonaDataAnalysisTool` 的概览。
+
+<Tip>
+
+<strong>详细使用示例</strong>
+
+关于此工具的详细使用示例，请参阅 [Daytona 文档](https://www.daytona.io/docs/en/langchain-data-analysis)。
+
+</Tip>
+
+## 概述
+
+### 详细信息
+
+| 类 | 包 | 可序列化 | JS 支持 |
+| :--- | :--- | :---: | :---: |
+| [`DaytonaDataAnalysisTool`](https://github.com/daytonaio/langchain_daytona_data_analysis/blob/main/langchain_daytona_data_analysis/tools.py) | [`langchain-daytona-data-analysis`](https://pypi.org/project/langchain-daytona-data-analysis/) | ❌ | ❌ |
+
+### 特性
+
+- 🔒 **安全的沙盒化执行** - 在隔离环境中运行 Python 代码
+- 🐍 **Python 数据分析** - 利用完整的 Python 能力执行数据分析任务
+- 📁 **文件管理** - 向沙盒上传文件或从沙盒下载文件
+- 🔄 **多步骤工作流** - 支持复杂、多步骤的数据分析流程
+- 🎯 **自定义结果处理** - 使用回调函数处理执行结果
+- 📦 **包管理** - 在沙盒中动态安装 Python 包
+
+---
+
+## 设置
+
+要使用 `DaytonaDataAnalysisTool`，你需要创建一个 Daytona [账户](https://app.daytona.io/)，获取一个 [API 密钥](https://app.daytona.io/dashboard/keys)，并安装 `langchain-daytona-data-analysis` 集成包。
+
+### 凭证
+
+你必须为 Daytona 配置凭证。你可以通过以下三种方式之一进行配置：
+
+**1. 设置 `DAYTONA_API_KEY` 环境变量：**
+
+```bash Set API key icon="key"
+export DAYTONA_API_KEY="your-daytona-api-key"
+```
+
+**2. 将其添加到项目根目录的 `.env` 文件中：**
+
+```env Set API key icon="key"
+DAYTONA_API_KEY=your-daytona-api-key
+```
+
+**3. 在实例化 `DaytonaDataAnalysisTool` 时直接传递 API 密钥：**
+
+```python Set API key icon="key"
+tool = DaytonaDataAnalysisTool(daytona_api_key="your-daytona-api-key")
+```
+
+为了获得工具调用的最佳可观测性/<Tooltip tip="记录模型执行的每一步以进行调试和改进">追踪</Tooltip>，设置 LangSmith 也很有帮助（但不是必需的）。要启用自动追踪，请设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python Enable tracing icon="flask"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
+```
+
+### 安装
+
+`DaytonaDataAnalysisTool` 位于 `langchain-daytona-data-analysis` 包中：
+
+### 从 PyPI 安装
+
+直接从 PyPI 安装该包：
+
+::: code-group
+
+```bash [pip]
+pip install langchain-daytona-data-analysis
+```
+
+```bash [uv]
+uv add langchain-daytona-data-analysis
+```
+
+```bash [poetry]
+poetry add langchain-daytona-data-analysis
+```
+
+:::
+
+### 从 GitHub 安装
+
+从 GitHub 安装最新的开发版本：
+
+::: code-group
+
+```bash [pip]
+pip install git+https://github.com/daytonaio/langchain_daytona_data_analysis
+```
+
+```bash [uv]
+uv add git+https://github.com/daytonaio/langchain_daytona_data_analysis
+```
+
+```bash [poetry]
+poetry add git+https://github.com/daytonaio/langchain_daytona_data_analysis
+```
+
+:::
+
+---
+
+## 实例化
+
+导入并实例化该工具：
+
+```python Initialize tool instance icon="robot"
+from langchain_daytona_data_analysis import DaytonaDataAnalysisTool
+from daytona import ExecutionArtifacts
+
+# 可选地，你可以传递一个 on_result 回调函数。
+# 此回调函数允许你对数据分析结果应用自定义逻辑。
+# 例如，你可以保存输出、显示图表或触发其他操作。
+def process_data_analysis_result(result: ExecutionArtifacts):
+    print(result)
+
+tool = DaytonaDataAnalysisTool(
+    daytona_api_key="your-daytona-api-key", # 仅当未设置为 DAYTONA_API_KEY 环境变量时才需要传递
+    on_result=process_data_analysis_result
+)
+```
+
+---
+
+## 调用
+
+### 直接调用
+
+```python Call tool icon="rocket"
+tool.invoke({'data_analysis_python_code': "print('Hello World')"})
+```
+
+### 作为 `ToolCall` 调用
+
+```python ToolCall icon="toolbox"
+model_generated_tool_call = {
+    "args": {'data_analysis_python_code': "print('Hello World')"},
+    "id": "1",
+    "name": tool.name,
+    "type": "tool_call",
+}
+
+tool.invoke(model_generated_tool_call)
+```
+
+### 在智能体（agent）中使用
+
+```python Agent with tool icon="robot"
+from langchain.agents import create_agent
+from langchain_anthropic import ChatAnthropic
+
+model = ChatAnthropic(
+    model_name="claude-haiku-4-5-20251001",
+    temperature=0,
+    max_tokens_to_sample=1024,
+    timeout=None,
+    max_retries=2,
+    stop=None
+)
+
+agent = create_agent(model, tools=[tool])
+```
+
+---
+
+## 附加功能
+
+`DaytonaDataAnalysisTool` 提供了多种方法来管理文件和沙盒环境：
+
+### 文件管理
+
+**上传文件到沙盒：**
+
+```python
+with open("sales_data.csv", "rb") as f:
+    uploaded = tool.upload_file(
+        f,
+        "CSV file containing sales data with columns: id, date, product, revenue"
+    )
+```
+
+**从沙盒下载文件：**
+
+```python
+file_bytes = tool.download_file("/home/daytona/results.csv")
+```
+
+**移除已上传的文件：**
+
+```python
+tool.remove_uploaded_file(uploaded)
+```
+
+### 包管理
+
+**在沙盒中安装 Python 包：**
+
+```python
+# 单个包
+tool.install_python_packages("pandas")
+
+# 多个包
+tool.install_python_packages(["numpy", "matplotlib", "seaborn"])
+```
+
+<Note>
+
+有关预安装包的列表，请参阅 [Daytona 默认快照文档](https://www.daytona.io/docs/en/snapshots/#default-snapshot)。
+
+</Note>
+
+### 沙盒管理
+
+**访问沙盒实例：**
+
+```python
+sandbox = tool.get_sandbox()
+```
+
+**完成后关闭沙盒：**
+
+```python
+tool.close()  # 清理资源并删除沙盒
+```
+
+<Warning>
+
+当你完成所有数据分析任务后，请调用 `tool.close()` 以正确清理资源并避免不必要的使用。
+
+</Warning>
+
+---
+
+## API 参考
+
+有关 `DaytonaDataAnalysisTool` 所有功能和配置的详细文档，请前往 [API 参考](https://www.daytona.io/docs/en/langchain-data-analysis#10-api-reference)。

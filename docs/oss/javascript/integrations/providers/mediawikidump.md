@@ -1,0 +1,46 @@
+---
+title: MediaWiki 转储
+---
+>[MediaWiki XML 转储文件](https://www.mediawiki.org/wiki/Manual:Importing_XML_dumps) 包含维基的内容（维基页面及其所有修订版本），但不包含站点相关数据。XML 转储文件不会创建维基数据库的完整备份，转储文件中不包含用户账户、图片、编辑日志等。
+
+## 安装与设置
+
+我们需要安装几个 Python 包。
+
+`mediawiki-utilities` 在未合并的分支中支持 XML 模式 0.11。
+
+::: code-group
+
+```bash [pip]
+pip install -qU git+https://github.com/mediawiki-utilities/python-mwtypes@updates_schema_0.11
+```
+
+```bash [uv]
+uv add U git+https://github.com/mediawiki-utilities/python-mwtypes@updates_schema_0.11
+```
+
+:::
+
+`mediawiki-utilities mwxml` 存在一个 bug，修复的 PR 正在等待合并。
+
+::: code-group
+
+```bash [pip]
+pip install -qU git+https://github.com/gdedrouas/python-mwxml@xml_format_0.11
+pip install -qU mwparserfromhell
+```
+
+```bash [uv]
+uv add git+https://github.com/gdedrouas/python-mwxml@xml_format_0.11
+uv add mwparserfromhell
+```
+
+:::
+
+## 文档加载器
+
+查看 [使用示例](/oss/integrations/document_loaders/mediawikidump)。
+
+```python
+from langchain_community.document_loaders import MWDumpLoader
+```

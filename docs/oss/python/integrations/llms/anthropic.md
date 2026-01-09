@@ -1,0 +1,54 @@
+---
+title: AnthropicLLM
+---
+
+<Warning>
+
+<strong>您当前正在查看的是关于使用 Anthropic 旧版 Claude 2 模型作为文本补全模型的文档页面。最新且最受欢迎的 Anthropic 模型是 [聊天补全模型](/oss/langchain/models)，而文本补全模型已被弃用。</strong>
+
+您可能正在寻找 [这个页面](/oss/integrations/chat/anthropic/)。
+
+</Warning>
+
+本示例将介绍如何使用 LangChain 与 `Anthropic` 模型进行交互。
+
+## 安装
+
+```python
+pip install -qU langchain-anthropic
+```
+
+## 环境设置
+
+我们需要获取一个 [Anthropic](https://console.anthropic.com/settings/keys) API 密钥，并设置 `ANTHROPIC_API_KEY` 环境变量：
+
+```python
+import os
+from getpass import getpass
+
+if "ANTHROPIC_API_KEY" not in os.environ:
+    os.environ["ANTHROPIC_API_KEY"] = getpass()
+```
+
+## 使用
+
+```python
+from langchain_anthropic import AnthropicLLM
+from langchain_core.prompts import PromptTemplate
+
+template = """Question: {question}
+
+Answer: Let's think step by step."""
+
+prompt = PromptTemplate.from_template(template)
+
+model = AnthropicLLM(model="claude-2.1")
+
+chain = prompt | model
+
+chain.invoke({"question": "What is LangChain?"})
+```
+
+```text
+'\nLangChain is a decentralized blockchain network that leverages AI and machine learning to provide language translation services.'
+```

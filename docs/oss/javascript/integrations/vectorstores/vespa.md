@@ -1,0 +1,381 @@
+---
+title: Vespa
+---
+>[Vespa](https://vespa.ai/) 是一个功能齐全的搜索引擎和向量数据库。它支持向量搜索（ANN）、词法搜索和结构化数据搜索，所有这些都可以在同一个查询中完成。
+
+本笔记本展示了如何将 `Vespa.ai` 用作 LangChain 的向量存储。
+
+你需要安装 `langchain-community`，使用 `pip install -qU langchain-community` 来使用此集成。
+
+为了创建向量存储，我们使用 [pyvespa](https://pyvespa.readthedocs.io/en/latest/index.html) 来创建与 `Vespa` 服务的连接。
+
+```python
+pip install -qU  pyvespa
+```
+
+使用 `pyvespa` 包，你可以连接到 [Vespa Cloud 实例](https://pyvespa.readthedocs.io/en/latest/deploy-vespa-cloud.html) 或本地 [Docker 实例](https://pyvespa.readthedocs.io/en/latest/deploy-docker.html)。这里，我们将创建一个新的 Vespa 应用程序并使用 Docker 部署它。
+
+#### 创建 Vespa 应用程序
+
+首先，我们需要创建一个应用程序包：
+
+```python
+from vespa.package import ApplicationPackage, Field, RankProfile
+
+app_package = ApplicationPackage(name="testapp")
+app_package.schema.add_fields(
+    Field(
+        name="text", type="string", indexing=["index", "summary"], index="enable-bm25"
+    ),
+    Field(
+        name="embedding",
+        type="tensor<float>(x[384])",
+        indexing=["attribute", "summary"],
+        attribute=["distance-metric: angular"],
+    ),
+)
+app_package.schema.add_rank_profile(
+    RankProfile(
+        name="default",
+        first_phase="closeness(field, embedding)",
+        inputs=[("query(query_embedding)", "tensor<float>(x[384])")],
+    )
+)
+```
+
+这将设置一个 Vespa 应用程序，其每个文档的模式包含两个字段：`text` 用于保存文档文本，`embedding` 用于保存嵌入向量。`text` 字段设置为使用 BM25 索引进行高效的文本检索，我们稍后会看到如何使用它以及混合搜索。
+
+`embedding` 字段设置为长度为 384 的向量，用于保存文本的嵌入表示。有关 Vespa 中张量的更多信息，请参阅 [Vespa 张量指南](https://docs.vespa.ai/en/tensor-user-guide.html)。
+
+最后，我们添加一个 [排名配置文件](https://docs.vespa.ai/en/ranking.html) 来指示 Vespa 如何对文档排序。这里我们使用 [最近邻搜索](https://docs.vespa.ai/en/nearest-neighbor-search.html) 进行设置。
+
+现在我们可以本地部署这个应用程序：
+
+```python
+from vespa.deployment import VespaDocker
+
+vespa_docker = VespaDocker()
+vespa_app = vespa_docker.deploy(application_package=app_package)
+```
+
+这将部署并创建与 `Vespa` 服务的连接。如果你已经有一个正在运行的 Vespa 应用程序（例如在云端），请参考 PyVespa 应用程序了解如何连接。
+
+#### 创建 Vespa 向量存储
+
+现在，让我们加载一些文档：
+
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import CharacterTextSplitter
+
+loader = TextLoader("../../how_to/state_of_the_union.txt")
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+
+from langchain_community.embeddings.sentence_transformer import (
+    SentenceTransformerEmbeddings,
+)
+
+embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+```
+
+在这里，我们还设置了本地句子嵌入器，用于将文本转换为嵌入向量。也可以使用 OpenAI 嵌入，但需要将向量长度更新为 `1536` 以反映该嵌入的更大尺寸。
+
+为了将这些提供给 Vespa，我们需要配置向量存储应如何映射到 Vespa 应用程序中的字段。然后我们直接从这组文档创建向量存储：
+
+```python
+vespa_config = dict(
+    page_content_field="text",
+    embedding_field="embedding",
+    input_field="query_embedding",
+)
+
+from langchain_community.vectorstores import VespaStore
+
+db = VespaStore.from_documents(docs, embedding_function, app=vespa_app, **vespa_config)
+```
+
+这将创建一个 Vespa 向量存储，并将那组文档提供给 Vespa。向量存储负责为每个文档调用嵌入函数并将它们插入数据库。
+
+我们现在可以查询向量存储：
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+results = db.similarity_search(query)
+
+print(results[0].page_content)
+```
+
+这将使用上面给出的嵌入函数为查询创建表示，并用它来搜索 Vespa。请注意，这将使用我们在上面应用程序包中设置的 `default` 排名函数。你可以使用 `similarity_search` 的 `ranking` 参数来指定要使用的排名函数。
+
+更多信息请参考 [pyvespa 文档](https://pyvespa.readthedocs.io/en/latest/getting-started-pyvespa.html#Query)。
+
+这涵盖了 LangChain 中 Vespa 存储的基本用法。现在你可以返回结果并在 LangChain 中继续使用它们。
+
+#### 更新文档
+
+除了调用 `from_documents`，另一种方法是直接创建向量存储并从中调用 `add_texts`。这也可以用于更新文档：
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+results = db.similarity_search(query)
+result = results[0]
+
+result.page_content = "UPDATED: " + result.page_content
+db.add_texts([result.page_content], [result.metadata], result.metadata["id"])
+
+results = db.similarity_search(query)
+print(results[0].page_content)
+```
+
+然而，`pyvespa` 库包含直接操作 Vespa 内容的方法。
+
+#### 删除文档
+
+你可以使用 `delete` 函数删除文档：
+
+```python
+result = db.similarity_search(query)
+# docs[0].metadata["id"] == "id:testapp:testapp::32"
+
+db.delete(["32"])
+result = db.similarity_search(query)
+# docs[0].metadata["id"] != "id:testapp:testapp::32"
+```
+
+同样，`pyvespa` 连接也包含删除文档的方法。
+
+### 返回带分数的结果
+
+`similarity_search` 方法仅按相关性顺序返回文档。要检索实际分数：
+
+```python
+results = db.similarity_search_with_score(query)
+result = results[0]
+# result[1] ~= 0.463
+```
+
+这是使用 `"all-MiniLM-L6-v2"` 嵌入模型和余弦距离函数（由应用程序函数中的 `angular` 参数给出）的结果。
+
+不同的嵌入函数需要不同的距离函数，Vespa 需要知道在对文档排序时使用哪个距离函数。更多信息请参考 [距离函数文档](https://docs.vespa.ai/en/reference/schema-reference.html#distance-metric)。
+
+### 作为检索器
+
+要将此向量存储用作 [LangChain 检索器](/oss/langchain/retrieval)，只需调用 `as_retriever` 函数，这是一个标准的向量存储方法：
+
+```python
+db = VespaStore.from_documents(docs, embedding_function, app=vespa_app, **vespa_config)
+retriever = db.as_retriever()
+query = "What did the president say about Ketanji Brown Jackson"
+results = retriever.invoke(query)
+
+# results[0].metadata["id"] == "id:testapp:testapp::32"
+```
+
+这允许从向量存储中进行更通用的、非结构化的检索。
+
+### 元数据
+
+到目前为止的示例中，我们只使用了文本及其嵌入。文档通常包含附加信息，在 LangChain 中称为元数据。
+
+Vespa 可以通过向应用程序包添加字段来包含许多具有不同类型的字段：
+
+```python
+app_package.schema.add_fields(
+    # ...
+    Field(name="date", type="string", indexing=["attribute", "summary"]),
+    Field(name="rating", type="int", indexing=["attribute", "summary"]),
+    Field(name="author", type="string", indexing=["attribute", "summary"]),
+    # ...
+)
+vespa_app = vespa_docker.deploy(application_package=app_package)
+```
+
+我们可以在文档中添加一些元数据字段：
+
+```python
+# 添加元数据
+for i, doc in enumerate(docs):
+    doc.metadata["date"] = f"2023-{(i % 12) + 1}-{(i % 28) + 1}"
+    doc.metadata["rating"] = range(1, 6)[i % 5]
+    doc.metadata["author"] = ["Joe Biden", "Unknown"][min(i, 1)]
+```
+
+并让 Vespa 向量存储了解这些字段：
+
+```python
+vespa_config.update(dict(metadata_fields=["date", "rating", "author"]))
+```
+
+现在，搜索这些文档时，这些字段将被返回。此外，可以对这些字段进行过滤：
+
+```python
+db = VespaStore.from_documents(docs, embedding_function, app=vespa_app, **vespa_config)
+query = "What did the president say about Ketanji Brown Jackson"
+results = db.similarity_search(query, filter="rating > 3")
+# results[0].metadata["id"] == "id:testapp:testapp::34"
+# results[0].metadata["author"] == "Unknown"
+```
+
+### 自定义查询
+
+如果相似性搜索的默认行为不符合你的要求，你总是可以提供自己的查询。因此，你不需要向向量存储提供所有配置，而是自己编写。
+
+首先，让我们向应用程序添加一个 BM25 排名函数：
+
+```python
+from vespa.package import FieldSet
+
+app_package.schema.add_field_set(FieldSet(name="default", fields=["text"]))
+app_package.schema.add_rank_profile(RankProfile(name="bm25", first_phase="bm25(text)"))
+vespa_app = vespa_docker.deploy(application_package=app_package)
+db = VespaStore.from_documents(docs, embedding_function, app=vespa_app, **vespa_config)
+```
+
+然后，执行基于 BM25 的常规文本搜索：
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+custom_query = {
+    "yql": "select * from sources * where userQuery()",
+    "query": query,
+    "type": "weakAnd",
+    "ranking": "bm25",
+    "hits": 4,
+}
+results = db.similarity_search_with_score(query, custom_query=custom_query)
+# results[0][0].metadata["id"] == "id:testapp:testapp::32"
+# results[0][1] ~= 14.384
+```
+
+通过使用自定义查询，可以使用 Vespa 所有强大的搜索和查询功能。更多详细信息，请参考 Vespa 关于其 [查询 API](https://docs.vespa.ai/en/query-api.html) 的文档。
+
+### 混合搜索
+
+混合搜索意味着同时使用基于术语的经典搜索（如 BM25）和向量搜索，并组合结果。我们需要为 Vespa 上的混合搜索创建一个新的排名配置文件：
+
+```python
+app_package.schema.add_rank_profile(
+    RankProfile(
+        name="hybrid",
+        first_phase="log(bm25(text)) + 0.5 * closeness(field, embedding)",
+        inputs=[("query(query_embedding)", "tensor<float>(x[384])")],
+    )
+)
+vespa_app = vespa_docker.deploy(application_package=app_package)
+db = VespaStore.from_documents(docs, embedding_function, app=vespa_app, **vespa_config)
+```
+
+在这里，我们将每个文档的分数计算为其 BM25 分数和其距离分数的组合。我们可以使用自定义查询进行查询：
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+query_embedding = embedding_function.embed_query(query)
+nearest_neighbor_expression = (
+    "{targetHits: 4}nearestNeighbor(embedding, query_embedding)"
+)
+custom_query = {
+    "yql": f"select * from sources * where {nearest_neighbor_expression} and userQuery()",
+    "query": query,
+    "type": "weakAnd",
+    "input.query(query_embedding)": query_embedding,
+    "ranking": "hybrid",
+    "hits": 4,
+}
+results = db.similarity_search_with_score(query, custom_query=custom_query)
+# results[0][0].metadata["id"], "id:testapp:testapp::32")
+# results[0][1] ~= 2.897
+```
+
+### Vespa 中的原生嵌入器
+
+到目前为止，我们使用 Python 中的嵌入函数为文本提供嵌入。Vespa 原生支持嵌入函数，因此你可以将此计算推迟到 Vespa 中。一个好处是，如果你有大量文档集合，可以在嵌入文档时使用 GPU。
+
+更多信息请参考 [Vespa 嵌入](https://docs.vespa.ai/en/embedding.html)。
+
+首先，我们需要修改应用程序包：
+
+```python
+from vespa.package import Component, Parameter
+
+app_package.components = [
+    Component(
+        id="hf-embedder",
+        type="hugging-face-embedder",
+        parameters=[
+            Parameter("transformer-model", {"path": "..."}),
+            Parameter("tokenizer-model", {"url": "..."}),
+        ],
+    )
+]
+Field(
+    name="hfembedding",
+    type="tensor<float>(x[384])",
+    is_document_field=False,
+    indexing=["input text", "embed hf-embedder", "attribute", "summary"],
+    attribute=["distance-metric: angular"],
+)
+app_package.schema.add_rank_profile(
+    RankProfile(
+        name="hf_similarity",
+        first_phase="closeness(field, hfembedding)",
+        inputs=[("query(query_embedding)", "tensor<float>(x[384])")],
+    )
+)
+```
+
+请参考嵌入文档，了解如何向应用程序添加嵌入器模型和分词器。请注意，`hfembedding` 字段包含使用 `hf-embedder` 进行嵌入的指令。
+
+现在我们可以使用自定义查询进行查询：
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+nearest_neighbor_expression = (
+    "{targetHits: 4}nearestNeighbor(internalembedding, query_embedding)"
+)
+custom_query = {
+    "yql": f"select * from sources * where {nearest_neighbor_expression}",
+    "input.query(query_embedding)": f'embed(hf-embedder, "{query}")',
+    "ranking": "internal_similarity",
+    "hits": 4,
+}
+results = db.similarity_search_with_score(query, custom_query=custom_query)
+# results[0][0].metadata["id"], "id:testapp:testapp::32")
+# results[0][1] ~= 0.630
+```
+
+请注意，此处的查询包含一个 `embed` 指令，用于使用与文档相同的模型嵌入查询。
+
+### 近似最近邻
+
+在上述所有示例中，我们都使用精确最近邻来查找结果。然而，对于大型文档集合，这是不可行的，因为必须扫描所有文档才能找到最佳匹配。为了避免这种情况，我们可以使用 [近似最近邻](https://docs.vespa.ai/en/approximate-nn-hnsw.html)。
+
+首先，我们可以更改嵌入字段以创建 HNSW 索引：
+
+```python
+from vespa.package import HNSW
+
+app_package.schema.add_fields(
+    Field(
+        name="embedding",
+        type="tensor<float>(x[384])",
+        indexing=["attribute", "summary", "index"],
+        ann=HNSW(
+            distance_metric="angular",
+            max_links_per_node=16,
+            neighbors_to_explore_at_insert=200,
+        ),
+    )
+)
+```
+
+这将在嵌入数据上创建一个 HNSW 索引，从而实现高效搜索。设置好后，我们可以通过将 `approximate` 参数设置为 `True` 来轻松使用 ANN 进行搜索：
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+results = db.similarity_search(query, approximate=True)
+# results[0][0].metadata["id"], "id:testapp:testapp::32")
+```
+
+这涵盖了 LangChain 中 Vespa 向量存储的大部分功能。

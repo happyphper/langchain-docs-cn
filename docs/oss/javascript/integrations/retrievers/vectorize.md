@@ -1,0 +1,177 @@
+---
+title: 向量化检索器
+---
+本笔记本展示了如何使用 LangChain Vectorize 检索器。
+
+> [Vectorize](https://vectorize.io/) 帮助您更快、更轻松地构建 AI 应用。
+> 它自动化数据提取，通过 RAG 评估找到最佳的向量化策略，
+> 并让您能够为您的非结构化数据快速部署实时 RAG 管道。
+> 您的向量搜索索引始终保持最新，并且它能与您现有的向量数据库集成，
+> 因此您可以完全控制您的数据。
+> Vectorize 处理繁重的工作，让您能够专注于构建稳健的 AI 解决方案，而不会被数据管理所困扰。
+
+## 设置
+
+在以下步骤中，我们将设置 Vectorize 环境并创建一个 RAG 管道。
+
+### 创建 Vectorize 账户并获取访问令牌
+
+在此处注册一个免费的 Vectorize 账户 [here](https://platform.vectorize.io/)
+在 [访问令牌](https://docs.vectorize.io/rag-pipelines/retrieval-endpoint#access-tokens) 部分生成一个访问令牌
+收集您的组织 ID。从浏览器 URL 中，提取 `/organization/` 之后的 UUID。
+
+### 配置令牌和组织 ID
+
+```python
+import getpass
+
+VECTORIZE_ORG_ID = getpass.getpass("Enter Vectorize organization ID: ")
+VECTORIZE_API_TOKEN = getpass.getpass("Enter Vectorize API Token: ")
+```
+
+### 安装
+
+此检索器位于 `langchain-vectorize` 包中：
+
+```python
+!pip install -qU langchain-vectorize
+```
+
+### 下载 PDF 文件
+
+```python
+!wget "https://raw.githubusercontent.com/vectorize-io/vectorize-clients/refs/tags/python-0.1.3/tests/python/tests/research.pdf"
+```
+
+### 初始化 vectorize 客户端
+
+```python
+import vectorize_client as v
+
+api = v.ApiClient(v.Configuration(access_token=VECTORIZE_API_TOKEN))
+```
+
+### 创建文件上传源连接器
+
+```python
+import json
+import os
+
+import urllib3
+
+connectors_api = v.ConnectorsApi(api)
+response = connectors_api.create_source_connector(
+    VECTORIZE_ORG_ID, [{"type": "FILE_UPLOAD", "name": "From API"}]
+)
+source_connector_id = response.connectors[0].id
+```
+
+### 上传 PDF 文件
+
+```python
+file_path = "research.pdf"
+
+http = urllib3.PoolManager()
+uploads_api = v.UploadsApi(api)
+metadata = {"created-from-api": True}
+
+upload_response = uploads_api.start_file_upload_to_connector(
+    VECTORIZE_ORG_ID,
+    source_connector_id,
+    v.StartFileUploadToConnectorRequest(
+        name=file_path.split("/")[-1],
+        content_type="application/pdf",
+        # 添加额外的元数据，这些元数据将与向量数据库中的每个块一起存储
+        metadata=json.dumps(metadata),
+    ),
+)
+
+with open(file_path, "rb") as f:
+    response = http.request(
+        "PUT",
+        upload_response.upload_url,
+        body=f,
+        headers={
+            "Content-Type": "application/pdf",
+            "Content-Length": str(os.path.getsize(file_path)),
+        },
+    )
+
+if response.status != 200:
+    print("Upload failed: ", response.data)
+else:
+    print("Upload successful")
+```
+
+### 连接到 AI 平台和向量数据库
+
+```python
+ai_platforms = connectors_api.get_ai_platform_connectors(VECTORIZE_ORG_ID)
+builtin_ai_platform = [
+    c.id for c in ai_platforms.ai_platform_connectors if c.type == "VECTORIZE"
+][0]
+
+vector_databases = connectors_api.get_destination_connectors(VECTORIZE_ORG_ID)
+builtin_vector_db = [
+    c.id for c in vector_databases.destination_connectors if c.type == "VECTORIZE"
+][0]
+```
+
+### 配置并部署管道
+
+```python
+pipelines = v.PipelinesApi(api)
+response = pipelines.create_pipeline(
+    VECTORIZE_ORG_ID,
+    v.PipelineConfigurationSchema(
+        source_connectors=[
+            v.SourceConnectorSchema(
+                id=source_connector_id, type="FILE_UPLOAD", config={}
+            )
+        ],
+        destination_connector=v.DestinationConnectorSchema(
+            id=builtin_vector_db, type="VECTORIZE", config={}
+        ),
+        ai_platform=v.AIPlatformSchema(
+            id=builtin_ai_platform, type="VECTORIZE", config={}
+        ),
+        pipeline_name="My Pipeline From API",
+        schedule=v.ScheduleSchema(type="manual"),
+    ),
+)
+pipeline_id = response.data.id
+```
+
+### 配置追踪（可选）
+
+如果您想从单个查询中获取自动追踪，您也可以通过取消注释以下代码来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
+```
+
+## 实例化
+
+```python
+from langchain_vectorize.retrievers import VectorizeRetriever
+
+retriever = VectorizeRetriever(
+    api_token=VECTORIZE_API_TOKEN,
+    organization=VECTORIZE_ORG_ID,
+    pipeline_id=pipeline_id,
+)
+```
+
+## 使用
+
+```python
+query = "Apple Shareholders equity"
+retriever.invoke(query, num_results=2)
+```
+
+---
+
+## API 参考
+
+有关 VectorizeRetriever 所有功能和配置的详细文档，请访问 [API 参考](https://python.langchain.com/api_reference/vectorize/langchain_vectorize.retrievers.VectorizeRetriever.html)。

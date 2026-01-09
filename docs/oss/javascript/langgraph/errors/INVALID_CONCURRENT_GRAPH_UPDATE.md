@@ -1,0 +1,54 @@
+---
+title: 无效的并发图更新
+---
+当 LangGraph 的 [`StateGraph`](https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph) 从多个节点接收到对某个不支持并发更新的状态属性进行并发更新时，会发生此错误。
+
+一种可能的情况是，你在图中使用了[扇出（fanout）](/oss/langgraph/graph-api#map-reduce-and-the-send-api)或其他并行执行，并且定义了类似以下的图：
+
+```typescript
+import { StateGraph, Annotation, START } from "@langchain/langgraph";
+import * as z from "zod";  // [!code highlight]
+
+const State = z.object({
+  someKey: z.string(),
+});
+
+const builder = new StateGraph(State)
+  .addNode("node", (state) => {
+    return { someKey: "some_string_value" };
+  })
+  .addNode("otherNode", (state) => {
+    return { someKey: "some_string_value" };
+  })
+  .addEdge(START, "node")
+  .addEdge(START, "otherNode");
+
+const graph = builder.compile();
+```
+
+如果上述图中的某个节点返回 `{ someKey: "some_string_value" }`，这将用 `"some_string_value"` 覆盖 `someKey` 的状态值。
+但是，如果在单个步骤中（例如在扇出操作中）有多个节点返回 `someKey` 的值，图将抛出此错误，因为存在如何更新内部状态的不确定性。
+
+要解决这个问题，你可以定义一个合并多个值的归约器（reducer）：
+
+```typescript
+import { registry } from "@langchain/langgraph/zod";
+import * as z from "zod";
+
+const State = z.object({  // [!code highlight]
+  someKey: z.array(z.string()).register(registry, {  // [!code highlight]
+    reducer: {  // [!code highlight]
+      fn: (existing, update) => existing.concat(update),  // [!code highlight]
+    },
+    default: () => [] as string[],
+  }),
+});
+```
+
+这将允许你定义处理从并行执行的多个节点返回的相同键的逻辑。
+
+## 故障排除
+
+以下方法可能有助于解决此错误：
+
+* 如果你的图并行执行节点，请确保已为相关的状态键定义了归约器。

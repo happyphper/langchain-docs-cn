@@ -1,0 +1,146 @@
+---
+title: Neon Postgres
+---
+Neon 是一个完全托管的无服务器 PostgreSQL 数据库。它分离了存储和计算，以提供诸如即时分支和自动扩展等功能。
+
+通过 `pgvector` 扩展，Neon 提供了一个向量存储，可以与 LangChain.js 一起使用来存储和查询嵌入向量。
+
+## 设置
+
+### 选择一个 Neon 项目
+
+如果您没有 Neon 账户，请在 [Neon](https://neon.tech) 注册一个。登录 Neon 控制台后，进入 [项目](https://console.neon.tech/app/projects) 部分，选择一个现有项目或创建一个新项目。
+
+您的 Neon 项目附带一个名为 `neondb` 的即用型 Postgres 数据库，您可以用它来存储嵌入向量。导航到连接详细信息部分以找到您的数据库连接字符串。它应该类似于这样：
+
+```text
+postgres://alex:AbC123dEf@ep-cool-darkness-123456.us-east-2.aws.neon.tech/dbname?sslmode=require
+```
+
+请妥善保管您的连接字符串以备后用。
+
+### 应用程序代码
+
+要使用 Neon Postgres，您需要安装 `@neondatabase/serverless` 包，它提供了一个用于连接数据库的 JavaScript/TypeScript 驱动程序。
+
+```bash [npm]
+npm install @neondatabase/serverless
+```
+
+<Tip>
+
+有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm install @langchain/community @langchain/core
+```
+要初始化 `NeonPostgres` 向量存储，您需要提供您的 Neon 数据库连接字符串。您可以直接使用上面获取的连接字符串，或者将其存储为环境变量并在代码中使用。
+
+```typescript
+const vectorStore = await NeonPostgres.initialize(embeddings, {
+  connectionString: NEON_POSTGRES_CONNECTION_STRING,
+});
+```
+
+## 用法
+
+```typescript
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { NeonPostgres } from "@langchain/community/vectorstores/neon";
+
+// 初始化一个嵌入向量实例
+const embeddings = new OpenAIEmbeddings({
+  apiKey: process.env.OPENAI_API_KEY,
+  dimensions: 256,
+  model: "text-embedding-3-small",
+});
+
+// 初始化一个 NeonPostgres 实例来存储嵌入向量
+const vectorStore = await NeonPostgres.initialize(embeddings, {
+  connectionString: process.env.DATABASE_URL as string,
+});
+
+// 您可以将文档添加到存储中，`pageContent` 字段中的字符串将被嵌入并存储在数据库中
+const documents = [
+  { pageContent: "Hello world", metadata: { topic: "greeting" } },
+  { pageContent: "Bye bye", metadata: { topic: "greeting" } },
+  {
+    pageContent: "Mitochondria is the powerhouse of the cell",
+    metadata: { topic: "science" },
+  },
+];
+const idsInserted = await vectorStore.addDocuments(documents);
+
+// 您现在可以查询存储中与输入查询相似的文档
+const resultOne = await vectorStore.similaritySearch("hola", 1);
+console.log(resultOne);
+/*
+[
+  Document {
+    pageContent: 'Hello world',
+    metadata: { topic: 'greeting' }
+  }
+]
+*/
+
+// 您也可以按元数据进行过滤
+const resultTwo = await vectorStore.similaritySearch("Irrelevant query", 2, {
+  topic: "science",
+});
+console.log(resultTwo);
+/*
+[
+  Document {
+    pageContent: 'Mitochondria is the powerhouse of the cell',
+    metadata: { topic: 'science' }
+  }
+]
+*/
+
+// 使用 IN 过滤器的元数据过滤同样有效
+const resultsThree = await vectorStore.similaritySearch("Irrelevant query", 2, {
+  topic: { in: ["greeting"] },
+});
+console.log(resultsThree);
+/*
+[
+  Document { pageContent: 'Bye bye', metadata: { topic: 'greeting' } },
+  Document {
+    pageContent: 'Hello world',
+    metadata: { topic: 'greeting' }
+  }
+]
+*/
+
+// 也支持更新插入
+await vectorStore.addDocuments(
+  [
+    {
+      pageContent: "ATP is the powerhouse of the cell",
+      metadata: { topic: "science" },
+    },
+  ],
+  { ids: [idsInserted[2]] }
+);
+
+const resultsFour = await vectorStore.similaritySearch(
+  "powerhouse of the cell",
+  1
+);
+console.log(resultsFour);
+/*
+[
+  Document {
+    pageContent: 'ATP is the powerhouse of the cell',
+    metadata: { topic: 'science' }
+  }
+]
+*/
+```
+
+## 相关链接
+
+- 向量存储 [概念指南](/oss/integrations/vectorstores)
+- 向量存储 [操作指南](/oss/integrations/vectorstores)

@@ -1,0 +1,101 @@
+---
+title: ADS4GPTs
+---
+> [ADS4GPTs](https://www.ads4gpts.com/) 正在构建 AI 原生互联网的开放货币化基础设施。它通过广告帮助 AI 应用实现盈利，并采用用户体验和隐私优先的方法。
+
+## 安装与设置
+
+### 使用 pip
+您可以直接从 PyPI 安装此包：
+
+::: code-group
+
+```bash [pip]
+pip install ads4gpts-langchain
+```
+
+```bash [uv]
+uv add ads4gpts-langchain
+```
+
+:::
+
+### 从源码安装
+或者，从源码安装：
+
+::: code-group
+
+```bash [pip]
+git clone https://github.com/ADS4GPTs/ads4gpts.git
+cd ads4gpts/libs/python-sdk/ads4gpts-langchain
+pip install .
+```
+
+```bash [uv]
+git clone https://github.com/ADS4GPTs/ads4gpts.git
+cd ads4gpts/libs/python-sdk/ads4gpts-langchain
+uv add .
+```
+
+:::
+
+## 先决条件
+
+- Python 3.11+
+- ADS4GPTs API 密钥 ([获取 API 密钥](https://www.ads4gpts.com))
+
+## 环境变量
+
+设置以下环境变量用于 API 认证：
+
+```bash
+export ADS4GPTS_API_KEY='your-ads4gpts-api-key'
+```
+
+或者，API 密钥也可以在初始化类时直接传入，或存储在 `.env` 文件中。
+
+## 工具
+
+ADS4GPTs 提供了两种主要的货币化工具：
+
+### Ads4gptsInlineSponsoredResponseTool
+此工具获取原生的、赞助的响应，可以无缝集成到您的 AI 应用输出中。
+
+```python
+from ads4gpts_langchain import Ads4gptsInlineSponsoredResponseTool
+```
+
+### Ads4gptsSuggestedPromptTool
+生成赞助的提示建议，以增强用户参与度并提供货币化机会。
+
+```python
+from ads4gpts_langchain import Ads4gptsSuggestedPromptTool
+```
+### Ads4gptsInlineConversationalTool
+提供对话式的赞助内容，自然地融入聊天界面和对话中。
+
+```python
+from ads4gpts_langchain import Ads4gptsInlineConversationalTool
+```
+
+### Ads4gptsInlineBannerTool
+提供内联横幅广告，可在您的 AI 应用响应中显示。
+
+```python
+from ads4gpts_langchain import Ads4gptsInlineBannerTool
+```
+
+### Ads4gptsSuggestedBannerTool
+生成横幅广告建议，可以作为推荐内容呈现给用户。
+
+```python
+from ads4gpts_langchain import Ads4gptsSuggestedBannerTool
+```
+
+## 工具包
+
+`Ads4gptsToolkit` 将这些工具组合在一起，方便在 LangChain 应用中使用。
+
+```python
+from ads4gpts_langchain import Ads4gptsToolkit
+```

@@ -1,0 +1,43 @@
+---
+title: 科大讯飞
+---
+>[科大讯飞](https://www.iflytek.com) 是一家成立于 1999 年的中国信息技术公司。它开发语音识别软件以及基于语音的互联网/移动产品，覆盖教育、通信、音乐、智能玩具等行业。
+
+## 安装与设置
+
+- 从 [科大讯飞 SparkLLM API 控制台](https://console.xfyun.cn/services/bm3) 获取 `SparkLLM` 的 app_id、api_key 和 api_secret（更多信息，请参阅 [科大讯飞 SparkLLM 介绍](https://xinghuo.xfyun.cn/sparkapi)）。
+- 安装 Python 包（不适用于嵌入模型）：
+
+::: code-group
+
+```bash [pip]
+pip install websocket-client
+```
+
+```bash [uv]
+uv add websocket-client
+```
+
+:::
+
+## LLMs
+
+查看 [使用示例](/oss/integrations/llms/sparkllm)。
+
+```python
+from langchain_community.llms import SparkLLM
+```
+
+## 聊天模型
+
+查看 [使用示例](/oss/integrations/chat/sparkllm)。
+
+```python
+from langchain_community.chat_models import ChatSparkLLM
+```
+
+## 嵌入模型
+
+```python
+from langchain_community.embeddings import SparkLLMTextEmbeddings
+```

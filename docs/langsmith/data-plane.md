@@ -1,0 +1,166 @@
+---
+title: LangSmith 数据平面
+sidebarTitle: Data plane
+---
+**数据平面** 由您的 [Agent 服务器](/langsmith/agent-server)（部署）、其支持的基础设施以及持续轮询 [LangSmith 控制平面](/langsmith/control-plane) 更新的“监听器”应用程序组成。
+
+## 服务器基础设施
+
+除了 [Agent 服务器](/langsmith/agent-server) 本身，以下每个服务器的基础设施组件也包含在广义的“数据平面”定义中：
+
+- **PostgreSQL**：用户、运行和内存数据的持久化层。
+- **Redis**：工作进程的通信和临时元数据存储。
+- **密钥存储**：环境密钥的安全管理。
+- **自动扩缩器**：根据负载扩缩服务器容器。
+
+## “监听器”应用程序
+
+数据平面“监听器”应用程序会定期调用 [控制平面 API](/langsmith/control-plane#control-plane-api) 以：
+
+* 判断是否应创建新的部署。
+* 判断是否应更新现有部署（例如，新修订版本）。
+* 判断是否应删除现有部署。
+
+换句话说，数据平面“监听器”读取控制平面的最新状态（期望状态），并采取行动来协调未完成的部署（当前状态），使其与最新状态匹配。
+
+## PostgreSQL
+
+PostgreSQL 是 Agent 服务器中所有用户、运行和长期记忆数据的持久化层。它既存储检查点（更多信息请见[此处](/oss/langgraph/persistence)）、服务器资源（线程、运行、助手和定时任务），也存储在长期记忆存储中保存的项目（更多信息请见[此处](/oss/langgraph/persistence#memory-store)）。
+
+## Redis
+
+在每个 Agent 服务器中，Redis 被用作服务器和队列工作进程之间通信以及存储临时元数据的方式。用户或运行数据不会存储在 Redis 中。
+
+### 通信
+
+Agent 服务器中的所有运行都由作为每个部署一部分的后台工作进程池执行。为了为这些运行启用某些功能（例如取消和输出流式传输），我们需要一个服务器与处理特定运行的工作进程之间的双向通信通道。我们使用 Redis 来组织这种通信。
+
+1.  Redis 列表被用作一种机制，以便在创建新运行时立即唤醒一个工作进程。此列表中仅存储一个哨兵值，不包含实际的运行信息。运行信息随后由工作进程从 PostgreSQL 中检索。
+2.  Redis 字符串和 Redis PubSub 通道的组合用于服务器向相应工作进程传达运行取消请求。
+3.  Redis PubSub 通道由工作进程用于在处理运行期间广播来自代理的流式输出。服务器中任何打开的 `/stream` 请求都将订阅该通道，并在事件到达时将其转发到响应中。任何时候都不会在 Redis 中存储事件。
+
+### 临时元数据
+
+Agent 服务器中的运行可能会因特定故障而重试（目前仅针对运行期间遇到的暂时性 PostgreSQL 错误）。为了限制重试次数（目前每个运行限制为 3 次尝试），我们在工作进程拾取运行时，将尝试次数记录在一个 Redis 字符串中。除了运行 ID 外，这不包含任何特定于运行的信息，并且会在短暂延迟后过期。
+
+## 数据平面功能
+
+本节描述数据平面的各种功能。
+
+### 数据区域
+
+<Info>
+
+<strong>仅适用于 Cloud</strong>
+数据区域仅适用于 [Cloud](/langsmith/cloud) 部署。
+
+</Info>
+
+部署可以在 2 个数据区域创建：美国和欧盟。
+
+部署的数据区域由创建部署的 LangSmith 组织的数据区域决定。部署及其底层数据库不能在数据区域之间迁移。
+
+### 自动扩缩
+
+[`Production` 类型](/langsmith/control-plane#deployment-types) 的部署会自动扩缩至最多 10 个容器。扩缩基于 3 个指标：
+
+1.  CPU 利用率
+2.  内存利用率
+3.  待处理（进行中）的 [运行](/langsmith/assistants#execution) 数量
+
+对于 CPU 利用率，自动扩缩器的目标是 75% 利用率。这意味着自动扩缩器将增加或减少容器数量，以确保 CPU 利用率达到或接近 75%。对于内存利用率，自动扩缩器的目标同样是 75% 利用率。
+
+对于待处理运行数量，自动扩缩器的目标是每个容器 10 个待处理运行。例如，如果当前容器数量为 1，但待处理运行数量为 20，则自动扩缩器会将部署扩缩到 2 个容器（20 个待处理运行 / 2 个容器 = 每个容器 10 个待处理运行）。
+
+每个指标都是独立计算的，自动扩缩器将根据导致容器数量最多的指标来决定扩缩操作。
+
+缩容操作在采取任何行动之前会延迟 30 分钟。换句话说，如果自动扩缩器决定缩容一个部署，它将首先等待 30 分钟再进行缩容。30 分钟后，重新计算指标，如果重新计算的指标得出的容器数量低于当前数量，则部署将进行缩容。否则，部署保持扩容状态。这个“冷却”期确保部署不会过于频繁地扩缩。
+
+### 静态 IP 地址
+
+<Info>
+
+<strong>仅适用于 Cloud</strong>
+静态 IP 地址仅适用于 [Cloud](/langsmith/cloud) 部署。
+
+</Info>
+
+2025 年 1 月 6 日之后创建的部署的所有流量都将通过一个 NAT 网关。此 NAT 网关将根据数据区域拥有多个静态 IP 地址。请参考下表获取静态 IP 地址列表：
+
+| US             | EU             |
+|----------------|----------------|
+| 35.197.29.146  | 34.13.192.67   |
+| 34.145.102.123 | 34.147.105.64  |
+| 34.169.45.153  | 34.90.22.166   |
+| 34.82.222.17   | 34.147.36.213  |
+| 35.227.171.135 | 34.32.137.113  |
+| 34.169.88.30   | 34.91.238.184  |
+| 34.19.93.202   | 35.204.101.241 |
+| 34.19.34.50    | 35.204.48.32   |
+| 34.59.244.194  |                |
+| 34.9.99.224    |                |
+| 34.68.27.146   |                |
+| 34.41.178.137  |                |
+| 34.123.151.210 |                |
+| 34.135.61.140  |                |
+| 34.121.166.52  |                |
+| 34.31.121.70   |                |
+
+### 负载大小
+
+<Info>
+
+<strong>仅适用于 Cloud</strong>
+负载大小限制仅适用于 [Cloud](/langsmith/cloud) 部署。
+
+</Info>
+
+发送到 [Cloud](/langsmith/cloud) 部署的所有请求的最大负载大小为 25 MB。尝试发送负载大于 25 MB 的请求将导致 `413 Payload Too Large` 错误。
+
+### 自定义 PostgreSQL
+
+<Info>
+
+自定义 PostgreSQL 实例仅适用于 [hybrid](/langsmith/hybrid) 和 [self-hosted](/langsmith/self-hosted) 部署。
+
+</Info>
+
+可以使用自定义 PostgreSQL 实例来代替 [控制平面自动创建的实例](/langsmith/control-plane#database-provisioning)。指定 [`POSTGRES_URI_CUSTOM`](/langsmith/env-var#postgres-uri-custom) 环境变量以使用自定义 PostgreSQL 实例。
+
+多个部署可以共享同一个 PostgreSQL 实例。例如，对于 `Deployment A`，`POSTGRES_URI_CUSTOM` 可以设置为 `postgres://<user>:<password>@/<database_name_1>?host=<hostname_1>`，对于 `Deployment B`，`POSTGRES_URI_CUSTOM` 可以设置为 `postgres://<user>:<password>@/<database_name_2>?host=<hostname_1>`。`<database_name_1>` 和 `database_name_2` 是同一实例中的不同数据库，但 `<hostname_1>` 是共享的。**同一个数据库不能用于不同的部署**。
+
+### 自定义 Redis
+
+<Info>
+
+自定义 Redis 实例仅适用于 [Hybrid](/langsmith/hybrid) 和 [Self-Hosted](/langsmith/self-hosted) 部署。
+
+</Info>
+
+可以使用自定义 Redis 实例来代替控制平面自动创建的实例。指定 [REDIS_URI_CUSTOM](/langsmith/env-var#redis-uri-custom) 环境变量以使用自定义 Redis 实例。
+
+多个部署可以共享同一个 Redis 实例。例如，对于 `Deployment A`，`REDIS_URI_CUSTOM` 可以设置为 `redis://<hostname_1>:<port>/1`，对于 `Deployment B`，`REDIS_URI_CUSTOM` 可以设置为 `redis://<hostname_1>:<port>/2`。`1` 和 `2` 是同一实例中的不同数据库编号，但 `<hostname_1>` 是共享的。**同一个数据库编号不能用于不同的部署**。
+
+### LangSmith 追踪
+
+Agent 服务器会自动配置为向 LangSmith 发送追踪。有关每种部署选项的详细信息，请参见下表。
+
+| Cloud | Hybrid | Self-Hosted |
+|------------|------------------------|----------------------|
+| 必需<br />追踪到 LangSmith SaaS。 | 可选<br />禁用追踪或追踪到 LangSmith SaaS。 | 可选<br />禁用追踪、追踪到 LangSmith SaaS 或追踪到 Self-Hosted LangSmith。 |
+
+### 遥测
+
+Agent 服务器会自动配置为报告用于计费的遥测元数据。有关每种部署选项的详细信息，请参见下表。
+
+| Cloud | Hybrid | Self-Hosted |
+|------------|------------------------|----------------------|
+| 遥测数据发送到 LangSmith SaaS。 | 遥测数据发送到 LangSmith SaaS。 | 用于隔离网络许可证密钥的自报告使用情况（审计）。<br />对于 LangSmith 许可证密钥，遥测数据发送到 LangSmith SaaS。 |
+
+### 许可
+
+Agent 服务器会自动配置为执行许可证密钥验证。有关每种部署选项的详细信息，请参见下表。
+
+| Cloud | Hybrid | Self-Hosted |
+|------------|------------------------|----------------------|
+| LangSmith API 密钥通过 LangSmith SaaS 验证。 | LangSmith API 密钥通过 LangSmith SaaS 验证。 | 隔离网络许可证密钥或平台许可证密钥通过 LangSmith SaaS 验证。 |

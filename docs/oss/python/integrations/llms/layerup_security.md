@@ -1,0 +1,91 @@
+---
+title: Layerup 安全
+---
+[Layerup Security](https://uselayerup.com) 集成允许您保护对任何 LangChain LLM、LLM 链或 LLM 代理的调用。该 LLM 对象包装了任何现有的 LLM 对象，从而在您的用户和 LLM 之间提供了一个安全层。
+
+虽然 Layerup Security 对象被设计为一个 LLM，但它本身实际上并不是一个 LLM，它只是包装了一个 LLM，使其能够适配底层 LLM 的相同功能。
+
+## 设置
+
+首先，您需要在 Layerup [网站](https://uselayerup.com) 上拥有一个 Layerup Security 账户。
+
+接下来，通过 [仪表板](https://dashboard.uselayerup.com) 创建一个项目，并复制您的 API 密钥。我们建议将您的 API 密钥放在项目的环境变量中。
+
+安装 Layerup Security SDK：
+
+```bash [npm]
+npm install @layerup/layerup-security
+```
+并安装 LangChain Community：
+
+```bash [npm]
+npm install @langchain/community @langchain/core
+```
+
+现在，您就可以开始使用 Layerup Security 来保护您的 LLM 调用了！
+
+```typescript
+import {
+  LayerupSecurity,
+  LayerupSecurityOptions,
+} from "@langchain/community/llms/layerup_security";
+import { GuardrailResponse } from "@layerup/layerup-security";
+import { OpenAI } from "@langchain/openai";
+
+// 创建您喜欢的 LLM 实例
+const openai = new OpenAI({
+  modelName: "gpt-3.5-turbo",
+  openAIApiKey: process.env.OPENAI_API_KEY,
+});
+
+// 配置 Layerup Security
+const layerupSecurityOptions: LayerupSecurityOptions = {
+  // 指定 Layerup Security 将要包装的 LLM
+  llm: openai,
+
+  // 来自 Layerup 仪表板的 Layerup API 密钥
+  layerupApiKey: process.env.LAYERUP_API_KEY,
+
+  // 自定义基础 URL，如果是自托管
+  layerupApiBaseUrl: "https://api.uselayerup.com/v1",
+
+  // 在调用 LLM 之前，在提示词上运行的护栏列表
+  promptGuardrails: [],
+
+  // 在 LLM 的响应上运行的护栏列表
+  responseGuardrails: ["layerup.hallucination"],
+
+  // 是否在将提示词发送给 LLM 之前，对 PII 和敏感数据进行脱敏
+  mask: false,
+
+  // 用于滥用跟踪、客户跟踪和范围跟踪的元数据。
+  metadata: { customer: "example@uselayerup.com" },
+
+  // 针对提示词护栏违规的处理程序
+  handlePromptGuardrailViolation: (violation: GuardrailResponse) => {
+    if (violation.offending_guardrail === "layerup.sensitive_data") {
+      // 自定义逻辑放在这里
+    }
+
+    return {
+      role: "assistant",
+      content: `There was sensitive data! I cannot respond. Here's a dynamic canned response. Current date: ${Date.now()}`,
+    };
+  },
+
+  // 针对响应护栏违规的处理程序
+  handleResponseGuardrailViolation: (violation: GuardrailResponse) => ({
+    role: "assistant",
+    content: `Custom canned response with dynamic data! The violation rule was ${violation.offending_guardrail}.`,
+  }),
+};
+
+const layerupSecurity = new LayerupSecurity(layerupSecurityOptions);
+const response = await layerupSecurity.invoke(
+  "Summarize this message: my name is Bob Dylan. My SSN is 123-45-6789."
+);
+```
+
+## 相关链接
+
+- [模型指南](/oss/langchain/models)

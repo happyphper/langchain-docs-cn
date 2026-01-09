@@ -1,0 +1,304 @@
+---
+title: Nebius
+---
+`NebiusRetriever` 能够利用 [Nebius AI Studio](https://studio.nebius.ai/) 的嵌入向量进行高效的相似性搜索。它利用高质量的嵌入模型，实现对文档的语义搜索。
+
+该检索器针对以下场景进行了优化：您需要对文档集合执行相似性搜索，但不需要将向量持久化存储到向量数据库中。它使用矩阵操作在内存中执行向量相似性搜索，对于中等规模的文档集合非常高效。
+
+## 设置
+
+### 安装
+
+可以通过 pip 安装 Nebius 集成：
+
+```python
+pip install -U langchain-nebius
+```
+
+### 凭证
+
+Nebius 需要一个 API 密钥，可以作为初始化参数 `api_key` 传入，也可以设置为环境变量 `NEBIUS_API_KEY`。您可以在 [Nebius AI Studio](https://studio.nebius.ai/) 上创建账户来获取 API 密钥。
+
+```python
+import getpass
+import os
+
+# 确保您已将 API 密钥设置为环境变量
+if "NEBIUS_API_KEY" not in os.environ:
+    os.environ["NEBIUS_API_KEY"] = getpass.getpass("Enter your Nebius API key: ")
+```
+
+## 实例化
+
+`NebiusRetriever` 需要一个 `NebiusEmbeddings` 实例和一个文档列表。以下是初始化方法：
+
+```python
+from langchain_core.documents import Document
+from langchain_nebius import NebiusEmbeddings, NebiusRetriever
+
+# 创建示例文档
+docs = [
+    Document(
+        page_content="Paris is the capital of France", metadata={"country": "France"}
+    ),
+    Document(
+        page_content="Berlin is the capital of Germany", metadata={"country": "Germany"}
+    ),
+    Document(
+        page_content="Rome is the capital of Italy", metadata={"country": "Italy"}
+    ),
+    Document(
+        page_content="Madrid is the capital of Spain", metadata={"country": "Spain"}
+    ),
+    Document(
+        page_content="London is the capital of the United Kingdom",
+        metadata={"country": "UK"},
+    ),
+    Document(
+        page_content="Moscow is the capital of Russia", metadata={"country": "Russia"}
+    ),
+    Document(
+        page_content="Washington DC is the capital of the United States",
+        metadata={"country": "USA"},
+    ),
+    Document(
+        page_content="Tokyo is the capital of Japan", metadata={"country": "Japan"}
+    ),
+    Document(
+        page_content="Beijing is the capital of China", metadata={"country": "China"}
+    ),
+    Document(
+        page_content="Canberra is the capital of Australia",
+        metadata={"country": "Australia"},
+    ),
+]
+
+# 初始化嵌入模型
+embeddings = NebiusEmbeddings()
+
+# 创建检索器
+retriever = NebiusRetriever(
+    embeddings=embeddings,
+    docs=docs,
+    k=3,  # 要返回的文档数量
+)
+```
+
+## 使用
+
+### 检索相关文档
+
+您可以使用检索器查找与查询相关的文档：
+
+```python
+# 查询欧洲首都
+query = "What are some capitals in Europe?"
+results = retriever.invoke(query)
+
+print(f"Query: {query}")
+print(f"Top {len(results)} results:")
+for i, doc in enumerate(results):
+    print(f"{i + 1}. {doc.page_content} (Country: {doc.metadata['country']})")
+```
+
+```text
+Query: What are some capitals in Europe?
+Top 3 results:
+1. Paris is the capital of France (Country: France)
+2. Berlin is the capital of Germany (Country: Germany)
+3. Rome is the capital of Italy (Country: Italy)
+```
+
+### 使用 get_relevant_documents 方法
+
+您也可以直接使用 `get_relevant_documents` 方法（尽管 `invoke` 是首选接口）：
+
+```python
+# 查询亚洲国家
+query = "What are the capitals in Asia?"
+results = retriever.get_relevant_documents(query)
+
+print(f"Query: {query}")
+print(f"Top {len(results)} results:")
+for i, doc in enumerate(results):
+    print(f"{i + 1}. {doc.page_content} (Country: {doc.metadata['country']})")
+```
+
+```text
+Query: What are the capitals in Asia?
+Top 3 results:
+1. Beijing is the capital of China (Country: China)
+2. Tokyo is the capital of Japan (Country: Japan)
+3. Canberra is the capital of Australia (Country: Australia)
+```
+
+### 自定义结果数量
+
+您可以在查询时通过传递 `k` 参数来调整结果数量：
+
+```python
+# 查询特定国家，使用自定义 k
+query = "Where is France?"
+results = retriever.invoke(query, k=1)  # 覆盖默认的 k
+
+print(f"Query: {query}")
+print(f"Top {len(results)} result:")
+for i, doc in enumerate(results):
+    print(f"{i + 1}. {doc.page_content} (Country: {doc.metadata['country']})")
+```
+
+```text
+Query: Where is France?
+Top 1 result:
+1. Paris is the capital of France (Country: France)
+```
+
+### 异步支持
+
+NebiusRetriever 支持异步操作：
+
+```python
+import asyncio
+
+async def retrieve_async():
+    query = "What are some capital cities?"
+    results = await retriever.ainvoke(query)
+
+    print(f"Async query: {query}")
+    print(f"Top {len(results)} results:")
+    for i, doc in enumerate(results):
+        print(f"{i + 1}. {doc.page_content} (Country: {doc.metadata['country']})")
+
+await retrieve_async()
+```
+
+```text
+Async query: What are some capital cities?
+Top 3 results:
+1. Washington DC is the capital of the United States (Country: USA)
+2. Canberra is the capital of Australia (Country: Australia)
+3. Paris is the capital of France (Country: France)
+```
+
+### 处理空文档
+
+```python
+# 创建一个带有空文档的检索器
+empty_retriever = NebiusRetriever(
+    embeddings=embeddings,
+    docs=[],
+    k=2,  # 空文档列表
+)
+
+# 测试带有空文档的检索器
+results = empty_retriever.invoke("What are the capitals of European countries?")
+print(f"Number of results: {len(results)}")
+```
+
+```text
+Number of results: 0
+```
+
+## 在链中使用
+
+NebiusRetriever 可以在 LangChain RAG 管道中无缝工作。以下是一个使用 NebiusRetriever 创建简单 RAG 链的示例：
+
+```python
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_nebius import ChatNebius
+
+# 初始化 LLM
+llm = ChatNebius(model="meta-llama/Llama-3.3-70B-Instruct-fast")
+
+# 创建提示模板
+prompt = ChatPromptTemplate.from_template(
+    """
+Answer the question based only on the following context:
+
+Context:
+{context}
+
+Question: {question}
+"""
+)
+
+# 格式化文档的函数
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+# 创建 RAG 链
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | StrOutputParser()
+)
+
+# 运行链
+answer = rag_chain.invoke("What are three European capitals?")
+print(answer)
+```
+
+```text
+Based on the context provided, three European capitals are:
+
+1. Paris
+2. Berlin
+3. Rome
+```
+
+### 创建搜索工具
+
+您可以使用 `NebiusRetrievalTool` 为智能体（agent）创建一个工具：
+
+```python
+from langchain_nebius import NebiusRetrievalTool
+
+# 创建一个检索工具
+tool = NebiusRetrievalTool(
+    retriever=retriever,
+    name="capital_search",
+    description="Search for information about capital cities around the world",
+)
+
+# 使用该工具
+result = tool.invoke({"query": "capitals in Europe", "k": 3})
+print("Tool results:")
+print(result)
+```
+
+```text
+Tool results:
+Document 1:
+Paris is the capital of France
+
+Document 2:
+Berlin is the capital of Germany
+
+Document 3:
+Rome is the capital of Italy
+```
+
+## 工作原理
+
+NebiusRetriever 的工作原理如下：
+
+1. 在初始化期间：
+   - 它存储提供的文档
+   - 它使用提供的 NebiusEmbeddings 为所有文档计算嵌入向量
+   - 这些嵌入向量存储在内存中以便快速检索
+
+2. 在检索期间（`invoke` 或 `get_relevant_documents`）：
+   - 它使用相同的嵌入模型对查询进行嵌入
+   - 它计算查询嵌入向量与所有文档嵌入向量之间的相似度分数
+   - 它返回按相似度排序的前 k 个文档
+
+这种方法对于中等规模的文档集合非常高效，因为它避免了使用单独的向量数据库的需要，同时仍然提供高质量的语义搜索。
+
+---
+
+## API 参考
+
+有关 Nebius AI Studio API 的更多详细信息，请访问 [Nebius AI Studio 文档](https://studio.nebius.com/api-reference)。

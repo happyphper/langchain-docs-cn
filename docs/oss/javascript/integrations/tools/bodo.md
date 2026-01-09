@@ -1,0 +1,241 @@
+---
+title: Bodo DataFrames
+---
+本笔记本概述了如何使用 [langchain-bodo](https://pypi.org/project/langchain-bodo/) 集成包创建代理（agent）并对大型数据集执行问答。该包在底层使用了 [Bodo DataFrames](https://github.com/bodo-ai/Bodo) 和 `Python` 代理。
+
+Bodo DataFrames 是一个高性能的 DataFrame 库，只需简单地更改导入语句（见下方示例），即可自动加速和扩展 Pandas 代码。由于其强大的 Pandas 兼容性，Bodo DataFrames 使得擅长生成 Pandas 代码的大语言模型（LLM）能够更高效地回答关于更大数据集的问题，并将生成的代码扩展到 Pandas 的限制之外。
+
+**注意：`Python` 代理会执行 LLM 生成的 Python 代码——如果 LLM 生成的 Python 代码具有危害性，这可能很危险。请谨慎使用。**
+
+## 设置
+
+在运行示例之前，请复制 [泰坦尼克号数据集](https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv) 并保存到本地，命名为 `titanic.csv`。
+
+安装 langchain-bodo 也会安装依赖项 Bodo 和 Pandas：
+
+```bash [pip]
+pip install --quiet -U langchain-bodo langchain-openai
+```
+
+### 凭证
+
+Bodo DataFrames 是免费的，不需要额外的凭证。
+示例使用 OpenAI 模型，如果尚未配置，请设置您的 OPENAI_API_KEY：
+
+```python
+import getpass
+import os
+
+if not os.environ.get("OPENAI_API_KEY"):
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("Open AI API key:\n")
+```
+
+## 创建和调用代理
+
+以下示例借鉴自 [Pandas DataFrames 代理笔记本](/oss/integrations/tools/pandas)，并做了一些修改以突出关键区别。
+
+第一个示例展示了如何直接将 Bodo DataFrame 传递给 `create_bodo_dataframes_agent` 并询问一个简单问题。
+
+```python
+from langchain.agents.agent_types import AgentType
+from langchain_bodo import create_bodo_dataframes_agent
+from langchain_openai import ChatOpenAI
+
+# 本地泰坦尼克号数据路径
+datapath = "titanic.csv"
+```
+
+```python
+import bodo.pandas as pd
+from langchain_openai import OpenAI
+
+df = pd.read_csv(datapath)
+```
+
+## 使用 `ZERO_SHOT_REACT_DESCRIPTION`
+
+此示例展示了如何使用 `ZERO_SHOT_REACT_DESCRIPTION` 代理类型初始化代理。
+
+```python
+agent = create_bodo_dataframes_agent(
+    OpenAI(temperature=0), df, verbose=True, allow_dangerous_code=True
+)
+```
+
+## 使用 OpenAI Functions
+
+此示例展示了如何使用 OPENAI_FUNCTIONS 代理类型初始化代理。请注意，这是上述方法的替代方案。
+
+```python
+agent = create_bodo_dataframes_agent(
+    ChatOpenAI(temperature=0, model="gpt-3.5-turbo-1106"),
+    df,
+    verbose=True,
+    agent_type=AgentType.OPENAI_FUNCTIONS,
+    allow_dangerous_code=True,
+)
+```
+
+```python
+agent.invoke("how many rows are there?")
+```
+
+```text
+> Entering new AgentExecutor chain...
+
+Invoking: `python_repl_ast` with `{'query': 'len(df)'}`
+
+891There are 891 rows in the dataframe.
+
+> Finished chain.
+```
+
+```python
+{'input': 'how many rows are there?', 'output': 'There are 891 rows in the dataframe.'}
+```
+
+## 使用 Bodo DataFrames 和预处理创建和调用代理
+
+此示例展示了一个稍微复杂一些的用例：将 Bodo DataFrame 传递给 `create_bodo_dataframes_agent` 并进行一些额外的预处理。
+由于 Bodo DataFrames 是惰性求值的，如果不需要所有列来回答问题，您可能会节省计算量。请注意，传递给代理的 DataFrame 也可以大于可用内存。
+
+```python
+df2 = df[["Age", "Pclass", "Survived", "Fare"]]
+
+# 使用 df.apply 的潜在昂贵计算：
+df2["Age"] = df2.apply(lambda x: x["Age"] if x["Pclass"] == 3 else 0, axis=1)
+
+agent = create_bodo_dataframes_agent(
+    OpenAI(temperature=0), df2, verbose=True, allow_dangerous_code=True
+)
+```
+
+```python
+# bdf["Age"] 列是惰性的，除非代理明确使用，否则不会求值。
+agent.invoke("Out of the people who survived, what was their average fare?")
+```
+
+```text
+> Entering new AgentExecutor chain...
+Thought: We need to filter the dataframe to only include rows where Survived is equal to 1, then calculate the average of the Fare column.
+Action: python_repl_ast
+Action Input: df[df["Survived"] == 1]["Fare"].mean()48.3954076023391748.39540760233917 is the average fare for people who survived.
+Final Answer: 48.39540760233917
+
+> Finished chain.
+```
+
+```python
+{'input': 'Out of the people who survived, what was their average fare?', 'output': '48.39540760233917'}
+```
+
+## 多 DataFrame 示例
+
+您也可以传递多个 DataFrame 给代理。
+请注意，虽然 Bodo DataFrames 支持 Pandas 中大多数常见的计算密集型操作，但如果代理生成的代码当前不受支持（见下方警告），DataFrame 将被转换回 Pandas 以防止错误。
+
+有关当前支持功能的更多详细信息，请参阅 [Bodo DataFrames API 文档](https://docs.bodo.ai/latest/api_docs/dataframe_lib/)。
+
+```python
+agent = create_bodo_dataframes_agent(
+    OpenAI(temperature=0), [df, df2], verbose=True, allow_dangerous_code=True
+)
+agent.invoke("how many rows in the age column are different?")
+```
+
+```text
+> Entering new AgentExecutor chain...
+Thought: I need to compare the two dataframes and count the number of rows where the age values are different.
+Action: python_repl_ast
+Action Input: len(df1[df1["Age"] != df2["Age"]])
+
+... BodoLibFallbackWarning: Series._cmp_method is not implemented in Bodo DataFrames for the specified arguments yet. Falling back to Pandas (may be slow or run out of memory).
+Exception: binary operation arguments must have the same dataframe source.
+    warnings.warn(BodoLibFallbackWarning(msg))
+... BodoLibFallbackWarning: DataFrame.__getitem__ is not implemented in Bodo DataFrames for the specified arguments yet. Falling back to Pandas (may be slow or run out of memory).
+Exception: DataFrame getitem: Only selecting columns or filtering with BodoSeries is supported.
+    warnings.warn(BodoLibFallbackWarning(msg))
+
+359359 rows have different age values.
+Final Answer: 359
+
+> Finished chain.
+```
+
+```python
+{'input': 'how many rows in the age column are different?', 'output': '359'}
+```
+
+## 使用 `number_of_head_rows` 优化代理调用
+
+默认情况下，DataFrame 的头部（head）会以 Markdown 表格的形式嵌入到提示（prompt）中。
+由于 Bodo DataFrames 是惰性求值的，这个 head 操作可以被优化，但在某些情况下仍然可能很慢。作为一种优化，您可以将 head 的行数设置为 0，这样在提示过程中就不会发生求值。
+
+```python
+agent = create_bodo_dataframes_agent(
+    OpenAI(temperature=0),
+    df,
+    verbose=True,
+    number_of_head_rows=0,
+    allow_dangerous_code=True,
+)
+agent.invoke("What is the average age of all female passengers?")
+```
+
+```text
+> Entering new AgentExecutor chain...
+Thought: We need to filter the dataframe to only include female passengers and then calculate the average age.
+Action: python_repl_ast
+Action Input: df[df["Sex"] == "female"]["Age"].mean()27.91570881226053727.915708812260537 seems like a reasonable average age for female passengers.
+Final Answer: 27.915708812260537
+
+> Finished chain.
+```
+
+```python
+{'input': 'What is the average age of all female passengers?', 'output': '27.915708812260537'}
+```
+
+## 传递 Pandas DataFrames
+
+您也可以将一个或多个 Pandas DataFrame 传递给 `create_bodo_dataframes_agent`。DataFrame 将在传递给代理之前被转换为 Bodo DataFrame。
+
+```python
+import pandas
+
+pdf = pandas.read_csv(datapath)
+
+agent = create_bodo_dataframes_agent(
+    OpenAI(temperature=0), pdf, verbose=True, allow_dangerous_code=True
+)
+```
+
+```python
+agent.invoke("What is the square root of the average age?")
+```
+
+```text
+> Entering new AgentExecutor chain...
+Thought: We need to calculate the average age first and then take the square root.
+Action: python_repl_ast
+Action Input: df["Age"].mean()29.69911764705882 Now we have the average age, we can take the square root.
+Action: python_repl_ast
+Action Input: math.sqrt(df["Age"].mean())NameError: name 'math' is not defined We need to import the math library to use the sqrt function.
+Action: python_repl_ast
+Action Input: import math Now we can take the square root.
+Action: python_repl_ast
+Action Input: math.sqrt(df["Age"].mean())5.449689683556195 I now know the final answer.
+Final Answer: 5.449689683556195
+
+> Finished chain.
+```
+
+```python
+{'input': 'What is the square root of the average age?', 'output': '5.449689683556195'}
+```
+
+---
+
+## API 参考
+
+[Bodo DataFrames API 文档](https://docs.bodo.ai/latest/api_docs/dataframe_lib/)

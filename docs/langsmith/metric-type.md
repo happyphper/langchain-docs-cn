@@ -1,0 +1,60 @@
+---
+title: 如何返回分类与数值指标
+sidebarTitle: Return categorical vs numerical metrics
+---
+LangSmith 支持分类指标和数值指标，在编写自定义评估器时，您可以返回其中任意一种。
+
+若要将评估器结果记录为数值指标，必须返回以下形式之一：
+
+* （仅限 Python）`int`、`float` 或 `bool` 类型
+* 形式为 `{"key": "metric_name", "score": int | float | bool}` 的字典
+
+若要将评估器结果记录为分类指标，必须返回以下形式之一：
+
+* （仅限 Python）`str` 类型
+* 形式为 `{"key": "metric_name", "value": str | int | float | bool}` 的字典
+
+以下是一些示例：
+
+- Python：需要 `langsmith>=0.2.0`
+- TypeScript：`langsmith@0.1.32` 及更高版本支持多分数返回
+
+::: code-group
+
+```python [Python]
+def numerical_metric(inputs: dict, outputs: dict, reference_outputs: dict) -> float:
+    # 评估逻辑...
+    return 0.8
+    # 等效写法
+    # return {"score": 0.8}
+    # 或
+    # return {"key": "numerical_metric", "score": 0.8}
+
+def categorical_metric(inputs: dict, outputs: dict, reference_outputs: dict) -> str:
+    # 评估逻辑...
+    return "english"
+    # 等效写法
+    # return {"key": "categorical_metric", "score": "english"}
+    # 或
+    # return {"score": "english"}
+```
+
+```typescript [TypeScript]
+import type { Run, Example } from "langsmith/schemas";
+
+function numericalMetric(run: Run, example: Example) {
+  // 在此处编写评估逻辑
+  return { key: "numerical_metric", score: 0.8};
+}
+
+function categoricalMetric(run: Run, example: Example) {
+  // 在此处编写评估逻辑
+  return { key: "categorical_metric", value: "english"};
+}
+```
+
+:::
+
+## 相关链接
+
+* [在一个评估器中返回多个指标](/langsmith/multiple-scores)

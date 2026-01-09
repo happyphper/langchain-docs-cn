@@ -1,0 +1,107 @@
+---
+title: SQLite-VSS
+---
+>[SQLite-VSS](https://alexgarcia.xyz/sqlite-vss/) 是一个为向量搜索设计的 `SQLite` 扩展，强调本地优先操作，并易于集成到应用程序中，无需外部服务器。它利用 `Faiss` 库，提供高效的相似性搜索和聚类功能。
+
+你需要安装 `langchain-community`，使用 `pip install -qU langchain-community` 来使用此集成。
+
+本笔记本展示了如何使用 `SQLiteVSS` 向量数据库。
+
+```python
+# 你需要安装 sqlite-vss 作为依赖项。
+pip install -qU  sqlite-vss
+```
+
+## 快速开始
+
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_community.embeddings.sentence_transformer import (
+    SentenceTransformerEmbeddings,
+)
+from langchain_community.vectorstores import SQLiteVSS
+from langchain_text_splitters import CharacterTextSplitter
+
+# 加载文档并将其分割成块
+loader = TextLoader("../../how_to/state_of_the_union.txt")
+documents = loader.load()
+
+# 将其分割成块
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+texts = [doc.page_content for doc in docs]
+
+# 创建开源嵌入函数
+embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+
+# 将其加载到名为 state_union 的表的 sqlite-vss 中。
+# db_file 参数是你想要用作 sqlite 数据库的文件名。
+db = SQLiteVSS.from_texts(
+    texts=texts,
+    embedding=embedding_function,
+    table="state_union",
+    db_file="/tmp/vss.db",
+)
+
+# 查询它
+query = "What did the president say about Ketanji Brown Jackson"
+data = db.similarity_search(query)
+
+# 打印结果
+data[0].page_content
+```
+
+```text
+'Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections. \n\nTonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service. \n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court. \n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.'
+```
+
+## 使用现有的 SQLite 连接
+
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_community.embeddings.sentence_transformer import (
+    SentenceTransformerEmbeddings,
+)
+from langchain_community.vectorstores import SQLiteVSS
+from langchain_text_splitters import CharacterTextSplitter
+
+# 加载文档并将其分割成块
+loader = TextLoader("../../how_to/state_of_the_union.txt")
+documents = loader.load()
+
+# 将其分割成块
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+texts = [doc.page_content for doc in docs]
+
+# 创建开源嵌入函数
+embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+connection = SQLiteVSS.create_connection(db_file="/tmp/vss.db")
+
+db1 = SQLiteVSS(
+    table="state_union", embedding=embedding_function, connection=connection
+)
+
+db1.add_texts(["Ketanji Brown Jackson is awesome"])
+# 再次查询
+query = "What did the president say about Ketanji Brown Jackson"
+data = db1.similarity_search(query)
+
+# 打印结果
+data[0].page_content
+```
+
+```text
+'Ketanji Brown Jackson is awesome'
+```
+
+```python
+# 清理
+import os
+
+os.remove("/tmp/vss.db")
+```
+
+```python
+
+```

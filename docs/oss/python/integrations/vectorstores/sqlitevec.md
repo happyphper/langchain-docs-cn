@@ -1,0 +1,154 @@
+---
+title: SQLiteVec
+---
+本笔记本介绍了如何开始使用 SQLiteVec 向量存储。
+
+>[SQLite-Vec](https://alexgarcia.xyz/sqlite-vec/) 是一个为向量搜索设计的 `SQLite` 扩展，强调本地优先操作和无需外部服务器的轻松应用集成。它是同一作者开发的 [SQLite-VSS](https://alexgarcia.xyz/sqlite-vss/) 的后继者。它采用零依赖的 C 语言编写，旨在易于构建和使用。
+
+本笔记本展示了如何使用 `SQLiteVec` 向量数据库。
+
+## 设置
+
+你需要安装 `langchain-community`，使用 `pip install -qU langchain-community` 来使用此集成。
+
+```python
+# 你需要安装 sqlite-vec 作为依赖项。
+pip install -qU  sqlite-vec
+```
+
+### 凭证
+
+SQLiteVec 不需要任何凭证，因为向量存储是一个简单的 SQLite 文件。
+
+## 初始化
+
+```python
+from langchain_community.embeddings.sentence_transformer import (
+    SentenceTransformerEmbeddings,
+)
+from langchain_community.vectorstores import SQLiteVec
+
+embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+vector_store = SQLiteVec(
+    table="state_union", db_file="/tmp/vec.db", embedding=embedding_function
+)
+```
+
+## 管理向量存储
+
+### 向向量存储添加项目
+
+```python
+vector_store.add_texts(texts=["Ketanji Brown Jackson is awesome", "foo", "bar"])
+```
+
+### 更新向量存储中的项目
+
+暂不支持
+
+### 从向量存储中删除项目
+
+暂不支持
+
+## 查询向量存储
+
+### 直接查询
+
+```python
+data = vector_store.similarity_search("Ketanji Brown Jackson", k=4)
+```
+
+### 通过转换为检索器进行查询
+
+暂不支持
+
+## 用于检索增强生成
+
+有关如何将其用于检索增强生成的更多信息，请参阅 [alexgarcia.xyz/sqlite-vec/](https://alexgarcia.xyz/sqlite-vec/) 上的 sqlite-vec 文档。
+
+## API 参考
+
+有关所有 SQLiteVec 功能和配置的详细文档，请访问 API 参考：[python.langchain.com/api_reference/community/vectorstores/langchain_community.vectorstores.sqlitevec.SQLiteVec.html](https://python.langchain.com/api_reference/community/vectorstores/langchain_community.vectorstores.sqlitevec.SQLiteVec.html)
+
+### 其他示例
+
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_community.embeddings.sentence_transformer import (
+    SentenceTransformerEmbeddings,
+)
+from langchain_community.vectorstores import SQLiteVec
+from langchain_text_splitters import CharacterTextSplitter
+
+# 加载文档并将其分割成块
+loader = TextLoader("../../how_to/state_of_the_union.txt")
+documents = loader.load()
+
+# 将其分割成块
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+texts = [doc.page_content for doc in docs]
+
+# 创建开源嵌入函数
+embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+
+# 将其加载到名为 state_union 的表的 sqlite-vss 中。
+# db_file 参数是你想要用作 sqlite 数据库的文件名。
+db = SQLiteVec.from_texts(
+    texts=texts,
+    embedding=embedding_function,
+    table="state_union",
+    db_file="/tmp/vec.db",
+)
+
+# 查询它
+query = "What did the president say about Ketanji Brown Jackson"
+data = db.similarity_search(query)
+
+# 打印结果
+data[0].page_content
+```
+
+```text
+'Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections. \n\nTonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service. \n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court. \n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.'
+```
+
+### 使用现有 SQLite 连接的示例
+
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_community.embeddings.sentence_transformer import (
+    SentenceTransformerEmbeddings,
+)
+from langchain_community.vectorstores import SQLiteVec
+from langchain_text_splitters import CharacterTextSplitter
+
+# 加载文档并将其分割成块
+loader = TextLoader("../../how_to/state_of_the_union.txt")
+documents = loader.load()
+
+# 将其分割成块
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+texts = [doc.page_content for doc in docs]
+
+# 创建开源嵌入函数
+embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+connection = SQLiteVec.create_connection(db_file="/tmp/vec.db")
+
+db1 = SQLiteVec(
+    table="state_union", embedding=embedding_function, connection=connection
+)
+
+db1.add_texts(["Ketanji Brown Jackson is awesome"])
+# 再次查询它
+query = "What did the president say about Ketanji Brown Jackson"
+data = db1.similarity_search(query)
+
+# 打印结果
+data[0].page_content
+```
+
+```text
+'Ketanji Brown Jackson is awesome'
+```

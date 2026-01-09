@@ -1,0 +1,32 @@
+---
+title: spaCy
+---
+>[spaCy](https://spacy.io/) 是一个用于高级自然语言处理的开源软件库，使用 Python 和 Cython 编程语言编写。
+
+## 安装与设置
+
+::: code-group
+
+```bash [pip]
+pip install spacy
+```
+
+```bash [uv]
+uv add spacy
+```
+
+:::
+
+## 文本分割器
+
+```python
+from langchain_text_splitters import SpacyTextSplitter
+```
+
+## 文本嵌入模型
+
+查看[使用示例](/oss/integrations/text_embedding/spacy_embedding)
+
+```python
+from langchain_community.embeddings.spacy_embeddings import SpacyEmbeddings
+```

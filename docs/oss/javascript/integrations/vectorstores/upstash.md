@@ -1,0 +1,240 @@
+---
+title: UpstashVectorStore
+---
+[Upstash Vector](https://upstash.com/) 是一个基于 REST 的无服务器向量数据库，专为处理向量嵌入而设计。
+
+本指南提供了快速入门 Upstash [向量存储](/oss/integrations/vectorstores) 的概述。有关 `UpstashVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_upstash.UpstashVectorStore.html)。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | [PY 支持](https://python.langchain.com/docs/integrations/vectorstores/upstash/) | 版本 |
+| :--- | :--- | :---: | :---: |
+| [`UpstashVectorStore`](https://api.js.langchain.com/classes/langchain_community_vectorstores_upstash.UpstashVectorStore.html) | [`@langchain/community`](https://npmjs.com/@langchain/community) | ✅ |  ![NPM - Version](https://img.shields.io/npm/v/@langchain/community?style=flat-square&label=%20&) |
+
+## 设置
+
+要使用 Upstash 向量存储，你需要创建一个 Upstash 账户、创建一个索引，并安装 `@langchain/community` 集成包。你还需要安装 [`@upstash/vector`](https://www.npmjs.com/package/@upstash/vector) 包作为对等依赖项。
+
+本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。如果你愿意，也可以使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+
+::: code-group
+
+```bash [npm]
+npm install @langchain/community @langchain/core @upstash/vector @langchain/openai
+```
+
+```bash [yarn]
+yarn add @langchain/community @langchain/core @upstash/vector @langchain/openai
+```
+
+```bash [pnpm]
+pnpm add @langchain/community @langchain/core @upstash/vector @langchain/openai
+```
+
+:::
+
+你可以从 [Upstash 控制台](https://console.upstash.com/login) 创建一个索引。更多参考信息，请参阅 [官方文档](https://upstash.com/docs/vector/overall/getstarted)。
+
+Upstash Vector 还内置了嵌入支持。这意味着你可以直接使用它，而无需额外的嵌入模型。更多详情请查看 [嵌入模型文档](https://upstash.com/docs/vector/features/embeddingmodels)。
+
+<Note>
+
+要使用内置的 Upstash 嵌入，你需要在创建索引时选择一个嵌入模型。
+
+</Note>
+
+### 凭证
+
+设置好索引后，请设置以下环境变量：
+
+```typescript
+process.env.UPSTASH_VECTOR_REST_URL = "your-rest-url";
+process.env.UPSTASH_VECTOR_REST_TOKEN = "your-rest-token";
+```
+
+如果你在本指南中使用 OpenAI 嵌入，还需要设置你的 OpenAI 密钥：
+
+```typescript
+process.env.OPENAI_API_KEY = "YOUR_API_KEY";
+```
+
+如果你想自动追踪模型调用，也可以通过取消注释以下代码来设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```typescript
+// process.env.LANGSMITH_TRACING="true"
+// process.env.LANGSMITH_API_KEY="your-api-key"
+```
+
+## 实例化
+
+确保你的索引与你的嵌入具有相同的维度数量。OpenAI `text-embedding-3-small` 的默认值是 1536。
+
+```typescript
+import { UpstashVectorStore } from "@langchain/community/vectorstores/upstash";
+import { OpenAIEmbeddings } from "@langchain/openai";
+
+import { Index } from "@upstash/vector";
+
+const embeddings = new OpenAIEmbeddings({
+  model: "text-embedding-3-small",
+});
+
+const indexWithCredentials = new Index({
+  url: process.env.UPSTASH_VECTOR_REST_URL,
+  token: process.env.UPSTASH_VECTOR_REST_TOKEN,
+});
+
+const vectorStore = new UpstashVectorStore(embeddings, {
+  index: indexWithCredentials,
+  // 你可以使用命名空间在索引中对数据进行分区
+  // namespace: "test-namespace",
+});
+```
+
+## 使用内置嵌入
+
+要使用内置的 Upstash 嵌入，你可以将一个 `FakeEmbeddings` 实例传递给 `UpstashVectorStore` 构造函数。这将使 `UpstashVectorStore` 使用你在创建索引时选择的内置嵌入。
+
+```typescript
+import { UpstashVectorStore } from "@langchain/community/vectorstores/upstash";
+import { FakeEmbeddings } from "@langchain/core/utils/testing";
+
+import { Index } from "@upstash/vector";
+
+const indexWithEmbeddings = new Index({
+  url: process.env.UPSTASH_VECTOR_REST_URL,
+  token: process.env.UPSTASH_VECTOR_REST_TOKEN,
+});
+
+const vectorStore = new UpstashVectorStore(new FakeEmbeddings(), {
+  index: indexWithEmbeddings,
+});
+```
+
+## 管理向量存储
+
+### 向向量存储添加项目
+
+```typescript
+import type { Document } from "@langchain/core/documents";
+
+const document1: Document = {
+  pageContent: "The powerhouse of the cell is the mitochondria",
+  metadata: { source: "https://example.com" }
+};
+
+const document2: Document = {
+  pageContent: "Buildings are made out of brick",
+  metadata: { source: "https://example.com" }
+};
+
+const document3: Document = {
+  pageContent: "Mitochondria are made out of lipids",
+  metadata: { source: "https://example.com" }
+};
+
+const document4: Document = {
+  pageContent: "The 2024 Olympics are in Paris",
+  metadata: { source: "https://example.com" }
+}
+
+const documents = [document1, document2, document3, document4];
+
+await vectorStore.addDocuments(documents, { ids: ["1", "2", "3", "4"] });
+```
+
+```python
+[ '1', '2', '3', '4' ]
+```
+
+**注意：** 添加文档后，可能需要稍等片刻才能进行查询。
+
+### 从向量存储中删除项目
+
+```typescript
+await vectorStore.delete({ ids: ["4"] });
+```
+
+## 查询向量存储
+
+一旦你的向量存储创建完成并添加了相关文档，你很可能会希望在运行链或代理时查询它。
+
+### 直接查询
+
+执行简单的相似性搜索可以按如下方式进行：
+
+```typescript
+const filter = "source = 'https://example.com'";
+
+const similaritySearchResults = await vectorStore.similaritySearch("biology", 2, filter);
+
+for (const doc of similaritySearchResults) {
+  console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
+}
+```
+
+```text
+* The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
+* Mitochondria are made out of lipids [{"source":"https://example.com"}]
+```
+
+有关 Upstash Vector 过滤器语法的更多信息，请参阅 [此页面](https://upstash.com/docs/vector/features/filtering)。
+
+如果你想执行相似性搜索并获取相应的分数，可以运行：
+
+```typescript
+const similaritySearchWithScoreResults = await vectorStore.similaritySearchWithScore("biology", 2, filter)
+
+for (const [doc, score] of similaritySearchWithScoreResults) {
+  console.log(`* [SIM=${score.toFixed(3)}] ${doc.pageContent} [${JSON.stringify(doc.metadata)}]`);
+}
+```
+
+```text
+* [SIM=0.576] The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
+* [SIM=0.557] Mitochondria are made out of lipids [{"source":"https://example.com"}]
+```
+
+### 通过转换为检索器进行查询
+
+你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+
+```typescript
+const retriever = vectorStore.asRetriever({
+  // 可选过滤器
+  filter: filter,
+  k: 2,
+});
+await retriever.invoke("biology");
+```
+
+```javascript
+[
+  Document {
+    pageContent: 'The powerhouse of the cell is the mitochondria',
+    metadata: { source: 'https://example.com' },
+    id: undefined
+  },
+  Document {
+    pageContent: 'Mitochondria are made out of lipids',
+    metadata: { source: 'https://example.com' },
+    id: undefined
+  }
+]
+```
+
+### 用于检索增强生成
+
+有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
+
+- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
+- [代理式 RAG](/oss/langgraph/agentic-rag)
+- [检索文档](/oss/langchain/retrieval)
+
+---
+
+## API 参考
+
+有关 `UpstashVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_upstash.UpstashVectorStore.html)。

@@ -1,0 +1,59 @@
+---
+title: LocalAI 嵌入
+---
+
+<Info>
+
+<strong>`langchain-localai` 是一个用于 LocalAI 的第三方集成包。它提供了在 LangChain 中使用 LocalAI 服务的简便方法。</strong>
+
+源代码可在 [GitHub](https://github.com/mkhludnev/langchain-localai) 上获取。
+
+</Info>
+
+让我们加载 LocalAI Embedding 类。为了使用 LocalAI Embedding 类，您需要在某处托管 LocalAI 服务并配置嵌入模型。请参阅 [localai.io/basics/getting_started/index.html](https://localai.io/basics/getting_started/index.html) 和 [localai.io/features/embeddings/index.html](https://localai.io/features/embeddings/index.html) 上的文档。
+
+```python
+pip install -U langchain-localai
+```
+
+```python
+from langchain_localai import LocalAIEmbeddings
+
+embeddings = LocalAIEmbeddings(
+    openai_api_base="http://localhost:8080", model="embedding-model-name"
+)
+text = "This is a test document."
+
+query_result = embeddings.embed_query(text)
+doc_result = embeddings.embed_documents([text])
+```
+
+# 旧版 `langchain-community` 中的 LocalAIEmbeddings 文档
+
+<Warning>
+
+<strong>为确保正确的兼容性，请确保您使用的 `openai` SDK 版本为 </strong>0.x<strong>。</strong>
+
+</Warning>
+
+让我们加载带有嵌入模型的 LocalAI Embedding 类。
+
+```python
+pip install -U langchain-community
+```
+
+```python
+from langchain_community.embeddings import LocalAIEmbeddings
+import os
+
+# 如果您在显式代理后面，可以使用 OPENAI_PROXY 环境变量进行透传
+os.environ["OPENAI_PROXY"] = "http://proxy.yourcompany.com:8080"
+
+embeddings = LocalAIEmbeddings(
+    openai_api_base="http://localhost:8080", model="embedding-model-name"
+)
+
+text = "This is a test document."
+query_result = embeddings.embed_query(text)
+doc_result = embeddings.embed_documents([text])
+```

@@ -1,0 +1,109 @@
+---
+title: Elasticsearch
+---
+在 Elasticsearch 中使用托管嵌入模型生成嵌入的步骤详解
+
+实例化 `ElasticsearchEmbeddings` 类最简单的方法是：
+
+- 如果您使用 Elastic Cloud，则使用 `from_credentials` 构造函数
+- 或者，对于任何 Elasticsearch 集群，使用 `from_es_connection` 构造函数
+
+```python
+!pip -q install langchain-elasticsearch
+```
+
+```python
+from langchain_elasticsearch import ElasticsearchEmbeddings
+```
+
+```python
+# 定义模型 ID
+model_id = "your_model_id"
+```
+
+## 使用 `from_credentials` 进行测试
+
+这需要一个 Elastic Cloud 的 `cloud_id`
+
+```python
+# 使用凭据实例化 ElasticsearchEmbeddings
+embeddings = ElasticsearchEmbeddings.from_credentials(
+    model_id,
+    es_cloud_id="your_cloud_id",
+    es_user="your_user",
+    es_password="your_password",
+)
+```
+
+```python
+# 为多个文档创建嵌入
+documents = [
+    "This is an example document.",
+    "Another example document to generate embeddings for.",
+]
+document_embeddings = embeddings.embed_documents(documents)
+```
+
+```python
+# 打印文档嵌入
+for i, embedding in enumerate(document_embeddings):
+    print(f"Embedding for document {i + 1}: {embedding}")
+```
+
+```python
+# 为单个查询创建嵌入
+query = "This is a single query."
+query_embedding = embeddings.embed_query(query)
+```
+
+```python
+# 打印查询嵌入
+print(f"Embedding for query: {query_embedding}")
+```
+
+## 使用现有的 Elasticsearch 客户端连接进行测试
+
+这可以用于任何 Elasticsearch 部署
+
+```python
+# 创建 Elasticsearch 连接
+from elasticsearch import Elasticsearch
+
+es_connection = Elasticsearch(
+    hosts=["https://es_cluster_url:port"], basic_auth=("user", "password")
+)
+```
+
+```python
+# 使用 es_connection 实例化 ElasticsearchEmbeddings
+embeddings = ElasticsearchEmbeddings.from_es_connection(
+    model_id,
+    es_connection,
+)
+```
+
+```python
+# 为多个文档创建嵌入
+documents = [
+    "This is an example document.",
+    "Another example document to generate embeddings for.",
+]
+document_embeddings = embeddings.embed_documents(documents)
+```
+
+```python
+# 打印文档嵌入
+for i, embedding in enumerate(document_embeddings):
+    print(f"Embedding for document {i + 1}: {embedding}")
+```
+
+```python
+# 为单个查询创建嵌入
+query = "This is a single query."
+query_embedding = embeddings.embed_query(query)
+```
+
+```python
+# 打印查询嵌入
+print(f"Embedding for query: {query_embedding}")
+```

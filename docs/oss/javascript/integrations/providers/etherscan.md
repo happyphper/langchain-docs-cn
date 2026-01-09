@@ -1,0 +1,16 @@
+---
+title: Etherscan
+---
+>[Etherscan](https://docs.etherscan.io/) 是领先的区块链浏览器、搜索、API 和分析平台，服务于 `Ethereum`——一个去中心化的智能合约平台。
+
+## 安装与设置
+
+请参阅详细的[安装指南](/oss/integrations/document_loaders/etherscan)。
+
+## 文档加载器
+
+请查看[使用示例](/oss/integrations/document_loaders/etherscan)。
+
+```python
+from langchain_community.document_loaders import EtherscanLoader
+```

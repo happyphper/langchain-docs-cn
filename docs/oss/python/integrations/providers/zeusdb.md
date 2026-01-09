@@ -1,0 +1,525 @@
+---
+title: 宙斯数据库
+---
+>[ZeusDB](https://www.zeusdb.com) 是一个基于 Rust 构建的高性能向量数据库，提供产品量化、持久化存储和企业级日志等高级功能。
+
+本文档展示了如何使用 ZeusDB 为您的 LangChain 应用程序带来企业级向量搜索能力。
+
+## 快速开始
+
+### 安装
+
+::: code-group
+
+```bash [pip]
+pip install langchain-zeusdb
+```
+
+```bash [uv]
+uv add langchain-zeusdb
+```
+
+:::
+
+### 开始使用
+
+此示例使用 *OpenAIEmbeddings*，它需要一个 OpenAI API 密钥 - [在此获取您的 OpenAI API 密钥](https://platform.openai.com/api-keys)
+
+如果您愿意，也可以将此包与任何其他嵌入提供程序（Hugging Face、Cohere、自定义函数等）一起使用。
+
+```bash
+pip install langchain-openai
+```
+
+```python
+import os
+import getpass
+
+os.environ['OPENAI_API_KEY'] = getpass.getpass('OpenAI API Key:')
+```
+
+### 基本用法
+
+```python
+from langchain_zeusdb import ZeusDBVectorStore
+from langchain_openai import OpenAIEmbeddings
+from zeusdb import VectorDatabase
+
+# 初始化嵌入模型
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+# 创建 ZeusDB 索引
+vdb = VectorDatabase()
+index = vdb.create(
+    index_type="hnsw",
+    dim=1536,
+    space="cosine"
+)
+
+# 创建向量存储
+vector_store = ZeusDBVectorStore(
+    zeusdb_index=index,
+    embedding=embeddings
+)
+
+# 添加文档
+from langchain_core.documents import Document
+
+docs = [
+    Document(page_content="ZeusDB is fast", metadata={"source": "docs"}),
+    Document(page_content="LangChain is powerful", metadata={"source": "docs"}),
+]
+
+vector_store.add_documents(docs)
+
+# 搜索
+results = vector_store.similarity_search("fast database", k=2)
+print(f"Found the following {len(results)} results:")
+print(results)
+```
+
+**预期结果：**
+
+```text
+Found the following 2 results:
+[Document(id='ea2b4f13-b0b7-4cef-bb91-0fc4f4c41295', metadata={'source': 'docs'}, page_content='ZeusDB is fast'), Document(id='33dc1e87-a18a-4827-a0df-6ee47eabc7b2', metadata={'source': 'docs'}, page_content='LangChain is powerful')]
+```
+
+<br />
+
+### 工厂方法
+
+为了方便起见，您可以一步创建并填充向量存储：
+
+#### 示例 1：从文本创建（一步创建索引并添加文本）
+
+```python
+vector_store_texts = ZeusDBVectorStore.from_texts(
+    texts=["Hello world", "Goodbye world"],
+    embedding=embeddings,
+    metadatas=[{"source": "text1"}, {"source": "text2"}]
+)
+
+print("texts store count:", vector_store_texts.get_vector_count())         # -> 2
+print("texts store peek:", vector_store_texts.zeusdb_index.list(2))        # [('id1', {...}), ('id2', {...})]
+
+# 搜索基于文本的存储
+results = vector_store_texts.similarity_search("Hello", k=1)
+print(f"Found in texts store: {results[0].page_content}")                  # -> "Hello world"
+```
+
+**预期结果：**
+
+```text
+texts store count: 2
+texts store peek: [('e9c39b44-b610-4e00-91f3-bf652e9989ac', {'source': 'text1', 'text': 'Hello world'}), ('d33f210c-ed53-4006-a64a-a9eee397fec9', {'source': 'text2', 'text': 'Goodbye world'})]
+Found in texts store: Hello world
+```
+
+<br />
+
+#### 示例 2：从文档创建（一步创建索引并添加文档）
+
+```python
+new_docs = [
+    Document(page_content="Python is great", metadata={"source": "python"}),
+    Document(page_content="JavaScript is flexible", metadata={"source": "js"}),
+]
+
+vector_store_docs = ZeusDBVectorStore.from_documents(
+    documents=new_docs,
+    embedding=embeddings
+)
+
+print("docs store count:", vector_store_docs.get_vector_count())           # -> 2
+print("docs store peek:", vector_store_docs.zeusdb_index.list(2))          # [('id3', {...}), ('id4', {...})]
+
+# 搜索基于文档的存储
+results = vector_store_docs.similarity_search("Python", k=1)
+print(f"Found in docs store: {results[0].page_content}")                   # -> "Python is great"
+```
+
+**预期结果：**
+
+```text
+docs store count: 2
+docs store peek: [('aab2d1c1-7e02-4817-8dd8-6fb03570bb6f', {'text': 'Python is great', 'source': 'python'}), ('9a8a82cb-0e70-456c-9db2-556e464de14e', {'text': 'JavaScript is flexible', 'source': 'js'})]
+Found in docs store: Python is great
+```
+
+<br />
+
+## 高级功能
+
+ZeusDB 的企业级能力已完全集成到 LangChain 生态系统中，提供量化、持久化、高级搜索功能和许多其他企业级能力。
+
+### 使用量化实现内存高效设置
+
+对于大型数据集，使用产品量化来减少内存使用：
+
+```python
+# 为内存效率创建量化索引
+quantization_config = {
+    'type': 'pq',
+    'subvectors': 8,
+    'bits': 8,
+    'training_size': 10000
+}
+
+vdb = VectorDatabase()
+index = vdb.create(
+    index_type="hnsw",
+    dim=1536,
+    space="cosine",
+    quantization_config=quantization_config
+)
+
+vector_store = ZeusDBVectorStore(
+    zeusdb_index=index,
+    embedding=embeddings
+)
+```
+
+请参阅我们的[文档](https://docs.zeusdb.com/en/latest/vector_database/product_quantization.html)以获取有关设置量化的有用配置指南和建议。
+
+<br />
+
+### 持久化
+
+ZeusDB 持久化允许您将完全填充的索引保存到磁盘，并在以后加载它并完全恢复状态。这包括向量、元数据、HNSW 图以及（如果启用）产品量化模型。
+
+保存的内容：
+
+- 向量和 ID
+- 元数据
+- HNSW 图结构
+- 量化配置、质心和训练状态（如果启用了 PQ）
+
+#### 如何保存您的向量存储
+
+```python
+# 保存索引
+vector_store.save_index("my_index.zdb")
+```
+
+#### 如何加载您的向量存储
+
+```python
+# 加载索引
+loaded_store = ZeusDBVectorStore.load_index(
+    path="my_index.zdb",
+    embedding=embeddings
+)
+
+# 加载后验证
+print("vector count:", loaded_store.get_vector_count())
+print("index info:", loaded_store.info())
+print("store peek:", loaded_store.zeusdb_index.list(2))
+```
+
+#### 注意事项
+
+- 路径是一个目录，而不是单个文件。确保目标目录可写。
+- 保存的索引是跨平台的，并包含用于兼容性检查的格式/版本信息。
+- 如果您使用了 PQ，压缩模型和状态都会被保留——加载后无需重新训练。
+- 您可以继续在 loaded_store 上使用所有向量存储 API（similarity_search、retrievers 等）。
+
+有关更多详细信息（包括文件结构和更全面的示例），请参阅[文档](https://docs.zeusdb.com/en/latest/vector_database/persistence.html)。
+
+<br />
+
+### 高级搜索选项
+
+使用这些选项来控制搜索的评分、多样性、元数据过滤和检索器集成。
+
+#### 带分数的相似性搜索
+
+返回来自 ZeusDB 的 `(Document, raw_distance)` 对 — **距离越小 = 越相似**。
+如果您更喜欢 `[0, 1]` 范围内的归一化相关性，请使用 `similarity_search_with_relevance_scores`。
+
+```python
+# 带分数的相似性搜索
+results_with_scores = vector_store.similarity_search_with_score(
+    query="machine learning",
+    k=5
+)
+
+print(results_with_scores)
+```
+
+**预期结果：**
+
+```text
+[
+  (Document(id='ac0eaf5b-9f02-4ce2-8957-c369a7262c61', metadata={'source': 'docs'}, page_content='LangChain is powerful'), 0.8218843340873718),
+  (Document(id='faae3adf-7cf3-463c-b282-3790b096fa23', metadata={'source': 'docs'}, page_content='ZeusDB is fast'), 0.9140053391456604)
+]
+```
+
+#### 用于多样性的 MMR 搜索
+
+MMR（最大边际相关性）平衡两种力量：与查询的相关性和所选结果之间的多样性，减少近重复答案。使用 lambda_mult 控制权衡（1.0 = 全部相关性，0.0 = 全部多样性）。
+
+```python
+# 用于多样性的 MMR 搜索
+mmr_results = vector_store.max_marginal_relevance_search(
+    query="AI applications",
+    k=5,
+    fetch_k=20,
+    lambda_mult=0.7  # 平衡相关性与多样性
+)
+
+print(mmr_results)
+```
+
+#### 带元数据过滤的搜索
+
+使用添加文档时存储的文档元数据过滤结果
+
+```python
+# 带元数据过滤的搜索
+results = vector_store.similarity_search(
+    query="database performance",
+    k=3,
+    filter={"source": "documentation"}
+)
+```
+
+有关支持的元数据查询类型和运算符，请参阅[文档](https://docs.zeusdb.com/en/latest/vector_database/metadata_filtering.html)。
+
+#### 作为检索器
+
+将向量存储转换为检索器为您提供了一个标准的 LangChain 接口，链（例如 RetrievalQA）可以调用该接口来获取上下文。在底层，它使用您选择的搜索类型（相似性或 mmr）和 search_kwargs。
+
+```python
+# 转换为检索器以在链中使用
+retriever = vector_store.as_retriever(
+    search_type="mmr",
+    search_kwargs={"k": 3, "lambda_mult": 0.8}
+)
+
+# 与 LangChain 表达式语言 (LCEL) 一起使用 - 仅需要 langchain-core
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+from langchain_openai import ChatOpenAI
+
+def format_docs(docs):
+    return "\n\n".join([d.page_content for d in docs])
+
+template = """仅根据以下上下文回答问题：
+{context}
+
+问题：{question}
+"""
+
+prompt = ChatPromptTemplate.from_template(template)
+llm = ChatOpenAI()
+
+# 使用 LCEL 创建链
+chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | StrOutputParser()
+)
+
+# 使用链
+answer = chain.invoke("What is ZeusDB?")
+print(answer)
+```
+
+**预期结果：**
+
+```text
+ZeusDB is a fast database management system.
+```
+
+<br />
+
+## 异步支持
+
+ZeusDB 支持异步操作，用于非阻塞、并发的向量操作。
+
+**何时使用异步：** Web 服务器（FastAPI/Starlette）、执行并行搜索的代理/管道，或者您希望非阻塞/并发检索的笔记本。如果您正在编写简单的脚本，同步方法就足够了。
+
+这些是**异步操作**——常规同步方法的 async/await 版本。以下是每个方法的作用：
+
+1. `await vector_store.aadd_documents(documents)` - 异步将文档添加到向量存储（`add_documents()` 的异步版本）
+2. `await vector_store.asimilarity_search("query", k=5)` - 异步执行相似性搜索（`similarity_search()` 的异步版本）
+3. `await vector_store.adelete(ids=["doc1", "doc2"])` - 异步按 ID 删除文档（`delete()` 的异步版本）
+
+异步版本在以下情况下很有用：
+
+- 您正在构建异步应用程序（使用 `asyncio`、FastAPI 等）
+- 您希望运行可以并发执行的非阻塞操作
+- 您正在同时处理多个请求
+- 您希望在 I/O 密集型应用程序中获得更好的性能
+
+例如，而不是在添加文档时阻塞：
+
+```python
+# 同步（阻塞）
+vector_store.add_documents(docs)  # 阻塞直到完成
+
+# 异步（非阻塞）
+await vector_store.aadd_documents(docs)  # 可以在此运行时执行其他工作
+```
+
+所有操作都支持 async/await：
+
+**脚本版本 (`python my_script.py`):**
+
+```python
+import asyncio
+from langchain_zeusdb import ZeusDBVectorStore
+from langchain_openai import OpenAIEmbeddings
+from langchain_core.documents import Document
+from zeusdb import VectorDatabase
+
+# 设置
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+vdb = VectorDatabase()
+index = vdb.create(index_type="hnsw", dim=1536, space="cosine")
+vector_store = ZeusDBVectorStore(zeusdb_index=index, embedding=embeddings)
+
+docs = [
+    Document(page_content="ZeusDB is fast", metadata={"source": "docs"}),
+    Document(page_content="LangChain is powerful", metadata={"source": "docs"}),
+]
+
+async def main():
+    # 异步添加文档
+    ids = await vector_store.aadd_documents(docs)
+    print("Added IDs:", ids)
+
+    # 并发运行多个搜索
+    results_fast, results_powerful = await asyncio.gather(
+        vector_store.asimilarity_search("fast", k=2),
+        vector_store.asimilarity_search("powerful", k=2),
+    )
+    print("Fast results:", [d.page_content for d in results_fast])
+    print("Powerful results:", [d.page_content for d in results_powerful])
+
+    # 异步删除文档
+    deleted = await vector_store.adelete(ids=ids[:1])
+    print("Deleted first doc:", deleted)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+**Colab/Notebook/Jupyter 版本（顶层 `await`）：**
+
+```python
+from langchain_zeusdb import ZeusDBVectorStore
+from langchain_openai import OpenAIEmbeddings
+from langchain_core.documents import Document
+from zeusdb import VectorDatabase
+import asyncio
+
+# 设置
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+vdb = VectorDatabase()
+index = vdb.create(index_type="hnsw", dim=1536, space="cosine")
+vector_store = ZeusDBVectorStore(zeusdb_index=index, embedding=embeddings)
+
+docs = [
+    Document(page_content="ZeusDB is fast", metadata={"source": "docs"}),
+    Document(page_content="LangChain is powerful", metadata={"source": "docs"}),
+]
+
+# 异步添加文档
+ids = await vector_store.aadd_documents(docs)
+print("Added IDs:", ids)
+
+# 并发运行多个搜索
+results_fast, results_powerful = await asyncio.gather(
+    vector_store.asimilarity_search("fast", k=2),
+    vector_store.asimilarity_search("powerful", k=2),
+)
+print("Fast results:", [d.page_content for d in results_fast])
+print("Powerful results:", [d.page_content for d in results_powerful])
+
+# 异步删除文档
+deleted = await vector_store.adelete(ids=ids[:1])
+print("Deleted first doc:", deleted)
+```
+
+**预期结果：**
+
+```text
+Added IDs: ['9c440918-715f-49ba-9b97-0d991d29e997', 'ad59c645-d3ba-4a4a-a016-49ed39514123']
+Fast results: ['ZeusDB is fast', 'LangChain is powerful']
+Powerful results: ['LangChain is powerful', 'ZeusDB is fast']
+Deleted first doc: True
+```
+
+<br />
+
+## 监控与可观测性
+
+### 性能监控
+
+```python
+# 获取索引统计信息
+stats = vector_store.get_zeusdb_stats()
+print(f"Index size: {stats.get('total_vectors', '0')} vectors")
+print(f"Dimension: {stats.get('dimension')} | Space: {stats.get('space')} | Index type: {stats.get('index_type')}")
+
+# 基准测试搜索性能
+performance = vector_store.benchmark_search_performance(
+    query_count=100,
+    max_threads=4
+)
+print(f"Search QPS: {performance.get('parallel_qps', 0):.0f}")
+
+# 检查量化状态
+if vector_store.is_quantized():
+    progress = vector_store.get_training_progress()
+    print(f"Quantization training: {progress:.1f}% complete")
+else:
+    print("Index is not quantized")
+```
+
+**预期结果：**
+
+```text
+Index size: 2 vectors
+Dimension: 1536 | Space: cosine | Index type: HNSW
+Search QPS: 53807
+Index is not quantized
+```
+
+### 企业级日志记录
+
+ZeusDB 包含企业级结构化日志记录，可通过智能环境检测自动工作：
+
+```python
+import logging
+
+# ZeusDB 自动检测您的环境并应用适当的日志记录：
+# - 开发环境：人类可读的日志，WARNING 级别
+# - 生产环境：JSON 结构化日志，ERROR 级别
+# - 测试环境：最小化输出，CRITICAL 级别
+# - Jupyter：清晰可读的日志，INFO 级别
+
+# 操作会自动记录性能指标
+vector_store.add_documents(docs)
+# 日志：{"operation":"vector_addition","total_inserted":2,"duration_ms":45}
+
+# 如果需要，可以使用环境变量控制日志记录
+# ZEUSDB_LOG_LEVEL=debug ZEUSDB_LOG_FORMAT=json python your_app.py
+```
+
+要了解更多关于 ZeusDB 企业级日志记录功能的完整特性，请阅读以下[文档](https://docs.zeusdb.com/en/latest/vector_database/logging.html)。
+
+<br />
+
+## 配置选项
+
+### 索引参数
+
+```python
+vdb = VectorDatabase()
+index = vdb.create

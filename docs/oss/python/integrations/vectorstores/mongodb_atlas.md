@@ -1,0 +1,318 @@
+---
+title: MongoDB Atlas
+---
+
+<Tip>
+
+<strong>兼容性说明</strong>：仅适用于 Node.js 环境。
+
+你仍然可以通过将 `runtime` 变量设置为 `nodejs` 来创建使用 MongoDB 的 Next.js API 路由，如下所示：
+
+`export const runtime = "nodejs";`
+
+你可以在 Next.js 文档中[此处](https://nextjs.org/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes)阅读更多关于 Edge 运行时的信息。
+
+</Tip>
+
+本指南提供了快速入门 MongoDB Atlas [向量存储](/oss/integrations/vectorstores) 的概述。有关 `MongoDBAtlasVectorSearch` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_mongodb.MongoDBAtlasVectorSearch.html)。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | [Python 支持](https://python.langchain.com/docs/integrations/vectorstores/mongodb_atlas/) | 版本 |
+| :--- | :--- | :---: | :---: |
+| [`MongoDBAtlasVectorSearch`](https://api.js.langchain.com/classes/langchain_mongodb.MongoDBAtlasVectorSearch.html) | [`@langchain/mongodb`](https://www.npmjs.com/package/@langchain/mongodb) | ✅ | ![NPM - 版本](https://img.shields.io/npm/v/@langchain/mongodb?style=flat-square&label=%20&) |
+
+## 设置
+
+要使用 MongoDB Atlas 向量存储，你需要配置一个 MongoDB Atlas 集群并安装 `@langchain/mongodb` 集成包。
+
+### 初始集群配置
+
+要创建 MongoDB Atlas 集群，请访问 [MongoDB Atlas 网站](https://www.mongodb.com/products/platform/atlas-database)，如果没有账户请先创建一个。
+
+按照提示创建并命名一个集群，然后在 `Database` 下找到它。选择 `Browse Collections` 并创建一个空白集合或使用提供的示例数据创建一个。
+
+**注意：** 创建的集群必须是 MongoDB 7.0 或更高版本。
+
+### 创建索引
+
+配置好集群后，你需要在要搜索的集合字段上创建一个索引。
+
+切换到 `Atlas Search` 选项卡，点击 `Create Search Index`。确保选择 `Atlas Vector Search - JSON Editor`，然后选择适当的数据库和集合，并将以下内容粘贴到文本框中：
+
+```json
+{
+  "fields": [
+    {
+      "numDimensions": 1536,
+      "path": "embedding",
+      "similarity": "euclidean",
+      "type": "vector"
+    }
+  ]
+}
+```
+
+请注意，`numDimensions` 属性应与你使用的嵌入向量的维度匹配。例如，Cohere 嵌入有 1024 维，而默认的 OpenAI 嵌入有 1536 维。
+
+注意：默认情况下，向量存储期望索引名为 `default`，索引集合字段名为 `embedding`，原始文本字段名为 `text`。你应该使用与你的索引名称和集合模式匹配的字段名来初始化向量存储，如下所示。
+
+最后，继续构建索引。
+
+### 嵌入模型
+
+本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+
+### 安装
+
+安装以下包：
+
+::: code-group
+
+```bash [npm]
+npm install @langchain/mongodb mongodb @langchain/openai @langchain/core
+```
+
+```bash [yarn]
+yarn add @langchain/mongodb mongodb @langchain/openai @langchain/core
+```
+
+```bash [pnpm]
+pnpm add @langchain/mongodb mongodb @langchain/openai @langchain/core
+```
+
+:::
+
+### 凭证
+
+完成上述步骤后，从 MongoDB 仪表板的 `Connect` 按钮设置 `MONGODB_ATLAS_URI` 环境变量。你还需要你的数据库名称和集合名称：
+
+```typescript
+process.env.MONGODB_ATLAS_URI = "your-atlas-url";
+process.env.MONGODB_ATLAS_COLLECTION_NAME = "your-atlas-db-name";
+process.env.MONGODB_ATLAS_DB_NAME = "your-atlas-db-name";
+```
+
+如果你在本指南中使用 OpenAI 嵌入，还需要设置你的 OpenAI 密钥：
+
+```typescript
+process.env.OPENAI_API_KEY = "YOUR_API_KEY";
+```
+
+如果你想获取模型调用的自动化追踪，也可以通过取消注释以下代码来设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```typescript
+// process.env.LANGSMITH_TRACING="true"
+// process.env.LANGSMITH_API_KEY="your-api-key"
+```
+
+## 实例化
+
+按照上述步骤设置好集群后，你可以按如下方式初始化向量存储：
+
+```typescript
+import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { MongoClient } from "mongodb";
+
+const client = new MongoClient(process.env.MONGODB_ATLAS_URI || "");
+const collection = client.db(process.env.MONGODB_ATLAS_DB_NAME)
+  .collection(process.env.MONGODB_ATLAS_COLLECTION_NAME);
+
+const embeddings = new OpenAIEmbeddings({
+  model: "text-embedding-3-small",
+});
+
+const vectorStore = new MongoDBAtlasVectorSearch(embeddings, {
+  collection: collection,
+  indexName: "vector_index", // Atlas 搜索索引的名称。默认为 "default"
+  textKey: "text", // 包含原始内容的集合字段名称。默认为 "text"
+  embeddingKey: "embedding", // 包含嵌入文本的集合字段名称。默认为 "embedding"
+});
+```
+
+## 管理向量存储
+
+### 向向量存储添加项目
+
+现在你可以向向量存储添加文档：
+
+```typescript
+import type { Document } from "@langchain/core/documents";
+
+const document1: Document = {
+  pageContent: "The powerhouse of the cell is the mitochondria",
+  metadata: { source: "https://example.com" }
+};
+
+const document2: Document = {
+  pageContent: "Buildings are made out of brick",
+  metadata: { source: "https://example.com" }
+};
+
+const document3: Document = {
+  pageContent: "Mitochondria are made out of lipids",
+  metadata: { source: "https://example.com" }
+};
+
+const document4: Document = {
+  pageContent: "The 2024 Olympics are in Paris",
+  metadata: { source: "https://example.com" }
+}
+
+const documents = [document1, document2, document3, document4];
+
+await vectorStore.addDocuments(documents, { ids: ["1", "2", "3", "4"] });
+```
+
+```python
+[ '1', '2', '3', '4' ]
+```
+
+**注意：** 添加文档后，需要短暂延迟才能进行查询。
+
+添加具有与现有文档相同 `id` 的文档将更新现有文档。
+
+### 从向量存储中删除项目
+
+```typescript
+await vectorStore.delete({ ids: ["4"] });
+```
+
+## 查询向量存储
+
+创建向量存储并添加相关文档后，你很可能会希望在链或代理运行时查询它。
+
+### 直接查询
+
+执行简单的相似性搜索可以按如下方式进行：
+
+```typescript
+const similaritySearchResults = await vectorStore.similaritySearch("biology", 2);
+
+for (const doc of similaritySearchResults) {
+  console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
+}
+```
+
+```text
+* The powerhouse of the cell is the mitochondria [{"_id":"1","source":"https://example.com"}]
+* Mitochondria are made out of lipids [{"_id":"3","source":"https://example.com"}]
+```
+
+### 过滤
+
+MongoDB Atlas 支持对其他字段进行预过滤。这要求你通过更新最初创建的索引来定义计划过滤的元数据字段。示例如下：
+
+```json
+{
+  "fields": [
+    {
+      "numDimensions": 1024,
+      "path": "embedding",
+      "similarity": "euclidean",
+      "type": "vector"
+    },
+    {
+      "path": "source",
+      "type": "filter"
+    }
+  ]
+}
+```
+
+上面，`fields` 中的第一项是向量索引，第二项是你想要过滤的元数据属性。属性的名称是 `path` 键的值。因此，上述索引将允许我们搜索名为 `source` 的元数据字段。
+
+然后，在你的代码中，你可以使用 [MQL 查询操作符](https://www.mongodb.com/docs/manual/reference/mql/query-predicates/#alphabetical-list-of-operators) 进行过滤。
+
+下面的示例说明了这一点：
+
+```typescript
+const filter = {
+  preFilter: {
+    source: {
+      $eq: "https://example.com",
+    },
+  },
+}
+
+const filteredResults = await vectorStore.similaritySearch("biology", 2, filter);
+
+for (const doc of filteredResults) {
+  console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
+}
+```
+
+```text
+* The powerhouse of the cell is the mitochondria [{"_id":"1","source":"https://example.com"}]
+* Mitochondria are made out of lipids [{"_id":"3","source":"https://example.com"}]
+```
+
+### 返回分数
+
+如果你想执行相似性搜索并获取相应的分数，可以运行：
+
+```typescript
+const similaritySearchWithScoreResults = await vectorStore.similaritySearchWithScore("biology", 2, filter)
+
+for (const [doc, score] of similaritySearchWithScoreResults) {
+  console.log(`* [SIM=${score.toFixed(3)}] ${doc.pageContent} [${JSON.stringify(doc.metadata)}]`);
+}
+```
+
+```text
+* [SIM=0.374] The powerhouse of the cell is the mitochondria [{"_id":"1","source":"https://example.com"}]
+* [SIM=0.370] Mitochondria are made out of lipids [{"_id":"3","source":"https://example.com"}]
+```
+
+### 转换为检索器进行查询
+
+你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在链中更轻松地使用。
+
+```typescript
+const retriever = vectorStore.asRetriever({
+  // 可选过滤器
+  filter: filter,
+  k: 2,
+});
+await retriever.invoke("biology");
+```
+
+```javascript
+[
+  Document {
+    pageContent: 'The powerhouse of the cell is the mitochondria',
+    metadata: { _id: '1', source: 'https://example.com' },
+    id: undefined
+  },
+  Document {
+    pageContent: 'Mitochondria are made out of lipids',
+    metadata: { _id: '3', source: 'https://example.com' },
+    id: undefined
+  }
+]
+```
+
+### 用于检索增强生成
+
+有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
+
+- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
+- [智能体 RAG](/oss/langgraph/agentic-rag)
+- [检索文档](/oss/langchain/retrieval)
+
+## 关闭连接
+
+完成后请确保关闭客户端实例，以避免资源过度消耗：
+
+```typescript
+await client.close();
+```
+
+---
+
+## API 参考
+
+有关 `MongoDBAtlasVectorSearch` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_mongodb.MongoDBAtlasVectorSearch.html)。

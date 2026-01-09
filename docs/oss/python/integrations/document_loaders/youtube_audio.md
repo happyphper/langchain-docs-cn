@@ -1,0 +1,156 @@
+---
+title: YouTube 音频
+---
+基于 YouTube 视频构建聊天或问答应用是一个备受关注的话题。
+
+下面我们将展示如何轻松地从 `YouTube 网址` 到 `视频音频` 再到 `文本` 最后实现 `聊天`！
+
+我们将使用 `OpenAIWhisperParser`，它将利用 OpenAI Whisper API 将音频转录为文本，并使用 `OpenAIWhisperParserLocal` 来提供本地支持，以便在私有云或本地环境中运行。
+
+注意：您需要提供一个 `OPENAI_API_KEY`。
+
+```python
+from langchain_community.document_loaders.blob_loaders.youtube_audio import (
+    YoutubeAudioLoader,
+)
+from langchain_community.document_loaders.generic import GenericLoader
+from langchain_community.document_loaders.parsers.audio import (
+    OpenAIWhisperParser,
+    OpenAIWhisperParserLocal,
+)
+```
+
+我们将使用 `yt_dlp` 来下载 YouTube 网址的音频。
+
+我们将使用 `pydub` 来分割下载的音频文件（以便遵守 Whisper API 的 25MB 文件大小限制）。
+
+```python
+pip install -qU  yt_dlp
+pip install -qU  pydub
+pip install -qU  librosa
+```
+
+### 从 YouTube 网址到文本
+
+使用 `YoutubeAudioLoader` 来获取/下载音频文件。
+
+然后，使用 `OpenAIWhisperParser()` 将其转录为文本。
+
+让我们以 Andrej Karpathy YouTube 课程的第一讲为例！
+
+```python
+# 设置一个标志以在本地解析和远程解析之间切换
+# 如果想使用本地解析，请将此更改为 True
+local = False
+```
+
+```python
+# 两个 Karpathy 讲座视频
+urls = ["https://youtu.be/kCc8FmEb1nY", "https://youtu.be/VMj-3S1tku0"]
+
+# 保存音频文件的目录
+save_dir = "~/Downloads/YouTube"
+
+# 将视频转录为文本
+if local:
+    loader = GenericLoader(
+        YoutubeAudioLoader(urls, save_dir), OpenAIWhisperParserLocal()
+    )
+else:
+    loader = GenericLoader(YoutubeAudioLoader(urls, save_dir), OpenAIWhisperParser())
+docs = loader.load()
+```
+
+```text
+[youtube] Extracting URL: https://youtu.be/kCc8FmEb1nY
+[youtube] kCc8FmEb1nY: Downloading webpage
+[youtube] kCc8FmEb1nY: Downloading android player API JSON
+[info] kCc8FmEb1nY: Downloading 1 format(s): 140
+[dashsegments] Total fragments: 11
+[download] Destination: /Users/31treehaus/Desktop/AI/langchain-fork/docs/modules/indexes/document_loaders/examples/Let's build GPT： from scratch, in code, spelled out..m4a
+[download] 100% of  107.73MiB in 00:00:18 at 5.92MiB/s
+[FixupM4a] Correcting container of "/Users/31treehaus/Desktop/AI/langchain-fork/docs/modules/indexes/document_loaders/examples/Let's build GPT： from scratch, in code, spelled out..m4a"
+[ExtractAudio] Not converting audio /Users/31treehaus/Desktop/AI/langchain-fork/docs/modules/indexes/document_loaders/examples/Let's build GPT： from scratch, in code, spelled out..m4a; file is already in target format m4a
+[youtube] Extracting URL: https://youtu.be/VMj-3S1tku0
+[youtube] VMj-3S1tku0: Downloading webpage
+[youtube] VMj-3S1tku0: Downloading android player API JSON
+[info] VMj-3S1tku0: Downloading 1 format(s): 140
+[download] /Users/31treehaus/Desktop/AI/langchain-fork/docs/modules/indexes/document_loaders/examples/The spelled-out intro to neural networks and backpropagation： building micrograd.m4a has already been downloaded
+[download] 100% of  134.98MiB
+[ExtractAudio] Not converting audio /Users/31treehaus/Desktop/AI/langchain-fork/docs/modules/indexes/document_loaders/examples/The spelled-out intro to neural networks and backpropagation： building micrograd.m4a; file is already in target format m4a
+```
+
+```python
+# 返回一个 Document 列表，可以轻松查看或解析
+docs[0].page_content[0:500]
+```
+
+```text
+"Hello, my name is Andrej and I've been training deep neural networks for a bit more than a decade. And in this lecture I'd like to show you what neural network training looks like under the hood. So in particular we are going to start with a blank Jupyter notebook and by the end of this lecture we will define and train a neural net and you'll get to see everything that goes on under the hood and exactly sort of how that works on an intuitive level. Now specifically what I would like to do is I w"
+```
+
+### 基于 YouTube 视频构建聊天应用
+
+有了 `Document` 对象，我们就可以轻松启用聊天/问答功能。
+
+```python
+from langchain_classic.chains import RetrievalQA
+from langchain_community.vectorstores import FAISS
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+```
+
+```python
+# 合并文档
+combined_docs = [doc.page_content for doc in docs]
+text = " ".join(combined_docs)
+```
+
+```python
+# 分割文本
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=150)
+splits = text_splitter.split_text(text)
+```
+
+```python
+# 构建索引
+embeddings = OpenAIEmbeddings()
+vectordb = FAISS.from_texts(splits, embeddings)
+```
+
+```python
+# 构建 QA 链
+qa_chain = RetrievalQA.from_chain_type(
+    llm=ChatOpenAI(model="gpt-3.5-turbo", temperature=0),
+    chain_type="stuff",
+    retriever=vectordb.as_retriever(),
+)
+```
+
+```python
+# 提问！
+query = "Why do we need to zero out the gradient before backprop at each step?"
+qa_chain.run(query)
+```
+
+```text
+"We need to zero out the gradient before backprop at each step because the backward pass accumulates gradients in the grad attribute of each parameter. If we don't reset the grad to zero before each backward pass, the gradients will accumulate and add up, leading to incorrect updates and slower convergence. By resetting the grad to zero before each backward pass, we ensure that the gradients are calculated correctly and that the optimization process works as intended."
+```
+
+```python
+query = "What is the difference between an encoder and decoder?"
+qa_chain.run(query)
+```
+
+```text
+'In the context of transformers, an encoder is a component that reads in a sequence of input tokens and generates a sequence of hidden representations. On the other hand, a decoder is a component that takes in a sequence of hidden representations and generates a sequence of output tokens. The main difference between the two is that the encoder is used to encode the input sequence into a fixed-length representation, while the decoder is used to decode the fixed-length representation into an output sequence. In machine translation, for example, the encoder reads in the source language sentence and generates a fixed-length representation, which is then used by the decoder to generate the target language sentence.'
+```
+
+```python
+query = "For any token, what are x, k, v, and q?"
+qa_chain.run(query)
+```
+
+```text
+'For any token, x is the input vector that contains the private information of that token, k and q are the key and query vectors respectively, which are produced by forwarding linear modules on x, and v is the vector that is calculated by propagating the same linear module on x again. The key vector represents what the token contains, and the query vector represents what the token is looking for. The vector v is the information that the token will communicate to other tokens if it finds them interesting, and it gets aggregated for the purposes of the self-attention mechanism.'
+```

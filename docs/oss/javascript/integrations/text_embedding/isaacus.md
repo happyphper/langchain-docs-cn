@@ -1,0 +1,99 @@
+---
+title: 以撒
+---
+本指南将引导您了解如何通过 [Isaacus](/oss/integrations/providers/isaacus) 的 LangChain 集成开始生成法律嵌入。
+
+## 1. 设置您的账户
+
+前往 [Isaacus 平台](https://platform.isaacus.com/accounts/signup/) 创建一个新账户。
+
+注册后，请 [添加支付方式](https://platform.isaacus.com/billing/) 以领取您的 [免费额度](https://docs.isaacus.com/pricing/credits)。
+
+添加支付方式后，请 [创建一个新的 API 密钥](https://platform.isaacus.com/users/api-keys/)。
+
+请务必妥善保管您的 API 密钥。创建后您将无法再次查看它。但别担心，您随时可以生成一个新的。
+
+## 2. 安装 Isaacus API 客户端
+
+现在您的账户已设置完成，请安装 [Isaacus LangChain](https://pypi.org/project/langchain-isaacus/) 集成包。
+
+::: code-group
+
+```bash [pip]
+pip install langchain-isaacus
+```
+
+```bash [uv]
+uv add langchain-isaacus
+```
+
+:::
+
+## 3. 嵌入文档
+
+安装好我们的 API 客户端后，让我们来嵌入第一个法律查询和文档。
+
+首先，您需要 **使用您的 API 密钥初始化客户端**。您可以通过设置 `ISAACUS_API_KEY` 环境变量或直接传递密钥来实现，本例中我们将采用直接传递的方式。
+
+我们将使用 [Kanon 2 Embedder](https://isaacus.com/blog/introducing-kanon-2-embedder)，这是截至 2025 年 10 月 20 日，在 [Massive Legal Embedding Benchmark](https://isaacus.com/blog/introducing-mleb) 上全球最准确的法律嵌入模型。
+
+```python
+from langchain_isaacus import IsaacusEmbeddings
+
+# 为 Kanon 2 Embedder 创建一个 Isaacus API 客户端。
+client = IsaacusEmbeddings(
+    model="kanon-2-embedder",
+    api_key="PASTE_YOUR_API_KEY_HERE",
+    # dimensions=1792, # 您可以选择性地指定一个较低的维度。
+)
+```
+接下来，让我们获取一个法律文档进行嵌入。在这个例子中，我们将使用 [GitHub 的服务条款](https://github.com/terms)。
+
+```python
+import isaacus
+
+tos = isaacus.Isaacus().get(path="https://examples.isaacus.com/github-tos.md", cast_to=str)
+```
+
+我们的目标是根据一个关于它的搜索查询来检索 GitHub 的服务条款。
+
+为此，我们将首先使用 API 客户端的 `.embed_documents()` 方法来嵌入文档。使用此方法表明我们正在嵌入一个文档（而不是搜索查询），这对于确保我们的嵌入针对检索任务（而不是分类或句子相似性等其他任务）进行优化非常重要。
+
+```python
+document_embedding = client.embed_documents(texts=[tos])[0]
+```
+
+现在，让我们嵌入两个搜索查询，一个明显与文档相关，另一个明显不相关。这次我们将使用 API 客户端的 `.embed_query()` 方法，这表明我们正在嵌入一个搜索查询。
+
+```python
+relevant_query_embedding = client.embed_query(text="What are GitHub's billing policies?")
+irrelevant_query_embedding = client.embed_query(text="What are Microsoft's billing policies?")
+```
+
+为了评估查询与文档的相关性，我们可以计算它们的嵌入向量与文档嵌入向量之间的余弦相似度。
+
+余弦相似度衡量两组数字的相似程度（具体来说，是内积空间中两个向量之间夹角的余弦值）。理论上，它的范围从 $$-1$$ 到 $$1$$，其中 $$1$$ 表示向量完全相同，$$0$$ 表示它们正交（即完全不相似），$$-1$$ 表示它们完全相反。然而，在实践中，对于文本嵌入，它往往在 $$0$$ 到 $$1$$ 之间（因为它们通常是非负的）。
+
+Isaacus 的嵌入器经过优化，使得它们生成的嵌入向量的余弦相似度大致对应于原始文本在语义上的相似程度。然而，与 Isaacus 的通用分类器不同，Isaacus 嵌入器的分数并未被校准为概率解释，仅作为相似性的相对度量，这使得它们最适用于对搜索结果进行排序。
+
+为了方便起见，我们的 Python 示例使用 [`numpy`](https://numpy.org/) 的 `dot` 函数来计算嵌入向量的点积（由于我们的所有嵌入向量都经过 L2 归一化，这等同于它们的余弦相似度）。如果您愿意，也可以使用其他库来计算嵌入向量的余弦相似度（例如，通过 `torch.nn.functional.cosine_similarity` 使用 [`torch`](https://pytorch.org/)），或者您可以编写自己的实现。
+
+```python
+import numpy as np
+
+relevant_similarity = np.dot(relevant_query_embedding, document_embedding)
+irrelevant_similarity = np.dot(irrelevant_query_embedding, document_embedding)
+
+print(f"相关查询与文档的相似度: {relevant_similarity * 100:.2f}")
+print(f"不相关查询与文档的相似度: {irrelevant_similarity * 100:.2f}")
+```
+
+输出应类似于：
+```
+相关查询与文档的相似度: 52.87
+不相关查询与文档的相似度: 24.86
+```
+
+正如您所看到的，相关查询与文档的相似度得分远高于不相关查询，这表明我们的嵌入器已成功捕获了文本的语义。
+
+就是这样！您已成功使用 Isaacus API 和 LangChain 嵌入了一个法律文档和查询。

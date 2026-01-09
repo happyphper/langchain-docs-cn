@@ -1,0 +1,62 @@
+---
+title: 参考
+sidebarTitle: Overview
+---
+LangChain 和 LangGraph Python 与 TypeScript 库的完整 API 参考文档。
+
+## 参考站点
+
+<CardGroup :cols="2">
+
+<Card
+title="LangChain"
+icon="link"
+href="https://reference.langchain.com/python/langchain/"
+>
+
+LangChain Python 的完整 API 参考，包括聊天模型、工具、智能体等。
+
+</Card>
+
+<Card
+title="LangGraph"
+icon="diagram-project"
+href="https://reference.langchain.com/python/langgraph/"
+>
+
+LangGraph Python 的完整 API 参考，包括图 API、状态管理、检查点等。
+
+</Card>
+
+<Card
+title="LangChain Integrations"
+icon="plug"
+href="https://reference.langchain.com/python/integrations/"
+>
+
+用于连接主流 LLM 提供商、向量数据库、工具及其他服务的 LangChain 包。
+
+</Card>
+
+<Card
+title="MCP Adapter"
+icon="plug"
+href="https://reference.langchain.com/python/langchain_mcp_adapters/"
+>
+
+在 LangChain 和 LangGraph 应用中使用模型上下文协议 (MCP) 工具。
+
+</Card>
+
+<Card
+title="Deep Agents"
+icon="robot"
+href="https://reference.langchain.com/python/deepagents/"
+>
+
+构建能够规划、使用子智能体并利用文件系统处理复杂任务的智能体。
+
+</Card>
+
+</CardGroup>
+

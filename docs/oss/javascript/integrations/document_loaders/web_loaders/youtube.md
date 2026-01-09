@@ -1,0 +1,29 @@
+---
+title: YouTube 字幕
+---
+本文介绍了如何将 YouTube 字幕加载到 LangChain 文档中。
+
+## 安装
+
+你需要安装 [youtubei.js](https://www.npmjs.com/package/youtubei.js) 来提取元数据：
+
+```bash [npm]
+npm install @langchain/community @langchain/core youtubei.js
+```
+
+## 使用方法
+
+你需要在 `url` 参数中指定视频链接。你还可以指定 [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) 标准的 `language` 参数以及 `addVideoInfo` 标志。
+
+```typescript
+import { YoutubeLoader } from "@langchain/community/document_loaders/web/youtube";
+
+const loader = YoutubeLoader.createFromUrl("https://youtu.be/bZQun8Y4L2A", {
+  language: "en",
+  addVideoInfo: true,
+});
+
+const docs = await loader.load();
+
+console.log(docs);
+```

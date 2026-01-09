@@ -1,0 +1,91 @@
+---
+title: 架构概述
+sidebarTitle: Overview
+---
+
+<Info>
+
+自托管 LangSmith 是企业版计划的附加组件，专为我们规模最大、安全意识最强的客户设计。如需了解更多详情，请参阅我们的[定价页面](https://www.langchain.com/pricing)。如果您希望获取许可证密钥，以便在您的环境中试用 LangSmith，请[联系我们的销售团队](https://www.langchain.com/contact-sales)。
+
+</Info>
+
+您可以在您控制的云环境中，在 Kubernetes（推荐）或 Docker 中运行 LangSmith。LangSmith 应用程序由多个组件组成，包括 LangSmith 服务器和有状态服务：
+
+- [LangSmith 前端](#langsmith-frontend)
+- [LangSmith 后端](#langsmith-backend)
+- [LangSmith 平台后端](#langsmith-platform-backend)
+- [LangSmith Playground](#langsmith-playground)
+- [LangSmith 队列](#langsmith-queue)
+- [LangSmith ACE（任意代码执行）后端](#langsmith-acearbitrary-code-execution-backend)
+- [ClickHouse](#clickhouse)
+- [PostgreSQL](#postgresql)
+- [Redis](#redis)
+- [Blob 存储](#blob-storage)（可选，但推荐）
+
+<div :style="{ textAlign: 'center' }">
+
+<img src="/langsmith/images/cloud-arch-light.png" alt="Light mode overview" />
+
+<img src="/langsmith/images/cloud-arch-dark.png" alt="Dark mode overview" />
+
+</div>
+
+要访问 LangSmith UI 并发送 API 请求，您需要暴露 [LangSmith 前端](#langsmith-frontend) 服务。根据您的安装方法，这可以是一个负载均衡器或主机上暴露的端口。
+
+## 存储服务
+
+<Note>
+
+LangSmith 自托管版默认会捆绑所有存储服务。您可以配置 LangSmith 以使用所有存储服务的外部版本。在生产环境中，我们<strong>强烈建议使用外部存储服务</strong>。
+
+</Note>
+
+### ClickHouse
+
+[ClickHouse](https://clickhouse.com/docs/en/intro) 是一个用于在线分析处理（OLAP）的高性能、面向列的 SQL 数据库管理系统（DBMS）。
+
+LangSmith 使用 ClickHouse 作为追踪（traces）和反馈（feedback）（高容量数据）的主要数据存储。
+
+### PostgreSQL
+
+[PostgreSQL](https://www.postgresql.org/about/) 是一个功能强大的开源对象关系数据库系统，它使用并扩展了 SQL 语言，结合了许多功能，可以安全地存储和扩展最复杂的数据工作负载。
+
+LangSmith 使用 PostgreSQL 作为事务性工作负载和操作数据（除了追踪和反馈之外的几乎所有内容）的主要数据存储。
+
+### Redis
+
+[Redis](https://github.com/redis/redis) 是一个强大的内存键值数据库，可将数据持久化到磁盘。通过将数据保存在内存中，Redis 为缓存等操作提供了高性能。
+
+LangSmith 使用 Redis 来支持队列和缓存操作。
+
+### Blob 存储
+
+LangSmith 支持多种 Blob 存储提供商，包括 [AWS S3](https://aws.amazon.com/s3/)、[Azure Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/) 和 [Google Cloud Storage](https://cloud.google.com/storage)。
+
+LangSmith 使用 Blob 存储来存储大文件，例如追踪工件（trace artifacts）、反馈附件和其他大型数据对象。Blob 存储是可选的，但对于生产部署高度推荐。
+
+## 服务
+
+### LangSmith 前端
+
+前端使用 Nginx 来提供 LangSmith UI 并将 API 请求路由到其他服务器。这是应用程序的入口点，也是唯一必须暴露给用户的组件。
+
+### LangSmith 后端
+
+后端是 CRUD API 请求的主要入口点，并处理应用程序的大部分业务逻辑。这包括处理来自前端和 SDK 的请求、准备要摄取的追踪数据，以及支持 hub API。
+
+### LangSmith 队列
+
+队列处理传入的追踪和反馈数据，确保它们被异步摄取并持久化到追踪和反馈数据存储中，处理数据完整性检查，确保成功插入数据存储，并在数据库错误或暂时无法连接到数据库等情况下处理重试。
+
+### LangSmith 平台后端
+
+平台后端是另一个关键服务，主要处理身份验证、运行（run）摄取和其他高容量任务。
+
+### LangSmith Playground
+
+Playground 是一个服务，负责将请求转发到各种 LLM API，以支持 LangSmith Playground 功能。这也可以用于连接到您自己的自定义模型服务器。
+
+### LangSmith ACE（任意代码执行）后端
+
+ACE 后端是一个在安全环境中执行任意代码的服务。这用于支持在 LangSmith 中运行自定义代码。

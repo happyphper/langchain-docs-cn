@@ -1,0 +1,207 @@
+---
+title: Requests 工具包
+---
+我们可以使用 Requests [工具包](/oss/langchain/tools#toolkits) 来构建能够生成 HTTP 请求的智能体（agent）。
+
+关于所有 API 工具包功能和配置的详细文档，请参阅 [RequestsToolkit](https://python.langchain.com/api_reference/community/agent_toolkits/langchain_community.agent_toolkits.openapi.toolkit.RequestsToolkit.html) 的 API 参考。
+
+## ⚠️ 安全须知 ⚠️
+
+赋予模型执行现实世界操作的自主权存在固有风险。请采取预防措施来降低这些风险：
+
+- 确保与工具关联的权限范围是严格限定的（例如，对于数据库操作或 API 请求）；
+- 在需要时，利用人工介入（human-in-the-loop）的工作流程。
+
+## 设置
+
+### 安装
+
+此工具包位于 `langchain-community` 包中：
+
+```python
+pip install -qU langchain-community
+```
+
+要启用对单个工具的自动化追踪，请设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
+```
+
+## 实例化
+
+首先，我们将演示一个最小化的示例。
+
+**注意**：赋予模型执行现实世界操作的自主权存在固有风险。我们必须通过设置 `allow_dangerous_request=True` 来“选择接受”这些风险，才能使用这些工具。
+**这可能导致调用不希望的请求，非常危险**。请确保您的自定义 OpenAPI 规范（yaml）是安全的，并且与工具关联的权限范围是严格限定的。
+
+```python
+ALLOW_DANGEROUS_REQUEST = True
+```
+
+我们可以使用 [JSONPlaceholder](https://jsonplaceholder.typicode.com) API 作为测试环境。
+
+让我们创建其 API 规范（的一个子集）：
+
+```python
+from typing import Any, Dict, Union
+
+import requests
+import yaml
+
+def _get_schema(response_json: Union[dict, list]) -> dict:
+    if isinstance(response_json, list):
+        response_json = response_json[0] if response_json else {}
+    return {key: type(value).__name__ for key, value in response_json.items()}
+
+def _get_api_spec() -> str:
+    base_url = "https://jsonplaceholder.typicode.com"
+    endpoints = [
+        "/posts",
+        "/comments",
+    ]
+    common_query_parameters = [
+        {
+            "name": "_limit",
+            "in": "query",
+            "required": False,
+            "schema": {"type": "integer", "example": 2},
+            "description": "Limit the number of results",
+        }
+    ]
+    openapi_spec: Dict[str, Any] = {
+        "openapi": "3.0.0",
+        "info": {"title": "JSONPlaceholder API", "version": "1.0.0"},
+        "servers": [{"url": base_url}],
+        "paths": {},
+    }
+    # Iterate over the endpoints to construct the paths
+    for endpoint in endpoints:
+        response = requests.get(base_url + endpoint)
+        if response.status_code == 200:
+            schema = _get_schema(response.json())
+            openapi_spec["paths"][endpoint] = {
+                "get": {
+                    "summary": f"Get {endpoint[1:]}",
+                    "parameters": common_query_parameters,
+                    "responses": {
+                        "200": {
+                            "description": "Successful response",
+                            "content": {
+                                "application/json": {
+                                    "schema": {"type": "object", "properties": schema}
+                                }
+                            },
+                        }
+                    },
+                }
+            }
+    return yaml.dump(openapi_spec, sort_keys=False)
+
+api_spec = _get_api_spec()
+```
+
+接下来，我们可以实例化工具包。此 API 不需要授权或其他请求头：
+
+```python
+from langchain_community.agent_toolkits.openapi.toolkit import RequestsToolkit
+from langchain_community.utilities.requests import TextRequestsWrapper
+
+toolkit = RequestsToolkit(
+    requests_wrapper=TextRequestsWrapper(headers={}),
+    allow_dangerous_requests=ALLOW_DANGEROUS_REQUEST,
+)
+```
+
+## 工具
+
+查看可用工具：
+
+```python
+tools = toolkit.get_tools()
+
+tools
+```
+
+```text
+[RequestsGetTool(requests_wrapper=TextRequestsWrapper(headers={}, aiosession=None, auth=None, response_content_type='text', verify=True), allow_dangerous_requests=True),
+ RequestsPostTool(requests_wrapper=TextRequestsWrapper(headers={}, aiosession=None, auth=None, response_content_type='text', verify=True), allow_dangerous_requests=True),
+ RequestsPatchTool(requests_wrapper=TextRequestsWrapper(headers={}, aiosession=None, auth=None, response_content_type='text', verify=True), allow_dangerous_requests=True),
+ RequestsPutTool(requests_wrapper=TextRequestsWrapper(headers={}, aiosession=None, auth=None, response_content_type='text', verify=True), allow_dangerous_requests=True),
+ RequestsDeleteTool(requests_wrapper=TextRequestsWrapper(headers={}, aiosession=None, auth=None, response_content_type='text', verify=True), allow_dangerous_requests=True)]
+```
+
+- [RequestsGetTool](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.requests.tool.RequestsGetTool.html)
+- [RequestsPostTool](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.requests.tool.RequestsPostTool.html)
+- [RequestsPatchTool](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.requests.tool.RequestsPatchTool.html)
+- [RequestsPutTool](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.requests.tool.RequestsPutTool.html)
+- [RequestsDeleteTool](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.requests.tool.RequestsDeleteTool.html)
+
+## 在智能体中使用
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain.agents import create_agent
+
+model = ChatOpenAI(model="gpt-4o-mini")
+
+system_message = """
+You have access to an API to help answer user queries.
+Here is documentation on the API:
+{api_spec}
+""".format(api_spec=api_spec)
+
+agent = create_agent(model, tools, system_prompt=system_message)
+```
+
+```python
+example_query = "Fetch the top two posts. What are their titles?"
+
+events = agent.stream(
+    {"messages": [("user", example_query)]},
+    stream_mode="values",
+)
+for event in events:
+    event["messages"][-1].pretty_print()
+```
+
+```text
+================================ Human Message =================================
+
+Fetch the top two posts. What are their titles?
+================================== Ai Message ==================================
+Tool Calls:
+  requests_get (call_RV2SOyzCnV5h2sm4WPgG8fND)
+ Call ID: call_RV2SOyzCnV5h2sm4WPgG8fND
+  Args:
+    url: https://jsonplaceholder.typicode.com/posts?_limit=2
+================================= Tool Message =================================
+Name: requests_get
+
+[
+  {
+    "userId": 1,
+    "id": 1,
+    "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+    "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+  },
+  {
+    "userId": 1,
+    "id": 2,
+    "title": "qui est esse",
+    "body": "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla"
+  }
+]
+================================== Ai Message ==================================
+
+The titles of the top two posts are:
+1. "sunt aut facere repellat provident occaecati excepturi optio reprehenderit"
+2. "qui est esse"
+```
+
+---
+
+## API 参考
+
+关于所有 API 工具包功能和配置的详细文档，请参阅 [RequestsToolkit](https://python.langchain.com/api_reference/community/agent_toolkits/langchain_community.agent_toolkits.openapi.toolkit.RequestsToolkit.html) 的 API 参考。

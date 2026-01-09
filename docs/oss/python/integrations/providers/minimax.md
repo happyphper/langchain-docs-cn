@@ -1,0 +1,33 @@
+---
+title: Minimax
+---
+>[Minimax](https://api.minimax.chat) 是一家中国初创公司，为企业和个人提供自然语言处理模型。
+
+## 安装与设置
+获取 [Minimax API 密钥](https://api.minimax.chat/user-center/basic-information/interface-key) 并将其设置为环境变量 (`MINIMAX_API_KEY`)。
+获取 [Minimax 群组 ID](https://api.minimax.chat/user-center/basic-information) 并将其设置为环境变量 (`MINIMAX_GROUP_ID`)。
+
+## LLM
+
+提供了一个 Minimax LLM 封装器，您可以通过以下方式访问：
+查看 [使用示例](/oss/integrations/llms/minimax)。
+
+```python
+from langchain_community.llms import Minimax
+```
+
+## 聊天模型
+
+查看 [使用示例](/oss/integrations/chat/minimax)
+
+```python
+from langchain_community.chat_models import MiniMaxChat
+```
+
+## 文本嵌入模型
+
+提供了一个 Minimax 嵌入模型，您可以通过以下方式访问：
+
+```python
+from langchain_community.embeddings import MiniMaxEmbeddings
+```

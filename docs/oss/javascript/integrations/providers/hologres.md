@@ -1,0 +1,32 @@
+---
+title: Hologres
+---
+>[Hologres](https://www.alibabacloud.com/help/en/hologres/latest/introduction) 是阿里云开发的一体化实时数据仓库服务。您可以使用 Hologres 实时写入、更新、处理和分析海量数据。
+>`Hologres` 支持标准 `SQL` 语法，兼容 `PostgreSQL`，并支持大多数 PostgreSQL 函数。Hologres 支持对高达 PB 级数据进行在线分析处理（OLAP）和即席分析，并提供高并发、低延迟的在线数据服务。
+
+>`Hologres` 通过集成 [Proxima](https://www.alibabacloud.com/help/en/hologres/latest/vector-processing) 提供**向量数据库**功能。
+>`Proxima` 是 `阿里巴巴达摩院` 开发的高性能软件库。它允许您搜索向量的最近邻。与 Faiss 等类似的开源软件相比，Proxima 提供了更高的稳定性和性能。Proxima 允许您以高吞吐量和低延迟搜索相似的文本或图像嵌入向量。Hologres 与 Proxima 深度集成，以提供高性能的向量搜索服务。
+
+## 安装与设置
+
+点击[此处](https://www.alibabacloud.com/zh/product/hologres)快速部署一个 Hologres 云实例。
+
+::: code-group
+
+```bash [pip]
+pip install hologres-vector
+```
+
+```bash [uv]
+uv add hologres-vector
+```
+
+:::
+
+## 向量存储
+
+查看[使用示例](/oss/integrations/vectorstores/hologres)。
+
+```python
+from langchain_community.vectorstores import Hologres
+```

@@ -1,0 +1,98 @@
+---
+title: Arxiv
+---
+>[arXiv](https://arxiv.org/) 是一个开放获取的学术论文存档库，收录了物理学、数学、计算机科学、定量生物学、定量金融学、统计学、电气工程与系统科学以及经济学领域的 200 万篇学术文章。
+
+本笔记本展示了如何从 Arxiv.org 检索科学文章，并将其转换为下游使用的 [Document](https://python.langchain.com/api_reference/core/documents/langchain_core.documents.base.Document.html) 格式。
+
+有关 `ArxivRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.arxiv.ArxivRetriever.html)。
+
+### 集成详情
+
+<ItemTable category="external_retrievers" item="ArxivRetriever" />
+
+## 设置
+
+如果你想从单个查询中获得自动化追踪，也可以通过取消以下注释来设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
+```
+
+### 安装
+
+此检索器位于 `langchain-community` 包中。我们还需要 [arxiv](https://pypi.org/project/arxiv/) 依赖项：
+
+```python
+pip install -qU langchain-community arxiv
+```
+
+## 实例化
+
+`ArxivRetriever` 的参数包括：
+
+- 可选参数 `load_max_docs`：默认值=100。用于限制下载文档的数量。下载全部 100 篇文档需要时间，因此在实验时请使用较小的数字。目前有一个 300 篇的硬性限制。
+- 可选参数 `load_all_available_meta`：默认值=False。默认情况下，仅下载最重要的字段：`Published`（文档发布/最后更新日期）、`Title`、`Authors`、`Summary`。如果为 True，则也会下载其他字段。
+- `get_full_documents`：布尔值，默认 False。决定是否获取文档的全文。
+
+更多详情请参阅 [API 参考](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.arxiv.ArxivRetriever.html)。
+
+```python
+from langchain_community.retrievers import ArxivRetriever
+
+retriever = ArxivRetriever(
+    load_max_docs=2,
+    get_full_documents=True,
+)
+```
+
+## 使用
+
+`ArxivRetriever` 支持通过文章标识符进行检索：
+
+```python
+docs = retriever.invoke("1605.08386")
+```
+
+```python
+docs[0].metadata  # Document 的元信息
+```
+
+```text
+{'Entry ID': 'http://arxiv.org/abs/1605.08386v1',
+ 'Published': datetime.date(2016, 5, 26),
+ 'Title': 'Heat-bath random walks with Markov bases',
+ 'Authors': 'Caprice Stanley, Tobias Windisch'}
+```
+
+```python
+docs[0].page_content[:400]  # Document 的内容
+```
+
+```text
+'Graphs on lattice points are studied whose edges come from a finite set of\nallowed moves of arbitrary length. We show that the diameter of these graphs on\nfibers of a fixed integer matrix can be bounded from above by a constant. We\nthen study the mixing behaviour of heat-bath random walks on these graphs. We\nalso state explicit conditions on the set of moves so that the heat-bath random\nwalk, a ge'
+```
+
+`ArxivRetriever` 也支持基于自然语言文本进行检索：
+
+```python
+docs = retriever.invoke("What is the ImageBind model?")
+```
+
+```python
+docs[0].metadata
+```
+
+```text
+{'Entry ID': 'http://arxiv.org/abs/2305.05665v2',
+ 'Published': datetime.date(2023, 5, 31),
+ 'Title': 'ImageBind: One Embedding Space To Bind Them All',
+ 'Authors': 'Rohit Girdhar, Alaaeldin El-Nouby, Zhuang Liu, Mannat Singh, Kalyan Vasudev Alwala, Armand Joulin, Ishan Misra'}
+```
+
+---
+
+## API 参考
+
+有关 `ArxivRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.arxiv.ArxivRetriever.html)。

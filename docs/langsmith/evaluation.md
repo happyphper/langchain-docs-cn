@@ -1,0 +1,187 @@
+---
+title: LangSmith 评估
+sidebarTitle: Overview
+mode: wide
+---
+
+LangSmith 支持两种类型的评估，根据其运行的时间和地点进行区分：
+
+<CardGroup :cols="2">
+
+<Card
+title="离线评估"
+icon="flask"
+>
+
+**发布前测试**
+
+在开发阶段对精心整理的数据集运行评估，以比较版本、进行性能基准测试并发现回归问题。
+
+</Card>
+
+<Card
+title="在线评估"
+icon="radar"
+>
+
+**生产环境监控**
+
+实时评估真实用户交互，以检测问题并衡量实时流量的质量。
+
+</Card>
+
+</CardGroup>
+
+## 评估工作流
+
+<Tabs>
+
+<Tab title="离线评估流程">
+
+<Steps>
+
+<Step title="创建数据集">
+
+使用来自手动整理的测试用例、历史生产追踪记录或合成数据生成的 <Tooltip tip="包含输入和参考输出的独立测试用例">[示例](/langsmith/evaluation-concepts#examples)</Tooltip> 来创建一个 [数据集](/langsmith/manage-datasets)。
+
+</Step>
+
+<Step title="定义评估器">
+
+创建 <Tooltip tip="用于为应用程序性能评分的函数">[评估器](/langsmith/evaluation-concepts#evaluators)</Tooltip> 来对性能进行评分：
+    - [人工](/langsmith/evaluation-concepts#human) 评审
+    - [代码](/langsmith/evaluation-concepts#code) 规则
+    - [LLM 作为裁判](/langsmith/llm-as-judge)
+    - [成对](/langsmith/evaluate-pairwise) 比较
+
+</Step>
+
+<Step title="运行实验">
+
+在数据集上执行你的应用程序以创建一个 <Tooltip tip="在数据集上评估特定应用程序版本的结果">[实验](/langsmith/evaluation-concepts#experiment)</Tooltip>。配置 [重复次数、并发性和缓存](/langsmith/experiment-configuration) 以优化运行。
+
+</Step>
+
+<Step title="分析结果">
+
+比较实验以进行 [基准测试](/langsmith/evaluation-types#benchmarking)、[单元测试](/langsmith/evaluation-types#unit-tests)、[回归测试](/langsmith/evaluation-types#regression-tests) 或 [回测](/langsmith/evaluation-types#backtesting)。
+
+</Step>
+
+</Steps>
+
+</Tab>
+
+<Tab title="在线评估流程">
+
+<Steps>
+
+<Step title="部署你的应用程序">
+
+每次交互都会创建一个 <Tooltip tip="包含输入、输出和中间步骤的单个执行追踪记录">[运行](/langsmith/evaluation-concepts#runs)</Tooltip>，但不包含参考输出。
+
+</Step>
+
+<Step title="配置在线评估器">
+
+设置 [评估器](/langsmith/online-evaluations)，使其在生产追踪记录上自动运行：安全检查、格式验证、质量启发式方法以及无参考的 LLM 作为裁判。应用 [过滤器和采样率](/langsmith/online-evaluations#4-optional-configure-a-sampling-rate) 来控制成本。
+
+</Step>
+
+<Step title="实时监控">
+
+评估器在 [运行](/langsmith/evaluation-concepts#runs) 或 <Tooltip tip="形成多轮对话的相关运行的集合">[线程](/langsmith/online-evaluations#configure-multi-turn-online-evaluators)</Tooltip> 上自动运行，提供实时监控、异常检测和告警。
+
+</Step>
+
+<Step title="建立反馈循环">
+
+将失败的生产追踪记录添加到你的 [数据集](/langsmith/manage-datasets)，创建有针对性的评估器，通过离线实验验证修复，然后重新部署。
+
+</Step>
+
+</Steps>
+
+</Tab>
+
+</Tabs>
+
+<Tip>
+
+有关离线和在线评估之间差异的更多信息，请参阅 [评估概念](/langsmith/evaluation-concepts#quick-reference-offline-vs-online-evaluation) 页面。
+
+</Tip>
+
+## 开始使用
+
+<Columns :cols="3">
+
+<Card
+title="评估快速入门"
+icon="rocket"
+href="/langsmith/evaluation-quickstart"
+arrow="true"
+>
+
+开始使用离线评估。
+
+</Card>
+
+<Card
+title="管理数据集"
+icon="database"
+href="/langsmith/manage-datasets"
+arrow="true"
+>
+
+通过 UI 或 SDK 创建和管理用于评估的数据集。
+
+</Card>
+
+<Card
+title="运行离线评估"
+icon="microscope"
+href="/langsmith/evaluate-llm-application"
+arrow="true"
+>
+
+探索评估类型、技术和框架，进行全面的测试。
+
+</Card>
+
+<Card
+title="分析结果"
+icon="chart-bar"
+href="/langsmith/analyze-an-experiment"
+arrow="true"
+>
+
+查看和分析评估结果，比较实验，过滤数据并导出发现。
+
+</Card>
+
+<Card
+title="运行在线评估"
+icon="radar"
+href="/langsmith/online-evaluations"
+arrow="true"
+>
+
+从“可观测性”选项卡实时监控生产质量。
+
+</Card>
+
+<Card
+title="跟随教程"
+icon="book"
+href="/langsmith/evaluate-chatbot-tutorial"
+arrow="true"
+>
+
+通过逐步教程学习，从简单的聊天机器人到复杂的智能体评估。
+
+</Card>
+
+</Columns>
+
+<!--@include: @/snippets/python/langsmith/platform-setup-note.md-->

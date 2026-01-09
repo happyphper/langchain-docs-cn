@@ -1,0 +1,130 @@
+---
+title: CSV
+---
+
+<Tip>
+
+<strong>兼容性</strong>：仅在 Node.js 环境中可用。
+
+</Tip>
+
+本笔记本提供了 `CSVLoader` [文档加载器](/oss/integrations/document_loaders) 的快速入门概述。有关 `CSVLoader` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_fs_csv.CSVLoader.html)。
+
+本示例将介绍如何从 CSV 文件加载数据。第二个参数是要从 CSV 文件中提取的 `column`（列）名。CSV 文件中的每一行都将创建一个文档。当未指定 `column` 时，每一行将被转换为键/值对，每个键/值对输出到文档 `pageContent` 的新行中。当指定 `column` 时，将为每一行创建一个文档，并使用指定列的值作为文档的 `pageContent`。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 兼容性 | 本地 | [Python 支持](https://python.langchain.com/docs/integrations/document_loaders/csv) |
+| :--- | :--- | :---: | :---: | :---: |
+| [CSVLoader](https://api.js.langchain.com/classes/langchain_community_document_loaders_fs_csv.CSVLoader.html) | [@langchain/community](https://api.js.langchain.com/modules/langchain_community_document_loaders_fs_csv.html) | 仅 Node.js | ✅ | ✅ |
+
+## 设置
+
+要使用 `CSVLoader` 文档加载器，您需要安装 `@langchain/community` 集成包以及其同级依赖 `d3-dsv@2`。
+
+### 安装
+
+LangChain CSVLoader 集成位于 `@langchain/community` 集成包中。
+
+::: code-group
+
+```bash [npm]
+npm install @langchain/community @langchain/core d3-dsv@2
+```
+
+```bash [yarn]
+yarn add @langchain/community @langchain/core d3-dsv@2
+```
+
+```bash [pnpm]
+pnpm add @langchain/community @langchain/core d3-dsv@2
+```
+
+:::
+
+## 实例化
+
+现在我们可以实例化模型对象并加载文档：
+
+```typescript
+import { CSVLoader } from "@langchain/community/document_loaders/fs/csv"
+
+const exampleCsvPath = "../../../../../../langchain/src/document_loaders/tests/example_data/example_separator.csv";
+
+const loader = new CSVLoader(exampleCsvPath)
+```
+
+## 加载
+
+```typescript
+const docs = await loader.load()
+docs[0]
+```
+
+```javascript
+Document {
+  pageContent: 'id｜html: 1｜"<i>Corruption discovered at the core of the Banking Clan!</i>"',
+  metadata: {
+    source: '../../../../../../langchain/src/document_loaders/tests/example_data/example_separator.csv',
+    line: 1
+  },
+  id: undefined
+}
+```
+
+```typescript
+console.log(docs[0].metadata)
+```
+
+```javascript
+{
+  source: '../../../../../../langchain/src/document_loaders/tests/example_data/example_separator.csv',
+  line: 1
+}
+```
+
+## 用法：提取单列
+
+示例 CSV 文件：
+
+```csv
+id｜html
+1｜"<i>Corruption discovered at the core of the Banking Clan!</i>"
+2｜"<i>Reunited, Rush Clovis and Senator Amidala</i>"
+3｜"<i>discover the full extent of the deception.</i>"
+4｜"<i>Anakin Skywalker is sent to the rescue!</i>"
+```
+
+```typescript
+import { CSVLoader } from "@langchain/community/document_loaders/fs/csv";
+
+const singleColumnLoader = new CSVLoader(
+  exampleCsvPath,
+  {
+    column: "html",
+    separator:"｜"
+  }
+);
+
+const singleColumnDocs = await singleColumnLoader.load();
+console.log(singleColumnDocs[0]);
+```
+
+```javascript
+Document {
+  pageContent: '<i>Corruption discovered at the core of the Banking Clan!</i>',
+  metadata: {
+    source: '../../../../../../langchain/src/document_loaders/tests/example_data/example_separator.csv',
+    line: 1
+  },
+  id: undefined
+}
+```
+
+---
+
+## API 参考
+
+有关 CSVLoader 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_fs_csv.CSVLoader.html)。

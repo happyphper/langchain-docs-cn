@@ -1,0 +1,43 @@
+---
+title: Metal Retriever
+---
+本示例展示了如何在检索链中使用 Metal Retriever 从 Metal 索引中检索文档。
+
+## 环境设置
+
+<Tip>
+
+有关安装 LangChain 包的通用说明，请参阅[此章节](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm i @getmetal/metal-sdk @langchain/community @langchain/core
+```
+
+## 使用方法
+
+```typescript
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import Metal from "@getmetal/metal-sdk";
+import { MetalRetriever } from "@langchain/community/retrievers/metal";
+
+export const run = async () => {
+  const MetalSDK = Metal;
+
+  const client = new MetalSDK(
+    process.env.METAL_API_KEY!,
+    process.env.METAL_CLIENT_ID!,
+    process.env.METAL_INDEX_ID
+  );
+  const retriever = new MetalRetriever({ client });
+
+  const docs = await retriever.invoke("hello");
+
+  console.log(docs);
+};
+```
+
+## 相关内容
+
+- [检索指南](/oss/langchain/retrieval)

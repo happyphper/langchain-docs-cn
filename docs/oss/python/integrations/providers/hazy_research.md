@@ -1,0 +1,21 @@
+---
+title: Hazy Research
+---
+本页介绍了如何在 LangChain 中使用 Hazy Research 生态系统。
+内容分为两部分：安装与设置，以及特定 Hazy Research 封装器的参考。
+
+## 安装与设置
+- 要使用 `manifest`，请通过 `pip install manifest-ml` 安装
+
+## 封装器
+
+### LLM
+
+Hazy Research 的 `manifest` 库提供了一个 LLM 封装器。
+`manifest` 是一个 Python 库，它本身封装了许多模型提供商，并增加了缓存、历史记录等功能。
+
+要使用此封装器：
+
+```python
+from langchain_community.llms.manifest import ManifestWrapper
+```

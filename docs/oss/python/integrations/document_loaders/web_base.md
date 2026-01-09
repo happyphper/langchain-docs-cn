@@ -1,0 +1,201 @@
+---
+title: WebBaseLoader
+---
+本文介绍了如何使用 `WebBaseLoader` 将 `HTML` 网页中的所有文本加载到可供下游使用的文档格式中。如需更自定义的网页加载逻辑，请查看一些子类示例，例如 `IMSDbLoader`、`AZLyricsLoader` 和 `CollegeConfidentialLoader`。
+
+如果您不想担心网站爬取、绕过 JS 拦截站点和数据清理，请考虑使用 `FireCrawlLoader` 或更快的选项 `SpiderLoader`。
+
+## 概述
+
+### 集成详情
+
+- TODO: 填写表格功能。
+- TODO: 如果不相关，请移除 JS 支持链接，否则请确保链接正确。
+- TODO: 确保 API 参考链接正确。
+
+| 类 | 包 | 本地 | 可序列化 | JS 支持 |
+| :--- | :--- | :---: | :---: | :---: |
+| [WebBaseLoader](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.web_base.WebBaseLoader.html) | [langchain-community](https://python.langchain.com/api_reference/community/index.html) | ✅ | ❌ | ❌ |
+
+### 加载器特性
+
+| 来源 | 文档惰性加载 | 原生异步支持 |
+| :---: | :---: | :---: |
+| WebBaseLoader | ✅ | ✅ |
+
+## 设置
+
+### 凭证
+
+`WebBaseLoader` 不需要任何凭证。
+
+### 安装
+
+要使用 `WebBaseLoader`，首先需要安装 `langchain-community` Python 包。
+
+```python
+pip install -qU langchain-community beautifulsoup4
+```
+
+## 初始化
+
+现在我们可以实例化模型对象并加载文档：
+
+```python
+from langchain_community.document_loaders import WebBaseLoader
+
+loader = WebBaseLoader("https://www.example.com/")
+```
+
+要在获取过程中绕过 SSL 验证错误，可以设置 "verify" 选项：
+
+`loader.requests_kwargs = {'verify':False}`
+
+### 初始化多个页面
+
+您也可以传入一个要加载的页面列表。
+
+```python
+loader_multiple_pages = WebBaseLoader(
+    ["https://www.example.com/", "https://google.com"]
+)
+```
+
+## 加载
+
+```python
+docs = loader.load()
+
+docs[0]
+```
+
+```text
+Document(metadata={'source': 'https://www.example.com/', 'title': 'Example Domain', 'language': 'No language found.'}, page_content='\n\n\nExample Domain\n\n\n\n\n\n\n\nExample Domain\nThis domain is for use in illustrative examples in documents. You may use this\n    domain in literature without prior coordination or asking for permission.\nMore information...\n\n\n\n')
+```
+
+```python
+print(docs[0].metadata)
+```
+
+```python
+{'source': 'https://www.example.com/', 'title': 'Example Domain', 'language': 'No language found.'}
+```
+
+### 并发加载多个 URL
+
+您可以通过并发抓取和解析多个 URL 来加速抓取过程。
+
+并发请求有合理的限制，默认为每秒 2 个。如果您不担心成为良好公民，或者您控制着要抓取的服务器且不关心负载，可以更改 `requests_per_second` 参数以增加最大并发请求数。请注意，虽然这会加快抓取过程，但可能导致服务器屏蔽您。请小心！
+
+```python
+pip install -qU  nest_asyncio
+
+# 修复 asyncio 和 jupyter 的一个 bug
+import nest_asyncio
+
+nest_asyncio.apply()
+```
+
+```python
+loader = WebBaseLoader(["https://www.example.com/", "https://google.com"])
+loader.requests_per_second = 1
+docs = loader.aload()
+docs
+```
+
+```text
+Fetching pages: 100%|###########################################################################| 2/2 [00:00<00:00,  8.28it/s]
+```
+
+```text
+[Document(metadata={'source': 'https://www.example.com/', 'title': 'Example Domain', 'language': 'No language found.'}, page_content='\n\n\nExample Domain\n\n\n\n\n\n\n\nExample Domain\nThis domain is for use in illustrative examples in documents. You may use this\n    domain in literature without prior coordination or asking for permission.\nMore information...\n\n\n\n'),
+ Document(metadata={'source': 'https://google.com', 'title': 'Google', 'description': "Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking for.", 'language': 'en'}, page_content='GoogleSearch Images Maps Play YouTube News Gmail Drive More »Web History | Settings | Sign in\xa0Advanced search5 ways Gemini can help during the HolidaysAdvertisingBusiness SolutionsAbout Google© 2024 - Privacy - Terms  ')]
+```
+
+### 加载 XML 文件，或使用不同的 BeautifulSoup 解析器
+
+您也可以查看 `SitemapLoader` 以了解如何加载站点地图文件，这是使用此功能的一个示例。
+
+```python
+loader = WebBaseLoader(
+    "https://www.govinfo.gov/content/pkg/CFR-2018-title10-vol3/xml/CFR-2018-title10-vol3-sec431-86.xml"
+)
+loader.default_parser = "xml"
+docs = loader.load()
+docs
+```
+
+```text
+[Document(metadata={'source': 'https://www.govinfo.gov/content/pkg/CFR-2018-title10-vol3/xml/CFR-2018-title10-vol3-sec431-86.xml'}, page_content='\n\n10\nEnergy\n3\n2018-01-01\n2018-01-01\nfalse\nUniform test method for the measurement of energy efficiency of commercial packaged boilers.\nÂ§ 431.86\nSection Â§ 431.86\n\nEnergy\nDEPARTMENT OF ENERGY\nENERGY CONSERVATION\nENERGY EFFICIENCY PROGRAM FOR CERTAIN COMMERCIAL AND INDUSTRIAL EQUIPMENT\nCommercial Packaged Boilers\nTest Procedures\n\n\n\n\n§\u2009431.86\nUniform test method for the measurement of energy efficiency of commercial packaged boilers.\n(a) Scope. This section provides test procedures, pursuant to the Energy Policy and Conservation Act (EPCA), as amended, which must be followed for measuring the combustion efficiency and/or thermal efficiency of a gas- or oil-fired commercial packaged boiler.\n(b) Testing and Calculations. Determine the thermal efficiency or combustion efficiency of commercial packaged boilers by conducting the appropriate test procedure(s) indicated in Table 1 of this section.\n\nTable 1—Test Requirements for Commercial Packaged Boiler Equipment Classes\n\nEquipment category\nSubcategory\nCertified rated inputBtu/h\n\nStandards efficiency metric(§\u2009431.87)\n\nTest procedure(corresponding to\nstandards efficiency\nmetric required\nby §\u2009431.87)\n\n\n\nHot Water\nGas-fired\n≥300,000 and ≤2,500,000\nThermal Efficiency\nAppendix A, Section 2.\n\n\nHot Water\nGas-fired\n>2,500,000\nCombustion Efficiency\nAppendix A, Section 3.\n\n\nHot Water\nOil-fired\n≥300,000 and ≤2,500,000\nThermal Efficiency\nAppendix A, Section 2.\n\n\nHot Water\nOil-fired\n>2,500,000\nCombustion Efficiency\nAppendix A, Section 3.\n\n\nSteam\nGas-fired (all*)\n≥300,000 and ≤2,500,000\nThermal Efficiency\nAppendix A, Section 2.\n\n\nSteam\nGas-fired (all*)\n>2,500,000 and ≤5,000,000\nThermal Efficiency\nAppendix A, Section 2.\n\n\n\u2003\n\n>5,000,000\nThermal Efficiency\nAppendix A, Section 2.OR\nAppendix A, Section 3 with Section 2.4.3.2.\n\n\n\nSteam\nOil-fired\n≥300,000 and ≤2,500,000\nThermal Efficiency\nAppendix A, Section 2.\n\n\nSteam\nOil-fired\n>2,500,000 and ≤5,000,000\nThermal Efficiency\nAppendix A, Section 2.\n\n\n\u2003\n\n>5,000,000\nThermal Efficiency\nAppendix A, Section 2.OR\nAppendix A, Section 3. with Section 2.4.3.2.\n\n\n\n*\u2009Equipment classes for commercial packaged boilers as of July 22, 2009 (74 FR 36355) distinguish between gas-fired natural draft and all other gas-fired (except natural draft).\n(c) Field Tests. The field test provisions of appendix A may be used only to test a unit of commercial packaged boiler with rated input greater than 5,000,000 Btu/h.\n[81 FR 89305, Dec. 9, 2016]\n\n\nEnergy Efficiency Standards\n\n')]
+```
+
+## 惰性加载
+
+您可以使用惰性加载来一次只加载一个页面，以最小化内存需求。
+
+```python
+pages = []
+for doc in loader.lazy_load():
+    pages.append(doc)
+
+print(pages[0].page_content[:100])
+print(pages[0].metadata)
+```
+
+```python
+10
+Energy
+3
+2018-01-01
+2018-01-01
+false
+Uniform test method for the measurement of energy efficien
+{'source': 'https://www.govinfo.gov/content/pkg/CFR-2018-title10-vol3/xml/CFR-2018-title10-vol3-sec431-86.xml'}
+```
+
+### 异步
+
+```python
+pages = []
+async for doc in loader.alazy_load():
+    pages.append(doc)
+
+print(pages[0].page_content[:100])
+print(pages[0].metadata)
+```
+
+```text
+Fetching pages: 100%|###########################################################################| 1/1 [00:00<00:00, 10.51it/s]
+```
+
+```python
+10
+Energy
+3
+2018-01-01
+2018-01-01
+false
+Uniform test method for the measurement of energy efficien
+{'source': 'https://www.govinfo.gov/content/pkg/CFR-2018-title10-vol3/xml/CFR-2018-title10-vol3-sec431-86.xml'}
+```
+
+## 使用代理
+
+有时您可能需要使用代理来绕过 IP 封锁。您可以向加载器（以及底层的 `requests`）传入一个代理字典来使用它们。
+
+```python
+loader = WebBaseLoader(
+        "https://www.walmart.com/search?q=parrots",
+        proxies={
+        "http": "http://{username}:{password}:@proxy.service.com:6666/",
+        "https": "https://{username}:{password}:@proxy.service.com:6666/",
+    },
+)
+docs = loader.load()
+```
+
+---
+
+## API 参考
+
+有关 `WebBaseLoader` 所有功能和配置的详细文档，请访问 API 参考：[python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.web_base.WebBaseLoader.html](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.web_base.WebBaseLoader.html)

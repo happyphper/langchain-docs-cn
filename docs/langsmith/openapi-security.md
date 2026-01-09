@@ -1,0 +1,124 @@
+---
+title: 在 OpenAPI 中记录 API 身份验证
+sidebarTitle: Document API authentication in OpenAPI
+---
+本指南展示了如何为 LangSmith API 文档自定义 OpenAPI 安全模式。一个文档完善的安全模式有助于 API 使用者理解如何对您的 API 进行身份验证，甚至可以实现自动客户端生成。有关 LangGraph 身份验证系统的更多详细信息，请参阅[身份验证与访问控制概念指南](/langsmith/auth)。
+
+<Note>
+
+<strong>实现与文档</strong>
+本指南仅涵盖如何在 OpenAPI 中记录您的安全要求。要实现实际的身份验证逻辑，请参阅[如何添加自定义身份验证](/langsmith/custom-auth)。
+
+</Note>
+
+本指南适用于所有 LangSmith 部署（云端和自托管）。如果您未使用 LangSmith，则不适用于 LangGraph 开源库的使用。
+
+## 默认模式
+
+默认的安全方案因部署类型而异：
+
+<Tabs>
+
+<Tab title="LangSmith">
+
+</Tab>
+
+</Tabs>
+
+默认情况下，LangSmith 要求在 `x-api-key` 请求头中提供 LangSmith API 密钥：
+
+```yaml
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+security:
+  - apiKeyAuth: []
+```
+
+当使用 LangGraph SDK 之一时，这可以从环境变量中推断出来。
+
+<Tabs>
+
+<Tab title="Self-hosted">
+
+</Tab>
+
+</Tabs>
+
+默认情况下，自托管部署没有安全方案。这意味着它们应仅部署在安全网络中或配合身份验证使用。要添加自定义身份验证，请参阅[如何添加自定义身份验证](/langsmith/custom-auth)。
+
+## 自定义安全模式
+
+要在 OpenAPI 文档中自定义安全模式，请在 `langgraph.json` 的 `auth` 配置中添加一个 `openapi` 字段。请记住，这只会更新 API 文档——您还必须实现相应的身份验证逻辑，如[如何添加自定义身份验证](/langsmith/custom-auth)中所示。
+
+请注意，LangSmith 不提供身份验证端点——您需要在客户端应用程序中处理用户身份验证，并将生成的凭据传递给 LangGraph API。
+
+<Tabs>
+
+<Tab title="OAuth2 with Bearer Token">
+
+```json
+{
+  "auth": {
+    "path": "./auth.py:my_auth",  // 在此处实现身份验证逻辑
+    "openapi": {
+      "securitySchemes": {
+        "OAuth2": {
+          "type": "oauth2",
+          "flows": {
+            "implicit": {
+              "authorizationUrl": "https://your-auth-server.com/oauth/authorize",
+              "scopes": {
+                "me": "Read information about the current user",
+                "threads": "Access to create and manage threads"
+              }
+            }
+          }
+        }
+      },
+      "security": [
+        {"OAuth2": ["me", "threads"]}
+      ]
+    }
+  }
+}
+```
+
+</Tab>
+
+<Tab title="API Key">
+
+```json
+{
+  "auth": {
+    "path": "./auth.py:my_auth",  // 在此处实现身份验证逻辑
+    "openapi": {
+      "securitySchemes": {
+        "apiKeyAuth": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "X-API-Key"
+        }
+      },
+      "security": [
+        {"apiKeyAuth": []}
+      ]
+    }
+  }
+}
+```
+
+</Tab>
+
+</Tabs>
+
+## 测试
+
+更新配置后：
+
+1.  部署您的应用程序
+2.  访问 `/docs` 查看更新后的 OpenAPI 文档
+3.  使用来自您身份验证服务器的凭据尝试调用端点（请确保您已首先实现了身份验证逻辑）

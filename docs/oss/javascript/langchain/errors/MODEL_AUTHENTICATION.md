@@ -1,0 +1,32 @@
+---
+title: 模型认证
+---
+
+<Note>
+
+目前仅在 `langchainjs`（JavaScript/TypeScript）中使用。
+
+</Note>
+
+您的模型提供商拒绝了您对其服务的访问。
+
+此错误通常发生在您的身份验证凭据或 API 密钥出现问题时。
+
+## 故障排除
+
+* 确认您的 API 密钥或身份验证凭据准确且有效。
+* 如果使用基于环境的身份验证，请验证：
+    - 变量名称拼写正确
+    - 变量包含已分配的值
+    - 第三方包（如 `dotenv`）没有干扰加载过程
+* 如果使用代理或非标准端点，请确保您的自定义提供商不需要替代的身份验证方案。
+* 通过显式传递凭据来绕过环境变量问题：
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai";
+
+const model = new ChatOpenAI({
+  apiKey: "YOUR_KEY_HERE",
+});
+```
+

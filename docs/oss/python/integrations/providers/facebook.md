@@ -1,0 +1,103 @@
+---
+title: Facebook - Meta
+---
+>[Meta Platforms, Inc.](https://www.facebook.com/)，以 `Meta` 名义开展业务，前身为 `Facebook, Inc.` 和 `TheFacebook, Inc.`，是一家美国跨国科技集团。该公司拥有并运营 `Facebook`、`Instagram`、`Threads` 和 `WhatsApp` 等产品和服务。
+
+## 嵌入模型
+
+### LASER
+
+>[LASER](https://github.com/facebookresearch/LASER) 是一个由 `Meta AI Research` 团队开发的 Python 库，用于为 [截至 2024 年 2 月 25 日的超过 147 种语言](https://github.com/facebookresearch/flores/blob/main/flores200/README.md#languages-in-flores-200) 创建多语言句子嵌入。
+
+::: code-group
+
+```bash [pip]
+pip install laser_encoders
+```
+
+```bash [uv]
+uv add laser_encoders
+```
+
+:::
+
+查看 [使用示例](/oss/integrations/text_embedding/laser)。
+
+```python
+from langchain_community.embeddings.laser import LaserEmbeddings
+```
+
+## 文档加载器
+
+### Facebook Messenger
+
+>[Messenger](https://en.wikipedia.org/wiki/Messenger_(software)) 是一款由 `Meta Platforms` 开发的即时通讯应用和平台。最初于 2008 年作为 `Facebook Chat` 开发，该公司在 2010 年对其消息服务进行了全面改造。
+
+查看 [使用示例](/oss/integrations/document_loaders/facebook_chat)。
+
+```python
+from langchain_community.document_loaders import FacebookChatLoader
+```
+
+## 向量存储
+
+### Facebook Faiss
+
+>[Facebook AI Similarity Search (Faiss)](https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/) 是一个用于高效相似性搜索和密集向量聚类的库。它包含的算法可以搜索任意大小的向量集合，甚至包括那些可能无法放入 RAM 的集合。它还包含用于评估和参数调整的支持代码。
+
+[Faiss 文档](https://faiss.ai/)。
+
+我们需要安装 `faiss` Python 包。
+
+::: code-group
+
+```bash [pip]
+pip install faiss-gpu # 适用于支持 CUDA 7.5+ 的 GPU。
+```
+
+```bash [uv]
+uv add faiss-gpu # 适用于支持 CUDA 7.5+ 的 GPU。
+```
+
+:::
+
+或者
+
+::: code-group
+
+```bash [pip]
+pip install faiss-cpu # 适用于 CPU 安装。
+```
+
+```bash [uv]
+uv add faiss-cpu # 适用于 CPU 安装。
+```
+
+:::
+
+查看 [使用示例](/oss/integrations/vectorstores/faiss)。
+
+```python
+from langchain_community.vectorstores import FAISS
+```
+
+## 聊天加载器
+
+### Facebook Messenger
+
+>[Messenger](https://en.wikipedia.org/wiki/Messenger_(software)) 是一款由 `Meta Platforms` 开发的即时通讯应用和平台。最初于 2008 年作为 `Facebook Chat` 开发，该公司在 2010 年对其消息服务进行了全面改造。
+
+查看 [使用示例](/oss/integrations/chat_loaders/facebook)。
+
+```python
+from langchain_community.chat_loaders.facebook_messenger import (
+    FolderFacebookMessengerChatLoader,
+    SingleFileFacebookMessengerChatLoader,
+)
+```
+
+### Facebook WhatsApp
+
+```python
+from langchain_community.chat_loaders.whatsapp import WhatsAppChatLoader
+```

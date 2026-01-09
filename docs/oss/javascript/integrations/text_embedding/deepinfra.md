@@ -1,0 +1,131 @@
+---
+title: DeepInfra Embeddings
+---
+`DeepInfraEmbeddings` 类利用 DeepInfra API 为给定的文本输入生成嵌入向量。本指南将引导您完成 `DeepInfraEmbeddings` 类的设置和使用，帮助您将其无缝集成到您的项目中。
+
+## 安装
+
+如下所示安装 `@langchain/community` 包：
+
+<Tip>
+
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm i @langchain/community @langchain/core
+```
+
+## 初始化
+
+通过此集成，您可以使用 DeepInfra 嵌入模型为您的文本数据获取嵌入向量。这里是嵌入模型的[链接](https://deepinfra.com/models/embeddings)。
+
+首先，您需要在 DeepInfra 网站上注册，并从[此处](https://deepinfra.com/dash/api_keys)获取 API 令牌。您可以从模型卡片中复制名称，并在代码中开始使用它们。
+
+要使用 `DeepInfraEmbeddings` 类，您需要一个来自 DeepInfra 的 API 令牌。您可以直接将此令牌传递给构造函数，或将其设置为环境变量 (`DEEPINFRA_API_TOKEN`)。
+
+### 基本用法
+
+以下是创建 `DeepInfraEmbeddings` 实例的方法：
+
+```typescript
+import { DeepInfraEmbeddings } from "@langchain/community/embeddings/deepinfra";
+
+const embeddings = new DeepInfraEmbeddings({
+  apiToken: "YOUR_API_TOKEN",
+  modelName: "sentence-transformers/clip-ViT-B-32", // 可选，默认为 "sentence-transformers/clip-ViT-B-32"
+  batchSize: 1024, // 可选，默认为 1024
+});
+```
+
+如果未提供 `apiToken`，它将从 `DEEPINFRA_API_TOKEN` 环境变量中读取。
+
+## 生成嵌入向量
+
+### 嵌入单个查询
+
+要为单个文本查询生成嵌入向量，请使用 `embedQuery` 方法：
+
+```typescript
+const embedding = await embeddings.embedQuery(
+  "What would be a good company name for a company that makes colorful socks?"
+);
+console.log(embedding);
+```
+
+### 嵌入多个文档
+
+要为多个文档生成嵌入向量，请使用 `embedDocuments` 方法。此方法将根据 `batchSize` 参数自动处理批处理：
+
+```typescript
+const documents = [
+  "Document 1 text...",
+  "Document 2 text...",
+  "Document 3 text...",
+];
+
+const embeddingsArray = await embeddings.embedDocuments(documents);
+console.log(embeddingsArray);
+```
+
+## 自定义请求
+
+您可以通过传递 `configuration` 参数来自定义 SDK 发送请求的基础 URL：
+
+```typescript
+const customEmbeddings = new DeepInfraEmbeddings({
+  apiToken: "YOUR_API_TOKEN",
+  configuration: {
+    baseURL: "https://your_custom_url.com",
+  },
+});
+```
+
+这允许您在需要时通过自定义端点路由请求。
+
+## 错误处理
+
+如果未提供 API 令牌且在环境变量中找不到，将抛出错误：
+
+```typescript
+try {
+  const embeddings = new DeepInfraEmbeddings();
+} catch (error) {
+  console.error("DeepInfra API token not found");
+}
+```
+
+## 示例
+
+以下是设置和使用 `DeepInfraEmbeddings` 类的完整示例：
+
+```typescript
+import { DeepInfraEmbeddings } from "@langchain/community/embeddings/deepinfra";
+
+const embeddings = new DeepInfraEmbeddings({
+  apiToken: "YOUR_API_TOKEN",
+  modelName: "sentence-transformers/clip-ViT-B-32",
+  batchSize: 512,
+});
+
+async function runExample() {
+  const queryEmbedding = await embeddings.embedQuery("Example query text.");
+  console.log("Query Embedding:", queryEmbedding);
+
+  const documents = ["Text 1", "Text 2", "Text 3"];
+  const documentEmbeddings = await embeddings.embedDocuments(documents);
+  console.log("Document Embeddings:", documentEmbeddings);
+}
+
+runExample();
+```
+
+## 反馈与支持
+
+如有反馈或问题，请联系 [feedback@deepinfra.com](mailto:feedback@deepinfra.com)。
+
+## 相关链接
+
+- 嵌入模型[概念指南](/oss/integrations/text_embedding)
+- 嵌入模型[操作指南](/oss/integrations/text_embedding)

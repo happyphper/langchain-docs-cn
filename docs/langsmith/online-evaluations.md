@@ -1,0 +1,275 @@
+---
+title: 设置在线评估器
+sidebarTitle: Set up online evaluators
+---
+
+<Tip>
+
+<strong>推荐阅读</strong>
+
+在深入阅读本内容之前，建议先阅读以下内容：
+
+- 运行[在线评估](/langsmith/evaluation-concepts#online-evaluation)
+
+</Tip>
+
+在线评估为您的生产轨迹提供实时反馈。这对于持续监控应用程序的性能非常有用——可以识别问题、衡量改进效果，并确保长期的质量一致性。
+
+LangSmith 支持两种类型的在线评估：
+
+- **[LLM 作为评判者](/langsmith/evaluation-concepts#llm-as-judge)**：使用 LLM 来评估轨迹，作为类人判断（例如，毒性、幻觉、正确性）的可扩展替代方案。支持两种不同的粒度级别：
+    - **运行级别**：评估单个运行。
+    - **[线程级别](/langsmith/online-evaluations#configure-multi-turn-online-evaluators)**：评估线程中的所有轨迹。
+- **自定义代码**：直接在 LangSmith 中用 Python 编写评估器。通常用于验证数据的结构或统计属性。
+
+<Note>
+当在线评估器在轨迹中的任何运行上运行时，该轨迹将自动升级为[扩展数据保留](/langsmith/administration-overview#data-retention-auto-upgrades)。此升级会影响轨迹定价，但确保符合您评估标准（通常是那些对分析最有价值的）的轨迹得以保留以供调查。
+</Note>
+
+## 查看在线评估器
+
+前往 **Tracing Projects** 标签页并选择一个追踪项目。要查看该项目的现有在线评估器，请点击 **Evaluators** 标签页。
+
+![查看在线评估器](/langsmith/images/view-evaluators.png)
+
+## 配置在线评估器
+
+#### 1. 导航到在线评估器
+
+前往 **Tracing Projects** 标签页并选择一个追踪项目。点击追踪项目页面右上角的 **+ New**，然后点击 **New Evaluator**。选择您要配置的评估器。
+
+#### 2. 为评估器命名
+
+#### 3. 创建过滤器
+
+例如，您可能希望根据以下条件应用特定的评估器：
+
+- 用户留下反馈表示响应不令人满意的运行。参见[附加用户反馈](/langsmith/attach-user-feedback)。
+- 调用特定工具调用的运行。更多信息请参见[筛选工具调用](/langsmith/filter-traces-in-application#example-filtering-for-tool-calls)。
+- 匹配特定元数据的运行（例如，如果您使用 `plan_type` 记录轨迹，并且只想对企业客户的轨迹运行评估）。更多信息请参见[向轨迹添加元数据](/langsmith/add-metadata-tags)。
+
+评估器上的过滤器与您在项目中筛选轨迹时的工作方式相同。有关过滤器的更多信息，您可以参考[本指南](./filter-traces-in-application)。
+
+<Tip>
+
+在为评估器创建过滤器时，检查运行通常很有帮助。打开评估器配置面板后，您可以检查运行并对其应用过滤器。您对运行表应用的任何过滤器都会自动反映在评估器的过滤器中。
+
+</Tip>
+
+#### 4. （可选）配置采样率
+
+配置采样率以控制触发自动化操作的已过滤运行的百分比。例如，为了控制成本，您可能希望设置一个过滤器，仅将评估器应用于 10% 的轨迹。为此，您需要将采样率设置为 0.1。
+
+#### 5. （可选）将规则应用于过去的运行
+
+通过切换 **Apply to past runs** 并输入一个“Backfill from”日期，将规则应用于过去的运行。这仅在规则创建时可行。注意：回填作为后台作业处理，因此您不会立即看到结果。
+
+为了跟踪回填的进度，您可以查看评估器的日志，方法是前往追踪项目内的 **Evaluators** 标签页，并点击您创建的评估器的 Logs 按钮。在线评估器日志类似于[自动化规则日志](./rules#view-logs-for-your-automations)。
+
+- 添加评估器名称
+- （可选）筛选您希望应用评估器的运行，或配置采样率。
+- 选择 **Apply Evaluator**
+
+#### 6. 选择评估器类型
+
+- 配置 [LLM 作为评判者评估器](/langsmith/online-evaluations#configure-a-llm-as-a-judge-online-evaluator)
+- 配置 [自定义代码评估器](/langsmith/online-evaluations#configure-a-custom-code-evaluator)
+
+### 配置 LLM 作为评判者在线评估器
+
+查看本指南以配置 [LLM 作为评判者评估器](/langsmith/llm-as-judge?mode=ui#pre-built-evaluators-1)。
+
+### 配置自定义代码评估器
+
+选择 **custom code** 评估器。
+
+#### 编写您的评估函数
+
+<Note>
+
+<strong>自定义代码评估器限制。</strong>
+
+<strong>允许的库</strong>：您可以导入所有标准库函数，以及以下公共包：
+
+```
+numpy (v2.2.2): "numpy"
+pandas (v1.5.2): "pandas"
+jsonschema (v4.21.1): "jsonschema"
+scipy (v1.14.1): "scipy"
+sklearn (v1.26.4): "scikit-learn"
+```
+
+<strong>网络访问</strong>：您无法从自定义代码评估器访问互联网。
+
+</Note>
+
+自定义代码评估器必须内联编写。我们建议在 LangSmith 中设置自定义代码评估器之前先在本地进行测试。
+
+在 UI 中，您会看到一个面板，允许您内联编写代码，并提供一些起始代码：
+
+![在线评估自定义代码](/langsmith/images/online-eval-custom-code.png)
+
+自定义代码评估器接受一个参数：
+
+- 一个 `Run`（[参考](/langsmith/run-data-format)）。这代表要评估的采样运行。
+
+它们返回一个值：
+
+- 反馈字典：一个字典，其键是您要返回的反馈类型，值是您为该反馈键给出的分数。例如，`{"correctness": 1, "silliness": 0}` 将在运行上创建两种类型的反馈，一种表示其正确，另一种表示其不愚蠢。
+
+在下面的截图中，您可以看到一个简单函数的示例，该函数验证实验中的每个运行是否具有已知的 json 字段：
+
+::: code-group
+
+```python [Python]
+import json
+
+def perform_eval(run):
+  output_to_validate = run['outputs']
+  is_valid_json = 0
+
+  # assert you can serialize/deserialize as json
+  try:
+    json.loads(json.dumps(output_to_validate))
+  except Exception as e:
+    return { "formatted": False }
+
+  # assert output facts exist
+  if "facts" not in output_to_validate:
+    return { "formatted": False }
+
+  # assert required fields exist
+  if "years_mentioned" not in output_to_validate["facts"]:
+    return { "formatted": False }
+
+  return {"formatted": True}
+```
+
+```javascript [JavaScript]
+function perform_eval(run) {
+    const outputToValidate = run.outputs;
+
+    // Assert you can serialize/deserialize as json
+    try {
+        JSON.stringify(outputToValidate);
+        JSON.parse(JSON.stringify(outputToValidate));
+    } catch (e) {
+        return { "formatted": false };
+    }
+
+    // Assert output facts exist
+    if (!("facts" in outputToValidate)) {
+        return { "formatted": false };
+    }
+
+    // Assert required fields exist
+    if (!outputToValidate["facts"].hasOwnProperty("years_mentioned")) {
+        return { "formatted": false };
+    }
+
+    return { "formatted": true };
+}
+```
+
+:::
+
+#### 测试并保存您的评估函数
+
+在保存之前，您可以通过点击 **Test Code** 在最近的运行上测试您的评估器函数，以确保您的代码正确执行。
+
+一旦您点击 **Save**，您的在线评估器将在新采样的运行（或者如果您选择了回填选项，也包括回填的运行）上运行。
+
+如果您更喜欢视频教程，请查看 LangSmith 入门课程中的[在线评估视频](https://academy.langchain.com/pages/intro-to-langsmith-preview)。
+
+### 视频指南
+<iframe
+  className="w-full aspect-video rounded-xl"
+  src="https://www.youtube.com/embed/z69cBXTJFZ0?si=GBKQ9_muHR1zllLl"
+  title="YouTube video player"
+  frameBorder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
+
+## 配置多轮在线评估器
+
+多轮在线评估器允许您评估人类与代理之间的整个对话——而不仅仅是单个交换。它们衡量线程中所有轮次的端到端交互质量。
+
+您可以使用多轮评估来衡量：
+1. 语义意图：用户试图做什么。
+2. 语义结果：实际发生了什么，任务是否成功。
+3. 轨迹：对话如何展开，包括工具调用的轨迹。
+
+<Note>
+运行多轮在线评估将自动将线程内的每个轨迹升级为[扩展数据保留](/langsmith/administration-overview#data-retention-auto-upgrades)。此升级会影响轨迹定价，但确保符合您评估标准（通常是那些对分析最有价值的）的轨迹得以保留以供调查。
+</Note>
+
+### 先决条件
+
+- 您的追踪项目必须使用[线程](/langsmith/threads)。
+- 线程中每个轨迹的顶层输入和输出必须包含一个 `messages` 键，其中包含消息列表。我们支持 [LangChain](/langsmith/log-llm-trace#messages-format)、[OpenAI Chat Completions](https://platform.openai.com/docs/api-reference/chat/create) 和 [Anthropic Messages](https://platform.claude.com/docs/en/api/messages) 格式的消息。
+    - 如果每个轨迹的顶层输入和输出仅包含对话中的最新消息，LangSmith 将自动跨轮次组合消息到一个线程中。
+    - 如果每个轨迹的顶层输入和输出包含完整的对话历史记录，LangSmith 将直接使用它。
+
+<Note>
+
+如果您的轨迹不遵循上述格式，线程级别的评估器将无法工作。您需要更新向 LangSmith 追踪的方式，以确保每个轨迹的顶层输入和输出包含一个 `messages` 列表。
+
+更多信息请参考[故障排除](#troubleshooting)部分。
+
+</Note>
+
+### 配置
+
+1. 导航到 **Tracing Projects** 标签页并选择一个追踪项目。
+2. 点击追踪项目页面右上角的 **+ New** > **New Evaluator** > **Evaluate a multi-turn thread**。
+3. **为您的评估器命名**。
+4. **应用过滤器或采样率**。<br />
+使用过滤器或采样来控制评估器成本。例如，仅评估少于 *N* 轮次的线程，或对所有线程采样 10%。
+5. **配置空闲时间**。<br />
+首次配置线程级别评估器时，您需要定义空闲时间——即线程中最后一个轨迹之后，被认为完成并准备好进行评估的时间量。此值应反映您应用程序中用户交互的预期长度。它适用于项目中的所有评估器。
+
+<Tip>
+
+首次测试评估器时，使用较短的空闲时间以便快速查看结果。验证后，再将其增加到与用户交互的预期长度相匹配。
+
+</Tip>
+
+6. **配置您的模型。**<br />
+选择您希望用于评估器的提供商和模型。线程往往会变得很长，因此您应该使用具有更高上下文窗口的模型，以避免遇到限制。例如，OpenAI 的 GPT-4.1 mini 或 Gemini 2.5 Flash 是不错的选择，因为它们都具有 100 万+ token 的上下文窗口。
+
+7. **配置您的 LLM 作为评判者提示。**<br />
+定义您要评估的内容。此提示将用于评估线程。您还可以配置将 `messages` 列表的哪些部分传递给评估器，以控制其接收的内容：
+    - 所有消息：发送完整的消息列表。
+    - 人类和 AI 对：仅发送用户和助手消息（排除系统消息、工具调用等）。
+    - 第一条人类消息和最后一条 AI 回复：仅发送第一条用户消息和最后一条助手回复。
+
+9. **设置您的反馈配置。**<br />
+为反馈键配置一个名称，配置您要收集的反馈格式，并可选地启用反馈推理。
+
+<Warning>
+
+我们不建议对线程级别评估器和运行级别评估器使用相同的反馈键，因为很难区分两者。
+
+</Warning>
+
+8. **保存您的评估器。**
+
+保存后，您的评估器将出现在 **Evaluators** 标签页中。在保存后创建的任何新线程的空闲时间过后，您可以对其进行测试。
+
+### 限制
+以下是多轮在线评估器的当前限制（可能会更改）。如果您遇到任何这些限制，请联系我们。
+
+- **运行必须少于一周**：当线程变为空闲时，只有过去 7 天内的运行才有资格进行评估。
+- **一次最多评估 500 个线程**：如果您在五分钟内有超过 500 个线程被标记为空闲，我们将自动采样超过 500 个。
+- **每个工作区最多 10 个多轮在线评估器**
+
+### 故障排除
+
+**检查评估器的状态** <br />
+您可以通过前往追踪项目内的 **Evaluators** 标签页，并点击您创建的评估器的 **Logs** 按钮来查看其运行历史，从而检查评估器上次运行的时间。
+
+**检查发送给评估器的数据** <br />
+通过前往追踪项目内的 **Evaluators** 标签页，点击您创建的评估器，然后点击 **Evaluator traces** 标签页，来检查发送给评估器的数据。
+
+在此标签页中，您可以看到传递给 LLM 作为评判者评估器的输入。如果您的消息未正确传入，您将在输入中看到空白值。如果您的消息未以[预期格式](/langsmith/online-evaluations#prerequisites)之一格式化，则可能发生这种情况。

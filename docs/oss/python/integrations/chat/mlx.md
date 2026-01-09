@@ -1,0 +1,151 @@
+---
+title: MLX
+---
+本笔记本展示了如何开始使用 `MLX` LLM 作为聊天模型。
+
+具体来说，我们将：
+
+1. 使用 [MLXPipeline](https://github.com/langchain-ai/langchain/blob/master/libs/community/langchain_community/llms/mlx_pipeline.py)，
+2. 使用 `ChatMLX` 类，使这些 LLM 中的任何一个都能与 LangChain 的 [聊天消息](https://python.langchain.com/docs/modules/model_io/chat/#messages) 抽象进行交互。
+3. 演示如何使用开源 LLM 来驱动 `ChatAgent` 流程。
+
+```python
+pip install -qU  mlx-lm transformers huggingface_hub
+```
+
+## 1. 实例化一个 LLM
+
+有三种 LLM 选项可供选择。
+
+```python
+from langchain_community.llms.mlx_pipeline import MLXPipeline
+
+llm = MLXPipeline.from_model_id(
+    "mlx-community/quantized-gemma-2b-it",
+    pipeline_kwargs={"max_tokens": 10, "temp": 0.1},
+)
+```
+
+## 2. 实例化 `ChatMLX` 以应用聊天模板
+
+实例化聊天模型和一些要传递的消息。
+
+```python
+from langchain_community.chat_models.mlx import ChatMLX
+from langchain.messages import HumanMessage
+
+messages = [
+    HumanMessage(
+        content="What happens when an unstoppable force meets an immovable object?"
+    ),
+]
+
+chat_model = ChatMLX(llm=llm)
+```
+
+检查聊天消息是如何为 LLM 调用进行格式化的。
+
+```python
+chat_model._to_chat_prompt(messages)
+```
+
+调用模型。
+
+```python
+res = chat_model.invoke(messages)
+print(res.content)
+```
+
+## 3. 作为智能体（Agent）进行尝试
+
+这里我们将测试 `gemma-2b-it` 作为零样本 `ReAct` 智能体。下面的例子取自[这里](https://python.langchain.com/docs/modules/agents/agent_types/react#using-chat-models)。
+
+> 注意：要运行此部分，您需要将 [SerpApi Token](https://serpapi.com/) 保存为环境变量：`SERPAPI_API_KEY`
+
+```python
+from langchain_classic import hub
+from langchain.agents import AgentExecutor, load_tools
+from langchain.agents.format_scratchpad import format_log_to_str
+from langchain.agents.output_parsers import (
+    ReActJsonSingleInputOutputParser,
+)
+from langchain.tools.render import render_text_description
+from langchain_community.utilities import SerpAPIWrapper
+```
+
+使用 `react-json` 风格的提示词配置智能体，并使其能够访问搜索引擎和计算器。
+
+```python
+# 设置工具
+tools = load_tools(["serpapi", "llm-math"], llm=llm)
+
+# 设置 ReAct 风格的提示词
+# 基于 'hwchase17/react' 提示词修改，因为 mlx 不支持 `System` 角色
+human_prompt = """
+Answer the following questions as best you can. You have access to the following tools:
+
+{tools}
+
+The way you use the tools is by specifying a json blob.
+Specifically, this json should have a `action` key (with the name of the tool to use) and a `action_input` key (with the input to the tool going here).
+
+The only values that should be in the "action" field are: {tool_names}
+
+The $JSON_BLOB should only contain a SINGLE action, do NOT return a list of multiple actions. Here is an example of a valid $JSON_BLOB:
+
+\`\`\<code v-pre>
+{{
+  "action": $TOOL_NAME,
+  "action_input": $INPUT
+}}
+\</code>\`\`
+
+ALWAYS use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action:
+\`\`\`
+$JSON_BLOB
+\`\`\`
+Observation: the result of the action
+... (this Thought/Action/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Begin! Reminder to always use the exact characters `Final Answer` when responding.
+
+{input}
+
+{agent_scratchpad}
+
+"""
+
+prompt = human_prompt.partial(
+    tools=render_text_description(tools),
+    tool_names=", ".join([t.name for t in tools]),
+)
+
+# 定义智能体
+chat_model_with_stop = chat_model.bind(stop=["\nObservation"])
+agent = (
+    {
+        "input": lambda x: x["input"],
+        "agent_scratchpad": lambda x: format_log_to_str(x["intermediate_steps"]),
+    }
+    | prompt
+    | chat_model_with_stop
+    | ReActJsonSingleInputOutputParser()
+)
+
+# 实例化 AgentExecutor
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+```
+
+```python
+agent_executor.invoke(
+    {
+        "input": "Who is Leo DiCaprio's girlfriend? What is her current age raised to the 0.43 power?"
+    }
+)
+```

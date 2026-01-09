@@ -1,0 +1,100 @@
+---
+title: 使用 SDK 记录用户反馈
+sidebarTitle: Log user feedback using the SDK
+---
+
+<Tip>
+
+<strong>核心概念</strong>
+- [追踪与反馈的概念指南](/langsmith/observability-concepts)
+- [反馈数据格式参考指南](/langsmith/feedback-data-format)
+
+</Tip>
+
+LangSmith 可以轻松地将反馈附加到追踪记录上。
+这些反馈可以来自用户、标注员、自动化评估器等，对于监控和评估应用程序至关重要。
+
+## 使用 [create_feedback()](https://docs.smith.langchain.com/reference/python/client/langsmith.client.Client#langsmith.client.Client.create_feedback) / [createFeedback()](https://docs.smith.langchain.com/reference/js/classes/client.Client#createfeedback)
+
+这里我们将介绍如何使用 SDK 记录反馈。
+
+<Info>
+
+<strong>子运行</strong>
+您可以将用户反馈附加到追踪记录中的<strong>任何</strong>子运行，而不仅仅是追踪记录（根运行）本身。
+这对于评判 LLM 应用程序的特定步骤非常有用，例如 RAG 管道的检索步骤或生成步骤。
+
+</Info>
+
+<Tip>
+
+<strong>非阻塞创建（仅限 Python）</strong>
+如果您向 [create_feedback()](https://docs.smith.langchain.com/reference/python/client/langsmith.client.Client#langsmith.client.Client.create_feedback) 传递 `trace_id=` 参数，Python 客户端会自动在后台创建反馈。
+这对于低延迟环境至关重要，可以确保您的应用程序不会因创建反馈而被阻塞。
+
+</Tip>
+
+::: code-group
+
+```python [Python]
+from langsmith import trace, traceable, Client
+
+    @traceable
+    def foo(x):
+        return {"y": x * 2}
+
+    @traceable
+    def bar(y):
+        return {"z": y - 1}
+
+    client = Client()
+
+    inputs = {"x": 1}
+    with trace(name="foobar", inputs=inputs) as root_run:
+        result = foo(**inputs)
+        result = bar(**result)
+        root_run.outputs = result
+        trace_id = root_run.id
+        child_runs = root_run.child_runs
+
+    # 为追踪记录（即根运行）提供反馈
+    client.create_feedback(
+        key="user_feedback",
+        score=1,
+        trace_id=trace_id,
+        comment="the user said that ..."
+    )
+
+# 为子运行提供反馈
+foo_run_id = [run for run in child_runs if run.name == "foo"][0].id
+client.create_feedback(
+    key="correctness",
+    score=0,
+    run_id=foo_run_id,
+    # trace_id= 是可选的，但建议提供以启用批处理和后台反馈摄取。
+    trace_id=trace_id,
+)
+```
+
+```typescript [TypeScript]
+import { Client } from "langsmith";
+const client = new Client();
+
+    // ... 运行您的应用程序并获取 run_id...
+    // 此信息可以来自面向用户的反馈表单
+
+await client.createFeedback(
+    runId,
+    "feedback-key",
+    {
+        score: 1.0,
+        comment: "comment",
+    }
+);
+```
+
+:::
+
+您甚至可以使用 `create_feedback() / createFeedback()` 为正在进行的运行记录反馈。关于如何获取正在进行的运行的运行 ID，请参阅[本指南](/langsmith/access-current-span)。
+
+要了解更多关于如何根据各种属性（包括用户反馈）筛选追踪记录的信息，请参阅[本指南](/langsmith/filter-traces-in-application)。

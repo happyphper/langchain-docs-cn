@@ -1,0 +1,400 @@
+---
+title: Hyperbrowser 网页抓取工具
+---
+[Hyperbrowser](https://hyperbrowser.ai) 是一个用于运行和扩展无头浏览器的平台。它允许您大规模启动和管理浏览器会话，并为任何网络抓取需求（例如抓取单个页面或爬取整个网站）提供易于使用的解决方案。
+
+主要特性：
+
+- **即时扩展性** - 无需担心基础设施问题，几秒钟内即可启动数百个浏览器会话
+- **简单集成** - 与 Puppeteer 和 Playwright 等流行工具无缝协作
+- **强大的 API** - 易于使用的 API，用于抓取/爬取任何网站，以及更多功能
+- **绕过反机器人措施** - 内置隐身模式、广告拦截、自动验证码解决和轮换代理
+
+本指南提供了 Hyperbrowser 网络工具的快速入门概述。
+
+有关 Hyperbrowser 的更多信息，请访问 [Hyperbrowser 网站](https://hyperbrowser.ai)，或者如果您想查看文档，可以访问 [Hyperbrowser 文档](https://docs.hyperbrowser.ai)。
+
+## 核心功能
+
+### 抓取 (Scrape)
+
+Hyperbrowser 提供强大的抓取功能，允许您从任何网页提取数据。抓取工具可以将网页内容转换为结构化格式，如 Markdown 或 HTML，使数据处理和分析变得容易。
+
+### 爬取 (Crawl)
+
+爬取功能使您能够自动浏览网站的多个页面。您可以设置页面限制等参数来控制爬虫探索网站的范围，并从其访问的每个页面收集数据。
+
+### 提取 (Extract)
+
+Hyperbrowser 的提取功能利用 AI 根据您定义的架构从网页中提取特定信息。这使您能够将非结构化的网页内容转换为符合您确切需求的结构化数据。
+
+## 概述
+
+### 集成详情
+
+| 工具          | 包                      | 本地 (Local) | 可序列化 (Serializable) | JS 支持 (JS support) |
+| :------------ | :---------------------- | :----------: | :---------------------: | :------------------: |
+| 爬取工具 (Crawl Tool)   | langchain-hyperbrowser  |      ❌      |           ❌            |          ❌          |
+| 抓取工具 (Scrape Tool)  | langchain-hyperbrowser  |      ❌      |           ❌            |          ❌          |
+| 提取工具 (Extract Tool) | langchain-hyperbrowser  |      ❌      |           ❌            |          ❌          |
+
+## 设置
+
+要使用 Hyperbrowser 网络工具，您需要安装 `langchain-hyperbrowser` 集成包，并创建一个 Hyperbrowser 账户以获取 API 密钥。
+
+### 凭证
+
+前往 [Hyperbrowser](https://app.hyperbrowser.ai/) 注册并生成 API 密钥。完成后，设置 HYPERBROWSER_API_KEY 环境变量：
+
+```bash
+export HYPERBROWSER_API_KEY=<your-api-key>
+```
+
+### 安装
+
+安装 **langchain-hyperbrowser**。
+
+```python
+pip install -qU langchain-hyperbrowser
+```
+
+## 实例化
+
+### 爬取工具 (Crawl Tool)
+
+`HyperbrowserCrawlTool` 是一个强大的工具，可以从给定的 URL 开始爬取整个网站。它支持可配置的页面限制和抓取选项。
+
+```python
+from langchain_hyperbrowser import HyperbrowserCrawlTool
+tool = HyperbrowserCrawlTool()
+```
+
+### 抓取工具 (Scrape Tool)
+
+`HyperbrowserScrapeTool` 是一个可以从网页抓取内容的工具。它支持 Markdown 和 HTML 输出格式，以及元数据提取。
+
+```python
+from langchain_hyperbrowser import HyperbrowserScrapeTool
+tool = HyperbrowserScrapeTool()
+```
+
+### 提取工具 (Extract Tool)
+
+`HyperbrowserExtractTool` 是一个强大的工具，它利用 AI 从网页中提取结构化数据。它可以根据预定义的架构提取信息。
+
+```python
+from langchain_hyperbrowser import HyperbrowserExtractTool
+tool = HyperbrowserExtractTool()
+```
+
+## 调用
+
+### 基本用法
+
+#### 爬取工具 (Crawl Tool)
+
+```python
+from langchain_hyperbrowser import HyperbrowserCrawlTool
+
+result = HyperbrowserCrawlTool().invoke(
+    {
+        "url": "https://example.com",
+        "max_pages": 2,
+        "scrape_options": {"formats": ["markdown"]},
+    }
+)
+print(result)
+```
+
+```python
+{'data': [CrawledPage(metadata={'url': 'https://www.example.com/', 'title': 'Example Domain', 'viewport': 'width=device-width, initial-scale=1', 'sourceURL': 'https://example.com'}, html=None, markdown='Example Domain\n\n# Example Domain\n\nThis domain is for use in illustrative examples in documents. You may use this\ndomain in literature without prior coordination or asking for permission.\n\n[More information...](https://www.iana.org/domains/example)', links=None, screenshot=None, url='https://example.com', status='completed', error=None)], 'error': None}
+```
+
+#### 抓取工具 (Scrape Tool)
+
+```python
+from langchain_hyperbrowser import HyperbrowserScrapeTool
+
+result = HyperbrowserScrapeTool().invoke(
+    {"url": "https://example.com", "scrape_options": {"formats": ["markdown"]}}
+)
+print(result)
+```
+
+```python
+{'data': ScrapeJobData(metadata={'url': 'https://www.example.com/', 'title': 'Example Domain', 'viewport': 'width=device-width, initial-scale=1', 'sourceURL': 'https://example.com'}, html=None, markdown='Example Domain\n\n# Example Domain\n\nThis domain is for use in illustrative examples in documents. You may use this\ndomain in literature without prior coordination or asking for permission.\n\n[More information...](https://www.iana.org/domains/example)', links=None, screenshot=None), 'error': None}
+```
+
+#### 提取工具 (Extract Tool)
+
+```python
+from langchain_hyperbrowser import HyperbrowserExtractTool
+from pydantic import BaseModel
+
+class SimpleExtractionModel(BaseModel):
+    title: str
+
+result = HyperbrowserExtractTool().invoke(
+    {
+        "url": "https://example.com",
+        "schema": SimpleExtractionModel,
+    }
+)
+print(result)
+```
+
+```python
+{'data': {'title': 'Example Domain'}, 'error': None}
+```
+
+### 使用自定义选项
+
+#### 带自定义选项的爬取工具 (Crawl Tool)
+
+```python
+result = HyperbrowserCrawlTool().run(
+    {
+        "url": "https://example.com",
+        "max_pages": 2,
+        "scrape_options": {
+            "formats": ["markdown", "html"],
+        },
+        "session_options": {"use_proxy": True, "solve_captchas": True},
+    }
+)
+print(result)
+```
+
+```python
+{'data': [CrawledPage(metadata={'url': 'https://www.example.com/', 'title': 'Example Domain', 'viewport': 'width=device-width, initial-scale=1', 'sourceURL': 'https://example.com'}, html=None, markdown='Example Domain\n\n# Example Domain\n\nThis domain is for use in illustrative examples in documents. You may use this\ndomain in literature without prior coordination or asking for permission.\n\n[More information...](https://www.iana.org/domains/example)', links=None, screenshot=None, url='https://example.com', status='completed', error=None)], 'error': None}
+```
+
+#### 带自定义选项的抓取工具 (Scrape Tool)
+
+```python
+result = HyperbrowserScrapeTool().run(
+    {
+        "url": "https://example.com",
+        "scrape_options": {
+            "formats": ["markdown", "html"],
+        },
+        "session_options": {"use_proxy": True, "solve_captchas": True},
+    }
+)
+print(result)
+```
+
+```python
+{'data': ScrapeJobData(metadata={'url': 'https://www.example.com/', 'title': 'Example Domain', 'viewport': 'width=device-width, initial-scale=1', 'sourceURL': 'https://example.com'}, html='<html><head>\n    <title>Example Domain</title>\n\n    <meta charset="utf-8">\n    <meta http-equiv="Content-type" content="text/html; charset=utf-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1">\n        \n</head>\n\n<body>\n<div>\n    <h1>Example Domain</h1>\n    <p>This domain is for use in illustrative examples in documents. You may use this\n    domain in literature without prior coordination or asking for permission.</p>\n    <p><a href="https://www.iana.org/domains/example">More information...</a></p>\n</div>\n\n\n</body></html>', markdown='Example Domain\n\n# Example Domain\n\nThis domain is for use in illustrative examples in documents. You may use this\ndomain in literature without prior coordination or asking for permission.\n\n[More information...](https://www.iana.org/domains/example)', links=None, screenshot=None), 'error': None}
+```
+
+#### 带自定义架构的提取工具 (Extract Tool)
+
+```python
+from typing import List
+
+from pydantic import BaseModel
+
+class ProductSchema(BaseModel):
+    title: str
+    price: float
+
+class ProductsSchema(BaseModel):
+    products: List[ProductSchema]
+
+result = HyperbrowserExtractTool().run(
+    {
+        "url": "https://dummyjson.com/products?limit=10",
+        "schema": ProductsSchema,
+        "session_options": {"session_options": {"use_proxy": True}},
+    }
+)
+print(result)
+```
+
+```python
+{'data': {'products': [{'price': 9.99, 'title': 'Essence Mascara Lash Princess'}, {'price': 19.99, 'title': 'Eyeshadow Palette with Mirror'}, {'price': 14.99, 'title': 'Powder Canister'}, {'price': 12.99, 'title': 'Red Lipstick'}, {'price': 8.99, 'title': 'Red Nail Polish'}, {'price': 49.99, 'title': 'Calvin Klein CK One'}, {'price': 129.99, 'title': 'Chanel Coco Noir Eau De'}, {'price': 89.99, 'title': "Dior J'adore"}, {'price': 69.99, 'title': 'Dolce Shine Eau de'}, {'price': 79.99, 'title': 'Gucci Bloom Eau de'}]}, 'error': None}
+```
+
+### 异步用法
+
+所有工具都支持异步用法：
+
+```python
+from typing import List
+
+from langchain_hyperbrowser import (
+    HyperbrowserCrawlTool,
+    HyperbrowserExtractTool,
+    HyperbrowserScrapeTool,
+)
+from pydantic import BaseModel
+
+class ExtractionSchema(BaseModel):
+    popular_library_name: List[str]
+
+async def web_operations():
+    # 爬取
+    crawl_tool = HyperbrowserCrawlTool()
+    crawl_result = await crawl_tool.arun(
+        {
+            "url": "https://example.com",
+            "max_pages": 5,
+            "scrape_options": {"formats": ["markdown"]},
+        }
+    )
+
+    # 抓取
+    scrape_tool = HyperbrowserScrapeTool()
+    scrape_result = await scrape_tool.arun(
+        {"url": "https://example.com", "scrape_options": {"formats": ["markdown"]}}
+    )
+
+    # 提取
+    extract_tool = HyperbrowserExtractTool()
+    extract_result = await extract_tool.arun(
+        {
+            "url": "https://npmjs.com",
+            "schema": ExtractionSchema,
+        }
+    )
+
+    return crawl_result, scrape_result, extract_result
+
+results = await web_operations()
+print(results)
+```
+
+```text
+---------------------------------------------------------------------------
+```
+
+```text
+NameError                                 Traceback (most recent call last)
+```
+
+```text
+Cell In[6], line 10
+      1 from langchain_hyperbrowser import (
+      2     HyperbrowserCrawlTool,
+      3     HyperbrowserExtractTool,
+      4     HyperbrowserScrapeTool,
+      5 )
+      7 from pydantic import BaseModel
+---> 10 class ExtractionSchema(BaseModel):
+     11     popular_library_name: List[str]
+     14 async def web_operations():
+     15     # Crawl
+```
+
+```text
+Cell In[6], line 11, in ExtractionSchema()
+     10 class ExtractionSchema(BaseModel):
+---> 11     popular_library_name: List[str]
+```
+
+```text
+NameError: name 'List' is not defined
+```
+
+## 在智能体 (Agent) 中使用
+
+以下是如何在智能体中使用任何网络工具：
+
+```python
+from langchain_hyperbrowser import HyperbrowserCrawlTool
+from langchain_openai import ChatOpenAI
+from langchain.agents import create_agent
+
+# 初始化爬取工具
+crawl_tool = HyperbrowserCrawlTool()
+
+# 使用爬取工具创建智能体
+model = ChatOpenAI(temperature=0)
+
+agent = create_agent(model, [crawl_tool])
+user_input = "Crawl https://example.com and get content from up to 5 pages"
+for step in agent.stream(
+    {"messages": user_input},
+    stream_mode="values",
+):
+    step["messages"][-1].pretty_print()
+```
+
+```python
+================================ Human Message =================================
+
+Crawl https://example.com and get content from up to 5 pages
+================================== Ai Message ==================================
+Tool Calls:
+  hyperbrowser_crawl_data (call_G2ofdHOqjdnJUZu4hhbuga58)
+ Call ID: call_G2ofdHOqjdnJUZu4hhbuga58
+  Args:
+    url: https://example.com
+    max_pages: 5
+    scrape_options: {'formats': ['markdown']}
+================================= Tool Message =================================
+Name: hyperbrowser_crawl_data
+
+{'data': [CrawledPage(metadata={'url': 'https://www.example.com/', 'title': 'Example Domain', 'viewport': 'width=device-width, initial-scale=1', 'sourceURL': 'https://example.com'}, html=None, markdown='Example Domain\n\n# Example Domain\n\nThis domain is for use in illustrative examples in documents. You may use this\ndomain in literature without prior coordination or asking for permission.\n\n[More information...](https://www.iana.org/domains/example)', links=None, screenshot=None, url='https://example.com', status='completed', error=None)], 'error': None}
+================================== Ai Message ==================================
+
+我已爬取网站 [https://example.com](https://example.com) 并检索了第一页的内容。以下是 Markdown 格式的内容：
+
+\`\`\`
+Example Domain
+
+# Example Domain
+
+This domain is for use in illustrative examples in documents. You may use this
+domain in literature without prior coordination or asking for permission.
+
+[More information...](https://www.iana.org/domains/example)
+\`\`\`
+
+如果您想爬取更多页面或需要其他信息，请告诉我！
+```
+
+## 配置选项
+
+### 通用选项
+
+所有工具都支持以下基本配置选项：
+
+- `url`: 要处理的 URL
+- `session_options`: 浏览器会话配置
+  - `use_proxy`: 是否使用代理
+  - `solve_captchas`: 是否自动解决验证码
+  - `accept_cookies`: 是否接受 Cookie
+
+### 工具特定选项
+
+#### 爬取工具 (Crawl Tool)
+
+- `max_pages`: 要爬取的最大页面数
+- `scrape_options`: 每个页面的抓取选项
+  - `formats`: 输出格式列表 (markdown, html)
+
+#### 抓取工具 (Scrape Tool)
+
+- `scrape_options`: 页面抓取选项
+  - `formats`: 输出格式列表 (markdown, html)
+
+#### 提取工具 (Extract Tool)
+
+- `schema`: 定义要提取的结构的 Pydantic 模型
+- `extraction_prompt`: 用于提取的自然语言提示
+
+更多详细信息，请参阅相应的 API 参考：
+
+- [爬取 API 参考](https://docs.hyperbrowser.ai/reference/api-reference/crawl)
+- [抓取 API 参考](https://docs.hyperbrowser.ai/reference/api-reference/scrape)
+- [提取 API 参考](https://docs.hyperbrowser.ai/reference/api-reference/extract)
+
+---
+
+## API 参考
+
+- [GitHub](https://github.com/hyperbrowserai/langchain-hyperbrowser/)
+- [PyPi](https://pypi.org/project/langchain-hyperbrowser/)
+- [Hyperbrowser 文档](https://docs.hyperbrowser.ai/)

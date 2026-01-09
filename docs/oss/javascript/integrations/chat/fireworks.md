@@ -1,0 +1,128 @@
+---
+title: ChatFireworks
+---
+[Fireworks AI](https://fireworks.ai/) 是一个用于运行和定制模型的 AI 推理平台。要查看 Fireworks 提供的所有模型列表，请参阅 [Fireworks 文档](https://fireworks.ai/models)。
+
+本指南将帮助您开始使用 `ChatFireworks` [聊天模型](/oss/langchain/models)。有关 `ChatFireworks` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_chat_models_fireworks.ChatFireworks.html)。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | [PY 支持](https://python.langchain.com/docs/integrations/chat/fireworks) | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| [ChatFireworks](https://api.js.langchain.com/classes/langchain_community_chat_models_fireworks.ChatFireworks.html) | [`@langchain/community`](https://www.npmjs.com/package/@langchain/community) | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/community?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/community?style=flat-square&label=%20&) |
+
+### 模型功能
+
+有关如何使用特定功能的指南，请参阅下表标题中的链接。
+
+| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+
+## 设置
+
+要访问 `ChatFireworks` 模型，您需要创建一个 Fireworks 账户，获取一个 API 密钥，并安装 `@langchain/community` 集成包。
+
+### 凭证
+
+前往 [Fireworks 网站](https://fireworks.ai/login) 注册 Fireworks 并生成一个 API 密钥。完成后，设置 `FIREWORKS_API_KEY` 环境变量：
+
+```bash
+export FIREWORKS_API_KEY="your-api-key"
+```
+
+如果您希望自动追踪模型调用，也可以通过取消注释以下行来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```bash
+# export LANGSMITH_TRACING="true"
+# export LANGSMITH_API_KEY="your-api-key"
+```
+
+### 安装
+
+LangChain 的 `ChatFireworks` 集成位于 `@langchain/community` 包中：
+
+::: code-group
+
+```bash [npm]
+npm install @langchain/community @langchain/core
+```
+
+```bash [yarn]
+yarn add @langchain/community @langchain/core
+```
+
+```bash [pnpm]
+pnpm add @langchain/community @langchain/core
+```
+
+:::
+
+## 实例化
+
+现在我们可以实例化我们的模型对象并生成聊天补全：
+
+```typescript
+import { ChatFireworks } from "@langchain/community/chat_models/fireworks"
+
+const llm = new ChatFireworks({
+    model: "accounts/fireworks/models/llama-v3p1-70b-instruct",
+    temperature: 0,
+    maxTokens: undefined,
+    timeout: undefined,
+    maxRetries: 2,
+    // other params...
+})
+```
+
+## 调用
+
+```typescript
+const aiMsg = await llm.invoke([
+    [
+        "system",
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+    ],
+    ["human", "I love programming."],
+])
+aiMsg
+```
+
+```text
+AIMessage {
+  "id": "chatcmpl-9rBYHbb6QYRrKyr2tMhO9pH4AYXR4",
+  "content": "J'adore la programmation.",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "tokenUsage": {
+      "completionTokens": 8,
+      "promptTokens": 31,
+      "totalTokens": 39
+    },
+    "finish_reason": "stop"
+  },
+  "tool_calls": [],
+  "invalid_tool_calls": [],
+  "usage_metadata": {
+    "input_tokens": 31,
+    "output_tokens": 8,
+    "total_tokens": 39
+  }
+}
+```
+
+```typescript
+console.log(aiMsg.content)
+```
+
+```text
+J'adore la programmation.
+```
+
+---
+
+## API 参考
+
+有关 ChatFireworks 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_chat_models_fireworks.ChatFireworks.html)。

@@ -1,0 +1,67 @@
+---
+title: YandexGPT
+---
+本笔记本将介绍如何将 LangChain 与 [YandexGPT](https://cloud.yandex.com/en/services/yandexgpt) 嵌入模型结合使用。
+
+使用前，请确保已安装 `yandexcloud` Python 包。
+
+```python
+pip install -qU  yandexcloud
+```
+
+首先，您需要[创建一个服务账户](https://cloud.yandex.com/en/docs/iam/operations/sa/create)，并为其分配 `ai.languageModels.user` 角色。
+
+接下来，您有两种身份验证方式可选：
+
+- [IAM 令牌](https://cloud.yandex.com/en/docs/iam/operations/iam-token/create-for-sa)。
+您可以在构造函数参数 `iam_token` 或环境变量 `YC_IAM_TOKEN` 中指定令牌。
+- [API 密钥](https://cloud.yandex.com/en/docs/iam/operations/api-key/create)
+您可以在构造函数参数 `api_key` 或环境变量 `YC_API_KEY` 中指定密钥。
+
+您可以通过 `model_uri` 参数指定要使用的模型，更多详情请参阅[相关文档](https://cloud.yandex.com/en/docs/yandexgpt/concepts/models#yandexgpt-embeddings)。
+
+默认情况下，系统会使用参数 `folder_id` 或环境变量 `YC_FOLDER_ID` 所指定文件夹中的最新版 `text-search-query` 模型。
+
+```python
+from langchain_community.embeddings.yandex import YandexGPTEmbeddings
+```
+
+```python
+embeddings = YandexGPTEmbeddings()
+```
+
+```python
+text = "This is a test document."
+```
+
+```python
+query_result = embeddings.embed_query(text)
+```
+
+```python
+doc_result = embeddings.embed_documents([text])
+```
+
+```python
+query_result[:5]
+```
+
+```text
+[-0.021392822265625,
+ 0.096435546875,
+ -0.046966552734375,
+ -0.0183258056640625,
+ -0.00555419921875]
+```
+
+```python
+doc_result[0][:5]
+```
+
+```text
+[-0.021392822265625,
+ 0.096435546875,
+ -0.046966552734375,
+ -0.0183258056640625,
+ -0.00555419921875]
+```

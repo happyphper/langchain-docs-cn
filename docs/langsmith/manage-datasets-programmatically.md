@@ -1,0 +1,544 @@
+---
+title: 如何以编程方式创建和管理数据集
+sidebarTitle: With the SDK
+---
+您可以使用 Python 和 TypeScript SDK 以编程方式管理数据集。这包括创建、更新和删除数据集，以及向其中添加示例。
+
+## 创建数据集
+
+### 从值列表创建数据集
+
+使用客户端创建数据集最灵活的方式是通过输入列表和可选的输出列表来创建示例。下面是一个示例。
+
+请注意，您可以为每个示例添加任意元数据，例如注释或来源。元数据以字典形式存储。
+
+<Check>
+
+如果您需要创建许多示例，请考虑使用 `create_examples`/`createExamples` 方法在单个请求中创建多个示例。如果只创建单个示例，可以使用 `create_example`/`createExample` 方法。
+
+</Check>
+
+::: code-group
+
+```python [Python]
+from langsmith import Client
+
+examples = [
+  {
+    "inputs": {"question": "What is the largest mammal?"},
+    "outputs": {"answer": "The blue whale"},
+    "metadata": {"source": "Wikipedia"},
+  },
+  {
+    "inputs": {"question": "What do mammals and birds have in common?"},
+    "outputs": {"answer": "They are both warm-blooded"},
+    "metadata": {"source": "Wikipedia"},
+  },
+  {
+    "inputs": {"question": "What are reptiles known for?"},
+    "outputs": {"answer": "Having scales"},
+    "metadata": {"source": "Wikipedia"},
+  },
+  {
+    "inputs": {"question": "What's the main characteristic of amphibians?"},
+    "outputs": {"answer": "They live both in water and on land"},
+    "metadata": {"source": "Wikipedia"},
+  },
+]
+
+client = Client()
+dataset_name = "Elementary Animal Questions"
+
+# 将输入存储在数据集中，使我们能够
+# 在一组共享的示例上运行链和 LLM。
+dataset = client.create_dataset(
+  dataset_name=dataset_name, description="Questions and answers about animal phylogenetics.",
+)
+
+# 为批量创建准备输入、输出和元数据
+client.create_examples(
+  dataset_id=dataset.id,
+  examples=examples
+)
+```
+
+```typescript [TypeScript]
+import { Client } from "langsmith";
+
+const client = new Client();
+
+const exampleInputs: [string, string][] = [
+  ["What is the largest mammal?", "The blue whale"],
+  ["What do mammals and birds have in common?", "They are both warm-blooded"],
+  ["What are reptiles known for?", "Having scales"],
+  [
+    "What's the main characteristic of amphibians?",
+    "They live both in water and on land",
+  ],
+];
+
+const datasetName = "Elementary Animal Questions";
+
+// 将输入存储在数据集中，使我们能够
+// 在一组共享的示例上运行链和 LLM。
+const dataset = await client.createDataset(datasetName, {
+  description: "Questions and answers about animal phylogenetics",
+});
+
+// 为批量创建准备输入、输出和元数据
+const inputs = exampleInputs.map(([inputPrompt]) => ({ question: inputPrompt }));
+const outputs = exampleInputs.map(([, outputAnswer]) => ({ answer: outputAnswer }));
+const metadata = exampleInputs.map(() => ({ source: "Wikipedia" }));
+
+// 使用批量 createExamples 方法
+await client.createExamples({
+  inputs,
+  outputs,
+  metadata,
+  datasetId: dataset.id,
+});
+```
+
+:::
+
+### 从追踪记录创建数据集
+
+要从追踪记录中的运行（span）创建数据集，您可以使用相同的方法。关于如何获取和筛选运行的**更多**示例，请参阅[导出追踪记录](/langsmith/export-traces)指南。下面是一个示例：
+
+::: code-group
+
+```python [Python]
+from langsmith import Client
+
+client = Client()
+dataset_name = "Example Dataset"
+
+# 筛选要添加到数据集的运行
+runs = client.list_runs(
+  project_name="my_project",
+  is_root=True,
+  error=False,
+)
+
+dataset = client.create_dataset(dataset_name, description="An example dataset")
+
+# 为批量创建准备输入和输出
+examples = [{"inputs": run.inputs, "outputs": run.outputs} for run in runs]
+
+# 使用批量 create_examples 方法
+client.create_examples(
+  dataset_id=dataset.id,
+  examples=examples
+)
+```
+
+```typescript [TypeScript]
+import { Client, Run } from "langsmith";
+
+const client = new Client();
+const datasetName = "Example Dataset";
+
+// 筛选要添加到数据集的运行
+const runs: Run[] = [];
+for await (const run of client.listRuns({
+  projectName: "my_project",
+  isRoot: 1,
+  error: false,
+})) {
+  runs.push(run);
+}
+
+const dataset = await client.createDataset(datasetName, {
+  description: "An example dataset",
+  dataType: "kv",
+});
+
+// 为批量创建准备输入和输出
+const inputs = runs.map(run => run.inputs);
+const outputs = runs.map(run => run.outputs ?? {});
+
+// 使用批量 createExamples 方法
+await client.createExamples({
+  inputs,
+  outputs,
+  datasetId: dataset.id,
+});
+```
+
+:::
+
+### 从 CSV 文件创建数据集
+
+在本节中，我们将演示如何通过上传 CSV 文件来创建数据集。
+
+首先，确保您的 CSV 文件格式正确，其列代表您的输入和输出键。这些键将在上传过程中用于正确映射您的数据。您可以为数据集指定可选的名称和描述。否则，将使用文件名作为数据集名称，且不提供描述。
+
+::: code-group
+
+```python [Python]
+from langsmith import Client
+import os
+
+client = Client()
+csv_file = 'path/to/your/csvfile.csv'
+input_keys = ['column1', 'column2'] # 替换为您的输入列名
+output_keys = ['output1', 'output2'] # 替换为您的输出列名
+
+dataset = client.upload_csv(
+  csv_file=csv_file,
+  input_keys=input_keys,
+  output_keys=output_keys,
+  name="My CSV Dataset",
+  description="Dataset created from a CSV file",
+  data_type="kv"
+)
+```
+
+```typescript [TypeScript]
+import { Client } from "langsmith";
+
+const client = new Client();
+const csvFile = 'path/to/your/csvfile.csv';
+const inputKeys = ['column1', 'column2']; // 替换为您的输入列名
+const outputKeys = ['output1', 'output2']; // 替换为您的输出列名
+
+const dataset = await client.uploadCsv({
+  csvFile: csvFile,
+  fileName: "My CSV Dataset",
+  inputKeys: inputKeys,
+  outputKeys: outputKeys,
+  description: "Dataset created from a CSV file",
+  dataType: "kv"
+});
+```
+
+:::
+
+### 从 pandas DataFrame 创建数据集（仅限 Python）
+
+Python 客户端提供了一个额外的便捷方法，用于从 pandas DataFrame 上传数据集。
+
+```python
+from langsmith import Client
+import os
+import pandas as pd
+
+client = Client()
+df = pd.read_parquet('path/to/your/myfile.parquet')
+input_keys = ['column1', 'column2'] # 替换为您的输入列名
+output_keys = ['output1', 'output2'] # 替换为您的输出列名
+
+dataset = client.upload_dataframe(
+    df=df,
+    input_keys=input_keys,
+    output_keys=output_keys,
+    name="My Parquet Dataset",
+    description="Dataset created from a parquet file",
+    data_type="kv" # 默认值
+)
+```
+
+## 获取数据集
+
+您可以使用 Python 和 TypeScript SDK 中的 `list_datasets`/`listDatasets` 方法以编程方式从 LangSmith 获取数据集。以下是一些常见的调用。
+
+<Info>
+
+在运行以下代码片段之前，请先初始化客户端。
+
+</Info>
+
+::: code-group
+
+```python [Python]
+from langsmith import Client
+
+client = Client()
+```
+
+```typescript [TypeScript]
+import { Client } from "langsmith";
+
+const client = new Client();
+```
+
+:::
+
+### 查询所有数据集
+
+::: code-group
+
+```python [Python]
+datasets = client.list_datasets()
+```
+
+```typescript [TypeScript]
+const datasets = await client.listDatasets();
+```
+
+:::
+
+### 按名称列出数据集
+
+如果您想按确切名称搜索，可以执行以下操作：
+
+::: code-group
+
+```python [Python]
+datasets = client.list_datasets(dataset_name="My Test Dataset 1")
+```
+
+```typescript [TypeScript]
+const datasets = await client.listDatasets({
+  datasetName: "My Test Dataset 1"
+});
+```
+
+:::
+
+如果您想进行不区分大小写的子字符串搜索，请尝试以下操作：
+
+::: code-group
+
+```python [Python]
+datasets = client.list_datasets(dataset_name_contains="some substring")
+```
+
+```typescript [TypeScript]
+const datasets = await client.listDatasets({
+  datasetNameContains: "some substring"
+});
+```
+
+:::
+
+### 按类型列出数据集
+
+您可以按类型筛选数据集：
+
+::: code-group
+
+```python [Python]
+datasets = client.list_datasets(data_type="kv")
+```
+
+```typescript [TypeScript]
+const datasets = await client.listDatasets({
+  dataType: "kv"
+});
+```
+
+:::
+
+## 获取示例
+
+您可以使用 Python 和 TypeScript SDK 中的 `list_examples`/`listExamples` 方法以编程方式从 LangSmith 获取示例。以下是一些常见的调用。
+
+<Info>
+
+在运行以下代码片段之前，请先初始化客户端。
+
+</Info>
+
+::: code-group
+
+```python [Python]
+from langsmith import Client
+
+client = Client()
+```
+
+```typescript [TypeScript]
+import { Client } from "langsmith";
+
+const client = new Client();
+```
+
+:::
+
+### 列出数据集的所有示例
+
+您可以按数据集 ID 进行筛选：
+
+::: code-group
+
+```python [Python]
+examples = client.list_examples(dataset_id="c9ace0d8-a82c-4b6c-13d2-83401d68e9ab")
+```
+
+```typescript [TypeScript]
+const examples = await client.listExamples({
+  datasetId: "c9ace0d8-a82c-4b6c-13d2-83401d68e9ab"
+});
+```
+
+:::
+
+或者，您可以按数据集名称进行筛选（这必须与您要查询的数据集名称完全匹配）
+
+::: code-group
+
+```python [Python]
+examples = client.list_examples(dataset_name="My Test Dataset")
+```
+
+```typescript [TypeScript]
+const examples = await client.listExamples({
+  datasetName: "My test Dataset"
+});
+```
+
+:::
+
+### 按 ID 列出示例
+
+您还可以按 ID 一次性列出多个示例。
+
+::: code-group
+
+```python [Python]
+example_ids = [
+  '734fc6a0-c187-4266-9721-90b7a025751a',
+  'd6b4c1b9-6160-4d63-9b61-b034c585074f',
+  '4d31df4e-f9c3-4a6e-8b6c-65701c2fed13',
+]
+
+examples = client.list_examples(example_ids=example_ids)
+```
+
+```typescript [TypeScript]
+const exampleIds = [
+  "734fc6a0-c187-4266-9721-90b7a025751a",
+  "d6b4c1b9-6160-4d63-9b61-b034c585074f",
+  "4d31df4e-f9c3-4a6e-8b6c-65701c2fed13",
+];
+
+const examples = await client.listExamples({
+  exampleIds: exampleIds
+});
+```
+
+:::
+
+### 按元数据列出示例
+
+您还可以按元数据筛选示例。下面是一个查询具有特定元数据键值对的示例的示例。在底层，我们会检查示例的元数据是否包含您指定的键值对。
+
+例如，如果您有一个元数据为 `{"foo": "bar", "baz": "qux"}` 的示例，那么 `{foo: bar}` 和 `{baz: qux}` 都会匹配，`{foo: bar, baz: qux}` 也会匹配。
+
+::: code-group
+
+```python [Python]
+examples = client.list_examples(dataset_name=dataset_name, metadata={"foo": "bar"})
+```
+
+```typescript [TypeScript]
+const examples = await client.listExamples({
+  datasetName: datasetName,
+  metadata: {foo: "bar"}
+});
+```
+
+:::
+
+### 按结构化筛选器列出示例
+
+与您可以使用结构化筛选查询语言[获取运行](/langsmith/export-traces#use-filter-query-language)类似，您也可以使用它来获取示例。
+
+<Note>
+
+目前这仅在 Python SDK v0.1.83 及更高版本以及 TypeScript SDK v0.1.35 及更高版本中可用。
+
+此外，结构化筛选查询语言仅支持 `metadata` 字段。
+
+</Note>
+
+您可以使用 `has` 操作符来获取元数据字段包含特定键/值对的示例，使用 `exists` 操作符来获取元数据字段包含特定键的示例。此外，您还可以使用 `and` 操作符将多个筛选器链接在一起，并使用 `not` 操作符对筛选器进行取反。
+
+::: code-group
+
+```python [Python]
+examples = client.list_examples(
+  dataset_name=dataset_name,
+  filter='and(not(has(metadata, \'{"foo": "bar"}\')), exists(metadata, "tenant_id"))'
+)
+```
+
+```typescript [TypeScript]
+const examples = await client.listExamples({
+  datasetName: datasetName,
+  filter: 'and(not(has(metadata, \'{"foo": "bar"}\')), exists(metadata, "tenant_id"))'
+});
+```
+
+:::
+
+## 更新示例
+
+### 更新单个示例
+
+您可以使用 Python 和 TypeScript SDK 中的 `update_example`/`updateExample` 方法以编程方式更新 LangSmith 中的示例。下面是一个示例。
+
+::: code-group
+
+```python [Python]
+client.update_example(
+  example_id=example.id,
+  inputs={"input": "updated input"},
+  outputs={"output": "updated output"},
+  metadata={"foo": "bar"},
+  split="train"
+)
+```
+
+```typescript [TypeScript]
+await client.updateExample(example.id, {
+  inputs: { input: "updated input" },
+  outputs: { output: "updated output" },
+  metadata: { "foo": "bar" },
+  split: "train",
+});
+```
+
+:::
+
+### 批量更新示例
+
+您还可以使用 Python 和 TypeScript SDK 中的 `update_examples`/`updateExamples` 方法在单个请求中以编程方式更新多个示例。下面是一个示例。
+
+::: code-group
+
+```python [Python]
+client.update_examples(
+  example_ids=[example.id, example_2.id],
+  inputs=[{"input": "updated input 1"}, {"input": "updated input 2"}],
+  outputs=[
+      {"output": "updated output 1"},
+      {"output": "updated output 2"},
+  ],
+  metadata=[{"foo": "baz"}, {"foo": "qux"}],
+  splits=[["training", "foo"], "training"] # 拆分可以是数组或独立的字符串
+)
+```
+
+```typescript [TypeScript]
+await client.updateExamples([
+  {
+    id: example.id,
+    inputs: { input: "updated input 1" },
+    outputs: { output: "updated output 1" },
+    metadata: { foo: "baz" },
+    split: ["training", "foo"] // 拆分可以是数组或独立的字符串
+  },
+  {
+    id: example2.id,
+    inputs: { input: "updated input 2" },
+    outputs: { output: "updated output 2" },
+    metadata: { foo: "qux" },
+    split: "training"
+  },
+]);
+```
+
+:::
+

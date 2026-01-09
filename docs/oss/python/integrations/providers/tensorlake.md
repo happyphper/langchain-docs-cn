@@ -1,0 +1,103 @@
+---
+title: Tensorlake
+---
+Tensorlake 是 AI 数据云，能够可靠地将非结构化来源的数据转换为可供 AI 应用程序直接使用的格式。
+
+`langchain-tensorlake` 包提供了 [Tensorlake](https://tensorlake.ai) 与 [LangChain](https://langchain.com) 之间的无缝集成，使您能够构建具有增强解析功能（如签名检测）的复杂文档处理智能体。
+
+## Tensorlake 功能概述
+
+Tensorlake 为您提供以下工具：
+- **提取**：基于模式的结构化数据提取，从文档中提取特定字段。
+- **解析**：将文档转换为 Markdown 格式，以构建 RAG/知识图谱系统。
+- **编排**：构建可编程的工作流，用于大规模摄取和丰富文档、文本、音频、视频等。
+
+了解更多信息，请访问 [docs.tensorlake.ai](https://docs.tensorlake.ai/introduction)。
+
+---
+
+## 安装
+
+::: code-group
+
+```bash [pip]
+pip install -U langchain-tensorlake
+```
+
+```bash [uv]
+uv add langchain-tensorlake
+```
+
+:::
+
+---
+
+## 示例
+
+请参阅[完整教程](https://docs.tensorlake.ai/examples/tutorials/real-estate-agent-with-langgraph-cli)，了解如何使用 `langchain-tensorlake` 工具检测非结构化文档中的签名。
+
+或者查看这个 [Colab 笔记本](https://colab.research.google.com/drive/1VRWIPCWYnjcRtQL864Bqm9CJ6g4EpRqs?usp=sharing) 快速入门。
+
+---
+## 快速开始
+
+### 1. 设置环境
+
+您应通过设置以下环境变量来配置 Tensorlake 和 OpenAI 的凭据：
+```
+export TENSORLAKE_API_KEY="your-tensorlake-api-key"
+export OPENAI_API_KEY = "your-openai-api-key"
+```
+
+从 [Tensorlake 云控制台](https://cloud.tensorlake.ai/) 获取您的 Tensorlake API 密钥。新用户可获得 100 个免费积分。
+
+### 2. 导入必要的包
+
+```python
+from langchain_tensorlake import document_markdown_tool
+from langchain.agents import create_agent
+import asyncio
+import os
+```
+
+### 3. 构建签名检测智能体
+
+```python
+async def main(question):
+    # 使用 Tensorlake 工具创建智能体
+    agent = create_agent(
+            model="gpt-4o-mini",
+            tools=[document_markdown_tool],
+            prompt=(
+                """
+                我有一个需要解析的文档。\n\n请解析此文档并回答有关它的问题。
+                """
+            ),
+            name="real-estate-agent",
+        )
+
+    # 运行智能体
+    result = await agent.ainvoke({"messages": [{"role": "user", "content": question}]})
+
+    # 打印结果
+    print(result["messages"][-1].content)
+```
+
+*注意：* 我们强烈建议使用 `openai` 作为智能体模型，以确保智能体设置正确的解析参数。
+
+### 4. 使用示例
+
+```python
+# 定义待解析文档的路径
+path = "path/to/your/document.pdf"
+
+# 定义要询问的问题并创建智能体
+question = f"你能从我在 {path} 找到的文档中提取出关于签名的哪些上下文信息？"
+
+if __name__ == "__main__":
+    asyncio.run(main(question))
+```
+
+## 需要帮助？
+
+请通过 [Slack](https://join.slack.com/t/tensorlakecloud/shared_invite/zt-32fq4nmib-gO0OM5RIar3zLOBm~ZGqKg) 或直接在 [GitHub 上的包仓库](https://github.com/tensorlakeai/langchain-tensorlake) 联系我们。

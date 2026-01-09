@@ -1,0 +1,42 @@
+---
+title: Python REPL
+---
+有时，对于复杂的计算，与其让 LLM 直接生成答案，不如让 LLM 生成计算答案的代码，然后运行该代码来获取答案。为了便于实现这一点，我们提供了一个简单的 Python REPL 来执行命令。
+
+此接口仅返回打印出来的内容——因此，如果你想用它来计算答案，请确保让它打印出答案。
+
+<Warning>
+
+<strong>Python REPL 可以在主机上执行任意代码（例如，删除文件、发起网络请求）。请谨慎使用。</strong>
+
+</Warning>
+
+```python
+from langchain.tools import Tool
+from langchain_experimental.utilities import PythonREPL
+```
+
+```python
+python_repl = PythonREPL()
+```
+
+```python
+python_repl.run("print(1+1)")
+```
+
+```text
+Python REPL can execute arbitrary code. Use with caution.
+```
+
+```text
+'2\n'
+```
+
+```python
+# 你可以创建工具并传递给代理
+repl_tool = Tool(
+    name="python_repl",
+    description="一个 Python 交互式环境。使用它来执行 Python 命令。输入应为有效的 Python 命令。如果你想查看某个值的输出，应该使用 `print(...)` 将其打印出来。",
+    func=python_repl.run,
+)
+```

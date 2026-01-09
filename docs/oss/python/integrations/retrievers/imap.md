@@ -1,0 +1,275 @@
+---
+title: Imap
+---
+# ImapRetriever
+
+本指南将帮助您开始使用 IMAP [检索器](/oss/integrations/retrievers)。`ImapRetriever` 能够从 IMAP 服务器搜索和检索电子邮件，并将其转换为 LangChain `Document` 对象。
+
+## 集成详情
+
+| 检索器 | 来源 | 包 |
+| :--- | :--- | :---: |
+| ImapRetriever | IMAP 电子邮件服务器 | langchain-imap |
+
+## 设置
+
+### 安装
+
+`ImapRetriever` 位于 `langchain-imap` 包中：
+
+```bash
+pip install -U langchain-imap
+```
+
+如需使用 docling 进行完整的文档处理（DOCX、PPTX 等）（未经测试）：
+
+```bash
+pip install "langchain-imap[docling]"
+```
+
+### 测试环境设置（可选）
+
+出于测试目的，您可以使用 GreenMail 设置一个本地 IMAP 服务器：
+
+```python
+from pathlib import Path
+import subprocess
+import os
+
+preload_dir = Path(os.getcwd()).parent / "tests" / "fixtures" / "preload"
+log_path = Path(os.getcwd()).parent / "tests" / "container.log"
+
+# GreenMail 配置
+env_vars = {
+    "GREENMAIL_OPTS": " ".join([
+        "-Dgreenmail.setup.test.all",
+        "-Dgreenmail.users=test:test123@localhost",
+        "-Dgreenmail.users.login=local_part",
+        "-Dgreenmail.preload.dir=/preload",
+        "-Dgreenmail.verbose",
+        "-Dgreenmail.hostname=0.0.0.0"
+    ])
+}
+
+# 启动 GreenMail 容器
+container_name = "langchain-imap-test"
+cmd = [
+    "podman", "run", "--rm", "-d",
+    "--name", container_name,
+    "-e", f"GREENMAIL_OPTS={env_vars['GREENMAIL_OPTS']}",
+    "-v", f"{preload_dir}:/preload:ro,Z",
+    "-p", "3143:3143",
+    "-p", "3993:3993",
+    "-p", "8080:8080",
+    "--log-driver", "k8s-file",
+    "--log-opt", f"path={log_path.absolute()}",
+    "docker.io/greenmail/standalone:2.1.5",
+]
+
+result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+```
+
+## 实例化
+
+要使用 `ImapRetriever`，您需要使用 `ImapConfig` 配置您的 IMAP 服务器详细信息：
+
+```python
+from langchain_imap import ImapConfig, ImapRetriever
+
+config = ImapConfig(
+    host="imap.gmail.com",
+    port=993,
+    user="your-email@gmail.com",
+    password="your-app-password",  # 对于 Gmail，请使用应用专用密码
+    ssl_mode="ssl",
+)
+
+retriever = ImapRetriever(config=config, k=10)
+```
+
+对于测试环境：
+
+```python
+from langchain_imap import ImapRetriever, ImapConfig
+
+config = ImapConfig(
+    host="localhost",
+    port=3143,
+    user="test",
+    password="test123",
+    ssl_mode="plain",
+    verify_cert=False,
+)
+
+retriever = ImapRetriever(
+    config=config,
+    k=50
+)
+```
+
+### 配置选项
+
+- **auth_method**: 身份验证方法（默认："login"）
+- **ssl_mode**: SSL 模式 - "ssl"（默认）、"starttls" 或 "plain"
+- **verify_cert**: 对于自签名证书，设置为 `False`（生产环境不推荐）
+- **k**: 要检索的文档数量
+
+## 使用
+
+### 基本搜索
+
+使用 IMAP 语法搜索电子邮件：
+
+```python
+# 搜索所有电子邮件
+query = 'ALL'
+docs = retriever.invoke(query)
+
+# 按主题搜索
+query = 'SUBJECT "URGENT"'
+docs = retriever.invoke(query)
+
+# 按发件人搜索
+docs = retriever.invoke('FROM "john@example.com"')
+
+# 按日期搜索
+docs = retriever.invoke('SENTSINCE "01-Oct-2024"')
+
+# 组合条件
+docs = retriever.invoke('FROM "boss@company.com" SUBJECT "urgent"')
+
+for doc in docs:
+    print(doc.page_content)  # 格式化的电子邮件内容
+```
+
+### 附件处理
+
+检索器支持三种处理电子邮件附件的模式：
+
+- `"names_only"`（默认）：仅列出附件名称
+- `"text_extract"`：从 PDF 和纯文本附件中提取文本
+- `"full_content"`：使用 docling 从 Office 文档中完全提取（需要 `[docling]` 额外依赖）
+
+```python
+retriever = ImapRetriever(
+    config=config,
+    k=10,
+    attachment_mode="text_extract"
+)
+```
+
+## 在链中使用
+
+与其他检索器一样，`ImapRetriever` 可以通过链集成到 LLM 应用程序中。以下是一个完整示例，使用 LLM 生成 IMAP 查询并根据电子邮件内容回答问题：
+
+```python
+import os
+from langchain_openai import ChatOpenAI
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+from langchain_imap import ImapRetriever, ImapConfig
+
+# 设置 LLM（使用 OpenRouter 的示例）
+llm = ChatOpenAI(
+    model="google/gemini-2.5-flash",
+    temperature=0,
+    openai_api_key=os.getenv("OPENAI_API_KEY"),
+    openai_api_base="https://openrouter.ai/api/v1"
+)
+
+# IMAP 查询生成提示
+query_prompt = ChatPromptTemplate.from_template(
+    """将以下用户问题转换为 IMAP 搜索查询。
+
+IMAP 查询语法示例：
+- 'FROM "john@example.com"' - 来自特定发件人的电子邮件
+- 'SUBJECT "project update"' - 具有特定主题的电子邮件
+- 'SENTSINCE "01-Oct-2024"' - 自特定日期以来的电子邮件
+- 'BODY "meeting"' - 正文中包含特定单词的电子邮件
+- 'FROM "boss@company.com" SUBJECT "urgent"' - 组合条件
+
+重要：输出中仅包含有效的 IMAP 命令。
+重要：输出中不要包含任何其他文本。
+
+用户问题：{question}
+
+IMAP 查询："""
+)
+
+# 答案生成提示
+answer_prompt = ChatPromptTemplate.from_template(
+    """仅根据提供的电子邮件上下文回答问题。
+
+上下文：
+{context}
+
+问题：{question}
+
+答案："""
+)
+
+# IMAP 检索器配置
+config = ImapConfig(
+    host="localhost",
+    port=3993,
+    user="test",
+    password="test123",
+    ssl_mode="ssl",
+    auth_method="login",
+    verify_cert=False,
+)
+
+retriever = ImapRetriever(
+    config=config,
+    k=5,
+    attachment_mode="names_only"
+)
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+# 创建链
+query_chain = query_prompt | llm | StrOutputParser()
+
+def generate_imap_query(question):
+    return query_chain.invoke({"question": question})
+
+def search_emails(query):
+    return retriever.invoke(query)
+
+full_chain = (
+    {
+        "question": lambda x: x,
+        "imap_query": lambda x: generate_imap_query(x)
+    }
+    | RunnablePassthrough.assign(
+        context=lambda x: format_docs(search_emails(x["imap_query"]))
+    )
+    | answer_prompt
+    | llm
+    | StrOutputParser()
+)
+
+# 使用链
+TODO = full_chain.invoke("请根据主题中包含 URGENT 的电子邮件制定一个待办事项")
+print(TODO)
+```
+
+### 清理测试环境
+
+如果您正在使用 GreenMail 测试容器，请在测试后清理它：
+
+```python
+cmd = ["podman", "rm", "--force", "langchain-imap-test"]
+result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+```
+
+---
+
+## API 参考
+
+更多信息，请参阅：
+- [GitHub 仓库](https://github.com/jfouret/langchain-imap)
+- [包文档](https://github.com/jfouret/langchain-imap/blob/main/README.md)
+- [使用示例](https://github.com/jfouret/langchain-imap/blob/main/docs/retrievers.ipynb)

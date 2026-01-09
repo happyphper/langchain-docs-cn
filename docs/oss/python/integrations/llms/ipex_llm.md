@@ -1,0 +1,245 @@
+---
+title: IPEX-LLM
+---
+> [IPEX-LLM](https://github.com/intel-analytics/ipex-llm) 是一个 PyTorch 库，用于在英特尔 CPU 和 GPU（例如，带有集成显卡的本地 PC，或 Arc、Flex 和 Max 等独立显卡）上以极低延迟运行大语言模型（LLM）。
+
+- [在英特尔 GPU 上使用 IPEX-LLM](#ipex-llm-on-intel-gpu)
+- [在英特尔 CPU 上使用 IPEX-LLM](#ipex-llm-on-intel-cpu)
+
+## 在英特尔 GPU 上使用 IPEX-LLM
+
+本示例介绍如何使用 LangChain 与 `ipex-llm` 交互，以在英特尔 GPU 上进行文本生成。
+
+> **注意**
+>
+> 建议只有使用英特尔 Arc A 系列 GPU（英特尔 Arc A300 系列或 Pro A60 除外）的 Windows 用户直接运行 Jupyter notebook 来学习“在英特尔 GPU 上使用 IPEX-LLM”这一节。对于其他情况（例如 Linux 用户、英特尔集成显卡等），建议在终端中使用 Python 脚本运行代码以获得最佳体验。
+
+### 安装前提条件
+
+为了在英特尔 GPU 上受益于 IPEX-LLM，需要完成几个工具安装和环境准备的前提步骤。
+
+如果您是 Windows 用户，请访问[在 Windows 上安装带英特尔 GPU 支持的 IPEX-LLM 指南](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Quickstart/install_windows_gpu.md)，并按照[安装前提条件](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Quickstart/install_windows_gpu.md#install-prerequisites)更新 GPU 驱动（可选）并安装 Conda。
+
+如果您是 Linux 用户，请访问[在 Linux 上安装带英特尔 GPU 支持的 IPEX-LLM](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Quickstart/install_linux_gpu.md)，并按照[**安装前提条件**](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Quickstart/install_linux_gpu.md#install-prerequisites)安装 GPU 驱动、英特尔® oneAPI Base Toolkit 2024.0 和 Conda。
+
+### 环境设置
+
+安装完前提条件后，您应该已经创建了一个包含所有必备软件的 conda 环境。**请在此 conda 环境中启动 jupyter 服务**：
+
+```python
+pip install -qU langchain langchain-community
+```
+
+安装 IEPX-LLM，以便在英特尔 GPU 上本地运行 LLM。
+
+```python
+pip install --pre --upgrade ipex-llm[xpu] --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
+```
+
+> **注意**
+>
+> 您也可以使用 `https://pytorch-extension.intel.com/release-whl/stable/xpu/cn/` 作为 extra-indel-url。
+
+### 运行时配置
+
+为了获得最佳性能，建议根据您的设备设置几个环境变量：
+
+#### 对于使用英特尔酷睿 Ultra 集成显卡的 Windows 用户
+
+```python
+import os
+
+os.environ["SYCL_CACHE_PERSISTENT"] = "1"
+os.environ["BIGDL_LLM_XMX_DISABLED"] = "1"
+```
+
+#### 对于使用英特尔 Arc A 系列 GPU 的 Windows 用户
+
+```python
+import os
+
+os.environ["SYCL_CACHE_PERSISTENT"] = "1"
+```
+
+> **注意**
+>
+> 每个模型首次在英特尔集成显卡/英特尔 Arc A300 系列或 Pro A60 上运行时，可能需要几分钟进行编译。
+>
+> 对于其他 GPU 类型，Windows 用户请参考[此处](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Overview/install_gpu.md#runtime-configuration)，Linux 用户请参考[此处](https://github.com/intel-analytics/ipex-llm/blob/main/docs/mddocs/Overview/install_gpu.md#runtime-configuration-1)。
+
+### 基本用法
+
+```python
+import warnings
+
+from langchain_classic.chains import LLMChain
+from langchain_community.llms import IpexLLM
+from langchain_core.prompts import PromptTemplate
+
+warnings.filterwarnings("ignore", category=UserWarning, message=".*padding_mask.*")
+```
+
+为您的模型指定提示词模板。在本示例中，我们使用 [vicuna-1.5](https://huggingface.co/lmsys/vicuna-7b-v1.5) 模型。如果您使用不同的模型，请相应地选择合适的模板。
+
+```python
+template = "USER: {question}\nASSISTANT:"
+prompt = PromptTemplate(template=template, input_variables=["question"])
+```
+
+使用 `IpexLLM.from_model_id` 在本地加载模型。它将直接加载模型的 Huggingface 格式，并自动转换为低比特格式进行推理。在初始化 IpexLLM 时，在 `model_kwargs` 中将 `device` 设置为 `"xpu"`，以便将 LLM 模型加载到英特尔 GPU 上。
+
+```python
+llm = IpexLLM.from_model_id(
+    model_id="lmsys/vicuna-7b-v1.5",
+    model_kwargs={
+        "temperature": 0,
+        "max_length": 64,
+        "trust_remote_code": True,
+        "device": "xpu",
+    },
+)
+```
+
+在链（Chains）中使用它：
+
+```python
+llm_chain = prompt | llm
+
+question = "What is AI?"
+output = llm_chain.invoke(question)
+```
+
+### 保存/加载低比特模型
+
+或者，您可以将低比特模型保存到磁盘一次，然后使用 `from_model_id_low_bit` 而不是 `from_model_id` 来重新加载它以供后续使用——甚至可以在不同的机器上使用。这非常节省空间，因为低比特模型所需的磁盘空间比原始模型少得多。并且 `from_model_id_low_bit` 在速度和内存使用方面也比 `from_model_id` 更高效，因为它跳过了模型转换步骤。您同样可以在 `model_kwargs` 中将 `device` 设置为 `"xpu"`，以便将 LLM 模型加载到英特尔 GPU 上。
+
+要保存低比特模型，请按如下方式使用 `save_low_bit`。
+
+```python
+saved_lowbit_model_path = "./vicuna-7b-1.5-low-bit"  # 保存低比特模型的路径
+llm.model.save_low_bit(saved_lowbit_model_path)
+del llm
+```
+
+从保存的低比特模型路径加载模型，如下所示。
+> 请注意，低比特模型的保存路径仅包含模型本身，不包含分词器（tokenizers）。如果您希望将所有内容放在一个地方，则需要手动从原始模型的目录下载或复制分词器文件到低比特模型保存的位置。
+
+```python
+llm_lowbit = IpexLLM.from_model_id_low_bit(
+    model_id=saved_lowbit_model_path,
+    tokenizer_id="lmsys/vicuna-7b-v1.5",
+    # tokenizer_name=saved_lowbit_model_path,  # 如果您想这样使用，请将分词器复制到保存路径
+    model_kwargs={
+        "temperature": 0,
+        "max_length": 64,
+        "trust_remote_code": True,
+        "device": "xpu",
+    },
+)
+```
+
+在链中使用加载的模型：
+
+```python
+llm_chain = prompt | llm_lowbit
+
+question = "What is AI?"
+output = llm_chain.invoke(question)
+```
+
+## 在英特尔 CPU 上使用 IPEX-LLM
+
+本示例介绍如何使用 LangChain 与 `ipex-llm` 交互，以在英特尔 CPU 上进行文本生成。
+
+### 环境设置
+
+```python
+# 更新 LangChain
+
+pip install -qU langchain langchain-community
+```
+
+安装 IEPX-LLM，以便在英特尔 CPU 上本地运行 LLM：
+
+#### 对于 Windows 用户
+
+```python
+pip install --pre --upgrade ipex-llm[all]
+```
+
+#### 对于 Linux 用户
+
+```python
+pip install --pre --upgrade ipex-llm[all] --extra-index-url https://download.pytorch.org/whl/cpu
+```
+
+### 基本用法
+
+```python
+import warnings
+
+from langchain_classic.chains import LLMChain
+from langchain_community.llms import IpexLLM
+from langchain_core.prompts import PromptTemplate
+
+warnings.filterwarnings("ignore", category=UserWarning, message=".*padding_mask.*")
+```
+
+为您的模型指定提示词模板。在本示例中，我们使用 [vicuna-1.5](https://huggingface.co/lmsys/vicuna-7b-v1.5) 模型。如果您使用不同的模型，请相应地选择合适的模板。
+
+```python
+template = "USER: {question}\nASSISTANT:"
+prompt = PromptTemplate(template=template, input_variables=["question"])
+```
+
+使用 `IpexLLM.from_model_id` 在本地加载模型。它将直接加载模型的 Huggingface 格式，并自动转换为低比特格式进行推理。
+
+```python
+llm = IpexLLM.from_model_id(
+    model_id="lmsys/vicuna-7b-v1.5",
+    model_kwargs={"temperature": 0, "max_length": 64, "trust_remote_code": True},
+)
+```
+
+在链（Chains）中使用它：
+
+```python
+llm_chain = prompt | llm
+
+question = "What is AI?"
+output = llm_chain.invoke(question)
+```
+
+### 保存/加载低比特模型
+
+或者，您可以将低比特模型保存到磁盘一次，然后使用 `from_model_id_low_bit` 而不是 `from_model_id` 来重新加载它以供后续使用——甚至可以在不同的机器上使用。这非常节省空间，因为低比特模型所需的磁盘空间比原始模型少得多。并且 `from_model_id_low_bit` 在速度和内存使用方面也比 `from_model_id` 更高效，因为它跳过了模型转换步骤。
+
+要保存低比特模型，请按如下方式使用 `save_low_bit`：
+
+```python
+saved_lowbit_model_path = "./vicuna-7b-1.5-low-bit"  # 保存低比特模型的路径
+llm.model.save_low_bit(saved_lowbit_model_path)
+del llm
+```
+
+从保存的低比特模型路径加载模型，如下所示。
+
+> 请注意，低比特模型的保存路径仅包含模型本身，不包含分词器（tokenizers）。如果您希望将所有内容放在一个地方，则需要手动从原始模型的目录下载或复制分词器文件到低比特模型保存的位置。
+
+```python
+llm_lowbit = IpexLLM.from_model_id_low_bit(
+    model_id=saved_lowbit_model_path,
+    tokenizer_id="lmsys/vicuna-7b-v1.5",
+    # tokenizer_name=saved_lowbit_model_path,  # 如果您想这样使用，请将分词器复制到保存路径
+    model_kwargs={"temperature": 0, "max_length": 64, "trust_remote_code": True},
+)
+```
+
+在链中使用加载的模型：
+
+```python
+llm_chain = prompt | llm_lowbit
+
+question = "What is AI?"
+output = llm_chain.invoke(question)
+```

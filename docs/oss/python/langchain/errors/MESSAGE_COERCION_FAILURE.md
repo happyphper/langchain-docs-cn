@@ -1,0 +1,53 @@
+---
+title: 消息强制转换失败
+---
+当消息对象不符合预期格式时，会发生此错误。
+
+## 接受的消息格式
+
+LangChain 模块接受 `MessageLikeRepresentation`，其定义如下：
+
+```python
+from typing import Union
+
+from langchain_core.prompts.chat import (
+    BaseChatPromptTemplate,
+    BaseMessage,
+    BaseMessagePromptTemplate,
+)
+
+MessageLikeRepresentation = Union[
+    Union[BaseMessagePromptTemplate, BaseMessage, BaseChatPromptTemplate],
+    tuple[
+        Union[str, type],
+        Union[str, list[dict], list[object]],
+    ],
+    str,
+]
+```
+
+这包括 OpenAI 风格的消息对象 (`{ role: "user", content: "Hello world!" }`)、元组和纯字符串（它们会被转换为 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.HumanMessage" target="_blank" rel="noreferrer" class="link"><code>HumanMessage</code></a> 对象）。
+
+如果模块接收到不属于这些格式之一的值，您将收到错误：
+
+```python
+from langchain_anthropic import ChatAnthropic
+
+uncoercible_message = {"role": "HumanMessage", "random_field": "random value"}
+
+model = ChatAnthropic(model="claude-sonnet-4-5-20250929")
+
+model.invoke([uncoercible_message])
+```
+
+```text
+ValueError: Message dict must contain 'role' and 'content' keys, got {'role': 'HumanMessage', 'random_field': 'random value'}
+```
+
+## 故障排除
+
+要解决此错误：
+
+1.  **确保格式正确**：聊天模型的所有输入必须是 LangChain 消息类的数组或受支持的消息类格式
+2.  验证您的消息没有发生意外的字符串化或转换
+3.  检查错误的堆栈跟踪，并在消息传递给模型之前添加日志语句来检查消息对象

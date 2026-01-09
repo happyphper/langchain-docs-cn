@@ -1,0 +1,72 @@
+---
+title: 为 LangSmith 警报配置 PagerDuty 集成
+sidebarTitle: Configure PagerDuty integration
+---
+## 概述
+
+本指南将引导您完成使用 PagerDuty 的 [Events API v2](https://developer.pagerduty.com/docs/events-api-v2-overview) 将 PagerDuty 配置为 [LangSmith 告警](/langsmith/alerts) 通知通道的过程。此集成允许关键的 LLM 应用程序问题触发 PagerDuty 事件，从而通过您已建立的事件管理工作流程实现快速响应。
+
+## 先决条件
+
+* 一个具有管理员访问权限的活跃 PagerDuty 账户
+* PagerDuty 中适当的服务级别权限
+
+此外，如果使用的是 LangSmith 的自定义部署，请确保没有防火墙设置阻止来自 LangSmith 服务的出口流量。
+
+## 集成步骤
+
+### 步骤 1：在 PagerDuty 中创建服务
+
+1.  登录您的 PagerDuty 账户
+2.  导航至 **服务 → 服务目录**
+3.  点击 **+ 新建服务**
+4.  填写以下字段：
+    *   **名称**：提供一个描述性名称（例如，"LangSmith 监控"）
+    *   **描述**：添加有关被监控应用程序的详细信息
+    *   **升级策略**：选择适当的团队升级策略
+    *   **集成类型**：选择 "Events API V2"
+5.  点击 **添加服务** 以创建服务
+
+### 步骤 2：获取集成密钥
+
+创建服务后，您需要获取集成密钥：
+
+1.  在 **服务目录** 的服务下拉菜单下，找到并点击您新创建的服务
+2.  选择 **集成** 选项卡
+3.  找到 "Events API V2" 集成
+4.  复制 **集成密钥**（一个 32 位的字母数字字符串）
+
+![PagerDuty 集成密钥位置](/langsmith/images/pager-duty.png)
+
+### 步骤 3：使用 PagerDuty 配置 LangSmith 告警
+
+<Info>
+
+要在告警触发后一小时内再次收到相同的告警，您必须在 PagerDuty 中解决由该告警创建的活跃事件。
+
+</Info>
+
+![PagerDuty 设置](/langsmith/images/pagerduty-setup.png)
+
+1.  在 LangSmith 告警设置的**通知**部分，选择 **PagerDuty**
+2.  点击钥匙图标将集成密钥保存为工作区密钥，或选择一个现有的工作区密钥。作为最佳实践，我们建议将集成密钥保存为工作区密钥，而不是直接添加。这将允许您在同一个工作区的多个告警中重复使用相同的密钥。
+3.  配置其他通知选项：
+    *   **严重性**：映射到 PagerDuty 事件优先级
+4.  点击 **发送测试告警** 发送测试告警
+5.  验证 PagerDuty 是否触发了事件，并且事件中包含相关的 LangSmith 告警信息
+
+## 故障排除
+
+如果 PagerDuty 中没有创建事件：
+
+*   验证集成密钥在 LangSmith 中是否正确输入
+*   确保 PagerDuty 服务处于活动状态且未处于维护模式
+*   检查您的 PagerDuty 账户是否已启用 Events API v2
+*   如果某个告警触发器似乎在 PagerDuty 中缺失，请检查预期的触发器是否发生在同一告警规则的前一个触发器的一小时内，以及前一个告警创建的事件是否仍然处于打开状态。
+*   如果您的 LangSmith 实例位于防火墙后，请检查网络连接
+
+## 其他资源
+
+*   [PagerDuty Events API v2 文档](https://developer.pagerduty.com/docs/events-api-v2/overview/)
+*   [PagerDuty 集成指南](https://support.pagerduty.com/docs/services-and-integrations)
+*   [LangSmith 告警文档](/langsmith/alerts)

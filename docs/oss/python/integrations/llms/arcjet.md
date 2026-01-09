@@ -1,0 +1,104 @@
+---
+title: Arcjet Redact
+---
+[Arcjet](https://arcjet.com) 的 redact 集成允许您在将提示发送给 LLM 之前，从中移除敏感的用户信息。
+
+Arcjet Redact 完全在您自己的机器上运行，从不将数据发送到任何其他地方，确保了顶级的隐私和性能。
+
+Arcjet Redact 对象本身不是一个 LLM，而是包装了一个 LLM。它会移除输入文本中的敏感信息，然后在返回结果之前，将包装的 LLM 的输出中的信息恢复。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 本地 | 可序列化 | Python 支持 | 下载量 | 版本 |
+| :--- | :--- | :---: | :---: |  :---: | :---: | :---: |
+| Arcjet | @langchain/community | ❌ | ✅ | ❌ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/community?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/community?style=flat-square&label=%20&) |
+
+### 安装
+
+安装 Arcjet Redaction 库：
+
+::: code-group
+
+```bash [npm]
+npm install @arcjet/redact
+```
+
+```bash [yarn]
+yarn add @arcjet/redact
+```
+
+```bash [pnpm]
+pnpm add @arcjet/redact
+```
+
+:::
+
+并安装 LangChain Community：
+
+::: code-group
+
+```bash [npm]
+npm install @langchain/community @langchain/core
+```
+
+```bash [yarn]
+yarn add @langchain/community @langchain/core
+```
+
+```bash [pnpm]
+pnpm add @langchain/community @langchain/core
+```
+
+:::
+
+现在，您就可以开始使用 Arcjet Redaction 来保护您的 LLM 调用了！
+
+## 用法
+
+```typescript
+import {
+  ArcjetRedact,
+  ArcjetSensitiveInfoType,
+} from "@langchain/community/llms/arcjet";
+import { OpenAI } from "@langchain/openai";
+
+// 创建一个供 Arcjet 包装的其他 LLM 实例
+const openai = new OpenAI({
+  modelName: "gpt-3.5-turbo-instruct",
+  openAIApiKey: process.env.OPENAI_API_KEY,
+});
+
+const arcjetRedactOptions = {
+  // 指定一个 LLM，Arcjet Redact 在移除输入信息后将调用它。
+  llm: openai,
+
+  // 指定应被移除的实体列表。
+  // 如果未指定，则将移除所有实体。
+  entities: ["email", "phone-number", "ip-address", "credit-card"] as ArcjetSensitiveInfoType[],
+
+  // 您可以提供一个自定义的检测函数，以检测我们尚不支持的实体。
+  // 它接收一个 token 列表，您需要返回一个已识别类型的列表或 undefined。
+  // 如果您使用了自定义类型，应将其添加到 entities 列表中。
+  detect: (tokens: string[]) => {
+    return tokens.map((t) => t === "some-sensitive-info" ? "custom-entity" : undefined)
+  },
+
+  // 提供给自定义检测函数的 token 数量。默认为 1。
+  // 可用于在检测自定义实体类型时提供额外的上下文。
+  contextWindowSize: 1,
+
+  // 这允许您在移除信息时提供自定义的替换内容。请确保
+  // 替换内容是唯一的，以便信息恢复能按预期工作。
+  replace: (identifiedType: string) => {
+    return identifiedType === "email" ? "redacted@example.com" : undefined;
+  },
+
+};
+
+const arcjetRedact = new ArcjetRedact(arcjetRedactOptions);
+const response = await arcjetRedact.invoke(
+  "My email address is test@example.com, here is some-sensitive-info"
+);
+```

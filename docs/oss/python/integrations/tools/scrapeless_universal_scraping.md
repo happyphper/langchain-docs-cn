@@ -1,0 +1,229 @@
+---
+title: 无代码通用爬取
+---
+**Scrapeless** 提供灵活且功能丰富的数据获取服务，支持广泛的参数自定义和多格式导出。这些能力使 LangChain 能够更有效地集成和利用外部数据。核心功能模块包括：
+
+**DeepSerp**
+
+- **Google 搜索**：支持全面提取所有结果类型的 Google SERP 数据。
+  - 支持选择本地化的 Google 域名（例如 `google.com`、`google.ad`）以获取特定区域的搜索结果。
+  - 支持分页，可获取第一页之后的结果。
+  - 支持搜索结果过滤开关，用于控制是否排除重复或相似内容。
+- **Google 趋势**：从 Google 检索关键词趋势数据，包括随时间变化的流行度、区域兴趣度和相关搜索。
+  - 支持多关键词对比。
+  - 支持多种数据类型：`interest_over_time`、`interest_by_region`、`related_queries` 和 `related_topics`。
+  - 允许按特定 Google 属性（网页、YouTube、新闻、购物）进行过滤，以进行特定来源的趋势分析。
+
+**通用抓取**
+
+- 专为现代、大量使用 JavaScript 的网站设计，允许提取动态内容。
+  - 支持全球优质代理，用于绕过地理限制并提高可靠性。
+
+**爬虫**
+
+- **爬取**：递归爬取网站及其链接页面，以提取全站内容。
+  - 支持可配置的爬取深度和限定范围的 URL 目标。
+- **抓取**：高精度地从单个网页提取内容。
+  - 支持“仅主要内容”提取，以排除广告、页脚和其他非必要元素。
+  - 允许批量抓取多个独立的 URL。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | JS 支持 | 版本 |
+| :--- | :--- | :---: | :---: | :---: |
+| [ScrapelessUniversalScrapingTool](https://pypi.org/project/langchain-scrapeless/) | [langchain-scrapeless](https://pypi.org/project/langchain-scrapeless/) | ✅ | ❌ |  ![PyPI - Version](https://img.shields.io/pypi/v/langchain-scrapeless?style=flat-square&label=%20) |
+
+### 工具特性
+
+|原生异步|返回工件|返回数据|
+|:-:|:-:|:-:|
+|✅|✅|html, markdown, links, metadata, structured content|
+
+## 设置
+
+该集成位于 `langchain-scrapeless` 包中。
+!pip install langchain-scrapeless
+
+### 凭证
+
+您需要一个 Scrapeless API 密钥才能使用此工具。您可以将其设置为环境变量：
+
+```python
+import os
+
+os.environ["SCRAPELESS_API_KEY"] = "your-api-key"
+```
+
+## 实例化
+
+这里我们展示如何实例化 Scrapeless 通用抓取工具。该工具允许您使用具有 JavaScript 渲染能力、可自定义输出类型和特定地理位置代理支持的无头浏览器来抓取任何网站。
+
+该工具在实例化时接受以下参数：
+
+- `url`（必需，str）：要抓取的网站的 URL。
+- `headless`（可选，bool）：是否使用无头浏览器。默认为 True。
+- `js_render`（可选，bool）：是否启用 JavaScript 渲染。默认为 True。
+- `js_wait_until`（可选，str）：定义何时认为 JavaScript 渲染的页面已准备就绪。默认为 `'domcontentloaded'`。选项包括：
+  - `load`：等待页面完全加载。
+  - `domcontentloaded`：等待 DOM 完全加载。
+  - `networkidle0`：等待网络空闲。
+  - `networkidle2`：等待网络空闲 2 秒。
+- `outputs`（可选，str）：要从页面提取的特定数据类型。选项包括：
+  - `phone_numbers`
+  - `headings`
+  - `images`
+  - `audios`
+  - `videos`
+  - `links`
+  - `menus`
+  - `hashtags`
+  - `emails`
+  - `metadata`
+  - `tables`
+  - `favicon`
+- `response_type`（可选，str）：定义响应的格式。默认为 `'html'`。选项包括：
+  - `html`：返回页面的原始 HTML。
+  - `plaintext`：返回纯文本内容。
+  - `markdown`：返回页面的 Markdown 版本。
+  - `png`：返回 PNG 截图。
+  - `jpeg`：返回 JPEG 截图。
+- `response_image_full_page`（可选，bool）：在使用截图输出（png 或 jpeg）时，是否捕获并返回整页图像。默认为 False。
+- `selector`（可选，str）：一个特定的 CSS 选择器，用于将抓取范围限定在页面的某个部分。默认为 `None`。
+- `proxy_country`（可选，str）：用于特定地理位置代理访问的两个字母的国家代码（例如 `'us'`、`'gb'`、`'de'`、`'jp'`）。默认为 `'ANY'`。
+
+## 调用
+
+### 基本用法
+
+```python
+from langchain_scrapeless import ScrapelessUniversalScrapingTool
+
+tool = ScrapelessUniversalScrapingTool()
+
+# 基本用法
+result = tool.invoke("https://example.com")
+print(result)
+```
+
+```text
+<!DOCTYPE html><html><head>
+    <title>Example Domain</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">
+    body {
+        background-color: #f0f0f2;
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+    }
+    div {
+        width: 600px;
+        margin: 5em auto;
+        padding: 2em;
+        background-color: #fdfdff;
+        border-radius: 0.5em;
+        box-shadow: 2px 3px 7px 2px rgba(0,0,0,0.02);
+    }
+    a:link, a:visited {
+        color: #38488f;
+        text-decoration: none;
+    }
+    @media (max-width: 700px) {
+        div {
+            margin: 0 auto;
+            width: auto;
+        }
+    }
+    </style>
+</head>
+
+<body>
+<div>
+    <h1>Example Domain</h1>
+    <p>This domain is for use in illustrative examples in documents. You may use this
+    domain in literature without prior coordination or asking for permission.</p>
+    <p><a href="https://www.iana.org/domains/example">More information...</a></p>
+</div>
+
+</body></html>
+```
+
+### 带参数的高级用法
+
+```python
+from langchain_scrapeless import ScrapelessUniversalScrapingTool
+
+tool = ScrapelessUniversalScrapingTool()
+
+result = tool.invoke({"url": "https://exmaple.com", "response_type": "markdown"})
+print(result)
+```
+
+```text
+# Well hello there.
+
+Welcome to exmaple.com.
+Chances are you got here by mistake (example.com, anyone?)
+```
+
+### 在智能体中使用
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain_scrapeless import ScrapelessUniversalScrapingTool
+from langchain.agents import create_agent
+
+model = ChatOpenAI()
+
+tool = ScrapelessUniversalScrapingTool()
+
+# 在智能体中使用该工具
+tools = [tool]
+agent = create_agent(model, tools)
+
+for chunk in agent.stream(
+    {
+        "messages": [
+            (
+                "human",
+                "Use the scrapeless scraping tool to fetch https://www.scrapeless.com/en and extract the h1 tag.",
+            )
+        ]
+    },
+    stream_mode="values",
+):
+    chunk["messages"][-1].pretty_print()
+```
+
+```text
+================================ Human Message =================================
+
+Use the scrapeless scraping tool to fetch https://www.scrapeless.com/en and extract the h1 tag.
+================================== Ai Message ==================================
+Tool Calls:
+  scrapeless_universal_scraping (call_jBrvMVL2ixhvf6gklhi7Gqtb)
+ Call ID: call_jBrvMVL2ixhvf6gklhi7Gqtb
+  Args:
+    url: https://www.scrapeless.com/en
+    outputs: headings
+================================= Tool Message =================================
+Name: scrapeless_universal_scraping
+
+{"headings":["Effortless Web Scraping Toolkitfor Business and Developers","4.8","4.5","8.5","A Flexible Toolkit for Accessing Public Web Data","Deep SerpApi","Scraping Browser","Universal Scraping API","Customized Services","From Simple Data Scraping to Complex Anti-Bot Challenges, Scrapeless Has You Covered.","Fully Compatible with Key Programming Languages and Tools","Enterprise-level Data Scraping Solution","Customized Data Scraping Solutions","High Concurrency and High-Performance Scraping","Data Cleaning and Transformation","Real-Time Data Push and API Integration","Data Security and Privacy Protection","Enterprise-level SLA","Why Scrapeless: Simplify Your Data Flow Effortlessly.","Articles","Organized Fresh Data","Prices","No need to hassle with browser maintenance","Reviews","Only pay for successful requests","Products","Fully scalable","Unleash Your Competitive Edgein Data within the Industry","Regulate Compliance for All Users","Web Scraping Blog","Scrapeless MCP Server Is Officially Live! Build Your Ultimate AI-Web Connector","Product Updates | New Profile Feature","How to Track Your Ranking on ChatGPT?","For Scraping","For Data","For AI","Top Scraper API","Learning Center","Legal"]}
+================================== Ai Message ==================================
+
+The h1 tag extracted from the website https://www.scrapeless.com/en is "Effortless Web Scraping Toolkit for Business and Developers".
+```
+
+---
+
+## API 参考
+
+- [Scrapeless 文档](https://docs.scrapeless.com/en/universal-scraping-api/quickstart/introduction/)
+- [Scrapeless API 参考](https://apidocs.scrapeless.com/api-12948840)

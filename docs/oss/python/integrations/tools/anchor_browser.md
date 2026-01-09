@@ -1,0 +1,185 @@
+---
+title: 锚点浏览器
+---
+Anchor 是一个用于 AI 智能体（Agentic）浏览器自动化的平台，它解决了为缺乏 API 或 API 覆盖有限的 Web 应用程序自动化工作流的难题。它简化了基于浏览器的自动化的创建、部署和管理，将复杂的 Web 交互转化为简单的 API 端点。
+
+本指南提供了快速入门 Anchor Browser 工具的概述。有关 Anchor Browser 的更多信息，请访问 [Anchorbrowser.io](https://anchorbrowser.io?utm=langchain) 或 [Anchor Browser 文档](https://docs.anchorbrowser.io?utm=langchain)。
+
+## 概述
+
+### 集成详情
+
+LangChain 的 Anchor Browser 包是 [langchain-anchorbrowser](https://pypi.org/project/langchain-anchorbrowser)，当前最新版本是 ![PyPI - Version](https://img.shields.io/pypi/v/langchain-anchorbrowser?style=flat-square&label=%20)。
+
+### 工具特性
+
+| 工具名称 | 包 | 描述 | 参数 |
+| :--- | :--- | :--- | :---|
+| `AnchorContentTool` | langchain-anchorbrowser | 从网页提取文本内容 | `url`, `format` |
+| `AnchorScreenshotTool` | langchain-anchorbrowser | 对网页进行截图 | `url`, `width`, `height`, `image_quality`, `wait`, `scroll_all_content`, `capture_full_height`, `s3_target_address` |
+| `AnchorWebTaskToolKit` | langchain-anchorbrowser | 使用 AI 执行智能 Web 任务（简单和高级模式） | 见下文 |
+
+`langchain-anchorbrowser` 中允许的参数分别只是 Anchor Browser API 参考中列出的参数的一个子集：[获取网页内容](https://docs.anchorbrowser.io/sdk-reference/tools/get-webpage-content?utm=langchain)、[网页截图](https://docs.anchorbrowser.io/sdk-reference/tools/screenshot-webpage?utm=langchain) 和 [执行 Web 任务](https://docs.anchorbrowser.io/sdk-reference/ai-tools/perform-web-task?utm=langchain)。
+
+**信息：** Anchor 目前为 LangChain 的 `browser_use` 智能体实现了 `SimpleAnchorWebTaskTool` 和 `AdvancedAnchorWebTaskTool` 工具。
+
+#### AnchorWebTaskToolKit 工具
+
+此工具包中每个工具的区别在于 Pydantic 配置结构。
+
+| 工具名称 | 包 | 参数 |
+| :--- | :--- | :--- |
+| `SimpleAnchorWebTaskTool` | langchain-anchorbrowser | prompt, url |
+| `AdvancedAnchorWebTaskTool` | langchain-anchorbrowser | prompt, url, output_schema |
+
+## 设置
+
+集成位于 `langchain-anchorbrowser` 包中。
+
+```python
+pip install --quiet -U langchain-anchorbrowser pydantic
+```
+
+### 凭证
+
+使用您的 Anchor Browser 凭证。根据需要，在 Anchor Browser 的 [API 密钥页面](https://app.anchorbrowser.io/api-keys?utm=langchain) 获取。
+
+```python
+import getpass
+import os
+
+if not os.environ.get("ANCHORBROWSER_API_KEY"):
+    os.environ["ANCHORBROWSER_API_KEY"] = getpass.getpass("ANCHORBROWSER API key:\n")
+```
+
+## 实例化
+
+轻松实例化 Anchor Browser 工具实例。
+
+```python
+from langchain_anchorbrowser import (
+    AnchorContentTool,
+    AnchorScreenshotTool,
+    AdvancedAnchorWebTaskTool,
+)
+
+anchor_content_tool = AnchorContentTool()
+anchor_screenshot_tool = AnchorScreenshotTool()
+anchor_advanced_web_task_tool = AdvancedAnchorWebTaskTool()
+```
+
+## 调用
+
+### [直接使用参数调用](/oss/langchain/tools#use-the-tool-directly)
+
+完整的可用参数列表出现在上方的工具特性表中。
+
+```python
+# 获取 https://www.anchorbrowser.io 的 Markdown 内容
+anchor_content_tool.invoke(
+    {"url": "https://www.anchorbrowser.io", "format": "markdown"}
+)
+
+# 获取 https://docs.anchorbrowser.io 的截图
+anchor_screenshot_tool.invoke(
+    {"url": "https://docs.anchorbrowser.io", "width": 1280, "height": 720}
+)
+```
+
+```python
+# 为 Web 任务输出模式定义一个 Pydantic 模型
+
+from pydantic import BaseModel
+from typing import List
+
+class NodeCpuUsage(BaseModel):
+    node: str,
+    cluster: str,
+    cpu_avg_percentage: float
+
+class OutputSchema(BaseModel):
+    nodes_cpu_usage: List[NodeCpuUsage]
+
+# 运行一个 Web 任务来从网页收集数据
+anchor_advanced_web_task_tool.invoke(
+    {
+        "prompt": "Collect the node names and their CPU average %",
+        "url": "https://play.grafana.org/a/grafana-k8s-app/navigation/nodes?from=now-1h&to=now&refresh=1m",
+        "output_schema": OutputSchema.model_json_schema()
+    }
+)
+```
+
+### [使用 ToolCall 调用](/oss/langchain/tools/#tool-execution)
+
+我们也可以使用模型生成的 ToolCall 来调用工具，在这种情况下，将返回一个 ToolMessage：
+
+```python
+# 这通常由模型生成，但为了演示目的，我们将直接创建一个工具调用。
+model_generated_tool_call = {
+    "args": {"url": "https://www.anchorbrowser.io", "format": "markdown"},
+    "id": "1",
+    "name": anchor_content_tool.name,
+    "type": "tool_call",
+}
+anchor_content_tool.invoke(model_generated_tool_call)
+```
+
+## 链式调用
+
+我们可以通过首先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后调用它，从而在链中使用我们的工具：
+
+## 在智能体中使用
+
+```python
+pip install -qU langchain langchain-openai
+```
+
+```python
+from langchain.chat_models import init_chat_model
+
+model = init_chat_model(model="gpt-4o", model_provider="openai")
+```
+
+```python
+if not os.environ.get("OPENAI_API_KEY"):
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("OPENAI API key:\n")
+```
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableConfig, chain
+
+prompt = ChatPromptTemplate(
+    [
+        ("system", "You are a helpful assistant."),
+        ("human", "{user_input}"),
+        ("placeholder", "{messages}"),
+    ]
+)
+
+# 指定 tool_choice 将强制模型调用此工具。
+model_with_tools = model.bind_tools(
+    [anchor_content_tool], tool_choice=anchor_content_tool.name
+)
+
+model_chain = prompt | model_with_tools
+
+@chain
+def tool_chain(user_input: str, config: RunnableConfig):
+    input_ = {"user_input": user_input}
+    ai_msg = model_chain.invoke(input_, config=config)
+    tool_msgs = anchor_content_tool.batch(ai_msg.tool_calls, config=config)
+    return model_chain.invoke({**input_, "messages": [ai_msg, *tool_msgs]}, config=config)
+
+tool_chain.invoke(input())
+```
+
+---
+
+## API 参考
+
+- [PyPi](https://pypi.org/project/langchain-anchorbrowser)
+- [GitHub](https://github.com/anchorbrowser/langchain-anchorbrowser)
+- [Anchor Browser 文档](https://docs.anchorbrowser.io/introduction?utm=langchain)
+- [Anchor Browser API 参考](https://docs.anchorbrowser.io/api-reference/ai-tools/perform-web-task?utm=langchain)

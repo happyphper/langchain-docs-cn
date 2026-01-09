@@ -1,0 +1,198 @@
+---
+title: Vectara
+---
+[Vectara](https://vectara.com/) 是一个值得信赖的 AI 助手和智能体平台，专注于为关键任务应用提供企业级就绪能力。
+Vectara 的无服务器 RAG 即服务通过一个易于使用的 API 提供了 RAG 的所有组件，包括：
+
+1.  从文件（PDF、PPT、DOCX 等）中提取文本的方法。
+2.  基于机器学习的文本分块技术，提供最先进的性能。
+3.  [Boomerang](https://vectara.com/how-boomerang-takes-retrieval-augmented-generation-to-the-next-level-via-grounded-generation/) 嵌入模型。
+4.  其内部的向量数据库，用于存储文本块和嵌入向量。
+5.  一个查询服务，能自动将查询编码为嵌入向量，并检索最相关的文本片段，支持[混合搜索](https://docs.vectara.com/docs/api-reference/search-apis/lexical-matching)以及多种重排序选项，例如[多语言相关性重排序器](https://www.vectara.com/blog/deep-dive-into-vectara-multilingual-reranker-v1-state-of-the-art-reranker-across-100-languages)、[MMR](https://vectara.com/get-diverse-results-and-comprehensive-summaries-with-vectaras-mmr-reranker/)、[UDF 重排序器](https://www.vectara.com/blog/rag-with-user-defined-functions-based-reranking)。
+6.  一个基于检索到的文档（上下文）创建[生成式摘要](https://docs.vectara.com/docs/learn/grounded-generation/grounded-generation-overview)的大语言模型，包括引用。
+
+更多信息：
+
+-   [文档](https://docs.vectara.com/docs/)
+-   [API 演练场](https://docs.vectara.com/docs/rest-api/)
+-   [快速入门](https://docs.vectara.com/docs/quickstart)
+
+本笔记本展示了在仅将 Vectara 用作向量存储（不进行摘要生成）时，如何使用其基本检索功能，包括：`similarity_search` 和 `similarity_search_with_score`，以及使用 LangChain 的 `as_retriever` 功能。
+
+## 设置
+
+要使用 `VectaraVectorStore`，首先需要安装合作伙伴包。
+
+```python
+!uv pip install -U pip && uv pip install -qU langchain-vectara
+```
+
+# 开始使用
+
+请按照以下步骤开始使用：
+
+1.  如果您还没有 Vectara 账户，请[注册](https://www.vectara.com/integrations/langchain)免费试用。
+2.  在您的账户内，您可以创建一个或多个语料库。每个语料库代表一个区域，用于存储从输入文档摄取后的文本数据。要创建语料库，请使用 **"创建语料库"** 按钮。然后为您的语料库提供名称和描述。您可以选择性地定义过滤属性并应用一些高级选项。如果点击您创建的语料库，您可以在顶部看到其名称和语料库 ID。
+3.  接下来，您需要创建 API 密钥来访问语料库。在语料库视图中点击 **"访问控制"** 选项卡，然后点击 **"创建 API 密钥"** 按钮。为您的密钥命名，并选择您希望密钥是仅查询还是查询+索引。点击 "创建"，您现在就有了一个有效的 API 密钥。请妥善保管此密钥。
+
+要将 LangChain 与 Vectara 结合使用，您需要这两个值：`corpus_key` 和 `api_key`。
+您可以通过两种方式向 LangChain 提供 `VECTARA_API_KEY`：
+
+1.  在您的环境中包含这两个变量：`VECTARA_API_KEY`。
+
+例如，您可以使用 os.environ 和 getpass 设置这些变量，如下所示：
+
+```python
+import os
+import getpass
+
+os.environ["VECTARA_API_KEY"] = getpass.getpass("Vectara API Key:")
+```
+
+2.  将它们添加到 `Vectara` 向量存储构造函数中：
+
+```python
+vectara = Vectara(
+    vectara_api_key=vectara_api_key
+)
+```
+
+在本笔记本中，我们假设它们已在环境中提供。
+
+```python
+import os
+
+os.environ["VECTARA_API_KEY"] = "<VECTARA_API_KEY>"
+os.environ["VECTARA_CORPUS_KEY"] = "VECTARA_CORPUS_KEY"
+
+from langchain_vectara import Vectara
+from langchain_vectara.vectorstores import (
+    ChainReranker,
+    CorpusConfig,
+    CustomerSpecificReranker,
+    File,
+    GenerationConfig,
+    MmrReranker,
+    SearchConfig,
+    VectaraQueryConfig,
+)
+
+vectara = Vectara(vectara_api_key=os.getenv("VECTARA_API_KEY"))
+```
+
+首先，我们将国情咨文文本加载到 Vectara 中。
+
+请注意，我们使用的是 `add_files` 接口，它不需要任何本地处理或分块——Vectara 接收文件内容，并执行所有必要的预处理、分块和嵌入，将文件存入其知识库。
+
+这里使用的是 .txt 文件，但同样适用于许多其他[文件类型](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload-filetypes)。
+
+```python
+corpus_key = os.getenv("VECTARA_CORPUS_KEY")
+file_obj = File(
+    file_path="../document_loaders/example_data/state_of_the_union.txt",
+    metadata={"source": "text_file"},
+)
+vectara.add_files([file_obj], corpus_key)
+```
+
+```python
+['state_of_the_union.txt']
+```
+
+## Vectara RAG（检索增强生成）
+
+我们现在创建一个 `VectaraQueryConfig` 对象来控制检索和摘要生成选项：
+- 我们启用摘要生成，指定希望 LLM 选取前 7 个匹配的文本块并用英语进行回复。
+
+使用此配置，让我们创建一个 LangChain `Runnable` 对象，通过 `as_rag` 方法封装完整的 Vectara RAG 流程：
+
+```python
+generation_config = GenerationConfig(
+    max_used_search_results=7,
+    response_language="eng",
+    generation_preset_name="vectara-summary-ext-24-05-med-omni",
+    enable_factual_consistency_score=True,
+)
+search_config = SearchConfig(
+    corpora=[CorpusConfig(corpus_key=corpus_key)],
+    limit=25,
+    reranker=ChainReranker(
+        rerankers=[
+            CustomerSpecificReranker(reranker_id="rnk_272725719", limit=100),
+            MmrReranker(diversity_bias=0.2, limit=100),
+        ]
+    ),
+)
+
+config = VectaraQueryConfig(
+    search=search_config,
+    generation=generation_config,
+)
+
+query_str = "what did Biden say?"
+
+rag = vectara.as_rag(config)
+rag.invoke(query_str)["answer"]
+```
+
+```text
+"President Biden discussed several key issues in his recent statements. He emphasized the importance of keeping schools open and noted that with a high vaccination rate and reduced hospitalizations, most Americans can safely return to normal activities without masks [1]. He addressed the need to hold social media platforms accountable for their impact on children and called for stronger privacy protections and mental health services [2]. Biden also announced measures against Russia, including preventing its central bank from defending the Ruble and targeting Russian oligarchs' assets, as part of efforts to weaken Russia's economy and military [3]. Additionally, he highlighted the importance of protecting women's rights, specifically the right to choose as affirmed in Roe v. Wade [5]. Lastly, he advocated for funding the police with necessary resources and training to ensure community safety [6]."
+```
+
+我们也可以像这样使用流式接口：
+
+```python
+output = {}
+curr_key = None
+for chunk in rag.stream(query_str):
+    for key in chunk:
+        if key not in output:
+            output[key] = chunk[key]
+        else:
+            output[key] += chunk[key]
+        if key == "answer":
+            print(chunk[key], end="", flush=True)
+        curr_key = key
+```
+
+```text
+President Biden emphasized several key points in his statements. He highlighted the importance of keeping schools open and noted that with a high vaccination rate and reduced hospitalizations, most Americans can safely return to normal activities without masks [1]. He addressed the need to hold social media platforms accountable for their impact on children and called for stronger privacy protections and mental health services [2]. Biden also discussed measures against Russia, including preventing their central bank from defending the Ruble and targeting Russian oligarchs' assets [3]. Additionally, he reaffirmed the commitment to protect women's rights, particularly the right to choose as affirmed in Roe v. Wade [5]. Lastly, he advocated for funding the police to ensure community safety [6].
+```
+
+有关 Vectara 作为 VectorStore 的更多详细信息，[请转到此笔记本](../vectorstores/vectara.ipynb)。
+
+## Vectara 聊天
+
+在大多数使用 LangChain 创建聊天机器人的场景中，必须集成一个特殊的 `memory` 组件来维护聊天会话的历史记录，然后利用该历史记录确保聊天机器人了解对话历史。
+
+使用 Vectara Chat 时，所有这些都由 Vectara 在后台自动完成。
+
+```python
+generation_config = GenerationConfig(
+    max_used_search_results=7,
+    response_language="eng",
+    generation_preset_name="vectara-summary-ext-24-05-med-omni",
+    enable_factual_consistency_score=True,
+)
+search_config = SearchConfig(
+    corpora=[CorpusConfig(corpus_key=corpus_key, limit=25)],
+    reranker=MmrReranker(diversity_bias=0.2),
+)
+
+config = VectaraQueryConfig(
+    search=search_config,
+    generation=generation_config,
+)
+
+bot = vectara.as_chat(config)
+
+bot.invoke("What did the president say about Ketanji Brown Jackson?")["answer"]
+```
+
+```text
+'The president stated that nominating someone to serve on the United States Supreme Court is one of the most serious constitutional responsibilities he has. He nominated Circuit Court of Appeals Judge Ketanji Brown Jackson, describing her as one of the nation’s top legal minds who will continue Justice Breyer’s legacy of excellence [1].'
+```
+
+## Vectara 作为自查询检索器
+
+Vectara 提供智能查询重写选项，通过从自然语言查询自动生成元数据过滤表达式来增强搜索精度。此功能分析用户查询，提取相关的元数据过滤器，并重新表述查询以聚焦于核心信息需求。

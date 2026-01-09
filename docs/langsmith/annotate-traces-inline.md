@@ -1,0 +1,29 @@
+---
+title: 内联标注追踪和运行
+sidebarTitle: Annotate traces and runs inline
+---
+LangSmith 允许您在应用程序内手动为追踪记录添加反馈注释。这有助于为追踪记录添加上下文，例如用户的评论或关于特定问题的备注。
+
+您可以通过内联方式或通过将追踪记录发送到注释队列来添加注释，后者允许您逐一仔细检查并为运行记录记录反馈。
+
+反馈标签与您的[工作区](/langsmith/administration-overview#workspaces)相关联。
+
+<Note>
+
+<strong>您可以将用户反馈附加到追踪记录中的任何中间运行（span），而不仅仅是根 span。</strong>
+
+这对于评估 LLM 应用程序的特定部分非常有用，例如 RAG 管道的检索步骤或生成步骤。
+
+</Note>
+
+要内联注释追踪记录，请点击追踪视图中任意特定运行记录右上角的 `Annotate` 按钮。
+
+![内联注释追踪记录](/langsmith/images/annotate-trace-inline.png)
+
+这将打开一个面板，允许您从与工作区关联的反馈标签中选择，并为特定标签添加评分。您还可以添加独立的评论。请按照[本指南](./set-up-feedback-criteria)为工作区设置反馈标签。
+
+您也可以直接从面板内设置新的反馈标准。
+
+![注释侧边栏](/langsmith/images/annotation-sidebar.png)
+
+您可以使用标注的键盘快捷键来简化注释流程。

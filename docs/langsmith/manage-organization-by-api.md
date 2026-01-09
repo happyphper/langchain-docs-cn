@@ -1,0 +1,228 @@
+---
+title: 使用 API 管理您的组织
+sidebarTitle: Manage organizations using the API
+---
+LangSmith 的 API 支持通过 API 密钥以编程方式访问 UI 中可用的所有操作，仅有少数例外情况在[仅限用户的端点](#user-only-endpoints)中注明。
+
+<Check>
+
+在深入阅读此内容之前，阅读以下内容可能会有所帮助：
+
+* [关于组织和工作空间的概念指南](/langsmith/administration-overview)
+* [组织设置操作指南](/langsmith/set-up-hierarchy#set-up-an-organization)
+
+</Check>
+
+<Note>
+
+存在一些限制，这些限制将很快被解除：
+
+* LangSmith SDK 目前尚不支持这些组织管理操作。
+* 具有组织管理员权限的组织范围[服务密钥](/langsmith/administration-overview#service-keys)可用于这些操作。
+
+</Note>
+
+<Warning>
+
+使用 `X-Tenant-Id` 请求头来指定目标工作空间。如果该请求头不存在，操作将默认使用 API 密钥最初创建时所在的工作空间（如果该密钥不是组织范围的）。
+
+<strong>如果使用组织范围的 API 密钥访问工作空间范围的资源时未指定 `X-Tenant-Id`，请求将失败并返回 `403 Forbidden`。</strong>
+
+</Warning>
+
+下面列出了一些常用的端点和用例。有关可用端点的完整列表，请参阅 [API 文档](https://api.smith.langchain.com/redoc)。**`X-Organization-Id` 请求头应出现在所有请求中，而 `X-Tenant-Id` 请求头应出现在针对特定工作空间范围的请求中。**
+
+## 工作空间
+
+* [列出工作空间](https://api.smith.langchain.com/redoc#tag/workspaces/operation/list_workspaces_api_v1_workspaces_get)
+* [创建工作空间](https://api.smith.langchain.com/redoc#tag/workspaces/operation/create_workspace_api_v1_workspaces_post)
+* [更新工作空间名称](https://api.smith.langchain.com/redoc#tag/workspaces/operation/patch_workspace_api_v1_workspaces__workspace_id__patch)
+
+## 用户管理
+
+### RBAC
+
+* [列出角色](https://api.smith.langchain.com/redoc#tag/orgs/operation/list_organization_roles_api_v1_orgs_current_roles_get)
+* [列出权限](https://api.smith.langchain.com/redoc#tag/orgs/operation/update_organization_roles_api_v1_orgs_current_roles__role_id__patch)
+* [创建角色](https://api.smith.langchain.com/redoc#tag/orgs/operation/create_organization_roles_api_v1_orgs_current_roles_post)
+* [更新角色](https://api.smith.langchain.com/redoc#tag/orgs/operation/update_organization_roles_api_v1_orgs_current_roles__role_id__patch)
+
+### 成员管理
+
+[RBAC](#rbac) 下的 `List roles` 应被用于获取这些操作的角色 ID。以下 `List [organization|workspace] members` 端点响应中的 `"id"` 应作为这些操作中的 `identity_id` 使用。
+
+组织级别：
+
+* [列出活跃的组织成员](https://api.smith.langchain.com/redoc#tag/orgs/operation/get_current_active_org_members_api_v1_orgs_current_members_active_get)
+* [列出待处理的组织成员](https://api.smith.langchain.com/redoc#tag/orgs/operation/get_current_pending_org_members_api_v1_orgs_current_members_pending_get)
+* [邀请用户加入组织及一个或多个工作空间](https://api.smith.langchain.com/redoc#tag/orgs/operation/add_members_to_current_org_batch_api_v1_orgs_current_members_batch_post)。当用户还不是组织的成员时，应使用此端点。
+* [更新用户的组织角色](https://api.smith.langchain.com/redoc#tag/workspaces/operation/add_member_to_current_workspace_api_v1_workspaces_current_members_post)
+* [将某人从组织中移除](https://api.smith.langchain.com/redoc#tag/orgs/operation/remove_member_from_current_org_api_v1_orgs_current_members__identity_id__delete)
+
+工作空间级别：
+
+* [列出工作空间成员](https://api.smith.langchain.com/redoc#tag/workspaces/operation/get_current_workspace_members_api_v1_workspaces_current_members_get)
+* [将已是组织成员的用户添加到工作空间](https://api.smith.langchain.com/redoc#tag/workspaces/operation/add_member_to_current_workspace_api_v1_workspaces_current_members_post)
+* [更新用户的工作空间角色](https://api.smith.langchain.com/redoc#tag/workspaces/operation/add_member_to_current_workspace_api_v1_workspaces_current_members_post)
+* [将某人从工作空间中移除](https://api.smith.langchain.com/redoc#tag/workspaces/operation/delete_current_workspace_member_api_v1_workspaces_current_members__identity_id__delete)
+
+<Note>
+
+应省略以下参数：`read_only`（已弃用）、`password` 和 `full_name`（仅限[基础认证](/langsmith/authentication-methods)）
+
+</Note>
+
+## API 密钥
+
+* [创建服务密钥](https://api.smith.langchain.com/redoc#tag/api-key/operation/generate_api_key_api_v1_api_key_post)
+* [删除服务密钥](https://api.smith.langchain.com/redoc#tag/api-key/operation/delete_api_key_api_v1_api_key__api_key_id__delete)
+
+## 安全设置
+
+<Note>
+
+进行这些更改需要组织管理员权限。
+
+</Note>
+
+<Note>
+
+此上下文中的"共享资源"指的是[公共提示词](/langsmith/create-a-prompt#save-your-prompt)、[共享运行记录](/langsmith/share-trace)和[共享数据集](/langsmith/manage-datasets#share-a-dataset)。
+
+</Note>
+
+<Warning>
+
+更新这些设置会影响<strong>组织中的所有资源</strong>。
+
+</Warning>
+
+您可以在工作空间的 **设置 > 共享** 标签页下更新这些设置，或通过 API 更新：
+* [更新组织共享设置](https://api.smith.langchain.com/redoc#tag/orgs/operation/update_current_organization_info_api_v1_orgs_current_info_patch)
+  * 使用 `unshare_all` 来取消共享组织中的**所有**共享资源 - 使用 `disable_public_sharing` 来阻止未来资源的共享
+
+这些设置仅能通过 API 编辑：
+* [禁用/启用 PAT 创建](https://api.smith.langchain.com/redoc#tag/orgs/operation/update_current_organization_info_api_v1_orgs_current_info_patch)（对于自托管版本，在 Helm chart 版本 0.11.25+ 中可用）
+  * 使用 `pat_creation_disabled` 来为整个组织禁用 PAT 创建。
+  * 有关无法创建 PAT 的组织查看者角色的信息，请参阅[管理员指南](/langsmith/administration-overview#organization-roles)。
+
+## 仅限用户的端点
+
+这些端点是用户范围的，需要已登录用户的 JWT，因此应仅通过 UI 执行。
+
+* `/api-key/current` 端点：这些与用户的 PAT 相关
+* `/sso/email-verification/send`（仅限云版）：此端点与 [SAML SSO](/langsmith/user-management) 相关
+
+## 示例代码
+
+下面的示例代码演示了几个与组织管理相关的常见工作流程。请确保替换代码中所有出现 `<replace_me>` 的地方。
+
+```python
+import os
+import requests
+
+def main():
+    api_key = os.environ["LANGSMITH_API_KEY"]
+    # LANGSMITH_ORGANIZATION_ID 不是 SDK 中的标准环境变量，仅在此示例中使用
+    organization_id = os.environ["LANGSMITH_ORGANIZATION_ID"]
+    base_url = os.environ.get("LANGSMITH_ENDPOINT")  # 或 "https://api.smith.langchain.com"。请根据自托管安装或欧盟区域进行适当更新
+    headers = {
+        "Content-Type": "application/json",
+        "X-API-Key": api_key,
+        "X-Organization-Id": organization_id,
+    }
+    session = requests.Session()
+    session.headers.update(headers)
+    workspaces_path = f"{base_url}/api/v1/workspaces"
+    orgs_path = f"{base_url}/api/v1/orgs/current"
+    api_keys_path = f"{base_url}/api/v1/api-key"
+
+    # Create a workspace
+    workspace_res = session.post(workspaces_path, json={"display_name": "My Workspace"})
+    workspace_res.raise_for_status()
+    workspace = workspace_res.json()
+    workspace_id = workspace["id"]
+    new_workspace_headers = {
+        "X-Tenant-Id": workspace_id,
+    }
+
+    # Grab roles - this includes both organization and workspace roles
+    roles_res = session.get(f"{orgs_path}/roles")
+    roles_res.raise_for_status()
+    roles = roles_res.json()
+    # system org roles are 'Organization Admin', 'Organization User'
+    # system workspace roles are 'Admin', 'Editor', 'Viewer'
+    org_roles_by_name = {role["display_name"]: role for role in roles if role["access_scope"] == "organization"}
+    ws_roles_by_name = {role["display_name"]: role for role in roles if role["access_scope"] == "workspace"}
+
+    # Invite a user to the org and the new workspace, as an Editor.
+    # workspace_role_id is only allowed if RBAC is enabled (an enterprise feature).
+    new_user_email = "<replace_me>"
+    new_user_res = session.post(
+        f"{orgs_path}/members",
+        json={
+            "email": new_user_email,
+            "role_id": org_roles_by_name["Organization User"]["id"],
+            "workspace_ids": [workspace_id],
+            "workspace_role_id": ws_roles_by_name["Editor"]["id"],
+        },
+    )
+    new_user_res.raise_for_status()
+
+    # Add a user that already exists in the org to the new workspace, as a Viewer.
+    # workspace_role_id is only allowed if RBAC is enabled (an enterprise feature).
+    existing_user_email = "<replace_me>"
+    org_members_res = session.get(f"{orgs_path}/members")
+    org_members_res.raise_for_status()
+    org_members = org_members_res.json()
+    existing_org_member = next(
+        (member for member in org_members["members"] if member["email"] == existing_user_email), None
+    )
+    existing_user_res = session.post(
+        f"{workspaces_path}/current/members",
+        json={
+            "user_id": existing_org_member["user_id"],
+            "workspace_ids": [workspace_id],
+            "workspace_role_id": ws_roles_by_name["Viewer"]["id"],
+        },
+        headers=new_workspace_headers,
+    )
+    existing_user_res.raise_for_status()
+
+    # List all members of the workspace
+    members_res = session.get(f"{workspaces_path}/current/members", headers=new_workspace_headers)
+    members_res.raise_for_status()
+    members = members_res.json()
+    workspace_member = next(
+        (member for member in members["members"] if member["email"] == existing_user_email), None
+    )
+
+    # Update the user's workspace role to Admin (enterprise-only)
+    existing_user_id = workspace_member["id"]
+    update_res = session.patch(
+        f"{workspaces_path}/current/members/{existing_user_id}",
+        json={"role_id": ws_roles_by_name["Admin"]["id"]},
+        headers=new_workspace_headers,
+    )
+    update_res.raise_for_status()
+
+    # Update the user's organization role to Organization Admin
+    update_res = session.patch(
+        f"{orgs_path}/members/{existing_org_member['id']}",
+        json={"role_id": org_roles_by_name["Organization Admin"]["id"]},
+    )
+    update_res.raise_for_status()
+
+    # Create a new Service key
+    api_key_res = session.post(
+        api_keys_path,
+        json={"description": "my key"},
+        headers=new_workspace_headers,
+    )
+    api_key_res.raise_for_status()
+    api_key_json = api_key_res.json()
+    api_key = api_key_json["key"]
+
+if __name__ == "__main__":
+    main()
+```

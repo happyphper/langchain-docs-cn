@@ -1,0 +1,19 @@
+---
+title: Nebula
+---
+本页介绍了如何在 LangChain 中使用 [Nebula](https://symbl.ai/nebula)（[Symbl.ai](https://symbl.ai/) 的 LLM 生态系统）。
+内容分为两部分：安装与设置，以及特定 Nebula 封装器的参考。
+
+## 安装与设置
+
+- 获取 [Nebula API 密钥](https://info.symbl.ai/Nebula_Private_Beta.html) 并设置为环境变量 `NEBULA_API_KEY`
+- 更多详情请参阅 [Nebula 文档](https://docs.symbl.ai/docs/nebula-llm)。
+
+### LLM
+
+LangChain 提供了一个 Nebula LLM 封装器，您可以通过以下方式访问：
+
+```python
+from langchain_community.llms import Nebula
+llm = Nebula()
+```

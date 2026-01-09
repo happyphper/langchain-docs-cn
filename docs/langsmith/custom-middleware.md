@@ -1,0 +1,100 @@
+---
+title: 如何添加自定义中间件
+sidebarTitle: Add custom middleware
+---
+在将代理部署到 LangSmith 时，您可以为服务器添加自定义中间件，以处理诸如记录请求指标、注入或检查标头以及强制执行安全策略等问题，而无需修改核心服务器逻辑。这与[添加自定义路由](/langsmith/custom-routes)的工作方式相同。您只需要提供自己的 [`Starlette`](https://www.starlette.io/applications/) 应用（包括 [`FastAPI`](https://fastapi.tiangolo.com/)、[`FastHTML`](https://fastht.ml/) 和其他兼容的应用）。
+
+添加中间件可以让您在部署中全局拦截和修改请求和响应，无论它们是访问您的自定义端点还是内置的 LangSmith API。
+
+下面是一个使用 FastAPI 的示例。
+
+<Note>
+
+"仅限 Python"
+我们目前仅在 `langgraph-api>=0.0.26` 的 Python 部署中支持自定义中间件。
+
+</Note>
+
+## 创建应用
+
+从一个**现有的** LangSmith 应用开始，将以下中间件代码添加到您的 `webapp.py` 文件中。如果您是从头开始，可以使用 CLI 从模板创建一个新应用。
+
+```bash
+langgraph new --template=new-langgraph-project-python my_new_project
+```
+
+一旦您有了一个 LangGraph 项目，添加以下应用代码：
+
+```python {highlight={5}}
+# ./src/agent/webapp.py
+from fastapi import FastAPI, Request
+from starlette.middleware.base import BaseHTTPMiddleware
+
+app = FastAPI()
+
+class CustomHeaderMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers['X-Custom-Header'] = 'Hello from middleware!'
+        return response
+
+# 将中间件添加到应用
+app.add_middleware(CustomHeaderMiddleware)
+```
+
+## 配置 `langgraph.json`
+
+将以下内容添加到您的 `langgraph.json` 配置文件中。确保路径指向您上面创建的 `webapp.py` 文件。
+
+```json
+{
+  "dependencies": ["."],
+  "graphs": {
+    "agent": "./src/agent/graph.py:graph"
+  },
+  "env": ".env",
+  "http": {
+    "app": "./src/agent/webapp.py:app"
+  }
+  // 其他配置选项，如 auth、store 等。
+}
+```
+
+### 自定义中间件顺序
+
+默认情况下，自定义中间件在身份验证逻辑之前运行。若要在身份验证**之后**运行自定义中间件，请在您的 `http` 配置中将 `middleware_order` 设置为 `auth_first`。（此自定义功能从 API 服务器 v0.4.35 及更高版本开始支持。）
+
+```json
+{
+  "dependencies": ["."],
+  "graphs": {
+    "agent": "./src/agent/graph.py:graph"
+  },
+  "env": ".env",
+  "http": {
+    "app": "./src/agent/webapp.py:app",
+    "middleware_order": "auth_first"
+  },
+  "auth": {
+    "path": "./auth.py:my_auth"
+  }
+}
+```
+
+## 启动服务器
+
+在本地测试服务器：
+
+```bash
+langgraph dev --no-browser
+```
+
+现在，对您服务器的任何请求都将在其响应中包含自定义标头 `X-Custom-Header`。
+
+## 部署
+
+您可以将此应用按原样部署到云端或您的自托管平台。
+
+## 后续步骤
+
+现在您已经为部署添加了自定义中间件，您可以使用类似的技术来添加[自定义路由](/langsmith/custom-routes)或定义[自定义生命周期事件](/langsmith/custom-lifespan)，以进一步自定义服务器的行为。

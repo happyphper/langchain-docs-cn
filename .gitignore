@@ -6,9 +6,8 @@ node_modules/
 dist/
 
 # Generated documents (output directory)
-docs/*
-docs/.vitepress/cache/*
-!docs/.vitepress/
+docs/.vitepress/cache
+docs/.vitepress/dist
 
 # IDE / System files
 .DS_Store

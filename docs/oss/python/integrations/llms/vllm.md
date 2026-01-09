@@ -1,0 +1,157 @@
+---
+title: vLLM
+---
+[vLLM](https://vllm.readthedocs.io/en/latest/index.html) 是一个用于大语言模型（LLM）推理和服务的快速且易于使用的库，它提供：
+
+* 最先进的推理吞吐量
+* 通过 PagedAttention 高效管理注意力键值内存
+* 对传入请求进行连续批处理
+* 优化的 CUDA 内核
+
+本笔记本将介绍如何结合使用 LangChain 和 vLLM 来调用大语言模型。
+
+要使用它，你需要安装 `vllm` Python 包。
+
+```python
+pip install -qU  vllm -q
+```
+
+```python
+from langchain_community.llms import VLLM
+
+llm = VLLM(
+    model="mosaicml/mpt-7b",
+    trust_remote_code=True,  # 对于 Hugging Face 模型是必需的
+    max_new_tokens=128,
+    top_k=10,
+    top_p=0.95,
+    temperature=0.8,
+)
+
+print(llm.invoke("What is the capital of France ?"))
+```
+
+```text
+INFO 08-06 11:37:33 llm_engine.py:70] Initializing an LLM engine with config: model='mosaicml/mpt-7b', tokenizer='mosaicml/mpt-7b', tokenizer_mode=auto, trust_remote_code=True, dtype=torch.bfloat16, use_dummy_weights=False, download_dir=None, use_np_weights=False, tensor_parallel_size=1, seed=0)
+INFO 08-06 11:37:41 llm_engine.py:196] # GPU blocks: 861, # CPU blocks: 512
+```
+
+```text
+Processed prompts: 100%|██████████| 1/1 [00:00<00:00,  2.00it/s]
+```
+
+```text
+What is the capital of France ? The capital of France is Paris.
+```
+
+## 将模型集成到 LLMChain 中
+
+```python
+from langchain_classic.chains import LLMChain
+from langchain_core.prompts import PromptTemplate
+
+template = """Question: {question}
+
+Answer: Let's think step by step."""
+prompt = PromptTemplate.from_template(template)
+
+llm_chain = LLMChain(prompt=prompt, llm=llm)
+
+question = "Who was the US president in the year the first Pokemon game was released?"
+
+print(llm_chain.invoke(question))
+```
+
+```text
+Processed prompts: 100%|██████████| 1/1 [00:01<00:00,  1.34s/it]
+```
+
+```text
+1. The first Pokemon game was released in 1996.
+2. The president was Bill Clinton.
+3. Clinton was president from 1993 to 2001.
+4. The answer is Clinton.
+```
+
+## 分布式推理
+
+vLLM 支持分布式张量并行推理和服务。
+
+要使用 LLM 类进行多 GPU 推理，请将 `tensor_parallel_size` 参数设置为要使用的 GPU 数量。例如，要在 4 个 GPU 上运行推理：
+
+```python
+from langchain_community.llms import VLLM
+
+llm = VLLM(
+        model="mosaicml/mpt-30b",
+        tensor_parallel_size=4,
+        trust_remote_code=True,  # 对于 hf 模型是必需的
+)
+
+llm.invoke("What is the future of AI?")
+```
+
+## 量化
+
+vLLM 支持 `awq` 量化。要启用它，请将 `quantization` 参数传递给 `vllm_kwargs`。
+
+```python
+llm_q = VLLM(
+        model="TheBloke/Llama-2-7b-Chat-AWQ",
+        trust_remote_code=True,
+        max_new_tokens=512,
+        vllm_kwargs={"quantization": "awq"},
+)
+```
+
+## OpenAI 兼容服务器
+
+vLLM 可以部署为模拟 OpenAI API 协议的服务器。这使得 vLLM 可以作为使用 OpenAI API 的应用程序的直接替代品。
+
+可以按照与 OpenAI API 相同的格式查询此服务器。
+
+### OpenAI 兼容的补全
+
+```python
+from langchain_community.llms import VLLMOpenAI
+
+llm = VLLMOpenAI(
+        openai_api_key="EMPTY",
+        openai_api_base="http://localhost:8000/v1",
+        model_name="tiiuae/falcon-7b",
+        model_kwargs={"stop": ["."]},
+)
+print(llm.invoke("Rome is"))
+```
+
+```text
+a city that is filled with history, ancient buildings, and art around every corner
+```
+
+## LoRA 适配器
+
+LoRA 适配器可以与任何实现了 `SupportsLoRA` 接口的 vLLM 模型一起使用。
+
+```python
+from langchain_community.llms import VLLM
+from vllm.lora.request import LoRARequest
+
+llm = VLLM(
+        model="meta-llama/Llama-3.2-3B-Instruct",
+        max_new_tokens=300,
+        top_k=1,
+        top_p=0.90,
+        temperature=0.1,
+        vllm_kwargs={
+        "gpu_memory_utilization": 0.5,
+        "enable_lora": True,
+        "max_model_len": 350,
+    },
+)
+LoRA_ADAPTER_PATH = "path/to/adapter"
+lora_adapter = LoRARequest("lora_adapter", 1, LoRA_ADAPTER_PATH)
+
+print(
+        llm.invoke("What are some popular Korean street foods?", lora_request=lora_adapter)
+)
+```

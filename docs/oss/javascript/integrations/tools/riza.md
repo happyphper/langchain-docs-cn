@@ -1,0 +1,77 @@
+---
+title: Riza 代码解释器
+---
+> Riza 代码解释器是一个基于 WASM 的隔离环境，用于运行由 AI 智能体生成的 Python 或 JavaScript 代码。
+
+在本笔记本中，我们将创建一个示例智能体，它使用 Python 来解决一个 LLM 自身无法解决的问题：计算单词 "strawberry" 中 'r' 的数量。
+
+开始之前，请从 [Riza 仪表板](https://dashboard.riza.io) 获取一个 API 密钥。更多指南和完整的 API 参考，请前往 [Riza 代码解释器 API 文档](https://docs.riza.io)。
+
+确保已安装必要的依赖项。
+
+```python
+pip install -qU langchain-community rizaio
+```
+
+将您的 API 密钥设置为环境变量。
+
+```python
+%env ANTHROPIC_API_KEY=<your_anthropic_api_key_here>
+%env RIZA_API_KEY=<your_riza_api_key_here>
+```
+
+```python
+from langchain_community.tools.riza.command import ExecPython
+```
+
+```python
+from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain_anthropic import ChatAnthropic
+from langchain_core.prompts import ChatPromptTemplate
+```
+
+初始化 `ExecPython` 工具。
+
+```python
+tools = [ExecPython()]
+```
+
+使用 Anthropic 的 Claude Haiku 模型初始化一个智能体。
+
+```python
+llm = ChatAnthropic(model="claude-haiku-4-5-20251001", temperature=0)
+
+prompt_template = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "你是一个乐于助人的助手。如果需要解决问题，请务必使用工具。",
+        ),
+        ("human", "{input}"),
+        ("placeholder", "{agent_scratchpad}"),
+    ]
+)
+
+agent = create_tool_calling_agent(llm, tools, prompt_template)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+```
+
+```python
+# 问一个难题
+result = agent_executor.invoke({"input": "how many rs are in strawberry?"})
+print(result["output"][0]["text"])
+```
+
+```text
+> Entering new AgentExecutor chain...
+
+Invoking: `riza_exec_python` with `{'code': 'word = "strawberry"\nprint(word.count("r"))'}`
+responded: [{'id': 'toolu_01JwPLAAqqCNCjVuEnK8Fgut', 'input': {}, 'name': 'riza_exec_python', 'type': 'tool_use', 'index': 0, 'partial_json': '{"code": "word = \\"strawberry\\"\\nprint(word.count(\\"r\\"))"}'}]
+
+3
+[{'text': '\n\nThe word "strawberry" contains 3 "r" characters.', 'type': 'text', 'index': 0}]
+
+> Finished chain.
+
+The word "strawberry" contains 3 "r" characters.
+```

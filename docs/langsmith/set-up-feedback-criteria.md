@@ -1,0 +1,32 @@
+---
+title: 设置反馈标准
+sidebarTitle: Set up feedback criteria
+---
+
+<Tip>
+
+<strong>推荐阅读</strong>
+
+在深入了解本内容之前，建议先阅读以下文档：
+
+- [关于追踪与反馈的概念指南](/langsmith/observability-concepts)
+- [反馈数据格式参考指南](/langsmith/feedback-data-format)
+
+</Tip>
+
+反馈标准在应用程序中以反馈标签的形式表示。对于人工反馈，您可以将新的反馈标准设置为连续反馈或分类反馈。
+
+要设置新的反馈标准，请点击[此链接](https://smith.langchain.com/settings/workspaces/feedbacks)查看您工作空间的所有现有标签，然后点击 **新建标签**。
+
+## 连续反馈
+
+对于连续反馈，您可以输入一个反馈标签名称，然后选择一个最小值和最大值。在此范围内的所有值，包括浮点数，都将被接受为反馈分数。
+
+![连续反馈](/langsmith/images/cont-feedback.png)
+
+## 分类反馈
+
+对于分类反馈，您可以输入一个反馈标签名称，然后添加一个类别列表，每个类别都映射到一个分数。当您提供反馈时，可以选择其中一个类别作为反馈分数。
+类别标签和分数将分别作为反馈记录在 `value` 和 `score` 字段中。
+
+![分类反馈](/langsmith/images/cat-feedback.png)

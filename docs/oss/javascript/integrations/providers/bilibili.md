@@ -1,0 +1,26 @@
+---
+title: 哔哩哔哩
+---
+>[Bilibili](https://www.bilibili.tv/) 是中国最受欢迎的长视频网站之一。
+
+## 安装与设置
+
+::: code-group
+
+```bash [pip]
+pip install bilibili-api-python
+```
+
+```bash [uv]
+uv add bilibili-api-python
+```
+
+:::
+
+## 文档加载器
+
+查看[使用示例](/oss/integrations/document_loaders/bilibili)。
+
+```python
+from langchain_community.document_loaders import BiliBiliLoader
+```

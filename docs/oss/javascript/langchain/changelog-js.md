@@ -1,0 +1,5 @@
+---
+title: 更新日志
+url: 'https://docs.langchain.com/oss/javascript/releases/changelog'
+---
+

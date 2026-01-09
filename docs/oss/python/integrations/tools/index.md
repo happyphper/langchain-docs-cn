@@ -1,0 +1,245 @@
+---
+title: 工具与工具包
+---
+[工具](/oss/langchain/tools) 是设计为由模型调用的实用程序：其输入设计为由模型生成，其输出设计为传回给模型。
+
+一个 [工具包](/oss/langchain/tools#toolkits) 是一组旨在一起使用的工具的集合。
+
+## 集成平台
+
+以下平台通过统一的接口提供对多种工具和服务的访问：
+
+| 工具/工具包 | 集成数量 | 定价 | 主要特性 |
+|-------------|----------------------|---------|--------------|
+| [Composio](/oss/integrations/tools/composio) | 500+ | 提供免费层级 | OAuth 处理、事件驱动的工作流、多用户支持 |
+
+## 所有工具和工具包
+
+<Columns :cols="3">
+
+<Card
+title="Azure Container Apps Dynamic Sessions"
+icon="link"
+href="/oss/integrations/tools/azure_dynamic_sessions"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Connery Action Tool"
+icon="link"
+href="/oss/integrations/tools/connery"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Composio"
+icon="link"
+href="/oss/integrations/tools/composio"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Dall-E Tool"
+icon="link"
+href="/oss/integrations/tools/dalle"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Decodo Tools"
+icon="link"
+href="/oss/integrations/tools/decodo"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Discord Tool"
+icon="link"
+href="/oss/integrations/tools/discord_tool"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="DuckDuckGoSearch"
+icon="link"
+href="/oss/integrations/tools/duckduckgo_search"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="ExaSearchResults"
+icon="link"
+href="/oss/integrations/tools/exa_search"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="FalkorDB"
+icon="link"
+href="/oss/integrations/tools/falkordb"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Gmail Tool"
+icon="link"
+href="/oss/integrations/tools/google_gmail"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="GOAT"
+icon="link"
+href="/oss/integrations/tools/goat"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Google Calendar Tool"
+icon="link"
+href="/oss/integrations/tools/google_calendar"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Google Places Tool"
+icon="link"
+href="/oss/integrations/tools/google_places"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Google Routes Tool"
+icon="link"
+href="/oss/integrations/tools/google_routes"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Google Scholar"
+icon="link"
+href="/oss/integrations/tools/google_scholar"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Google Trends Tool"
+icon="link"
+href="/oss/integrations/tools/google_trends"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="JigsawStack Tool"
+icon="link"
+href="/oss/integrations/tools/jigsawstack"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Agent with AWS Lambda"
+icon="link"
+href="/oss/integrations/tools/lambda_agent"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Python interpreter tool"
+icon="link"
+href="/oss/integrations/tools/pyinterpreter"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="SearchApi tool"
+icon="link"
+href="/oss/integrations/tools/searchapi"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Searxng Search tool"
+icon="link"
+href="/oss/integrations/tools/searxng"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="SerpApi"
+icon="link"
+href="/oss/integrations/tools/serpapi"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="StackExchange Tool"
+icon="link"
+href="/oss/integrations/tools/stackexchange"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Stagehand AI Web Automation Toolkit"
+icon="link"
+href="/oss/integrations/tools/stagehand"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Tavily Crawl"
+icon="link"
+href="/oss/integrations/tools/tavily_crawl"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Tavily Extract"
+icon="link"
+href="/oss/integrations/tools/tavily_extract"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Tavily Map"
+icon="link"
+href="/oss/integrations/tools/tavily_map"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Tavily Search"
+icon="link"
+href="/oss/integrations/tools/tavily_search"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Web Browser Tool"
+icon="link"
+href="/oss/integrations/tools/webbrowser"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="Wikipedia tool"
+icon="link"
+href="/oss/integrations/tools/wikipedia"
+arrow="true"
+cta="查看指南"
+/>
+<Card
+title="WolframAlpha Tool"
+icon="link"
+href="/oss/integrations/tools/wolframalpha"
+arrow="true"
+cta="查看指南"
+/>
+
+</Columns>
+
+<Info>
+
+如果您想编写自己的工具，请参阅 [此操作指南](/oss/langchain/tools#customize-tool-properties)。如果您想贡献一个集成，请参阅 [贡献集成](/oss/contributing#add-a-new-integration)。
+
+</Info>
+

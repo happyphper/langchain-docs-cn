@@ -1,0 +1,187 @@
+---
+title: WatsonxEmbeddings
+---
+>`WatsonxEmbeddings` 是 IBM [watsonx.ai](https://www.ibm.com/products/watsonx-ai) 基础模型的封装器。
+
+此示例展示了如何使用 `LangChain` 与 `watsonx.ai` 模型进行通信。
+
+## 概述
+
+### 集成详情
+
+<ItemTable category="text_embedding" item="IBM" />
+
+## 设置
+
+要访问 IBM watsonx.ai 模型，您需要创建一个 IBM watsonx.ai 账户，获取一个 API 密钥，并安装 `langchain-ibm` 集成包。
+
+### 凭证
+
+此单元格定义了使用 watsonx Embeddings 所需的 WML 凭证。
+
+**操作：** 提供 IBM Cloud 用户 API 密钥。详情请参阅
+[文档](https://cloud.ibm.com/docs/account?topic=account-userapikey&interface=ui)。
+
+```python
+import os
+from getpass import getpass
+
+watsonx_api_key = getpass()
+os.environ["WATSONX_APIKEY"] = watsonx_api_key
+```
+
+此外，您还可以将其他密钥作为环境变量传递。
+
+```python
+import os
+
+os.environ["WATSONX_URL"] = "your service instance url"
+os.environ["WATSONX_TOKEN"] = "your token for accessing the CLOUD or CPD cluster"
+os.environ["WATSONX_PASSWORD"] = "your password for accessing the CPD cluster"
+os.environ["WATSONX_USERNAME"] = "your username for accessing the CPD cluster"
+os.environ["WATSONX_INSTANCE_ID"] = "your instance_id for accessing the CPD cluster"
+```
+
+### 安装
+
+LangChain IBM 集成位于 `langchain-ibm` 包中：
+
+```python
+!pip install -qU langchain-ibm
+```
+
+## 实例化
+
+对于不同的模型，您可能需要调整模型 `parameters`。
+
+```python
+from ibm_watsonx_ai.metanames import EmbedTextParamsMetaNames
+
+embed_params = {
+    EmbedTextParamsMetaNames.TRUNCATE_INPUT_TOKENS: 3,
+    EmbedTextParamsMetaNames.RETURN_OPTIONS: {"input_text": True},
+}
+```
+
+使用先前设置的参数初始化 `WatsonxEmbeddings` 类。
+
+**注意**：
+
+- 要为 API 调用提供上下文，您必须添加 `project_id` 或 `space_id`。更多信息请参阅 [文档](https://www.ibm.com/docs/en/watsonx-as-a-service?topic=projects)。
+- 根据您已配置服务实例的区域，使用 [此处](https://ibm.github.io/watsonx-ai-python-sdk/setup_cloud.html#authentication) 描述的 URL 之一。
+
+在此示例中，我们将使用 `project_id` 和达拉斯 URL。
+
+您需要指定用于推理的 `model_id`。
+
+```python
+from langchain_ibm import WatsonxEmbeddings
+
+watsonx_embedding = WatsonxEmbeddings(
+    model_id="ibm/granite-embedding-107m-multilingual",
+    url="https://us-south.ml.cloud.ibm.com",
+    project_id="PASTE YOUR PROJECT_ID HERE",
+    params=embed_params,
+)
+```
+
+或者，您可以使用 Cloud Pak for Data 凭证。详情请参阅 [文档](https://ibm.github.io/watsonx-ai-python-sdk/setup_cpd.html)。
+
+```python
+watsonx_embedding = WatsonxEmbeddings(
+    model_id="ibm/granite-embedding-107m-multilingual",
+    url="PASTE YOUR URL HERE",
+    username="PASTE YOUR USERNAME HERE",
+    password="PASTE YOUR PASSWORD HERE",
+    instance_id="openshift",
+    version="4.8",
+    project_id="PASTE YOUR PROJECT_ID HERE",
+    params=embed_params,
+)
+```
+
+对于某些需求，可以选择将 IBM 的 [`APIClient`](https://ibm.github.io/watsonx-ai-python-sdk/base.html#apiclient) 对象传递给 `WatsonxEmbeddings` 类。
+
+```python
+from ibm_watsonx_ai import APIClient
+
+api_client = APIClient(...)
+
+watsonx_embedding = WatsonxEmbeddings(
+    model_id="ibm/granite-embedding-107m-multilingual",
+    watsonx_client=api_client,
+)
+```
+
+## 索引与检索
+
+嵌入模型通常用于检索增强生成 (RAG) 流程中，既作为索引数据的一部分，也用于后续检索。更详细的说明，请参阅我们的 [RAG 教程](/oss/langchain/rag)。
+
+下面，看看如何使用我们上面初始化的 `embeddings` 对象来索引和检索数据。在此示例中，我们将在 `InMemoryVectorStore` 中索引和检索一个示例文档。
+
+```python
+# 使用示例文本创建向量存储
+from langchain_core.vectorstores import InMemoryVectorStore
+
+text = "LangChain is the framework for building context-aware reasoning applications"
+
+vectorstore = InMemoryVectorStore.from_texts(
+    [text],
+    embedding=watsonx_embedding,
+)
+
+# 将向量存储用作检索器
+retriever = vectorstore.as_retriever()
+
+# 检索最相似的文本
+retrieved_documents = retriever.invoke("What is LangChain?")
+
+# 显示检索到的文档内容
+retrieved_documents[0].page_content
+```
+
+```text
+'LangChain is the framework for building context-aware reasoning applications'
+```
+
+## 直接使用
+
+在底层，向量存储和检索器的实现分别调用 `embeddings.embed_documents(...)` 和 `embeddings.embed_query(...)` 来为 `from_texts` 中使用的文本和检索 `invoke` 操作创建嵌入。
+
+您可以直接调用这些方法来获取嵌入，用于您自己的用例。
+
+### 嵌入单个文本
+
+您可以使用 `embed_query` 嵌入单个文本或文档：
+
+```python
+text = "This is a test document."
+
+query_result = watsonx_embedding.embed_query(text)
+query_result[:5]
+```
+
+```text
+[0.009447193, -0.024981951, -0.026013248, -0.040483937, -0.05780445]
+```
+
+### 嵌入多个文本
+
+您可以使用 `embed_documents` 嵌入多个文本：
+
+```python
+texts = ["This is a content of the document", "This is another document"]
+
+doc_result = watsonx_embedding.embed_documents(texts)
+doc_result[0][:5]
+```
+
+```text
+[0.009447167, -0.024981938, -0.02601326, -0.04048393, -0.05780444]
+```
+
+---
+
+## API 参考
+
+有关 `WatsonxEmbeddings` 所有功能和配置的详细文档，请前往 [API 参考](https://reference.langchain.com/python/integrations/langchain_ibm/WatsonxEmbeddings/)。

@@ -1,0 +1,266 @@
+---
+title: Drasi
+description: 通过 Drasi 的持续查询平台，将代理连接到实时数据变化
+---
+本指南提供了快速入门 Drasi 工具的概览。如需了解 Drasi 所有功能、参数和配置的详细列表，请前往 [Drasi 文档](https://drasi.io/) 和 [langchain_drasi](https://github.com/drasi-project/langchain-drasi) 仓库。
+
+## 概述
+
+Drasi 是一个变更检测平台，可以轻松高效地检测和响应数据库中的变化。LangChain-Drasi 集成通过将外部数据变化与工作流执行连接起来，创建了反应式的、由变更驱动的 AI 智能体。这使得智能体能够通过桥接外部数据变化与智能体工作流，发现、订阅并响应实时查询更新。Drasi 的连续查询流式传输实时更新，这些更新会触发智能体状态转换、修改内存或动态控制工作流执行——从而将静态智能体转变为环境感知的、长寿命的响应式系统。
+
+### 详细信息
+
+| 类 | 包 | 可序列化 | JS 支持 | 下载量 | 版本 |
+| :--- | :--- | :---: | :---: |  :---: | :---: |
+| [`DrasiTool`](https://github.com/drasi-project/langchain-drasi) | [`langchain-drasi`](https://pypi.org/project/langchain-drasi/) | ❌ | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-drasi?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-drasi?style=flat-square&label=%20) |
+
+### 功能特性
+
+- **查询发现** - 自动识别可用的 Drasi 查询
+- **实时订阅** - 监控连续查询更新
+- **通知处理器** - 六个内置处理器，适用于不同用例
+    - 控制台
+    - 日志
+    - 内存
+    - 缓冲区
+    - LangChain 内存
+    - LangGraph 内存
+- **自定义处理器** - 扩展基础处理器以实现特定领域逻辑
+
+---
+
+## 设置
+
+要访问 Drasi 工具，您需要运行 Drasi 和 Drasi MCP 服务器。
+
+### 先决条件
+
+- [Drasi 平台](https://drasi.io/how-to-guides/installation/) - 已安装并运行
+- [Drasi MCP 服务器](https://github.com/drasi-project/drasi-platform/tree/main/reactions/mcp) - 已配置并可访问
+- Python 3.11+ - `langchain-drasi` 包所需
+
+### 凭证（可选）
+
+如果您的 Drasi MCP 服务器需要身份验证，您可以使用 Bearer 令牌或其他身份验证方法配置请求头：
+
+```python Configure authentication icon="key"
+from langchain_drasi import MCPConnectionConfig
+
+config = MCPConnectionConfig(
+    server_url="http://localhost:8083",
+    headers={"Authorization": "Bearer your-token"},
+    timeout=30.0
+)
+```
+
+### 安装
+
+Drasi 工具位于 `langchain-drasi` 包中：
+
+::: code-group
+
+```python [pip]
+pip install -U langchain-drasi
+```
+```python [uv]
+uv add langchain-drasi
+```
+
+:::
+
+---
+
+## 实例化
+
+现在我们可以实例化一个 Drasi 工具。您需要配置 MCP 连接，并可选地添加通知处理器来处理实时更新：
+
+```python Initialize tool instance icon="robot"
+from langchain_drasi import create_drasi_tool, MCPConnectionConfig, ConsoleHandler
+
+# 配置到 Drasi MCP 服务器的连接
+config = MCPConnectionConfig(
+    server_url="http://localhost:8083",
+    timeout=30.0
+)
+
+# 创建一个通知处理器
+handler = ConsoleHandler()
+
+# 创建工具
+tool = create_drasi_tool(
+    mcp_config=config,
+    notification_handlers=[handler]
+)
+```
+
+---
+
+## 调用
+
+### 直接调用
+
+下面是一个直接调用工具的简单示例。
+
+```python Call tool icon="rocket"
+# 发现可用查询
+queries = await tool.discover_queries()
+# 返回: [QueryInfo, QueryInfo, ...]
+
+# 订阅特定查询
+await tool.subscribe("hot-freezers")
+# 通知路由到已注册的处理器
+
+# 从查询读取当前结果
+result = await tool.read_query("active-orders")
+# 返回: 包含当前数据的 QueryResult
+```
+
+### 作为 `ToolCall`
+
+我们也可以使用模型生成的 `ToolCall` 来调用工具，在这种情况下将返回一个 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.ToolMessage.html" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>。
+
+### 在智能体内部使用
+
+我们可以在 LangGraph 智能体中使用 Drasi 工具来创建反应式、事件驱动的工作流。为此，我们需要一个具备工具调用能力的模型。
+
+```python Agent with tool icon="robot"
+from langchain_anthropic import ChatAnthropic
+from langchain.agents import create_agent
+
+# 初始化模型
+model = ChatAnthropic(model="claude-sonnet-4-5-20250929")
+
+# 创建包含 Drasi 工具的智能体
+agent = create_agent(model, [tool])
+
+# 运行智能体
+result = agent.invoke(
+    {"messages": [{"role": "user", "content": "What queries are available?"}]}
+)
+
+print(result["messages"][-1].content)
+
+result = agent.invoke(
+    {"messages": [{"role": "user", "content": "Subscribe to the customer-orders query"}]}
+)
+
+print(result["messages"][-1].content)
+```
+
+---
+
+## 通知处理器
+
+Drasi 的关键特性之一是其内置的通知处理器，用于处理实时查询结果变化。您可以使用这些处理器根据数据变化执行特定操作。
+
+### 内置处理器
+
+`ConsoleHandler` - 将格式化的通知输出到标准输出：
+
+```python
+from langchain_drasi import ConsoleHandler
+
+handler = ConsoleHandler()
+```
+
+**LoggingHandler** - 使用 Python 的日志框架记录通知：
+
+```python
+from langchain_drasi import LoggingHandler
+import logging
+
+handler = LoggingHandler(
+    logger_name="drasi.notifications",
+    log_level=logging.INFO
+)
+```
+
+**MemoryHandler** - 在内存中存储通知，支持可选过滤：
+
+```python
+from langchain_drasi import MemoryHandler
+
+handler = MemoryHandler(max_size=100)
+
+# 检索通知
+all_notifs = handler.get_all()
+freezer_notifs = handler.get_by_query("hot-freezers")
+added_events = handler.get_by_type("added")
+```
+
+**BufferHandler** - 用于顺序处理的 FIFO 队列：
+
+当您的工作流忙于处理其他事务时，这对于缓冲传入的变更通知非常有用；然后，您可以在工作流中设置一个循环，在准备就绪时从缓冲区消费通知。
+
+```python
+from langchain_drasi import BufferHandler
+
+handler = BufferHandler(max_size=100)
+# 稍后，消费通知
+notification = handler.consume()  # 移除并返回下一个通知
+notification = handler.peek()     # 查看下一个通知而不移除
+```
+
+**LangGraphMemoryHandler** - 将更新直接注入到 LangGraph 检查点中：
+
+```python
+from langchain_drasi import LangGraphMemoryHandler
+from langgraph.checkpoint.memory import MemorySaver
+
+checkpoint_manager = MemorySaver()
+handler = LangGraphMemoryHandler(
+    checkpointer=checkpoint_manager,
+    thread_id="your-thread-id"
+)
+```
+
+### 自定义处理器
+
+您可以通过扩展 `BaseDrasiNotificationHandler` 来创建自定义处理器：
+
+```python
+from langchain_drasi import BaseDrasiNotificationHandler
+
+class CustomHandler(BaseDrasiNotificationHandler):
+    def on_result_added(self, query_name: str, added_data: dict):
+        # 处理新结果
+        print(f"New result in {query_name}: {added_data}")
+
+    def on_result_updated(self, query_name: str, updated_data: dict):
+        # 处理更新结果
+        print(f"Updated result in {query_name}: {updated_data}")
+
+    def on_result_deleted(self, query_name: str, deleted_data: dict):
+        # 处理删除结果
+        print(f"Deleted result in {query_name}: {deleted_data}")
+
+handler = CustomHandler()
+tool = create_drasi_tool(
+    mcp_config=config,
+    notification_handlers=[handler]
+)
+```
+
+---
+
+## 示例
+
+- [交互式聊天](https://github.com/drasi-project/langchain-drasi/tree/main/examples/chat)：一个使用 Drasi 进行实时内存更新的聊天应用。
+- [终结者游戏](https://github.com/drasi-project/langchain-drasi/tree/main/examples/terminator)：一个利用 Drasi 实现动态 NPC 行为的游戏。
+
+## 使用场景
+
+Drasi 对于构建需要响应实时数据变化的环境感知智能体特别有用。一些示例使用场景包括：
+
+- **AI 副驾驶** - 监控并响应系统事件的助手
+- **AI 游戏玩家** - 适应游戏内事件的 NPC
+- **物联网监控** - 处理传感器数据流的智能体
+- **客户支持** - 响应工单更新或客户操作的机器人
+- **DevOps 助手** - 监控基础设施变化的工具
+- **协同编辑** - 响应文档或代码变化的系统
+
+---
+
+## API 参考
+
+有关所有 Drasi 功能和配置的详细文档，请前往 [API 参考](https://github.com/drasi-project/langchain-drasi?tab=readme-ov-file#api-reference)。

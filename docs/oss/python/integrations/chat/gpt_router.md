@@ -1,0 +1,72 @@
+---
+title: GPTRouter
+---
+[GPTRouter](https://github.com/Writesonic/GPTRouter) 是一个开源的 LLM API 网关，为 30 多个 LLM、视觉和图像模型提供统一的 API，并具备基于正常运行时间和延迟的智能回退、自动重试以及流式传输功能。
+
+本笔记本涵盖了如何开始使用 LangChain + GPTRouter I/O 库。
+
+* 设置 `GPT_ROUTER_API_KEY` 环境变量
+* 或使用 `gpt_router_api_key` 关键字参数
+
+```python
+pip install -qU  GPTRouter
+```
+
+```python
+from langchain_community.chat_models import GPTRouter
+from langchain_community.chat_models.gpt_router import GPTRouterModel
+from langchain.messages import HumanMessage
+```
+
+```python
+anthropic_claude = GPTRouterModel(name="claude-instant-1.2", provider_name="anthropic")
+```
+
+```python
+chat = GPTRouter(models_priority_list=[anthropic_claude])
+```
+
+```python
+messages = [
+    HumanMessage(
+        content="Translate this sentence from English to French. I love programming."
+    )
+]
+chat(messages)
+```
+
+```text
+AIMessage(content=" J'aime programmer.")
+```
+
+## `GPTRouter` 也支持异步和流式功能
+
+```python
+from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
+```
+
+```python
+await chat.agenerate([messages])
+```
+
+```text
+LLMResult(generations=[[ChatGeneration(text=" J'aime programmer.", generation_info={'finish_reason': 'stop_sequence'}, message=AIMessage(content=" J'aime programmer."))]], llm_output={}, run=[RunInfo(run_id=UUID('9885f27f-c35a-4434-9f37-c254259762a5'))])
+```
+
+```python
+chat = GPTRouter(
+    models_priority_list=[anthropic_claude],
+    streaming=True,
+    verbose=True,
+    callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
+)
+chat(messages)
+```
+
+```text
+J'aime programmer.
+```
+
+```text
+AIMessage(content=" J'aime programmer.")
+```

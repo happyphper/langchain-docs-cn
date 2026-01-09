@@ -1,0 +1,151 @@
+---
+title: RunPod
+---
+开始使用 RunPod LLM。
+
+## 概述
+
+本指南介绍如何使用 LangChain 的 `RunPod` LLM 类与托管在 [RunPod Serverless](https://www.runpod.io/serverless-gpu) 上的文本生成模型进行交互。
+
+## 设置
+
+1. **安装包：**
+
+```bash
+pip install -qU langchain-runpod
+```
+
+2. **部署 LLM 端点：** 按照 [RunPod 提供商指南](/oss/integrations/providers/runpod#setup) 中的设置步骤，在 RunPod Serverless 上部署一个兼容的文本生成端点并获取其端点 ID。
+3. **设置环境变量：** 确保已设置 `RUNPOD_API_KEY` 和 `RUNPOD_ENDPOINT_ID`。
+
+```python
+import getpass
+import os
+
+# 确保环境变量已设置（或者直接传递给 RunPod）
+if "RUNPOD_API_KEY" not in os.environ:
+    os.environ["RUNPOD_API_KEY"] = getpass.getpass("输入你的 RunPod API 密钥：")
+if "RUNPOD_ENDPOINT_ID" not in os.environ:
+    os.environ["RUNPOD_ENDPOINT_ID"] = input("输入你的 RunPod 端点 ID：")
+```
+
+## 实例化
+
+初始化 `RunPod` 类。你可以通过 `model_kwargs` 传递模型特定的参数，并配置轮询行为。
+
+```python
+from langchain_runpod import RunPod
+
+llm = RunPod(
+    # 如果未在环境变量中设置，可以在此处传递 runpod_endpoint_id
+    model_kwargs={
+        "max_new_tokens": 256,
+        "temperature": 0.6,
+        "top_k": 50,
+        # 添加你的端点处理器支持的其他参数
+    },
+    # 可选：调整轮询设置
+    # poll_interval=0.3,
+    # max_polling_attempts=100
+)
+```
+
+## 调用
+
+使用标准的 LangChain `.invoke()` 和 `.ainvoke()` 方法来调用模型。也支持通过 `.stream()` 和 `.astream()` 进行流式传输（通过轮询 RunPod 的 `/stream` 端点模拟实现）。
+
+```python
+prompt = "为月球上的一家冰淇淋店写一句宣传语。"
+
+# 调用（同步）
+try:
+    response = llm.invoke(prompt)
+    print("--- 同步调用响应 ---")
+    print(response)
+except Exception as e:
+    print(
+        f"调用 LLM 时出错：{e}。请确保端点 ID/API 密钥正确且端点处于活动/兼容状态。"
+    )
+```
+
+```python
+# 流式传输（同步，通过轮询 /stream 模拟）
+print("\n--- 同步流式响应 ---")
+try:
+    for chunk in llm.stream(prompt):
+        print(chunk, end="", flush=True)
+    print()  # 换行
+except Exception as e:
+    print(
+        f"\n流式传输 LLM 时出错：{e}。请确保端点处理器支持流式输出格式。"
+    )
+```
+
+### 异步用法
+
+```python
+# 异步调用
+try:
+    async_response = await llm.ainvoke(prompt)
+    print("--- 异步调用响应 ---")
+    print(async_response)
+except Exception as e:
+    print(f"异步调用 LLM 时出错：{e}。")
+```
+
+```python
+# 异步流式传输
+print("\n--- 异步流式响应 ---")
+try:
+    async for chunk in llm.astream(prompt):
+        print(chunk, end="", flush=True)
+    print()  # 换行
+except Exception as e:
+    print(
+        f"\n异步流式传输 LLM 时出错：{e}。请确保端点处理器支持流式输出格式。"
+    )
+```
+
+## 链式调用
+
+该 LLM 可以与 LangChain 表达式语言 (LCEL) 链无缝集成。
+
+```python
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
+
+# 假设 'llm' 变量已在 '实例化' 部分实例化
+prompt_template = PromptTemplate.from_template("给我讲一个关于 {topic} 的笑话")
+parser = StrOutputParser()
+
+chain = prompt_template | llm | parser
+
+try:
+    chain_response = chain.invoke({"topic": "bears"})
+    print("--- 链式调用响应 ---")
+    print(chain_response)
+except Exception as e:
+    print(f"运行链式调用时出错：{e}")
+
+# 异步链式调用
+try:
+    async_chain_response = await chain.ainvoke({"topic": "robots"})
+    print("--- 异步链式调用响应 ---")
+    print(async_chain_response)
+except Exception as e:
+    print(f"运行异步链式调用时出错：{e}")
+```
+
+## 端点注意事项
+
+- **输入：** 端点处理器应期望在 `{"input": {"prompt": "...", ...}}` 中包含提示字符串。
+- **输出：** 处理器应在最终状态响应的 `"output"` 键中返回生成的文本（例如，`{"output": "Generated text..."}` 或 `{"output": {"text": "..."}}`）。
+- **流式传输：** 对于通过 `/stream` 端点进行的模拟流式传输，处理器必须在状态响应的 `"stream"` 键中填充一个块字典列表，例如 `[{"output": "token1"}, {"output": "token2"}]`。
+
+---
+
+## API 参考
+
+有关 `RunPod` LLM 类、参数和方法的详细文档，请参阅源代码或生成的 API 参考（如果可用）。
+
+源代码链接：[https://github.com/runpod/langchain-runpod/blob/main/langchain_runpod/llms.py](https://github.com/runpod/langchain-runpod/blob/main/langchain_runpod/llms.py)

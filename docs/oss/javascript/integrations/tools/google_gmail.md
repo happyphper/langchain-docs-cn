@@ -1,0 +1,96 @@
+---
+title: Gmail 工具
+---
+Gmail 工具允许您的代理从关联的电子邮件账户创建和查看邮件。
+
+## 设置
+
+您可以通过两种方法进行身份验证：
+
+1. 向凭据对象提供通过 OAuth2 令牌交换获得的访问令牌。
+   这可以是一个字符串或一个函数，以便处理令牌过期和验证。
+   这可以使用支持从联合连接获取访问令牌的身份提供程序来完成。
+   这是最安全的方法，因为访问权限和范围将仅限于特定的最终用户。
+   当在旨在供最终用户使用其自己的 Gmail 账户的应用程序中使用该工具时，此方法将更合适。
+2. 您需要从 [Google 此处](https://developers.google.com/gmail/api/guides) 获取 API 密钥，并 [启用新的 Gmail API](https://console.cloud.google.com/apis/library/gmail.googleapis.com)。
+   然后，设置环境变量 `GMAIL_CLIENT_EMAIL`，以及 `GMAIL_PRIVATE_KEY` 或 `GMAIL_KEYFILE`。
+
+要使用 Gmail 工具，您需要安装以下官方对等依赖项：
+
+<Tip>
+
+有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm install @langchain/openai @langchain/community @langchain/core googleapis
+```
+
+## 用法
+
+```typescript
+import { initializeAgentExecutorWithOptions } from "@langchain/classic/agents";
+import { OpenAI } from "@langchain/openai";
+import {
+  GmailCreateDraft,
+  GmailGetMessage,
+  GmailGetThread,
+  GmailSearch,
+  GmailSendMessage,
+} from "@langchain/community/tools/gmail";
+import { StructuredTool } from "@langchain/core/tools";
+
+export async function run() {
+  const model = new OpenAI({
+    temperature: 0,
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
+  // 这些是 Gmail 工具的默认参数
+  //   const gmailParams = {
+  //     credentials: {
+  //       clientEmail: process.env.GMAIL_CLIENT_EMAIL,
+  //       privateKey: process.env.GMAIL_PRIVATE_KEY,
+  //       // 需要 (privateKey + clientEmail) 或 accessToken 之一
+  //       accessToken: "an access token or function to get access token",
+  //     },
+  //     scopes: ["https://mail.google.com/"], // 如果使用访问令牌，则不需要
+  //   };
+
+  // 对于自定义参数，请取消注释上面的代码，将值替换为您自己的值，并将其传递给下面的工具
+  const tools: StructuredTool[] = [
+    new GmailCreateDraft(),
+    new GmailGetMessage(),
+    new GmailGetThread(),
+    new GmailSearch(),
+    new GmailSendMessage(),
+  ];
+
+  const gmailAgent = await initializeAgentExecutorWithOptions(tools, model, {
+    agentType: "structured-chat-zero-shot-react-description",
+    verbose: true,
+  });
+
+  const createInput = `Create a gmail draft for me to edit of a letter from the perspective of a sentient parrot who is looking to collaborate on some research with her estranged friend, a cat. Under no circumstances may you send the message, however.`;
+
+  const createResult = await gmailAgent.invoke({ input: createInput });
+  //   Create Result {
+  //     output: 'I have created a draft email for you to edit. The draft Id is r5681294731961864018.'
+  //   }
+  console.log("Create Result", createResult);
+
+  const viewInput = `Could you search in my drafts for the latest email?`;
+
+  const viewResult = await gmailAgent.invoke({ input: viewInput });
+  //   View Result {
+  //     output: "The latest email in your drafts is from hopefulparrot@gmail.com with the subject 'Collaboration Opportunity'. The body of the email reads: 'Dear [Friend], I hope this letter finds you well. I am writing to you in the hopes of rekindling our friendship and to discuss the possibility of collaborating on some research together. I know that we have had our differences in the past, but I believe that we can put them aside and work together for the greater good. I look forward to hearing from you. Sincerely, [Parrot]'"
+  //   }
+  console.log("View Result", viewResult);
+}
+```
+
+## 相关
+
+- 工具 [概念指南](/oss/langchain/tools)
+- 工具 [操作指南](/oss/langchain/tools)

@@ -1,0 +1,62 @@
+---
+title: 阿里巴巴通义
+---
+LangChain.js 支持阿里巴巴的通义千问系列模型。
+
+## 设置
+
+你需要注册一个阿里巴巴 API 密钥，并将其设置为名为 `ALIBABA_API_KEY` 的环境变量。
+
+然后，你需要安装 [`@langchain/community`](https://www.npmjs.com/package/@langchain/community) 包：
+
+<Tip>
+
+关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm install @langchain/community @langchain/core
+```
+
+## 用法
+
+以下是一个示例：
+
+```typescript
+import { ChatAlibabaTongyi } from "@langchain/community/chat_models/alibaba_tongyi";
+import { HumanMessage } from "@langchain/core/messages";
+
+// 默认模型是 qwen-turbo
+const qwenTurbo = new ChatAlibabaTongyi({
+  alibabaApiKey: "YOUR-API-KEY", // 在 Node.js 中默认为 process.env.ALIBABA_API_KEY
+});
+
+// 使用 qwen-plus
+const qwenPlus = new ChatAlibabaTongyi({
+  model: "qwen-plus", // 可用模型：qwen-turbo, qwen-plus, qwen-max
+  temperature: 1,
+  alibabaApiKey: "YOUR-API-KEY", // 在 Node.js 中默认为 process.env.ALIBABA_API_KEY
+});
+
+const messages = [new HumanMessage("Hello")];
+
+const res = await qwenTurbo.invoke(messages);
+/*
+AIMessage {
+  content: "Hello! How can I help you today? Is there something you would like to talk about or ask about? I'm here to assist you with any questions you may have.",
+}
+*/
+
+const res2 = await qwenPlus.invoke(messages);
+/*
+AIMessage {
+  text: "Hello! How can I help you today? Is there something you would like to talk about or ask about? I'm here to assist you with any questions you may have.",
+}
+*/
+```
+
+## 相关链接
+
+- 聊天模型[概念指南](/oss/langchain/models)
+- 聊天模型[操作指南](/oss/langchain/models)

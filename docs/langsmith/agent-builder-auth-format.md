@@ -1,0 +1,34 @@
+---
+title: 身份验证感知的工具响应
+description: 格式化工具响应以触发 OAuth 流程并自动恢复执行。
+sidebarTitle: Auth responses
+mode: wide
+---
+某些[工具](/langsmith/agent-builder-tools)需要用户授权（例如 Google、Slack、GitHub）。Agent Builder 包含中间件，用于检测工具何时需要授权，并会暂停运行，向用户显示清晰的提示。用户完成授权后，系统会自动重试相同的工具调用。
+
+## 请求授权的返回格式
+
+如果工具检测到缺少授权，请返回一个包含以下字段的 JSON 字符串：
+
+```json
+{
+  "auth_required": true,
+  "auth_url": "https://auth.example.com/start",
+  "auth_id": "opaque-tracking-id"
+}
+```
+
+- `auth_required`: 设置为 `true` 以表示需要中断。
+- `auth_url`: 用户应被重定向以进行授权的地址。
+- `auth_id`: 可选的关联 ID，用于跟踪授权会话。
+
+当 Agent Builder 检测到此响应时，它会中断运行，向用户显示身份验证 UI，并在授权完成后自动重试工具调用。
+
+如果你希望自定义工具复用相同的“需要授权”中断和 UI，请确保你的工具返回相同格式的 JSON。
+
+<Note>
+
+仅将此 JSON 作为工具的输出返回。避免包含额外的文本或内容。Agent Builder 会解析此响应以触发身份验证流程。
+
+</Note>
+

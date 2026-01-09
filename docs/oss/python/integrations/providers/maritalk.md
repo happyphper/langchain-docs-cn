@@ -1,0 +1,30 @@
+---
+title: MariTalk
+---
+>[MariTalk](https://www.maritaca.ai/en) 是一款基于 LLM 的聊天机器人，旨在满足巴西市场的需求。
+
+## 安装与设置
+
+你需要获取 MariTalk 的 API 密钥。
+
+同时，你需要安装 `httpx` Python 包。
+
+::: code-group
+
+```bash [pip]
+pip install httpx
+```
+
+```bash [uv]
+uv add httpx
+```
+
+:::
+
+## 聊天模型
+
+查看[使用示例](/oss/integrations/chat/maritalk)。
+
+```python
+from langchain_community.chat_models import ChatMaritalk
+```

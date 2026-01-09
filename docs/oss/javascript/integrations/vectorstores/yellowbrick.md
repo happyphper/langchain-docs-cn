@@ -1,0 +1,369 @@
+---
+title: Yellowbrick
+---
+[Yellowbrick](https://yellowbrick.com/yellowbrick-data-warehouse/) 是一个弹性的、大规模并行处理 (MPP) SQL 数据库，可在云端和本地运行，使用 Kubernetes 实现扩展性、弹性和云可移植性。Yellowbrick 旨在解决最大、最复杂的业务关键型数据仓库用例。Yellowbrick 提供的大规模处理效率也使其能够用作高性能、可扩展的向量数据库，通过 SQL 存储和搜索向量。
+
+## 使用 Yellowbrick 作为 ChatGpt 的向量存储
+
+本教程演示如何创建一个由 ChatGpt 支持的简单聊天机器人，该机器人使用 Yellowbrick 作为向量存储来支持检索增强生成 (RAG)。您需要准备：
+
+1. 一个 [Yellowbrick 沙盒](https://cloudlabs.yellowbrick.com/) 账户
+2. 一个来自 [OpenAI](https://platform.openai.com/) 的 API 密钥
+
+本教程分为五个部分。首先，我们将使用 langchain 创建一个基线聊天机器人，在没有向量存储的情况下与 ChatGpt 交互。其次，我们将在 Yellowbrick 中创建一个表示向量存储的嵌入表。第三，我们将加载一系列文档（Yellowbrick 手册的管理章节）。第四，我们将创建这些文档的向量表示并存储在 Yellowbrick 表中。最后，我们将向改进后的聊天机器人发送相同的查询以查看结果。
+
+```python
+# 安装所有需要的库
+pip install -qU  langchain
+pip install -qU  langchain-openai langchain-community
+pip install -qU  psycopg2-binary
+pip install -qU  tiktoken
+```
+
+## 设置：输入用于连接 Yellowbrick 和 OpenAI API 的信息
+
+我们的聊天机器人通过 langchain 库与 ChatGpt 集成，因此您首先需要一个来自 OpenAI 的 API 密钥：
+
+获取 OpenAI API 密钥的步骤：
+
+1. 在 [platform.openai.com/](https://platform.openai.com/) 注册
+2. 添加付款方式 - 您不太可能超出免费额度
+3. 创建一个 API 密钥
+
+您还需要在注册 Yellowbrick 沙盒账户时，从欢迎邮件中获取您的用户名、密码和数据库名称。
+
+以下内容应修改为包含您的 Yellowbrick 数据库和 OpenAPI 密钥信息
+
+```python
+# 修改这些值以匹配您的 Yellowbrick 沙盒和 OpenAI API 密钥
+YBUSER = "[SANDBOX USER]"
+YBPASSWORD = "[SANDBOX PASSWORD]"
+YBDATABASE = "[SANDBOX_DATABASE]"
+YBHOST = "trialsandbox.sandbox.aws.yellowbrickcloud.com"
+
+OPENAI_API_KEY = "[OPENAI API KEY]"
+```
+
+```python
+# 导入库并设置密钥 / 登录信息
+import os
+import pathlib
+import re
+import sys
+import urllib.parse as urlparse
+from getpass import getpass
+
+import psycopg2
+from IPython.display import Markdown, display
+from langchain_classic.chains import LLMChain, RetrievalQAWithSourcesChain
+from langchain_community.vectorstores import Yellowbrick
+from langchain_core.documents import Document
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+# 建立到 Yellowbrick 的连接参数。如果您已注册沙盒，请在此处填写欢迎邮件中的信息：
+yellowbrick_connection_string = (
+    f"postgres://{urlparse.quote(YBUSER)}:{YBPASSWORD}@{YBHOST}:5432/{YBDATABASE}"
+)
+
+YB_DOC_DATABASE = "sample_data"
+YB_DOC_TABLE = "yellowbrick_documentation"
+embedding_table = "my_embeddings"
+
+# OpenAI 的 API 密钥。在 https://platform.openai.com 注册
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+
+from langchain_core.prompts.chat import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    SystemMessagePromptTemplate,
+)
+```
+
+## 第 1 部分：创建由 ChatGpt 支持但不使用向量存储的基线聊天机器人
+
+我们将使用 langchain 查询 ChatGPT。由于没有向量存储，ChatGPT 将没有上下文来回答问题。
+
+```python
+# 设置聊天模型和特定提示
+system_template = """If you don't know the answer, Make up your best guess."""
+messages = [
+    SystemMessagePromptTemplate.from_template(system_template),
+    HumanMessagePromptTemplate.from_template("{question}"),
+]
+prompt = ChatPromptTemplate.from_messages(messages)
+
+chain_type_kwargs = {"prompt": prompt}
+llm = ChatOpenAI(
+    model_name="gpt-3.5-turbo",  # 如果您有 GPT-4 访问权限，请修改 model_name
+    temperature=0,
+    max_tokens=256,
+)
+
+chain = LLMChain(
+    llm=llm,
+    prompt=prompt,
+    verbose=False,
+)
+
+def print_result_simple(query):
+    result = chain(query)
+    output_text = f"""### Question:
+  {query}
+  ### Answer:
+  {result["text"]}
+    """
+    display(Markdown(output_text))
+
+# 使用链进行查询
+print_result_simple("How many databases can be in a Yellowbrick Instance?")
+
+print_result_simple("What's an easy way to add users in bulk to Yellowbrick?")
+```
+
+## 第 2 部分：连接到 Yellowbrick 并创建嵌入表
+
+要将文档嵌入加载到 Yellowbrick 中，您应该创建自己的表来存储它们。请注意，该表所在的 Yellowbrick 数据库必须采用 UTF-8 编码。
+
+在 UTF-8 编码的数据库中创建一个具有以下模式的表，提供您选择的表名：
+
+```python
+# 建立到 Yellowbrick 数据库的连接
+try:
+    conn = psycopg2.connect(yellowbrick_connection_string)
+except psycopg2.Error as e:
+    print(f"Error connecting to the database: {e}")
+    exit(1)
+
+# 使用连接创建游标对象
+cursor = conn.cursor()
+
+# 定义创建表的 SQL 语句
+create_table_query = f"""
+CREATE TABLE IF NOT EXISTS {embedding_table} (
+    doc_id uuid NOT NULL,
+    embedding_id smallint NOT NULL,
+    embedding double precision NOT NULL
+)
+DISTRIBUTE ON (doc_id);
+truncate table {embedding_table};
+"""
+
+# 执行 SQL 查询以创建表
+try:
+    cursor.execute(create_table_query)
+    print(f"Table '{embedding_table}' created successfully!")
+except psycopg2.Error as e:
+    print(f"Error creating table: {e}")
+    conn.rollback()
+
+# 提交更改并关闭游标和连接
+conn.commit()
+cursor.close()
+conn.close()
+```
+
+## 第 3 部分：从 Yellowbrick 中的现有表提取要索引的文档
+
+从现有的 Yellowbrick 表中提取文档路径和内容。我们将在下一步中使用这些文档来创建嵌入。
+
+```python
+yellowbrick_doc_connection_string = (
+    f"postgres://{urlparse.quote(YBUSER)}:{YBPASSWORD}@{YBHOST}:5432/{YB_DOC_DATABASE}"
+)
+
+print(yellowbrick_doc_connection_string)
+
+# 建立到 Yellowbrick 数据库的连接
+conn = psycopg2.connect(yellowbrick_doc_connection_string)
+
+# 创建游标对象
+cursor = conn.cursor()
+
+# 查询以从表中选择所有文档
+query = f"SELECT path, document FROM {YB_DOC_TABLE}"
+
+# 执行查询
+cursor.execute(query)
+
+# 获取所有文档
+yellowbrick_documents = cursor.fetchall()
+
+print(f"Extracted {len(yellowbrick_documents)} documents successfully!")
+
+# 关闭游标和连接
+cursor.close()
+conn.close()
+```
+
+## 第 4 部分：将文档加载到 Yellowbrick 向量存储中
+
+遍历文档，将它们分割成可处理的小块，创建嵌入并插入到 Yellowbrick 表中。这大约需要 5 分钟。
+
+```python
+# 将文档分割成块以便转换为嵌入
+DOCUMENT_BASE_URL = "https://docs.yellowbrick.com/6.7.1/"  # 实际 URL
+
+separator = "\n## "  # 此分隔符假设仓库中的 Markdown 文档大部分时间使用 ### 作为逻辑主标题
+chunk_size_limit = 2000
+max_chunk_overlap = 200
+
+documents = [
+    Document(
+        page_content=document[1],
+        metadata={"source": DOCUMENT_BASE_URL + document[0].replace(".md", ".html")},
+    )
+    for document in yellowbrick_documents
+]
+
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=chunk_size_limit,
+    chunk_overlap=max_chunk_overlap,
+    separators=[separator, "\nn", "\n", ",", " ", ""],
+)
+split_docs = text_splitter.split_documents(documents)
+
+docs_text = [doc.page_content for doc in split_docs]
+
+embeddings = OpenAIEmbeddings()
+vector_store = Yellowbrick.from_documents(
+    documents=split_docs,
+    embedding=embeddings,
+    connection_string=yellowbrick_connection_string,
+    table=embedding_table,
+)
+
+print(f"Created vector store with {len(documents)} documents")
+```
+
+## 第 5 部分：创建使用 Yellowbrick 作为向量存储的聊天机器人
+
+接下来，我们将 Yellowbrick 添加为向量存储。该向量存储已填充了代表 Yellowbrick 产品文档管理章节的嵌入。
+
+我们将发送与上面相同的查询，以查看改进后的响应。
+
+```python
+system_template = """Use the following pieces of context to answer the users question.
+Take note of the sources and include them in the answer in the format: "SOURCES: source1 source2", use "SOURCES" in capital letters regardless of the number of sources.
+If you don't know the answer, just say that "I don't know", don't try to make up an answer.
+----------------
+{summaries}"""
+messages = [
+    SystemMessagePromptTemplate.from_template(system_template),
+    HumanMessagePromptTemplate.from_template("{question}"),
+]
+prompt = ChatPromptTemplate.from_messages(messages)
+
+vector_store = Yellowbrick(
+    OpenAIEmbeddings(),
+    yellowbrick_connection_string,
+    embedding_table,  # 更改表名以反映您的嵌入
+)
+
+chain_type_kwargs = {"prompt": prompt}
+llm = ChatOpenAI(
+    model_name="gpt-3.5-turbo",  # 如果您有 GPT-4 访问权限，请修改 model_name
+    temperature=0,
+    max_tokens=256,
+)
+chain = RetrievalQAWithSourcesChain.from_chain_type(
+    llm=llm,
+    chain_type="stuff",
+    retriever=vector_store.as_retriever(search_kwargs={"k": 5}),
+    return_source_documents=True,
+    chain_type_kwargs=chain_type_kwargs,
+)
+
+def print_result_sources(query):
+    result = chain(query)
+    output_text = f"""### Question:
+  {query}
+  ### Answer:
+  {result["answer"]}
+  ### Sources:
+  {result["sources"]}
+  ### All relevant sources:
+  {", ".join(list(set([doc.metadata["source"] for doc in result["source_documents"]])))}
+    """
+    display(Markdown(output_text))
+
+# 使用链进行查询
+
+print_result_sources("How many databases can be in a Yellowbrick Instance?")
+
+print_result_sources("Whats an easy way to add users in bulk to Yellowbrick?")
+```
+
+## 第 6 部分：引入索引以提高性能
+
+Yellowbrick 还支持使用局部敏感哈希 (Locality-Sensitive Hashing) 方法进行索引。这是一种近似最近邻搜索技术，允许以牺牲准确性为代价来权衡相似性搜索时间。该索引引入了两个新的可调参数：
+
+- 超平面数量，作为参数提供给 `create_lsh_index(num_hyperplanes)`。文档越多，需要的超平面就越多。LSH 是一种降维形式。原始嵌入被转换为低维向量，其中分量的数量与超平面的数量相同。
+- 汉明距离 (Hamming distance)，一个表示搜索广度的整数。较小的汉明距离会导致更快的检索但准确性较低。
+
+以下是如何在我们加载到 Yellowbrick 的嵌入上创建索引。我们还将重新运行之前的聊天会话，但这次检索将使用索引。请注意，对于如此少量的文档，您不会看到索引在性能方面的好处。
+
+```python
+system_template = """Use the following pieces of context to answer the users question.
+Take note of the sources and include them in the answer in the format: "SOURCES: source1 source2", use "SOURCES" in capital letters regardless of the number of sources.
+If you don't know the answer, just say that "I don't know", don't try to make up an answer.
+----------------
+{summaries}"""
+messages = [
+    SystemMessagePromptTemplate.from_template(system_template),
+    HumanMessagePromptTemplate.from_template("{question}"),
+]
+prompt = ChatPromptTemplate.from_messages(messages)
+
+vector_store = Yellowbrick(
+    OpenAIEmbeddings(),
+    yellowbrick_connection_string,
+    embedding_table,  # 更改表名以反映您的嵌入
+)
+
+lsh_params = Yellowbrick.IndexParams(
+    Yellowbrick.IndexType.LSH, {"num_hyperplanes": 8, "hamming_distance": 2}
+)
+vector_store.create_index(lsh_params)
+
+chain_type_kwargs = {"prompt": prompt}
+llm = ChatOpenAI(
+    model_name="gpt-3.5-turbo",  # 如果您有 GPT-4 访问权限，请修改 model_name
+    temperature=0,
+    max_tokens=256,
+)
+chain = RetrievalQAWithSourcesChain.from_chain_type(
+    llm=llm,
+    chain_type="stuff",
+    retriever=vector_store.as_retriever(
+        k=5, search_kwargs={"index_params": lsh_params}
+    ),
+    return_source_documents=True,
+    chain_type_kwargs=chain_type_kwargs,
+)
+
+def print_result_sources(query):
+    result = chain(query)
+    output_text = f"""### Question:
+  {query}
+  ### Answer:
+  {result["answer"]}
+  ### Sources:
+  {result["sources"]}
+  ### All relevant sources:
+  {", ".join(list(set([doc.metadata["source"] for doc in result["source_documents"]])))}
+    """
+    display(Markdown(output_text))
+
+# 使用链进行查询
+
+print_result_sources("How many databases can be in a Yellowbrick Instance?")
+
+print_result_sources("Whats an easy way to add users in bulk to Yellowbrick?")
+```
+
+## 后续步骤
+
+可以修改此代码以提出不同的问题。您也可以将自己的文档加载到向量存储中。langchain 模块非常灵活，可以解析各种文件（包括 HTML、PDF 等）。
+
+您还可以修改此代码以使用 Huggingface 嵌入模型和 Meta 的 Llama 2 LLM，以获得完全私密的聊天机器人体验。

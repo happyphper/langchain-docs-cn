@@ -1,0 +1,188 @@
+---
+title: Tilores
+---
+本笔记本介绍了如何开始使用 [Tilores](/oss/integrations/providers/tilores) 工具。
+如需查看更复杂的示例，请参阅我们的 [客户洞察聊天机器人示例](https://github.com/tilotech/identity-rag-customer-insights-chatbot)。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | JS 支持 | 版本 |
+| :--- | :--- | :---: | :---: | :---: |
+| TiloresTools | [tilores-langchain](https://pypi.org/project/tilores-langchain/) | ❌ | ❌ |  ![PyPI - Version](https://img.shields.io/pypi/v/tilores-langchain?style=flat-square&label=%20) |
+
+## 设置
+
+集成需要以下包：
+
+```python
+pip install --quiet -U tilores-langchain langchain
+```
+
+### 凭证
+
+要访问 Tilores，您需要 [创建并配置一个实例](https://app.tilores.io)。如果您想先试用 Tilores，可以使用 [只读演示凭证](https://github.com/tilotech/identity-rag-customer-insights-chatbot?tab=readme-ov-file#1-configure-customer-data-access)。
+
+```python
+import os
+
+os.environ["TILORES_API_URL"] = "<api-url>"
+os.environ["TILORES_TOKEN_URL"] = "<token-url>"
+os.environ["TILORES_CLIENT_ID"] = "<client-id>"
+os.environ["TILORES_CLIENT_SECRET"] = "<client-secret>"
+```
+
+## 实例化
+
+这里我们展示如何实例化 Tilores 工具：
+
+```python
+from tilores import TiloresAPI
+from tilores_langchain import TiloresTools
+
+tilores = TiloresAPI.from_environ()
+tilores_tools = TiloresTools(tilores)
+search_tool = tilores_tools.search_tool()
+edge_tool = tilores_tools.edge_tool()
+```
+
+## 调用
+
+`tilores_search` 工具的参数取决于 Tilores 内 [配置的模式](https://docs.tilotech.io/tilores/schema/)。以下示例将使用包含生成数据的演示实例的模式。
+
+### [使用参数直接调用](/oss/langchain/tools)
+
+以下示例搜索一位名叫 Sophie Müller 且居住在柏林的人。Tilores 数据中包含多个这样的人，并返回他们已知的电子邮件地址和电话号码。
+
+```python
+result = search_tool.invoke(
+    {
+        "searchParams": {
+            "name": "Sophie Müller",
+            "city": "Berlin",
+        },
+        "recordFieldsToQuery": {
+            "email": True,
+            "phone": True,
+        },
+    }
+)
+print("Number of entities:", len(result["data"]["search"]["entities"]))
+for entity in result["data"]["search"]["entities"]:
+    print("Number of records:", len(entity["records"]))
+    print(
+        "Email Addresses:",
+        [record["email"] for record in entity["records"] if record.get("email")],
+    )
+    print(
+        "Phone Numbers:",
+        [record["phone"] for record in entity["records"] if record.get("phone")],
+    )
+```
+
+```text
+Number of entities: 3
+Number of records: 3
+Email Addresses: ['s.mueller@newcompany.de', 'sophie.mueller@email.de']
+Phone Numbers: ['30987654', '30987654', '30987654']
+Number of records: 5
+Email Addresses: ['mueller.sophie@uni-berlin.de', 'sophie.m@newshipping.de', 's.mueller@newfinance.de']
+Phone Numbers: ['30135792', '30135792']
+Number of records: 2
+Email Addresses: ['s.mueller@company.de']
+Phone Numbers: ['30123456', '30123456']
+```
+
+如果我们对第一个实体的记录之间的关系感兴趣，可以使用 edge_tool。请注意，Tilores 实体解析引擎会自动计算出这些记录之间的关系。更多详情请参阅 [边（edge）文档](https://docs.tilotech.io/tilores/rules/#edges)。
+
+```python
+edge_result = edge_tool.invoke(
+    {"entityID": result["data"]["search"]["entities"][0]["id"]}
+)
+edges = edge_result["data"]["entity"]["entity"]["edges"]
+print("Number of edges:", len(edges))
+print("Edges:", edges)
+```
+
+```text
+Number of edges: 7
+Edges: ['e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6:f2g3h4i5-j6k7-l8m9-n0o1-p2q3r4s5t6u7:L1', 'e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6:g3h4i5j6-k7l8-m9n0-o1p2-q3r4s5t6u7v8:L4', 'e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6:f2g3h4i5-j6k7-l8m9-n0o1-p2q3r4s5t6u7:L2', 'f2g3h4i5-j6k7-l8m9-n0o1-p2q3r4s5t6u7:g3h4i5j6-k7l8-m9n0-o1p2-q3r4s5t6u7v8:L1', 'f2g3h4i5-j6k7-l8m9-n0o1-p2q3r4s5t6u7:g3h4i5j6-k7l8-m9n0-o1p2-q3r4s5t6u7v8:L4', 'e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6:g3h4i5j6-k7l8-m9n0-o1p2-q3r4s5t6u7v8:L1', 'e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6:f2g3h4i5-j6k7-l8m9-n0o1-p2q3r4s5t6u7:L4']
+```
+
+### [使用 ToolCall 调用](/oss/langchain/tools)
+
+我们也可以使用模型生成的 ToolCall 来调用该工具，在这种情况下将返回一个 ToolMessage：
+
+```python
+# 这通常由模型生成，但为了演示目的，我们将直接创建一个工具调用。
+model_generated_tool_call = {
+    "args": {
+        "searchParams": {
+            "name": "Sophie Müller",
+            "city": "Berlin",
+        },
+        "recordFieldsToQuery": {
+            "email": True,
+            "phone": True,
+        },
+    },
+    "id": "1",
+    "name": search_tool.name,
+    "type": "tool_call",
+}
+search_tool.invoke(model_generated_tool_call)
+```
+
+```text
+ToolMessage(content='{"data": {"search": {"entities": [{"id": "9601cf3b-e85f-46ab-aaa8-ffb8b46f1c5b", "hits": {"c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8": ["L1"]}, "records": [{"email": "", "phone": "30123456"}, {"email": "s.mueller@company.de", "phone": "30123456"}]}, {"id": "03da2e11-0aa2-4d17-8aaa-7b32c52decd9", "hits": {"e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6": ["L1"], "g3h4i5j6-k7l8-m9n0-o1p2-q3r4s5t6u7v8": ["L1"]}, "records": [{"email": "s.mueller@newcompany.de", "phone": "30987654"}, {"email": "", "phone": "30987654"}, {"email": "sophie.mueller@email.de", "phone": "30987654"}]}, {"id": "4d896fb5-0d08-4212-a043-b5deb0347106", "hits": {"j6k7l8m9-n0o1-p2q3-r4s5-t6u7v8w9x0y1": ["L1"], "l8m9n0o1-p2q3-r4s5-t6u7-v8w9x0y1z2a3": ["L1"], "m9n0o1p2-q3r4-s5t6-u7v8-w9x0y1z2a3b4": ["L1"], "n0o1p2q3-r4s5-t6u7-v8w9-x0y1z2a3b4c5": ["L1"]}, "records": [{"email": "mueller.sophie@uni-berlin.de", "phone": ""}, {"email": "sophie.m@newshipping.de", "phone": ""}, {"email": "", "phone": "30135792"}, {"email": "", "phone": ""}, {"email": "s.mueller@newfinance.de", "phone": "30135792"}]}]}}}', name='tilores_search', tool_call_id='1')
+```
+
+## 链式调用
+
+我们可以通过先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后调用它，从而在链中使用我们的工具：
+
+<ChatModelTabs customVarName="llm" />
+
+```python
+# | output: false
+# | echo: false
+
+# !pip install -qU langchain langchain-openai
+from langchain.chat_models import init_chat_model
+
+model = init_chat_model(model="gpt-4o", model_provider="openai")
+```
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableConfig, chain
+
+prompt = ChatPromptTemplate(
+    [
+        ("system", "You are a helpful assistant."),
+        ("human", "{user_input}"),
+        ("placeholder", "{messages}"),
+    ]
+)
+
+# 指定 tool_choice 将强制模型调用此工具。
+model_with_tools = model.bind_tools([search_tool], tool_choice=search_tool.name)
+
+model_chain = prompt | model_with_tools
+
+@chain
+def tool_chain(user_input: str, config: RunnableConfig):
+    input_ = {"user_input": user_input}
+    ai_msg = model_chain.invoke(input_, config=config)
+    tool_msgs = search_tool.batch(ai_msg.tool_calls, config=config)
+    return model_chain.invoke({**input_, "messages": [ai_msg, *tool_msgs]}, config=config)
+
+tool_chain.invoke("Tell me the email addresses from Sophie Müller from Berlin.")
+```
+
+---
+
+## API 参考
+
+有关所有 Tilores 功能和配置的详细文档，请参阅官方文档：[docs.tilotech.io/tilores/](https://docs.tilotech.io/tilores/)

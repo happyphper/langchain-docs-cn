@@ -1,0 +1,30 @@
+---
+title: Teradata
+---
+本页介绍如何在 LangChain 中使用 Teradata 向量存储。
+内容分为两部分：安装与设置，以及特定 Teradata 封装器的参考说明。
+
+## 安装
+- 使用 `pip install langchain-teradata` 安装 Python 包
+
+## 设置
+第一步是创建到 Teradata Vantage 系统的连接。
+
+您需要提供 Teradata 凭据，包括主机名、用户名、密码，以及云部署时可选用的 API 令牌。详细的设置说明，请参阅 [Teradata Vector Store User Guide](https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Teradata-Vector-Store-User-Guide/Introduction-to-the-Enterprise-Vector-Store-User-Guide)
+和 [Getting started with Vantage Cloud Lake](https://docs.teradata.com/r/Lake-Getting-Started-with-VantageCloud-Lake/)
+
+## 封装器
+
+### VectorStore
+
+Teradata 向量数据库提供了一个封装器，允许您将其用作向量存储，无论是用于相似性搜索还是 RAG 管道。
+
+导入此向量存储：
+
+```python
+from langchain_teradata import TeradataVectorStore
+```
+
+### 用法
+
+有关 Teradata VectorStore 更详细的逐步指南，请参阅 [langchain-teradata User Guide](https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/Teradata-Package-for-LangChain-User-Guide) 和 [langchain-teradata workflows](https://github.com/Teradata/langchain-teradata)

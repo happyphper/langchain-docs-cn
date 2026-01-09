@@ -1,0 +1,93 @@
+---
+title: Datadog 追踪
+---
+>[ddtrace](https://github.com/DataDog/dd-trace-py) 是 Datadog 的应用性能监控 (APM) 库，它提供了一个集成来监控您的 LangChain 应用。
+
+ddtrace 为 LangChain 集成的关键特性：
+- **追踪**：捕获 LangChain 请求、参数、提示-补全，并帮助可视化 LangChain 操作。
+- **指标**：捕获 LangChain 请求延迟、错误以及令牌/成本使用情况（针对 OpenAI LLM 和聊天模型）。
+- **日志**：为每个 LangChain 操作存储提示补全数据。
+- **仪表板**：将指标、日志和追踪数据整合到单一平面以监控 LangChain 请求。
+- **监控器**：针对 LangChain 请求延迟或错误率的激增提供告警。
+
+注意：ddtrace LangChain 集成目前为 LLM、聊天模型、文本嵌入模型、链和向量存储提供追踪功能。
+
+## 安装与设置
+
+1.  在您的 Datadog Agent 中启用 APM 和 StatsD，并配置 Datadog API 密钥。例如，在 Docker 中：
+
+```
+docker run -d --cgroupns host \
+              --pid host \
+              -v /var/run/docker.sock:/var/run/docker.sock:ro \
+              -v /proc/:/host/proc/:ro \
+              -v /sys/fs/cgroup/:/host/sys/fs/cgroup:ro \
+              -e DD_API_KEY=<DATADOG_API_KEY> \
+              -p 127.0.0.1:8126:8126/tcp \
+              -p 127.0.0.1:8125:8125/udp \
+              -e DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true \
+              -e DD_APM_ENABLED=true \
+              gcr.io/datadoghq/agent:latest
+```
+
+2.  安装 Datadog APM Python 库。
+
+::: code-group
+
+```shell [pip]
+pip install "ddtrace>=1.17"
+```
+
+```shell [uv]
+uv add "ddtrace>=1.17"
+```
+
+:::
+
+3.  当您在 LangChain Python 应用命令前加上 `ddtrace-run` 时，LangChain 集成会自动启用：
+
+```
+DD_SERVICE="my-service" DD_ENV="staging" DD_API_KEY=<DATADOG_API_KEY> ddtrace-run python <your-app>.py
+```
+
+**注意**：如果 Agent 使用了非默认的主机名或端口，请务必同时设置 `DD_AGENT_HOST`、`DD_TRACE_AGENT_PORT` 或 `DD_DOGSTATSD_PORT`。
+
+此外，也可以通过编程方式启用 LangChain 集成，即在应用中首次导入 `langchain` 之前添加 `patch_all()` 或 `patch(langchain=True)`。
+
+请注意，使用 `ddtrace-run` 或 `patch_all()` 也会启用 `requests` 和 `aiohttp` 集成，以追踪对 LLM 提供商的 HTTP 请求，以及 `openai` 集成以追踪对 OpenAI 库的请求。
+
+```python
+from ddtrace import config, patch
+
+# 注意：务必在调用 `patch()` 之前配置集成！
+# 例如：config.langchain["logs_enabled"] = True
+
+patch(langchain=True)
+
+# 追踪同步 HTTP 请求
+# patch(langchain=True, requests=True)
+
+# 追踪异步 HTTP 请求（针对 OpenAI 库）
+# patch(langchain=True, aiohttp=True)
+
+# 包含来自 OpenAI 集成的底层 OpenAI span
+# patch(langchain=True, openai=True)patch_all
+```
+
+有关更高级的用法，请参阅 [APM Python 库文档](https://ddtrace.readthedocs.io/en/stable/installation_quickstart.html)。
+
+## 配置
+
+所有可用的配置选项，请参阅 [APM Python 库文档](https://ddtrace.readthedocs.io/en/stable/integrations.html#langchain)。
+
+### 日志提示与补全采样
+
+要启用日志提示和补全采样，请设置环境变量 `DD_LANGCHAIN_LOGS_ENABLED=1`。默认情况下，10% 的被追踪请求会发出包含提示和补全的日志。
+
+要调整日志采样率，请参阅 [APM 库文档](https://ddtrace.readthedocs.io/en/stable/integrations.html#langchain)。
+
+**注意**：提交日志需要在运行 `ddtrace-run` 时指定 `DD_API_KEY`。
+
+## 故障排除
+
+需要帮助？请在 [ddtrace](https://github.com/DataDog/dd-trace-py) 上创建问题或联系 [Datadog 支持](https://docs.datadoghq.com/help/)。

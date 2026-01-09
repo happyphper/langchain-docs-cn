@@ -1,0 +1,55 @@
+---
+title: Fireworks AI
+---
+>[Fireworks AI](https://fireworks.ai) 是一个生成式 AI 推理平台，用于运行和定制模型，具备行业领先的速度和生产就绪性。
+
+## 安装与设置
+
+- 安装 Fireworks 集成包。
+
+```bash
+pip install langchain-fireworks
+```
+
+- 在 [fireworks.ai](https://fireworks.ai) 注册以获取 Fireworks API 密钥。
+- 通过设置 `FIREWORKS_API_KEY` 环境变量进行身份验证。
+
+### 身份验证
+
+有两种方式可以使用您的 Fireworks API 密钥进行身份验证：
+
+1.  设置 `FIREWORKS_API_KEY` 环境变量。
+
+```python
+os.environ["FIREWORKS_API_KEY"] = "<KEY>"
+```
+
+2.  在 Fireworks LLM 模块中设置 `api_key` 字段。
+
+```python
+llm = Fireworks(api_key="<KEY>")
+```
+
+## 聊天模型
+
+查看[使用示例](/oss/integrations/chat/fireworks)。
+
+```python
+from langchain_fireworks import ChatFireworks
+```
+
+## 大语言模型
+
+查看[使用示例](/oss/integrations/llms/fireworks)。
+
+```python
+from langchain_fireworks import Fireworks
+```
+
+## 嵌入模型
+
+查看[使用示例](/oss/integrations/text_embedding/fireworks)。
+
+```python
+from langchain_fireworks import FireworksEmbeddings
+```

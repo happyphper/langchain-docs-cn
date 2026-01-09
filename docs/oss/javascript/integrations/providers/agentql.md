@@ -1,0 +1,44 @@
+---
+title: AgentQL
+---
+[AgentQL](https://www.agentql.com/) 提供网页交互和结构化数据提取功能，可通过 [AgentQL 查询](https://docs.agentql.com/agentql-query) 或自然语言提示从任何网页获取数据。AgentQL 支持多种语言和网页，并能长期稳定运行，适应网页变化。
+
+## 安装与设置
+
+安装集成包：
+
+::: code-group
+
+```bash [pip]
+pip install langchain-agentql
+```
+
+```bash [uv]
+uv add langchain-agentql
+```
+
+:::
+
+## API 密钥
+
+从我们的 [开发者门户](https://dev.agentql.com/) 获取 API 密钥，并将其添加到环境变量中：
+```
+export AGENTQL_API_KEY="your-api-key-here"
+```
+
+## DocumentLoader
+AgentQL 的文档加载器（DocumentLoader）使用 AgentQL 查询从任何网页提取结构化数据。
+
+```python
+from langchain_agentql.document_loaders import AgentQLLoader
+```
+查看我们的 [文档加载器文档和使用示例](/oss/integrations/document_loaders/agentql)。
+
+## 工具与工具包
+AgentQL 工具提供网页交互和结构化数据提取功能，可通过 AgentQL 查询或自然语言提示从任何网页获取数据。
+
+```python
+from langchain_agentql.tools import ExtractWebDataTool, ExtractWebDataBrowserTool, GetWebElementBrowserTool
+from langchain_agentql import AgentQLBrowserToolkit
+```
+查看我们的 [工具文档和使用示例](/oss/integrations/tools/agentql)。

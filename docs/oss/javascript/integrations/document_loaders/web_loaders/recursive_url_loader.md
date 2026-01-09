@@ -1,0 +1,301 @@
+---
+title: 递归 URL 加载器
+---
+
+<Tip>
+
+<strong>兼容性</strong>：仅在 Node.js 环境中可用。
+
+</Tip>
+
+本笔记本提供了快速入门 [RecursiveUrlLoader](/oss/integrations/document_loaders/) 的概述。有关 RecursiveUrlLoader 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_recursive_url.RecursiveUrlLoader.html)。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 本地 | 可序列化 | PY 支持 |
+| :--- | :--- | :---: | :---: |  :---: |
+| [RecursiveUrlLoader](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_recursive_url.RecursiveUrlLoader.html) | [@langchain/community](https://api.js.langchain.com/modules/langchain_community_document_loaders_web_recursive_url.html) | ✅ | beta | ❌ |
+
+### 加载器特性
+
+| 来源 | 网络加载器 | 仅限 Node 环境 |
+| :---: | :---: | :---: |
+| RecursiveUrlLoader | ✅ | ✅ |
+
+从网站加载内容时，我们可能希望处理并加载页面上的所有 URL。
+
+例如，让我们看一下 LangChain.js 的介绍文档。
+
+它包含许多我们可能希望批量加载、分割和稍后检索的有趣子页面。
+
+挑战在于遍历子页面的树状结构并组装成一个列表！
+
+我们使用 `RecursiveUrlLoader` 来实现这一点。
+
+这也使我们能够灵活地排除某些子页面、自定义提取器等。
+
+## 设置
+
+要访问 `RecursiveUrlLoader` 文档加载器，您需要安装 `@langchain/community` 集成包和 [`jsdom`](https://www.npmjs.com/package/jsdom) 包。
+
+### 凭证
+
+如果您希望获取模型调用的自动化追踪，您也可以通过取消注释以下内容来设置您的 [LangSmith](/langsmith/home) API 密钥：
+
+```bash
+# export LANGSMITH_TRACING="true"
+# export LANGSMITH_API_KEY="your-api-key"
+```
+
+### 安装
+
+LangChain RecursiveUrlLoader 集成位于 `@langchain/community` 包中：
+
+<CodeGroup>
+
+```bash [npm]
+npm install @langchain/community @langchain/core jsdom
+</CodeGroup>
+
+我们还建议添加像 [`html-to-text`](https://www.npmjs.com/package/html-to-text) 或
+[`@mozilla/readability`](https://www.npmjs.com/package/@mozilla/readability) 这样的包，用于从页面提取原始文本。
+
+<CodeGroup>
+
+```bash npm
+npm install html-to-text
+```
+
+```bash yarn
+yarn add @langchain/community @langchain/core jsdom
+```
+
+```bash yarn
+yarn add html-to-text
+```
+
+```bash yarn
+yarn add @langchain/community @langchain/core jsdom
+```
+
+```bash pnpm
+pnpm add html-to-text
+```
+
+```bash yarn
+yarn add @langchain/community @langchain/core jsdom
+```
+</CodeGroup>
+
+我们还建议添加像 [`html-to-text`](https://www.npmjs.com/package/html-to-text) 或
+[`@mozilla/readability`](https://www.npmjs.com/package/@mozilla/readability) 这样的包，用于从页面提取原始文本。
+
+<CodeGroup>
+
+```bash npm
+npm install html-to-text
+```
+
+```bash pnpm
+pnpm add @langchain/community @langchain/core jsdom
+```
+
+```bash yarn
+yarn add html-to-text
+```
+
+```bash pnpm
+pnpm add @langchain/community @langchain/core jsdom
+```
+
+```bash pnpm
+pnpm add html-to-text
+```
+
+```bash pnpm
+pnpm add @langchain/community @langchain/core jsdom
+```
+</CodeGroup>
+
+我们还建议添加像 [`html-to-text`](https://www.npmjs.com/package/html-to-text) 或
+[`@mozilla/readability`](https://www.npmjs.com/package/@mozilla/readability) 这样的包，用于从页面提取原始文本。
+
+## 实例化
+
+现在我们可以实例化我们的模型对象并加载文档：
+
+```typescript
+
+const compiledConvert = compile({ wordwrap: 130 }); // returns (text: string) => string;
+
+const loader = new RecursiveUrlLoader("https://langchain.com/",  {
+  extractor: compiledConvert,
+  maxDepth: 1,
+  excludeDirs: ["/docs/api/"],
+})
+```
+
+## 加载
+
+```typescript
+const docs = await loader.load()
+docs[0]
+```
+
+```javascript
+{
+  pageContent: '\n' +
+'/\n' +
+'Products\n' +
+'\n' +
+'LangChain [/langchain]LangSmith [/langsmith]LangGraph [/langgraph]\n' +
+'Methods\n' +
+'\n' +
+'Retrieval [/retrieval]Agents [/agents]Evaluation [/evaluation]\n' +
+'Resources\n' +
+'\n' +
+'Blog [https://blog.langchain.dev/]Case Studies [/case-studies]Use Case Inspiration [/use-cases]Experts [/experts]Changelog\n' +
+'[https://changelog.langchain.com/]\n' +
+'Docs\n' +
+'\n' +
+'LangChain Docs [https://python.langchain.com/v0.2/docs/introduction/]LangSmith Docs [https://docs.smith.langchain.com/]\n' +
+'Company\n' +
+'\n' +
+'About [/about]Careers [/careers]\n' +
+'Pricing [/pricing]\n' +
+'Get a demo [/contact-sales]\n' +
+'Sign up [https://smith.langchain.com/]\n' +
+'\n' +
+'\n' +
+'\n' +
+'\n' +
+'LangChain’s suite of products supports developers along each step of the LLM application lifecycle.\n' +
+'\n' +
+'\n' +
+'APPLICATIONS THAT CAN REASON. POWERED BY LANGCHAIN.\n' +
+'\n' +
+'Get a demo [/contact-sales]Sign up for free [https://smith.langchain.com/]\n' +
+'\n' +
+'\n' +
+'\n' +
+'FROM STARTUPS TO GLOBAL ENTERPRISES,\n' +
+'AMBITIOUS BUILDERS CHOOSE\n' +
+'LANGCHAIN PRODUCTS.\n' +
+'\n' +
+'[https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7c22746faa78338532_logo_Ally.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7c08e67bb7eefba4c2_logo_Rakuten.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7c576fdde32d03c1a0_logo_Elastic.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7c6d5592036dae24e5_logo_BCG.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/667f19528c3557c2c19c3086_the-home-depot-2%201.png][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7cbcf6473519b06d84_logo_IDEO.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7cb5f96dcc100ee3b7_logo_Zapier.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/6606183e52d49bc369acc76c_mdy_logo_rgb_moodysblue.png][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7c8ad7db6ed6ec611e_logo_Adyen.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7c737d50036a62768b_logo_Infor.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/667f59d98444a5f98aabe21c_acxiom-vector-logo-2022%201.png][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7c09a158ffeaab0bd2_logo_Replit.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7c9d2b23d292a0cab0_logo_Retool.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7c44e67a3d0a996bf3_logo_Databricks.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/667f5a1299d6ba453c78a849_image%20(19).png][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65ca3b7c63af578816bafcc3_logo_Instacart.svg][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/665dc1dabc940168384d9596_podium%20logo.svg]\n' +
+'\n' +
+'Build\n' +
+'\n' +
+'LangChain is a framework to build with LLMs by chaining interoperable components. LangGraph is the framework for building\n' +
+'controllable agentic workflows.\n' +
+'\n' +
+'\n' +
+'\n' +
+'Run\n' +
+'\n' +
+'Deploy your LLM applications at scale with LangGraph Cloud, our infrastructure purpose-built for agents.\n' +
+'\n' +
+'\n' +
+'\n' +
+'Manage\n' +
+'\n' +
+"Debug, collaborate, test, and monitor your LLM app in LangSmith - whether it's built with a LangChain framework or not. \n" +
+'\n' +
+'\n' +
+'\n' +
+'\n' +
+'BUILD YOUR APP WITH LANGCHAIN\n' +
+'\n' +
+'Build context-aware, reasoning applications with LangChain’s flexible framework that leverages your company’s data and APIs.\n' +
+'Future-proof your application by making vendor optionality part of your LLM infrastructure design.\n' +
+'\n' +
+'Learn more about LangChain\n' +
+'\n' +
+'[/langchain]\n' +
+'\n' +
+'\n' +
+'RUN AT SCALE WITH LANGGRAPH CLOUD\n' +
+'\n' +
+'Deploy your LangGraph app with LangGraph Cloud for fault-tolerant scalability - including support for async background jobs,\n' +
+'built-in persistence, and distributed task queues.\n' +
+'\n' +
+'Learn more about LangGraph\n' +
+'\n' +
+'[/langgraph]\n' +
+'[https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/667c6d7284e58f4743a430e6_Langgraph%20UI-home-2.webp]\n' +
+'\n' +
+'\n' +
+'MANAGE LLM PERFORMANCE WITH LANGSMITH\n' +
+'\n' +
+'Ship faster with LangSmith’s debug, test, deploy, and monitoring workflows. Don’t rely on “vibes” – add engineering rigor to your\n' +
+'LLM-development workflow, whether you’re building with LangChain or not.\n' +
+'\n' +
+'Learn more about LangSmith\n' +
+'\n' +
+'[/langsmith]\n' +
+'\n' +
+'\n' +
+'HEAR FROM OUR HAPPY CUSTOMERS\n' +
+'\n' +
+'LangChain, LangGraph, and LangSmith help teams of all sizes, across all industries - from ambitious startups to established\n' +
+'enterprises.\n' +
+'\n' +
+'[https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65c5308aee06d9826765c897_Retool_logo%201.png]\n' +
+'\n' +
+'“LangSmith helped us improve the accuracy and performance of Retool’s fine-tuned models. Not only did we deliver a better product\n' +
+'by iterating with LangSmith, but we’re shipping new AI features to our users in a fraction of the time it would have taken without\n' +
+'it.”\n' +
+'\n' +
+'[https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65c5308abdd2dbbdde5a94a1_Jamie%20Cuffe.png]\n' +
+'Jamie Cuffe\n' +
+'Head of Self-Serve and New Products\n' +
+'[https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65c5308a04d37cf7d3eb1341_Rakuten_Global_Brand_Logo.png]\n' +
+'\n' +
+'“By combining the benefits of LangSmith and standing on the shoulders of a gigantic open-source community, we’re able to identify\n' +
+'the right approaches of using LLMs in an enterprise-setting faster.”\n' +
+'\n' +
+'[https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65c5308a8b6137d44c621cb4_Yusuke%20Kaji.png]\n' +
+'Yusuke Kaji\n' +
+'General Manager of AI\n' +
+'[https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65c5308aea1371b447cc4af9_elastic-ar21.png]\n' +
+'\n' +
+'“Working with LangChain and LangSmith on the Elastic AI Assistant had a significant positive impact on the overall pace and\n' +
+'quality of the development and shipping experience. We couldn’t have achieved  the product experience delivered to our customers\n' +
+'without LangChain, and we couldn’t have done it at the same pace without LangSmith.”\n' +
+'\n' +
+'[https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65c5308a4095d5a871de7479_James%20Spiteri.png]\n' +
+'James Spiteri\n' +
+'Director of Security Products\n' +
+'[https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65c530539f4824b828357352_Logo_de_Fintual%201.png]\n' +
+'\n' +
+'“As soon as we heard about LangSmith, we moved our entire development stack onto it. We could have built evaluation, testing and\n' +
+'monitoring tools in house, but with LangSmith it took us 10x less time to get a 1000x better tool.”\n' +
+'\n' +
+'[https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/65c53058acbff86f4c2dcee2_jose%20pena.png]\n' +
+'Jose Peña\n' +
+'Senior Manager\n' +
+'\n' +
+'\n' +
+'\n' +
+'\n' +
+'THE REFERENCE ARCHITECTURE ENTERPRISES ADOPT FOR SUCCESS.\n' +
+'\n' +
+'LangChain’s suite of products can be used independently or stacked together for multiplicative impact – guiding you through\n' +
+'building, running, and managing your LLM apps.\n' +
+'\n' +
+'[https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/6695b116b0b60c78fd4ef462_15.07.24%20-Updated%20stack%20diagram%20-%20lightfor%20website-3.webp][https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/667d392696fc0bc3e17a6d04_New%20LC%20stack%20-%20light-2.webp]\n' +
+'15M+\n' +
+'Monthly Downloads\n' +
+'100K+\n' +
+'Apps Powered\n' +
+'75K+\n' +
+'GitHub Stars\n' +
+'3K+\n' +
+'Contributors\n' +
+'\n' +
+'\n' +
+'THE BIGGEST DEVELOPER COMMUNITY IN GENAI\n' +
+'\n' +
+'

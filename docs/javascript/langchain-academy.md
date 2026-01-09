@@ -1,0 +1,5 @@
+---
+title: LangChain 学院
+url: 'https://academy.langchain.com/'
+---
+

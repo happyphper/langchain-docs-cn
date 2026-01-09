@@ -1,0 +1,439 @@
+---
+title: 自定义中间件
+---
+通过实现钩子（hooks）在智能体执行流程的特定节点运行，来构建自定义中间件。
+
+## 钩子
+
+中间件提供了两种风格的钩子来拦截智能体执行：
+
+<CardGroup :cols="2">
+
+<Card title="节点式钩子" icon="share-nodes" href="#node-style-hooks">
+
+在特定的执行节点顺序运行。
+
+</Card>
+
+<Card title="包装式钩子" icon="container-storage" href="#wrap-style-hooks">
+
+围绕每个模型或工具调用运行。
+
+</Card>
+
+</CardGroup>
+
+### 节点式钩子
+
+在特定的执行节点顺序运行。用于日志记录、验证和状态更新。
+
+**可用钩子：**
+
+- `before_agent` - 在智能体启动前（每次调用一次）
+- `before_model` - 在每次模型调用前
+- `after_model` - 在每次模型响应后
+- `after_agent` - 在智能体完成后（每次调用一次）
+
+**示例：**
+
+<Tabs>
+
+<Tab title="装饰器">
+
+```python
+from langchain.agents.middleware import before_model, after_model, AgentState
+from langchain.messages import AIMessage
+from langgraph.runtime import Runtime
+from typing import Any
+
+@before_model(can_jump_to=["end"])
+def check_message_limit(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+    if len(state["messages"]) >= 50:
+        return {
+            "messages": [AIMessage("Conversation limit reached.")],
+            "jump_to": "end"
+        }
+    return None
+
+@after_model
+def log_response(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+    print(f"Model returned: {state['messages'][-1].content}")
+    return None
+```
+
+</Tab>
+
+<Tab title="类">
+
+```python
+from langchain.agents.middleware import AgentMiddleware, AgentState, hook_config
+from langchain.messages import AIMessage
+from langgraph.runtime import Runtime
+from typing import Any
+
+class MessageLimitMiddleware(AgentMiddleware):
+    def __init__(self, max_messages: int = 50):
+        super().__init__()
+        self.max_messages = max_messages
+
+    @hook_config(can_jump_to=["end"])
+    def before_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+        if len(state["messages"]) == self.max_messages:
+            return {
+                "messages": [AIMessage("Conversation limit reached.")],
+                "jump_to": "end"
+            }
+        return None
+
+    def after_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+        print(f"Model returned: {state['messages'][-1].content}")
+        return None
+```
+
+</Tab>
+
+</Tabs>
+
+### 包装式钩子
+
+拦截执行并控制何时调用处理器。用于重试、缓存和转换。
+
+你可以决定处理器被调用零次（短路）、一次（正常流程）或多次（重试逻辑）。
+
+**可用钩子：**
+
+- `wrap_model_call` - 围绕每次模型调用
+- `wrap_tool_call` - 围绕每次工具调用
+
+**示例：**
+
+<Tabs>
+
+<Tab title="装饰器">
+
+```python
+from langchain.agents.middleware import wrap_model_call, ModelRequest, ModelResponse
+from typing import Callable
+
+@wrap_model_call
+def retry_model(
+    request: ModelRequest,
+    handler: Callable[[ModelRequest], ModelResponse],
+) -> ModelResponse:
+    for attempt in range(3):
+        try:
+            return handler(request)
+        except Exception as e:
+            if attempt == 2:
+                raise
+            print(f"Retry {attempt + 1}/3 after error: {e}")
+```
+
+</Tab>
+
+<Tab title="类">
+
+```python
+from langchain.agents.middleware import AgentMiddleware, ModelRequest, ModelResponse
+from typing import Callable
+
+class RetryMiddleware(AgentMiddleware):
+    def __init__(self, max_retries: int = 3):
+        super().__init__()
+        self.max_retries = max_retries
+
+    def wrap_model_call(
+        self,
+        request: ModelRequest,
+        handler: Callable[[ModelRequest], ModelResponse],
+    ) -> ModelResponse:
+        for attempt in range(self.max_retries):
+            try:
+                return handler(request)
+            except Exception as e:
+                if attempt == self.max_retries - 1:
+                    raise
+                print(f"Retry {attempt + 1}/{self.max_retries} after error: {e}")
+```
+
+</Tab>
+
+</Tabs>
+
+## 创建中间件
+
+你可以通过两种方式创建中间件：
+
+<CardGroup :cols="2">
+
+<Card title="基于装饰器的中间件" icon="at" href="#decorator-based-middleware">
+
+对于单钩子中间件，快速且简单。使用装饰器包装单个函数。
+
+</Card>
+
+<Card title="基于类的中间件" icon="brackets-curly" href="#class-based-middleware">
+
+对于具有多个钩子或配置的复杂中间件，功能更强大。
+
+</Card>
+
+</CardGroup>
+
+### 基于装饰器的中间件
+
+对于单钩子中间件，快速且简单。使用装饰器包装单个函数。
+
+**可用装饰器：**
+
+**节点式：**
+- <a href="https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.before_agent" target="_blank" rel="noreferrer" class="link"><code>@before_agent</code></a> - 在智能体启动前运行（每次调用一次）
+- <a href="https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.before_model" target="_blank" rel="noreferrer" class="link"><code>@before_model</code></a> - 在每次模型调用前运行
+- <a href="https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.after_model" target="_blank" rel="noreferrer" class="link"><code>@after_model</code></a> - 在每次模型响应后运行
+- <a href="https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.after_agent" target="_blank" rel="noreferrer" class="link"><code>@after_agent</code></a> - 在智能体完成后运行（每次调用一次）
+
+**包装式：**
+- <a href="https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.wrap_model_call" target="_blank" rel="noreferrer" class="link"><code>@wrap_model_call</code></a> - 用自定义逻辑包装每次模型调用
+- <a href="https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.wrap_tool_call" target="_blank" rel="noreferrer" class="link"><code>@wrap_tool_call</code></a> - 用自定义逻辑包装每次工具调用
+
+**便捷功能：**
+- <a href="https://reference.langchain.com/python/langchain/middleware/#langchain.agents.middleware.dynamic_prompt" target="_blank" rel="noreferrer" class="link"><code>@dynamic_prompt</code></a> - 生成动态系统提示词
+
+**示例：**
+
+```python
+from langchain.agents.middleware import (
+    before_model,
+    wrap_model_call,
+    AgentState,
+    ModelRequest,
+    ModelResponse,
+)
+from langchain.agents import create_agent
+from langgraph.runtime import Runtime
+from typing import Any, Callable
+
+@before_model
+def log_before_model(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+    print(f"About to call model with {len(state['messages'])} messages")
+    return None
+
+@wrap_model_call
+def retry_model(
+    request: ModelRequest,
+    handler: Callable[[ModelRequest], ModelResponse],
+) -> ModelResponse:
+    for attempt in range(3):
+        try:
+            return handler(request)
+        except Exception as e:
+            if attempt == 2:
+                raise
+            print(f"Retry {attempt + 1}/3 after error: {e}")
+
+agent = create_agent(
+    model="gpt-4o",
+    middleware=[log_before_model, retry_model],
+    tools=[...],
+)
+```
+
+**何时使用装饰器：**
+- 需要单个钩子
+- 没有复杂配置
+- 快速原型设计
+
+### 基于类的中间件
+
+对于具有多个钩子或配置的复杂中间件，功能更强大。当你需要为同一个钩子定义同步和异步实现，或者想在单个中间件中组合多个钩子时，请使用类。
+
+**示例：**
+
+```python
+from langchain.agents.middleware import (
+    AgentMiddleware,
+    AgentState,
+    ModelRequest,
+    ModelResponse,
+)
+from langgraph.runtime import Runtime
+from typing import Any, Callable
+
+class LoggingMiddleware(AgentMiddleware):
+    def before_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+        print(f"About to call model with {len(state['messages'])} messages")
+        return None
+
+    def after_model(self, state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+        print(f"Model returned: {state['messages'][-1].content}")
+        return None
+
+agent = create_agent(
+    model="gpt-4o",
+    middleware=[LoggingMiddleware()],
+    tools=[...],
+)
+```
+
+**何时使用类：**
+- 为同一个钩子定义同步和异步实现
+- 单个中间件中需要多个钩子
+- 需要复杂配置（例如，可配置的阈值、自定义模型）
+- 通过初始化时配置在项目间复用
+
+## 自定义状态模式
+
+中间件可以使用自定义属性扩展智能体的状态。这使得中间件能够：
+
+- **跨执行跟踪状态**：维护在整个智能体执行生命周期中持续存在的计数器、标志或其他值
+- **在钩子间共享数据**：将信息从 `before_model` 传递到 `after_model`，或在不同的中间件实例之间传递
+
+- **实现横切关注点**：添加如速率限制、使用情况跟踪、用户上下文或审计日志等功能，而无需修改核心智能体逻辑
+- **做出条件决策**：使用累积的状态来决定是否继续执行、跳转到不同节点或动态修改行为
+
+<Tabs>
+
+<Tab title="装饰器">
+
+```python
+from langchain.agents import create_agent
+from langchain.messages import HumanMessage
+from langchain.agents.middleware import AgentState, before_model, after_model
+from typing_extensions import NotRequired
+from typing import Any
+from langgraph.runtime import Runtime
+
+class CustomState(AgentState):
+    model_call_count: NotRequired[int]
+    user_id: NotRequired[str]
+
+@before_model(state_schema=CustomState, can_jump_to=["end"])
+def check_call_limit(state: CustomState, runtime: Runtime) -> dict[str, Any] | None:
+    count = state.get("model_call_count", 0)
+    if count > 10:
+        return {"jump_to": "end"}
+    return None
+
+@after_model(state_schema=CustomState)
+def increment_counter(state: CustomState, runtime: Runtime) -> dict[str, Any] | None:
+    return {"model_call_count": state.get("model_call_count", 0) + 1}
+
+agent = create_agent(
+    model="gpt-4o",
+    middleware=[check_call_limit, increment_counter],
+    tools=[],
+)
+
+# 使用自定义状态调用
+result = agent.invoke({
+    "messages": [HumanMessage("Hello")],
+    "model_call_count": 0,
+    "user_id": "user-123",
+})
+```
+
+</Tab>
+
+<Tab title="类">
+
+```python
+from langchain.agents import create_agent
+from langchain.messages import HumanMessage
+from langchain.agents.middleware import AgentState, AgentMiddleware
+from typing_extensions import NotRequired
+from typing import Any
+
+class CustomState(AgentState):
+    model_call_count: NotRequired[int]
+    user_id: NotRequired[str]
+
+class CallCounterMiddleware(AgentMiddleware[CustomState]):
+    state_schema = CustomState
+
+    def before_model(self, state: CustomState, runtime) -> dict[str, Any] | None:
+        count = state.get("model_call_count", 0)
+        if count > 10:
+            return {"jump_to": "end"}
+        return None
+
+    def after_model(self, state: CustomState, runtime) -> dict[str, Any] | None:
+        return {"model_call_count": state.get("model_call_count", 0) + 1}
+
+agent = create_agent(
+    model="gpt-4o",
+    middleware=[CallCounterMiddleware()],
+    tools=[],
+)
+
+# 使用自定义状态调用
+result = agent.invoke({
+    "messages": [HumanMessage("Hello")],
+    "model_call_count": 0,
+    "user_id": "user-123",
+})
+```
+
+</Tab>
+
+</Tabs>
+
+:::js
+## 自定义上下文
+
+中间件可以定义自定义上下文模式来访问每次调用的元数据。与状态不同，上下文是只读的，不会在调用之间持久化。这使其非常适合：
+
+- **用户信息**：传递在执行期间不会改变的用户 ID、角色或偏好设置
+- **配置覆盖**：提供每次调用的设置，如速率限制或功能标志
+- **租户/工作空间上下文**：为多租户应用程序包含组织特定的数据
+- **请求元数据**：传递中间件所需的请求 ID、API 密钥或其他元数据
+
+使用 Zod 定义上下文模式，并通过中间件钩子中的 `runtime.context` 访问它。上下文模式中的必填字段将在 TypeScript 级别强制执行，确保在调用 `agent.invoke()` 时必须提供它们。
+
+```typescript
+import { createAgent, createMiddleware, HumanMessage } from "langchain";
+import * as z from "zod";
+
+const contextSchema = z.object({
+  userId: z.string(),
+  tenantId: z.string(),
+  apiKey: z.string().optional(),
+});
+
+const userContextMiddleware = createMiddleware({
+  name: "UserContextMiddleware",
+  contextSchema,
+  wrapModelCall: (request, handler) => {
+    // 从运行时访问上下文
+    const { userId, tenantId } = request.runtime.context;
+
+    // 将用户上下文添加到系统消息
+    const contextText = `User ID: ${userId}, Tenant: ${tenantId}`;
+    const newSystemMessage = request.systemMessage.concat(contextText);
+
+    return handler({
+      ...request,
+      systemMessage: newSystemMessage,
+    });
+  },
+});
+
+const agent = createAgent({
+  model: "gpt-4o",
+  middleware: [userContextMiddleware],
+  tools: [],
+  contextSchema,
+});
+
+const result = await agent.invoke(
+  { messages: [new HumanMessage("Hello")] },
+  // 必须提供必填字段 (userId, tenantId)
+  {
+    context: {
+      userId: "user-123",
+      tenantId: "acme-corp",
+    },
+  }
+);
+```
+
+**必填上下文字段

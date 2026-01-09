@@ -1,0 +1,71 @@
+---
+title: 瓦尔瑟拉
+---
+> [Valthera](https://github.com/valthera/valthera) 是一个开源框架，它赋能 LLM 智能体（Agent）来驱动有意义、具备上下文感知能力的用户互动。它能实时评估用户的动机（motivation）和能力（ability），确保仅在用户最愿意接受时触发通知和行动。
+>
+> **langchain-valthera** 将 Valthera 与 LangChain 集成，使开发者能够构建更智能、由行为驱动的互动系统，从而提供个性化的交互体验。
+
+## 安装与设置
+
+### 安装 langchain-valthera
+
+通过 pip 安装 LangChain Valthera 包：
+
+::: code-group
+
+```bash [pip]
+pip install -U langchain-valthera
+```
+
+```bash [uv]
+uv add langchain-valthera
+```
+
+:::
+
+导入 ValtheraTool：
+
+```python
+from langchain_valthera.tools import ValtheraTool
+```
+
+### 示例：为 LangChain 初始化 ValtheraTool
+
+此示例展示了如何使用 `DataAggregator` 以及动机和能力评分配置来初始化 ValtheraTool。
+
+```python
+import os
+from langchain_openai import ChatOpenAI
+from valthera.aggregator import DataAggregator
+from mocks import hubspot, posthog, snowflake  # 请用你实际的数据连接器实现替换这些模拟对象
+from langchain_valthera.tools import ValtheraTool
+
+# 使用你的数据连接器初始化 DataAggregator
+data_aggregator = DataAggregator(
+    connectors={
+        "hubspot": hubspot(),
+        "posthog": posthog(),
+        "app_db": snowflake()
+    }
+)
+
+# 使用你的评分配置初始化 ValtheraTool
+valthera_tool = ValtheraTool(
+    data_aggregator=data_aggregator,
+    motivation_config=[
+        {"key": "hubspot_lead_score", "weight": 0.30, "transform": lambda x: min(x, 100) / 100.0},
+        {"key": "posthog_events_count_past_30days", "weight": 0.30, "transform": lambda x: min(x, 50) / 50.0},
+        {"key": "hubspot_marketing_emails_opened", "weight": 0.20, "transform": lambda x: min(x / 10.0, 1.0)},
+        {"key": "posthog_session_count", "weight": 0.20, "transform": lambda x: min(x / 5.0, 1.0)}
+    ],
+    ability_config=[
+        {"key": "posthog_onboarding_steps_completed", "weight": 0.30, "transform": lambda x: min(x / 5.0, 1.0)},
+        {"key": "posthog_session_count", "weight": 0.30, "transform": lambda x: min(x / 10.0, 1.0)},
+        {"key": "behavior_complexity", "weight": 0.40, "transform": lambda x: 1 - (min(x, 5) / 5.0)}
+    ]
+)
+
+print("✅ ValtheraTool successfully initialized for LangChain integration!")
+```
+
+langchain-valthera 集成允许你评估用户行为，并决定最佳的互动策略，确保在你的 LangChain 应用程序中，交互既是及时的，也是相关的。

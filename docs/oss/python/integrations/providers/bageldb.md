@@ -1,0 +1,27 @@
+---
+title: BagelDB
+---
+> [BagelDB](https://www.bageldb.ai/) (`Open Vector Database for AI`)，就像是 AI 数据的 GitHub。
+它是一个协作平台，用户可以在其中创建、共享和管理向量数据集。它可以支持独立开发者的私有项目、企业的内部协作以及数据 DAO 的公共贡献。
+
+## 安装与设置
+
+::: code-group
+
+```bash [pip]
+pip install betabageldb
+```
+
+```bash [uv]
+uv add betabageldb
+```
+
+:::
+
+## VectorStore
+
+查看[使用示例](/oss/integrations/vectorstores/bageldb)。
+
+```python
+from langchain_community.vectorstores import Bagel
+```

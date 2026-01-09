@@ -1,0 +1,80 @@
+---
+title: LangSmith 部署
+sidebarTitle: Overview
+mode: wide
+---
+
+<Callout icon="rocket" color="#4F46E5" iconType="regular">
+
+<strong>如果你是构建或运营智能体（agent）应用程序的开发者，请从这里开始。</strong> 本节内容是关于部署<strong>你的应用程序</strong>。如果你需要设置 LangSmith 基础设施，[平台设置部分](/langsmith/platform-setup)涵盖了基础设施选项（云、混合、自托管）以及混合和自托管部署的设置指南。
+
+</Callout>
+
+本节介绍如何将你的*智能体*和应用程序打包、构建并部署为 [Agent Server](/langsmith/agent-server)。
+
+典型的部署工作流程包含以下步骤：
+
+<Steps>
+
+<Step >
+<template v-slot:title><a href="/langsmith/local-server">本地测试</a></template>
+在本地服务器上运行你的应用程序。
+
+</Step>
+
+<Step >
+<template v-slot:title><a href="/langsmith/application-structure">配置应用以进行部署</a></template>
+设置依赖项、项目结构和环境配置。
+
+</Step>
+
+<Step >
+<template v-slot:title><a href="/langsmith/platform-setup">选择托管方式</a></template>
+（部署必需）选择云、混合或自托管。
+
+</Step>
+
+<Step title="部署你的应用">
+
+- [<strong>云部署</strong>](/langsmith/deploy-to-cloud): 从 git 仓库推送代码
+- [<strong>使用控制平面的混合或自托管部署</strong>](/langsmith/deploy-with-control-plane): 构建并推送 Docker 镜像，通过 UI 部署
+- [<strong>独立服务器部署</strong>](/langsmith/deploy-standalone-server): 无需控制平面，直接部署
+
+</Step>
+
+<Step >
+<template v-slot:title><a href="/langsmith/observability">监控与管理</a></template>
+追踪轨迹、警报和仪表板。
+
+</Step>
+
+</Steps>
+
+## 你将学到什么
+
+- 为部署[配置你的应用](/langsmith/application-structure)（依赖项、[项目设置](/langsmith/setup-app-requirements-txt)和[单体仓库支持](/langsmith/monorepo-support)）。
+- 构建、部署和更新 [Agent Server](/langsmith/agent-server)。
+- 通过[身份验证和访问控制](/langsmith/auth)保护你的部署。
+- 自定义服务器运行时（[生命周期钩子](/langsmith/custom-lifespan)、[中间件](/langsmith/custom-middleware)和[路由](/langsmith/custom-routes)）。
+- 使用 [Studio UI](/langsmith/studio) 调试、观察和排查已部署智能体的问题。
+
+<Columns :cols="1">
+
+<Card
+title="开始部署"
+icon="robot"
+href="/langsmith/application-structure"
+cta="配置你的应用"
+>
+
+将你的智能体和图（graphs）打包、构建并部署到 Agent Server。
+
+</Card>
+
+</Columns>
+
+### 相关链接
+
+- [Agent Server](/langsmith/agent-server)
+- [应用程序结构](/langsmith/application-structure)
+- [本地服务器测试](/langsmith/local-server)

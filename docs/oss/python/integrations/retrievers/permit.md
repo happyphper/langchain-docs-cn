@@ -1,0 +1,203 @@
+---
+title: 许可
+---
+Permit 是一个访问控制平台，通过 RBAC、ABAC 和 ReBAC 等多种模型提供细粒度的实时权限管理。它使组织能够在应用程序中执行动态策略，确保只有授权用户才能访问特定资源。
+
+### 集成详情
+
+本笔记本展示了如何将 [Permit.io](https://permit.io/) 的权限集成到 LangChain 检索器中。
+
+我们提供了两种自定义检索器：
+
+- **PermitSelfQueryRetriever** – 使用自查询方法解析用户的自然语言提示，从 Permit 获取用户被允许访问的资源 ID，并在向量存储搜索中自动应用该过滤器。
+
+- **PermitEnsembleRetriever** – 通过 LangChain 的 EnsembleRetriever 组合多个底层检索器（例如 BM25 + 向量检索），然后使用 Permit.io 过滤合并后的结果。
+
+## 设置
+
+使用以下命令安装包：
+
+```bash
+pip install langchain-permit
+```
+
+如果您希望从单个查询中获得自动化追踪，也可以通过取消注释以下代码来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
+```
+
+### 安装
+
+```bash
+pip install langchain-permit
+```
+
+#### 环境变量
+
+```bash
+PERMIT_API_KEY=your_api_key
+PERMIT_PDP_URL= # 或您的实际部署地址
+OPENAI_API_KEY=sk-...
+```
+
+- 一个正在运行的 Permit PDP。有关设置策略和容器的详细信息，请参阅 [Permit 文档](https://docs.permit.io/)。
+- 一个我们可以包装的向量存储或多个检索器。
+
+```python
+pip install -qU langchain-permit
+```
+
+## 实例化
+
+### PermitSelfQueryRetriever
+
+#### 基本说明
+
+1.  从 Permit 检索允许访问的文档 ID。
+2.  使用 LLM 解析您的查询并构建一个“结构化过滤器”，确保只考虑具有这些允许 ID 的文档。
+
+#### 基本用法
+
+```python
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_permit.retrievers import PermitSelfQueryRetriever
+
+# 步骤 1: 创建/加载一些文档并构建向量存储
+docs = [...]
+embeddings = OpenAIEmbeddings()
+vectorstore = FAISS.from_documents(docs, embeddings)
+
+# 步骤 2: 初始化检索器
+retriever = PermitSelfQueryRetriever(
+    api_key="...",
+    pdp_url="...",
+    user={"key": "user-123"},
+    resource_type="document",
+    action="read",
+    llm=...,                # 通常是 ChatOpenAI 或其他 LLM
+    vectorstore=vectorstore,
+    enable_limit=True,      # 可选
+)
+
+# 步骤 3: 查询
+query = "Give me docs about cats"
+results = retriever.get_relevant_documents(query)
+for doc in results:
+    print(doc.metadata.get("id"), doc.page_content)
+```
+
+### PermitEnsembleRetriever
+
+#### 基本说明
+
+1.  使用 LangChain 的 EnsembleRetriever 从多个子检索器（例如，基于向量的、BM25 等）收集文档。
+2.  检索文档后，它会在 Permit 上调用 `filter_objects` 以消除用户无权查看的任何文档。
+
+#### 基本用法
+
+```python
+from langchain_community.retrievers import BM25Retriever
+from langchain_core.documents import Document
+from langchain_permit.retrievers import PermitEnsembleRetriever
+
+# 假设我们有两个子检索器：bm25_retriever, vector_retriever
+...
+ensemble_retriever = PermitEnsembleRetriever(
+    api_key="...",
+    pdp_url="...",
+    user="user_abc",
+    action="read",
+    resource_type="document",
+    retrievers=[bm25_retriever, vector_retriever],
+    weights=None
+)
+
+docs = ensemble_retriever.get_relevant_documents("Query about cats")
+for doc in docs:
+    print(doc.metadata.get("id"), doc.page_content)
+```
+
+### 演示脚本
+
+有关更完整的演示，请查看 `/langchain_permit/examples/demo_scripts` 文件夹：
+
+1.  `demo_self_query.py` – 演示 PermitSelfQueryRetriever。
+2.  `demo_ensemble.py` – 演示 PermitEnsembleRetriever。
+
+每个脚本都展示了如何构建或加载文档、配置 Permit 以及运行查询。
+
+### 结论
+
+通过这些自定义检索器，您可以将 Permit.io 的权限检查无缝集成到 LangChain 的检索工作流中。您可以保留应用程序的向量搜索逻辑，同时确保只返回授权的文档。
+
+有关设置 Permit 策略的更多详细信息，请参阅官方 Permit 文档。如果您想将这些与其他工具（如 JWT 验证或更广泛的 RAG 管道）结合使用，请查看示例文件夹中的 `docs/tools.ipynb`。
+
+```python
+from langchain_permit import PermitRetriever
+
+retriever = PermitRetriever(
+    # ...
+)
+```
+
+## 用法
+
+```python
+query = "..."
+
+retriever.invoke(query)
+```
+
+## 在链中使用
+
+与其他检索器一样，PermitRetriever 可以通过[链](https://docs.permit.io/)集成到 LLM 应用程序中。
+
+我们需要一个 LLM 或聊天模型：
+
+<ChatModelTabs customVarName="llm" />
+
+```python
+# | output: false
+# | echo: false
+
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0)
+```
+
+```python
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+
+prompt = ChatPromptTemplate.from_template(
+    """请仅根据提供的上下文回答问题。
+
+上下文：{context}
+
+问题：{question}"""
+)
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | StrOutputParser()
+)
+```
+
+```python
+chain.invoke("...")
+```
+
+---
+
+## API 参考
+
+有关 PermitRetriever 所有功能和配置的详细文档，请前往[代码仓库](https://github.com/permitio/langchain-permit/tree/master/langchain_permit/examples/demo_scripts)。

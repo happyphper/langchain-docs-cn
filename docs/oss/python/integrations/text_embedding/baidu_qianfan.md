@@ -1,0 +1,39 @@
+---
+title: 百度千帆
+---
+`BaiduQianfanEmbeddings` 类使用百度千帆 API 为给定文本生成嵌入向量。
+
+## 环境设置
+
+使用此嵌入模型需要 API 密钥。您可以通过在 https://cloud.baidu.com/doc/WENXINWORKSHOP/s/alj562vvu 注册来获取。
+
+请将获取到的 API 密钥设置为名为 `BAIDU_API_KEY` 的环境变量，并将您的密钥设置为名为 `BAIDU_SECRET_KEY` 的环境变量。
+
+然后，您需要安装 [`@langchain/baidu-qianfan`](https://www.npmjs.com/package/@langchain/baidu-qianfan) 包：
+
+<Tip>
+
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+
+</Tip>
+
+```bash [npm]
+npm install @langchain/baidu-qianfan @langchain/core
+```
+
+## 使用方法
+
+```typescript
+import { BaiduQianfanEmbeddings } from "@langchain/baidu-qianfan";
+
+const embeddings = new BaiduQianfanEmbeddings();
+const res = await embeddings.embedQuery(
+  "What would be a good company name a company that makes colorful socks?"
+);
+console.log({ res });
+```
+
+## 相关链接
+
+- 嵌入模型[概念指南](/oss/integrations/text_embedding)
+- 嵌入模型[操作指南](/oss/integrations/text_embedding)

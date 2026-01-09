@@ -1,0 +1,30 @@
+---
+title: Embedchain
+---
+> [Embedchain](https://github.com/embedchain/embedchain) 是一个用于创建数据管道的 RAG 框架。它负责加载、索引、检索和同步所有数据。
+>
+> 它提供 [开源包](https://github.com/embedchain/embedchain) 和 [托管平台解决方案](https://app.embedchain.ai/) 两种形式。
+
+## 安装与设置
+
+使用 pip 安装该包：
+
+::: code-group
+
+```bash [pip]
+pip install embedchain
+```
+
+```bash [uv]
+uv add embedchain
+```
+
+:::
+
+## 检索器
+
+查看 [使用示例](/oss/integrations/retrievers/embedchain)。
+
+```python
+from langchain_community.retrievers import EmbedchainRetriever
+```

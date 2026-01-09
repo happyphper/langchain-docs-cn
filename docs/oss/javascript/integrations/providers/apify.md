@@ -1,0 +1,60 @@
+---
+title: Apify
+---
+>[Apify](https://apify.com) 是一个用于网络爬虫和数据提取的云平台，
+>它提供了一个包含一千多个现成应用（称为 *Actors*）的[生态系统](https://apify.com/store)，
+>适用于各种爬取、抓取和提取用例。
+
+此集成使您能够在 `Apify` 平台上运行 Actors，并将其结果加载到 LangChain 中，从而为您的向量索引提供来自网络的文档和数据，例如，从包含文档、博客或知识库的网站生成答案。
+
+## 安装与设置
+
+- 使用以下命令安装 Python 的 LangChain Apify 包：
+
+::: code-group
+
+```bash [pip]
+pip install langchain-apify
+```
+
+```bash [uv]
+uv add langchain-apify
+```
+
+:::
+
+- 获取您的 [Apify API 令牌](https://console.apify.com/account/integrations)，并将其设置为环境变量（`APIFY_API_TOKEN`）或在构造函数中作为 `apify_api_token` 传递。
+
+## 工具
+
+您可以使用 `ApifyActorsTool` 在智能体（agent）中使用 Apify Actors。
+
+```python
+from langchain_apify import ApifyActorsTool
+```
+
+有关使用示例以及一个在 [Apify LangGraph 智能体 Actor 模板](https://apify.com/templates/python-langgraph) 中使用 LangGraph 的工具调用智能体的完整示例，请参阅 [此笔记本](/oss/integrations/tools/apify_actors)。
+
+有关如何使用此工具的更多信息，请访问 [Apify 集成文档](https://docs.apify.com/platform/integrations/langgraph)。
+
+## 包装器
+
+您可以使用 `ApifyWrapper` 在 Apify 平台上运行 Actors。
+
+```python
+from langchain_apify import ApifyWrapper
+```
+
+有关如何使用此包装器的更多信息，请参阅 [Apify 集成文档](https://docs.apify.com/platform/integrations/langchain)。
+
+## 文档加载器
+
+您还可以使用我们的 `ApifyDatasetLoader` 从 Apify 数据集获取数据。
+
+```python
+from langchain_apify import ApifyDatasetLoader
+```
+
+有关此加载器的更详细演练，请参阅 [此笔记本](/oss/integrations/document_loaders/apify_dataset)。
+
+此集成的源代码可在 [LangChain Apify 仓库](https://github.com/apify/langchain-apify) 中找到。

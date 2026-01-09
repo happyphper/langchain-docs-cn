@@ -1,0 +1,40 @@
+---
+title: VoyageAI
+---
+所有与 VoyageAI 相关的功能
+
+>[VoyageAI](https://www.voyageai.com/) Voyage AI 构建嵌入模型，可根据您的领域和公司进行定制，以获得更好的检索质量。
+
+## 安装与设置
+
+通过以下方式安装集成包：
+
+::: code-group
+
+```bash [pip]
+pip install langchain-voyageai
+```
+
+```bash [uv]
+uv add langchain-voyageai
+```
+
+:::
+
+获取 VoyageAI API 密钥并将其设置为环境变量 (`VOYAGE_API_KEY`)
+
+## 文本嵌入模型
+
+查看[使用示例](/oss/integrations/text_embedding/voyageai)
+
+```python
+from langchain_voyageai import VoyageAIEmbeddings
+```
+
+## 重排序
+
+查看[使用示例](/oss/integrations/document_transformers/voyageai-reranker)
+
+```python
+from langchain_voyageai import VoyageAIRerank
+```

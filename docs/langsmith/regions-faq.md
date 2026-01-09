@@ -1,0 +1,72 @@
+---
+title: 区域常见问题解答
+sidebarTitle: Regions FAQ
+---
+
+<Note>
+
+更多详情请参阅[云架构参考](/langsmith/cloud#architecture)。
+
+</Note>
+
+## 法律与合规
+
+#### *LangSmith（包括其欧盟实例）遵守哪些隐私和数据保护框架？*
+
+LangSmith 遵守《通用数据保护条例》（GDPR）以及其他适用于 LangSmith 服务的法律法规。我们还通过了 SOC 2 Type 2 认证，并符合 HIPAA 要求。您可以在 [trust.langchain.com](https://trust.langchain.com) 请求获取有关我们安全政策和态势的更多信息。如果您希望与我们签署《数据处理附录》（DPA），请通过 [support.langchain.com](https://support.langchain.com) 联系支持团队。请注意，我们仅与企业版计划的客户签订《业务伙伴协议》（BAA）。
+
+#### *我的公司不在欧盟，我仍然可以将数据托管在那里吗？*
+
+是的，无论您身在何处，都可以将 LangSmith 数据托管在欧盟实例中。
+
+#### *你们在欧盟有可供我们签约的法律实体吗？*
+
+目前我们在欧盟没有用于客户签约的法律实体。
+
+#### *如果我选择欧盟区域，适用的法律条款是否不同？*
+
+欧盟和美国区域适用的条款是相同的。
+
+## 功能特性
+
+#### *如何使用欧盟实例？*
+
+请按照[此处的说明](/langsmith/create-account-api-key)创建账户和 API 密钥（请确保在下拉菜单中将区域更改为 EU）。
+
+#### *美国与欧盟云托管 LangSmith 之间存在任何功能差异吗？*
+
+根据功能的不同，各地区之间的发布可能存在微小延迟。除此之外，它们在功能上是等效的——美国支持的所有功能在欧盟也支持，反之亦然。
+
+#### *一个组织可以在不同区域拥有工作区吗？*
+
+LangSmith 目前不支持此功能，但如果您有兴趣，请通过 [support.langchain.com](https://support.langchain.com) 联系支持团队并分享您的使用案例。
+
+#### *我可以将欧盟组织连接到美国组织并共享账单吗？*
+
+LangSmith 目前不支持此功能，但如果您有兴趣，请通过 [support.langchain.com](https://support.langchain.com) 联系支持团队并分享您的使用案例。
+
+#### *哪些数据将存储在我选择的区域？*
+
+详情请参阅[云架构参考](/langsmith/cloud#architecture)。
+
+#### *如何查看我组织的区域？*
+
+检查您的 URL——任何位于 [https://eu.smith.langchain.com](https://eu.smith.langchain.com) 的组织都在欧盟，任何位于 [https://smith.langchain.com](https://smith.langchain.com) 的组织都在美国。
+
+#### *我可以将我的组织从美国切换到欧盟，或者反之吗？*
+
+我们目前不支持区域间的迁移，但如果您对此功能感兴趣，请通过 [support.langchain.com](https://support.langchain.com) 联系支持团队。
+
+## 计划与定价
+
+#### *欧盟区域是否适用于所有 LangSmith 计划？*
+
+是的，您可以在所有计划（包括免费计划）上注册欧盟区域。
+
+#### *欧盟区域的定价与美国区域相比有差异吗？*
+
+没有，欧盟和美国区域的定价是相同的。
+
+#### *如果我使用欧盟区域，支付使用什么货币？*
+
+所有 LangSmith 计划均以美元支付。

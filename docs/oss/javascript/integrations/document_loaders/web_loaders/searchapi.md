@@ -1,0 +1,82 @@
+---
+title: SearchApiLoader
+---
+本指南展示了如何将 SearchApi 与 LangChain 结合使用来加载网络搜索结果。
+
+## 概述
+
+[SearchApi](https://www.searchapi.io/) 是一个实时 API，允许开发者访问来自多种搜索引擎的结果，包括 [Google 搜索](https://www.searchapi.io/docs/google)、[Google 新闻](https://www.searchapi.io/docs/google-news)、[Google 学术](https://www.searchapi.io/docs/google-scholar)、[YouTube 字幕](https://www.searchapi.io/docs/youtube-transcripts) 或文档中能找到的任何其他引擎。该 API 使开发者和企业能够直接从所有这些搜索引擎的结果页面中抓取和提取有意义的数据，为不同的用例提供有价值的见解。
+
+本指南展示了如何在 LangChain 中使用 `SearchApiLoader` 来加载网络搜索结果。`SearchApiLoader` 简化了从 SearchApi 加载和处理网络搜索结果的过程。
+
+## 设置
+
+您需要注册并获取您的 [SearchApi API 密钥](https://www.searchapi.io/)。
+
+## 用法
+
+以下是如何使用 `SearchApiLoader` 的示例：
+
+```typescript
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
+import { TokenTextSplitter } from "@langchain/textsplitters";
+import { SearchApiLoader } from "@langchain/community/document_loaders/web/searchapi";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { createStuffDocumentsChain } from "@langchain/classic/chains/combine_documents";
+import { createRetrievalChain } from "@langchain/classic/chains/retrieval";
+
+// 初始化必要的组件
+const llm = new ChatOpenAI({
+  model: "gpt-3.5-turbo-1106",
+});
+const embeddings = new OpenAIEmbeddings();
+const apiKey = "Your SearchApi API key";
+
+// 定义您的问题和查询
+const question = "Your question here";
+const query = "Your query here";
+
+// 使用 SearchApiLoader 加载网络搜索结果
+const loader = new SearchApiLoader({ q: query, apiKey, engine: "google" });
+const docs = await loader.load();
+
+const textSplitter = new TokenTextSplitter({
+  chunkSize: 800,
+  chunkOverlap: 100,
+});
+
+const splitDocs = await textSplitter.splitDocuments(docs);
+
+// 使用 MemoryVectorStore 将加载的文档存储在内存中
+const vectorStore = await MemoryVectorStore.fromDocuments(
+  splitDocs,
+  embeddings
+);
+
+const questionAnsweringPrompt = ChatPromptTemplate.fromMessages([
+  [
+    "system",
+    "Answer the user's questions based on the below context:\n\n{context}",
+  ],
+  ["human", "{input}"],
+]);
+
+const combineDocsChain = await createStuffDocumentsChain({
+  llm,
+  prompt: questionAnsweringPrompt,
+});
+
+const chain = await createRetrievalChain({
+  retriever: vectorStore.asRetriever(),
+  combineDocsChain,
+});
+
+const res = await chain.invoke({
+  input: question,
+});
+
+console.log(res.answer);
+```
+
+在此示例中，`SearchApiLoader` 用于加载网络搜索结果，然后使用 `MemoryVectorStore` 将其存储在内存中。随后使用一个检索链（retrieval chain）从内存中检索最相关的文档，并基于这些文档回答问题。这展示了 `SearchApiLoader` 如何简化加载和处理网络搜索结果的过程。

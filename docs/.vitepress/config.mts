@@ -117,6 +117,36 @@ export default defineConfig({
         audienceType: 'Developers'
       }
     })],
+
+    // 百度统计
+    // 注册地址: https://tongji.baidu.com/
+    // 替换 'YOUR_BAIDU_ANALYTICS_ID' 为你的百度统计 ID
+    ['script', {}, `
+      var _hmt = _hmt || [];
+      (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?a31f1a99818e2ef5c3cba6423f14c8dc";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    `],
+
+    // Google Analytics 4
+    // 注册地址: https://analytics.google.com/
+    // 替换 'G-XXXXXXXXXX' 为你的 GA4 测量 ID
+    ['script', { async: true, src: 'https://www.googletagmanager.com/gtag/js?id=G-6QMTQVCRQZ' }],
+    ['script', {}, `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    `],
+
+    // 51.la 统计
+    // 注册地址: https://www.51.la/
+    // 替换统计代码
+    // ['script', { charset: 'UTF-8', id: 'LA_COLLECT', src: '//sdk.51.la/js-sdk-pro.min.js' }],
+    // ['script', {}, `LA.init({id:"YOUR_51LA_ID",ck:"YOUR_51LA_CK"})`],
   ],
 
   cleanUrls: true,

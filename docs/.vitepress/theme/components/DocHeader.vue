@@ -75,9 +75,8 @@ const copyRawContent = async () => {
 <template>
     <div class="page-header" v-if="!frontmatter.home && frontmatter.mode !== 'custom' && frontmatter.sidebar !== false">
         <div class="breadcrumb" v-if="category">{{ category }}</div>
-        <div class="header-content">
+        <div class="title-row">
             <h1 class="page-title">{{ page.title }}</h1>
-
             <div class="actions">
                 <button class="copy-button" @click="copyRawContent">
                     <font-awesome-icon :icon="['fas', 'copy']" class="icon" />
@@ -88,6 +87,7 @@ const copyRawContent = async () => {
                 </div>
             </div>
         </div>
+        <p class="page-description" v-if="frontmatter.description">{{ frontmatter.description }}</p>
     </div>
 </template>
 
@@ -103,11 +103,12 @@ const copyRawContent = async () => {
     font-weight: 500;
 }
 
-.header-content {
+.title-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
+    margin-bottom: 1rem;
 }
 
 .page-title {
@@ -120,6 +121,16 @@ const copyRawContent = async () => {
     letter-spacing: -0.02em !important;
 }
 
+.page-description {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--vp-c-text-1);
+    font-weight: 400;
+    width: 100%;
+}
+
 .actions {
     display: flex;
     align-items: center;
@@ -128,6 +139,7 @@ const copyRawContent = async () => {
     border-radius: 8px;
     overflow: hidden;
     height: 36px;
+    flex-shrink: 0;
 }
 
 .copy-button {
@@ -165,7 +177,7 @@ const copyRawContent = async () => {
 }
 
 @media (max-width: 768px) {
-    .header-content {
+    .title-row {
         flex-direction: column;
         align-items: flex-start;
     }

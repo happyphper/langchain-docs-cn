@@ -5,43 +5,68 @@ import { computed, ref } from 'vue'
 const { page, frontmatter, theme } = useData()
 const route = useRoute()
 
-// 计算分类（从侧边栏配置中获取所属的分组名称）
-const category = computed(() => {
-    if (frontmatter.value.category) return frontmatter.value.category
+interface BreadcrumbItem {
+    text: string
+    link?: string
+}
 
+// 计算面包屑路径
+const breadcrumbs = computed(() => {
     const sidebar = theme.value.sidebar
-    if (!sidebar) return null
+    if (!sidebar) return []
 
-    // 1. 寻找最匹配的侧边栏路径键
     const path = route.path
+    const currentPath = path.replace(/\.html$/, '')
+
+    // 1. 获取最匹配的侧边栏 Key
     const sidebarKeys = Object.keys(sidebar)
     const matchingKey = sidebarKeys
         .filter(key => path.startsWith(key))
         .sort((a, b) => b.length - a.length)[0]
 
-    if (!matchingKey) return null
+    if (!matchingKey) return []
 
-    const items = sidebar[matchingKey]
+    const sidebarItems = sidebar[matchingKey]
+    const results: BreadcrumbItem[] = []
 
-    // 2. 在该侧边栏中查找包含当前页面的分组
-    // 注意：VitePress 路径可能带 .html 或不带，这里做兼容处理
-    const currentPath = path.replace(/\.html$/, '')
-    const currentPathWithHtml = currentPath + '.html'
-
-    for (const group of items) {
-        if (group.items) {
-            const found = group.items.find(item =>
-                item.link === currentPath || item.link === currentPathWithHtml
-            )
-            if (found) {
-                // 如果分组标题与页面标题一致，通常说明不需要分类展示
-                if (group.text === page.value.title) return null
-                return group.text
-            }
-        }
+    // 获取模块大分类名和对应的主链接
+    const getModuleInfo = (key: string): BreadcrumbItem | null => {
+        if (key.includes('/langsmith/')) return { text: 'LangSmith', link: '/langsmith/home' }
+        if (key.includes('/oss/')) return { text: 'LangChain + LangGraph', link: '/oss/python/langchain/overview' }
+        return null
     }
 
-    return null
+    const moduleInfo = getModuleInfo(matchingKey)
+    if (moduleInfo) results.push(moduleInfo)
+
+    // 递归寻找当前路径的父级链条
+    function findPath(items: any[], targetPath: string, parentChain: BreadcrumbItem[] = []): BreadcrumbItem[] | null {
+        for (const item of items) {
+            const currentItem: BreadcrumbItem = {
+                text: item.text,
+                link: item.link || (item.items && item.items[0]?.link)
+            }
+
+            const newChain = [...parentChain, currentItem]
+
+            if (item.link === targetPath || item.link === (targetPath + '.html')) {
+                return parentChain
+            }
+
+            if (item.items) {
+                const found = findPath(item.items, targetPath, newChain)
+                if (found) return found
+            }
+        }
+        return null
+    }
+
+    const parentChain = findPath(sidebarItems, currentPath)
+    if (parentChain) {
+        results.push(...parentChain)
+    }
+
+    return results
 })
 
 // 复制原始 Markdown 内容逻辑
@@ -74,7 +99,13 @@ const copyRawContent = async () => {
 
 <template>
     <div class="page-header" v-if="!frontmatter.home && frontmatter.mode !== 'custom' && frontmatter.sidebar !== false">
-        <div class="breadcrumb" v-if="category">{{ category }}</div>
+        <div class="breadcrumb" v-if="breadcrumbs.length">
+            <template v-for="(item, index) in breadcrumbs" :key="index">
+                <a v-if="item.link" :href="item.link" class="breadcrumb-link">{{ item.text }}</a>
+                <span v-else class="breadcrumb-text">{{ item.text }}</span>
+                <span v-if="index < breadcrumbs.length - 1" class="breadcrumb-separator">></span>
+            </template>
+        </div>
         <div class="title-row">
             <h1 class="page-title">{{ page.title }}</h1>
             <div class="actions">
@@ -97,10 +128,35 @@ const copyRawContent = async () => {
 }
 
 .breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
     font-size: 0.875rem;
     color: var(--vp-c-text-2);
     margin-bottom: 0.5rem;
     font-weight: 500;
+}
+
+.breadcrumb-link {
+    color: var(--vp-c-text-2);
+    transition: color 0.2s;
+    text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+    color: var(--vp-c-brand);
+    text-decoration: underline;
+}
+
+.breadcrumb-text {
+    color: var(--vp-c-text-2);
+}
+
+.breadcrumb-separator {
+    color: var(--vp-c-text-3);
+    font-size: 0.75rem;
+    user-select: none;
 }
 
 .title-row {

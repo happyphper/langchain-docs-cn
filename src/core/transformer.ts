@@ -108,6 +108,12 @@ export class MdxTransformer {
         // 确保代码块间距
         transformedBody = CodeProcessor.ensureCodeBlockSpacing(transformedBody);
 
+        // 【超级修复】全局清洗图片和资源路径中的语言标识残留 (如 /oss/python/images -> /oss/images)
+        // 这一步作为最后兜底，处理所有在前面处理中可能遗漏的硬编码路径
+        transformedBody = transformedBody.replace(/\/(oss|langsmith)\/(python|javascript)\/images\//g, '/$1/images/');
+        // 兼容所有形式的路径（绝对路径或相对路径），只要包含语言前缀的 images 目录就精简
+        transformedBody = transformedBody.replace(/([\/])(python|javascript)\/images\//g, '$1images/');
+
         return matter.stringify(transformedBody, data);
     }
 }

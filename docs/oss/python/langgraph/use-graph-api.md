@@ -95,7 +95,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-![包含单个节点的简单图](/oss/python/images/graph_api_image_1.png)
+![包含单个节点的简单图](/oss/images/graph_api_image_1.png)
 
 在这种情况下，我们的图只执行单个节点。让我们继续一个简单的调用：
 
@@ -981,7 +981,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-![步骤序列图](/oss/python/images/graph_api_image_2.png)
+![步骤序列图](/oss/images/graph_api_image_2.png)
 
 让我们进行一个简单的调用：
 
@@ -1072,7 +1072,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-![并行执行图](/oss/python/images/graph_api_image_3.png)
+![并行执行图](/oss/images/graph_api_image_3.png)
 
 使用归约器，您可以看到每个节点中添加的值都被累积了。
 
@@ -1179,7 +1179,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-![延迟执行图](/oss/python/images/graph_api_image_4.png)
+![延迟执行图](/oss/images/graph_api_image_4.png)
 
 ```python
 graph.invoke({"aggregate": []})
@@ -1247,7 +1247,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-![条件分支图](/oss/python/images/graph_api_image_5.png)
+![条件分支图](/oss/images/graph_api_image_5.png)
 
 ```python
 result = graph.invoke({"aggregate": []})
@@ -1323,7 +1323,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-![带扇出的 Map-reduce 图](/oss/python/images/graph_api_image_6.png)
+![带扇出的 Map-reduce 图](/oss/images/graph_api_image_6.png)
 
 ```python
 # Call the graph: here we call it to generate a list of jokes
@@ -1427,7 +1427,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-![简单循环图](/oss/python/images/graph_api_image_7.png)
+![简单循环图](/oss/images/graph_api_image_7.png)
 
 这种架构类似于 [ReAct 智能体](/oss/python/langgraph/workflows-agents)，其中节点 `"a"` 是一个工具调用模型，节点 `"b"` 代表工具。
 
@@ -1584,7 +1584,7 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-![带分支的复杂循环图](/oss/python/images/graph_api_image_8.png)
+![带分支的复杂循环图](/oss/images/graph_api_image_8.png)
 
 这个图看起来很复杂，但可以概念化为 [超步](/oss/python/langgraph/graph-api#graphs) 的循环：
 
@@ -1753,7 +1753,7 @@ from IPython.display import display, Image
 display(Image(graph.get_graph().draw_mermaid_png()))
 ```
 
-![基于 Command 的图导航](/oss/python/images/graph_api_image_11.png)
+![基于 Command 的图导航](/oss/images/graph_api_image_11.png)
 
 如果我们多次运行该图，我们会看到它根据节点 A 中的随机选择采取不同的路径（A -> B 或 A -> C）。
 
@@ -1992,7 +1992,7 @@ from langchain_core.runnables.graph import CurveStyle, MermaidDrawMethod, NodeSt
 display(Image(app.get_graph().draw_mermaid_png()))
 ```
 
-![分形图可视化](/oss/python/images/graph_api_image_10.png)
+![分形图可视化](/oss/images/graph_api_image_10.png)
 
 **使用 Mermaid + Pyppeteer**
 

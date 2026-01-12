@@ -41,7 +41,17 @@ export class FileManager {
         });
 
         for (const imageFile of imageFiles) {
-            const relativeImagePath = path.relative(input, imageFile);
+            let relativeImagePath = path.relative(input, imageFile);
+
+            // 【核心修正】移除路径中的语言标识目录，统一存放
+            // 例如: oss/python/images/xxx.png -> oss/images/xxx.png
+            if (relativeImagePath.includes('images')) {
+                relativeImagePath = relativeImagePath.replace(
+                    new RegExp(`(python|javascript)\\${path.sep}images\\${path.sep}`, 'g'),
+                    `images${path.sep}`
+                );
+            }
+
             const destPath = path.join(publicDest, relativeImagePath);
             await fs.ensureDir(path.dirname(destPath));
             await fs.copy(imageFile, destPath, { overwrite: true });

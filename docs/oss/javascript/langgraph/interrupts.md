@@ -850,5 +850,5 @@ await graph.invoke(null, config);  // [!code highlight]
 
 您可以使用 [LangGraph Studio](/langsmith/studio) 在运行图之前在 UI 中设置静态中断。您还可以使用 UI 在执行过程中的任何点检查图的状态。
 
-![image](/oss/javascript/images/static-interrupt.png)
+![image](/oss/images/static-interrupt.png)
 

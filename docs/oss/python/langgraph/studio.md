@@ -131,7 +131,7 @@ Safari 浏览器会阻止到 Studio 的 `localhost` 连接。要解决此问题�
 
 <Frame>
 
-![Studio UI 中的智能体视图](/oss/python/images/studio_create-agent.png)
+![Studio UI 中的智能体视图](/oss/images/studio_create-agent.png)
 
 </Frame>
 

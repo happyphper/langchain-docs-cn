@@ -11,25 +11,30 @@ export class LinkProcessor {
 
         const resolvePath = (src: string) => {
             if (!src) return src;
-            if (src.startsWith('http') || src.startsWith('/') || src.startsWith('data:')) return src;
+            if (src.startsWith('http') || src.startsWith('data:')) return src;
+
+            let cleanSrc = src;
+
+            // 【核心修复】由于静态资源中移除了语言标识（如 /python/images -> /images），
+            // 这里也需要强制统一路径，移除 URL 中的 /python/ 或 /javascript/。
+            if (cleanSrc.includes('images/')) {
+                cleanSrc = cleanSrc.replace(/(python|javascript)\/images\//g, 'images/');
+            }
+
+            if (cleanSrc.startsWith('/')) {
+                return cleanSrc;
+            }
 
             // 处理相对路径
-            let cleanSrc = src;
             if (cleanSrc.startsWith('./')) {
                 cleanSrc = cleanSrc.substring(2);
             }
 
             // 如果有文件上下文，拼接成绝对路径
             if (fileDir) {
-                // 简单的路径拼接，不使用 path 模块以避免引入 Node.js 依赖（如果这是一个纯前端通用库的话，也就是为了保险）
-                // 处理 ../ 的情况比较复杂，这里暂时假设结构比较简单，或者直接拼接
-                // 但为了健壮性，我们可以处理简单的 ../
-                // 这里我们生成以 / 开头的绝对路径，指向 public 目录中的资源
-                return `/${fileDir}/${cleanSrc}`.replace(/\/+/g, '/'); // 替换多余的 //
+                return `/${fileDir}/${cleanSrc}`.replace(/\/+/g, '/');
             }
 
-            // 如果没有上下文，只能回退到之前的行为（或者就保持相对路径）
-            // 之前的行为是直接加 /，导致了 /./ 问题。现在至少去掉 ./
             return `/${cleanSrc}`;
         };
 

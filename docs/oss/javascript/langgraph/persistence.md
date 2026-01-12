@@ -3,7 +3,7 @@ title: 持久化
 ---
 LangGraph 内置了一个通过检查点器实现的持久化层。当你使用检查点器编译图时，检查点器会在每个超级步骤保存图状态的`检查点`。这些检查点被保存到一个`线程`中，可以在图执行后访问。因为`线程`允许在执行后访问图的状态，所以包括人在回路、记忆、时间旅行和容错在内的几个强大功能都成为可能。下面，我们将更详细地讨论这些概念。
 
-![检查点](/oss/javascript/images/checkpoints.jpg)
+![检查点](/oss/images/checkpoints.jpg)
 
 <Info>
 
@@ -301,7 +301,7 @@ for await (const state of graph.getStateHistory(config)) {
 ]
 ```
 
-![状态](/oss/javascript/images/get_state.jpg)
+![状态](/oss/images/get_state.jpg)
 
 ### 重放
 
@@ -324,7 +324,7 @@ await graph.invoke(null, config);
 
 重要的是，LangGraph 知道某个特定步骤是否之前已执行过。如果是，LangGraph 只是简单地_重放_图中的该特定步骤，并且不重新执行该步骤，但仅针对提供的 `checkpoint_id` _之前_的步骤。`checkpoint_id` _之后_的所有步骤都将被执行（即一个新的分支），即使它们之前已经执行过。请参阅此[关于时间旅行的操作指南以了解更多关于重放的信息](/oss/javascript/langgraph/use-time-travel)。
 
-![重放](/oss/javascript/images/re_play.png)
+![重放](/oss/images/re_play.png)
 
 ### 更新状态
 
@@ -379,11 +379,11 @@ await graph.updateState(config, { foo: 2, bar: ["b"] });
 
 调用 `updateState` 时可以可选指定的最后一件事是 `asNode`。如果你提供了它，更新将应用为好像来自节点 `asNode`。如果未提供 `asNode`，它将设置为最后更新状态的节点（如果不模糊）。这很重要的原因是，接下来要执行的步骤取决于最后给出更新的节点，因此这可以用来控制哪个节点接下来执行。请参阅此[关于时间旅行的操作指南以了解更多关于分支状态的信息](/oss/javascript/langgraph/use-time-travel)。
 
-![更新](/oss/javascript/images/checkpoints_full_story.jpg)
+![更新](/oss/images/checkpoints_full_story.jpg)
 
 ## 记忆存储
 
-![共享状态模型](/oss/javascript/images/shared_state.png)
+![共享状态模型](/oss/images/shared_state.png)
 
 [状态模式](/oss/javascript/langgraph/graph-api#schema)指定了一组在图执行时填充的键。如上所述，状态可以由检查点器在每个图步骤写入线程，从而实现状态持久化。
 

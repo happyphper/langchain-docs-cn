@@ -1055,7 +1055,7 @@ for event in app.stream(
 
 如上所示，修剪或删除消息的问题在于，您可能会因消息队列的删减而丢失信息。因此，一些应用程序受益于使用聊天模型总结消息历史记录的更复杂方法。
 
-![总结](/oss/python/images/summary.png)
+![总结](/oss/images/summary.png)
 
 可以使用提示和编排逻辑来总结消息历史记录。例如，在LangGraph中，您可以扩展[`MessagesState`](/oss/python/langgraph/graph-api#working-with-messages-in-graph-state)以包含`summary`键：
 

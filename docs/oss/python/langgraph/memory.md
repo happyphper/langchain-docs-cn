@@ -8,7 +8,7 @@ title: 内存概览
 *   **[短期记忆](#短期记忆)**，或称 **[线程](/oss/python/langgraph/persistence#threads)** 范围记忆，通过维护会话内的消息历史来跟踪正在进行的对话。LangGraph 将短期记忆作为智能体 **[状态](/oss/python/langgraph/graph-api#state)** 的一部分进行管理。状态通过 **[检查点](/oss/python/langgraph/persistence#checkpoints)** 持久化到数据库中，因此线程可以在任何时候恢复。短期记忆在图被调用或步骤完成时更新，并且在每个步骤开始时读取状态。
 *   **[长期记忆](#长期记忆)** 跨会话存储用户特定或应用级别的数据，并在对话线程之间共享。它可以在任何时间、任何线程中被回忆。记忆的作用域可以是任何自定义的命名空间，而不仅仅局限于单个线程 ID。LangGraph 提供了 **[存储](/oss/python/langgraph/persistence#memory-store)** ([参考文档](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.BaseStore)) 来让你保存和回忆长期记忆。
 
-![短期 vs 长期](/oss/python/images/short-vs-long.png)
+![短期 vs 长期](/oss/images/short-vs-long.png)
 
 ## 短期记忆
 
@@ -22,7 +22,7 @@ LangGraph 将短期记忆作为智能体状态的一部分进行管理，通过�
 
 聊天模型使用消息来接受上下文，这些消息包括开发者提供的指令（系统消息）和用户输入（人类消息）。在聊天应用中，消息在人类输入和模型响应之间交替，导致消息列表随着时间的推移而变长。由于上下文窗口有限且包含大量令牌的消息列表成本高昂，许多应用可以通过使用技术手动删除或遗忘过时信息而受益。
 
-![过滤](/oss/python/images/filter.png)
+![过滤](/oss/images/filter.png)
 
 有关管理消息的常用技术的更多信息，请参阅 [添加和管理记忆](/oss/python/langgraph/add-memory#manage-short-term-memory) 指南。
 
@@ -59,7 +59,7 @@ LangGraph 中的 **[长期记忆](/oss/python/langgraph/add-memory#add-long-term
 
 当记住一个配置文件时，你需要确保每次都在**更新**配置文件。因此，你需要传入之前的配置文件，并[要求模型生成一个新的配置文件](https://github.com/langchain-ai/memory-template)（或一些要应用到旧配置文件的 [JSON 补丁](https://github.com/hinthornw/trustcall)）。随着配置文件变大，这可能会变得容易出错，并且可能受益于将配置文件拆分为多个文档，或者在生成文档时进行**严格**解码，以确保记忆模式保持有效。
 
-![更新配置文件](/oss/python/images/update-profile.png)
+![更新配置文件](/oss/images/update-profile.png)
 
 #### 集合
 
@@ -71,7 +71,7 @@ LangGraph 中的 **[长期记忆](/oss/python/langgraph/add-memory#add-long-term
 
 最后，使用记忆集合可能使向模型提供全面的上下文变得具有挑战性。虽然单个记忆可能遵循特定的模式，但这种结构可能无法捕捉记忆之间的完整上下文或关系。因此，当使用这些记忆生成响应时，模型可能缺乏重要的上下文信息，而这些信息在统一的配置文件方法中更容易获得。
 
-![更新列表](/oss/python/images/update-list.png)
+![更新列表](/oss/images/update-list.png)
 
 无论采用哪种记忆管理方法，核心要点是智能体将使用语义记忆来 **[支撑其响应](https://python.langchain.com/docs/concepts/rag/)**，这通常会导致更个性化和相关的交互。
 
@@ -118,13 +118,13 @@ def update_instructions(state: State, store: BaseStore):
     ...
 ```
 
-![更新指令](/oss/python/images/update-instructions.png)
+![更新指令](/oss/images/update-instructions.png)
 
 ### 写入记忆
 
 智能体写入记忆主要有两种方法：**[“在热路径上”](#在热路径上)** 和 **[“在后台”](#在后台)**。
 
-![热路径 vs 后台](/oss/python/images/hot_path_vs_background.png)
+![热路径 vs 后台](/oss/images/hot_path_vs_background.png)
 
 #### 在热路径上
 

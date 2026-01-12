@@ -1,6 +1,8 @@
 {
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
+    "commander": "^14.0.2",
+    "dotenv": "^17.2.3",
     "fs-extra": "^11.3.3",
     "glob": "^13.0.0",
     "gray-matter": "^4.0.3",
@@ -8,8 +10,7 @@
     "path": "^0.12.7",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vitepress": "^1.6.4",
-    "dotenv": "^17.2.3"
+    "vitepress": "^1.6.4"
   },
   "scripts": {
     "docs:dev": "vitepress dev docs",

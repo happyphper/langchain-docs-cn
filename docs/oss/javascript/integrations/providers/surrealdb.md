@@ -26,6 +26,6 @@ uv add langchain-surrealdb
 
 ## 向量存储
 
-[此笔记本](/oss/integrations/vectorstores/surrealdb) 介绍了如何开始使用 SurrealDB 向量存储。
+[此笔记本](/oss/javascript/integrations/vectorstores/surrealdb) 介绍了如何开始使用 SurrealDB 向量存储。
 
 在代码仓库中查找更多[示例](https://github.com/surrealdb/langchain-surrealdb/blob/main/README.md#simple-example)。

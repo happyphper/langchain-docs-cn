@@ -13,4 +13,4 @@ title: Breebs（开放知识）
 from langchain_classic.retrievers import BreebsRetriever
 ```
 
-[查看使用示例（检索与 ConversationalRetrievalChain）](/oss/integrations/retrievers/breebs)
+[查看使用示例（检索与 ConversationalRetrievalChain）](/oss/python/integrations/retrievers/breebs)

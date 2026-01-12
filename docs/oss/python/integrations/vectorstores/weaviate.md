@@ -1,321 +1,279 @@
 ---
-title: WeaviateStore
+title: Weaviate
 ---
-[Weaviate](https://weaviate.io/) 是一个开源的向量数据库，它同时存储对象和向量，允许将向量搜索与结构化过滤相结合。LangChain 通过 weaviate-client 包（Weaviate 官方的 TypeScript 客户端）连接到 Weaviate。
+本笔记本介绍了如何在 LangChain 中使用 `langchain-weaviate` 包开始使用 Weaviate 向量存储。
 
-本指南提供了快速入门 Weaviate [向量存储](/oss/integrations/vectorstores) 的概述。有关 `WeaviateStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_weaviate.WeaviateStore.html)。
+> [Weaviate](https://weaviate.io/) 是一个开源的向量数据库。它允许您存储来自您喜爱的 ML 模型的数据对象和向量嵌入，并无缝扩展到数十亿个数据对象。
 
-## 概述
+要使用此集成，您需要有一个正在运行的 Weaviate 数据库实例。
 
-### 集成详情
+## 最低版本要求
 
-| 类 | 包 | [PY 支持](https://python.langchain.com/docs/integrations/vectorstores/weaviate/) | 版本 |
-| :--- | :--- | :---: | :---: |
-| [`WeaviateStore`](https://api.js.langchain.com/classes/langchain_weaviate.WeaviateStore.html) | [`@langchain/weaviate`](https://npmjs.com/@langchain/weaviate) | ✅ |  ![NPM - Version](https://img.shields.io/npm/v/@langchain/weaviate?style=flat-square&label=%20&) |
+此模块需要 Weaviate `1.23.7` 或更高版本。但是，我们建议您使用最新版本的 Weaviate。
 
-## 设置
+## 连接到 Weaviate
 
-要使用 Weaviate 向量存储，你需要设置一个 Weaviate 实例并安装 `@langchain/weaviate` 集成包。你还应该安装 `weaviate-client` 包来初始化一个客户端以连接到你的实例，并且如果你希望为索引文档分配 ID，还需要安装 `uuid` 包。
+在本笔记本中，我们假设您在 `http://localhost:8080` 上运行着一个本地 Weaviate 实例，并且端口 50051 对 [gRPC 流量](https://weaviate.io/blog/grpc-performance-improvements) 开放。因此，我们将使用以下方式连接到 Weaviate：
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
-
-::: code-group
-
-```bash [npm]
-npm install @langchain/weaviate @langchain/core weaviate-client uuid @langchain/openai
+```python
+weaviate_client = weaviate.connect_to_local()
 ```
 
-```bash [yarn]
-yarn add @langchain/weaviate @langchain/core weaviate-client uuid @langchain/openai
+### 其他部署选项
+
+Weaviate 可以通过 [多种不同方式部署](https://weaviate.io/developers/weaviate/starter-guides/which-weaviate)，例如使用 [Weaviate 云服务 (WCS)](https://console.weaviate.cloud)、[Docker](https://weaviate.io/developers/weaviate/installation/docker-compose) 或 [Kubernetes](https://weaviate.io/developers/weaviate/installation/kubernetes)。
+
+如果您的 Weaviate 实例以其他方式部署，请 [在此处阅读更多信息](https://weaviate.io/developers/weaviate/client-libraries/python#instantiate-a-client) 了解连接到 Weaviate 的不同方式。您可以使用不同的 [辅助函数](https://weaviate.io/developers/weaviate/client-libraries/python#python-client-v4-helper-functions) 或 [创建自定义实例](https://weaviate.io/developers/weaviate/client-libraries/python#python-client-v4-explicit-connection)。
+
+> 请注意，您需要一个 `v4` 客户端 API，它将创建一个 `weaviate.WeaviateClient` 对象。
+
+### 身份验证
+
+一些 Weaviate 实例（例如在 WCS 上运行的实例）启用了身份验证，例如 API 密钥和/或用户名+密码身份验证。
+
+请阅读 [客户端身份验证指南](https://weaviate.io/developers/weaviate/client-libraries/python#authentication) 以获取更多信息，以及 [深入的身份验证配置页面](https://weaviate.io/developers/weaviate/configuration/authentication)。
+
+### 连接到现有集合（重用索引）
+
+如果您已经在本地 Weaviate 实例中创建了一个集合，可以直接连接到它：
+
+```python
+from langchain_weaviate import WeaviateVectorStore
+
+store = WeaviateVectorStore(
+    client=weaviate_client,
+    index_name="Test",
+    text_key="text",
+)
 ```
 
-```bash [pnpm]
-pnpm add @langchain/weaviate @langchain/core weaviate-client uuid @langchain/openai
+## 安装
+
+```python
+# 安装包
+# pip install -Uqq langchain-weaviate
+# pip install openai tiktoken langchain
 ```
 
-:::
+## 环境设置
 
-你需要在本地或服务器上运行 Weaviate。更多信息请参阅 [Weaviate 文档](https://weaviate.io/developers/weaviate/installation)。
+本笔记本通过 `OpenAIEmbeddings` 使用 OpenAI API。我们建议获取一个 OpenAI API 密钥，并将其作为名为 `OPENAI_API_KEY` 的环境变量导出。
 
-### 凭证
+完成此操作后，您的 OpenAI API 密钥将被自动读取。如果您不熟悉环境变量，请 [在此处](https://docs.python.org/3/library/os.html#os.environ) 或 [本指南](https://www.twilio.com/en-us/blog/environment-variables-python) 中阅读更多相关信息。
 
-设置好实例后，设置以下环境变量：
+# 使用
 
-```typescript
-// 如果在本地运行，请包含端口，例如 "localhost:8080"
-process.env.WEAVIATE_URL = "YOUR_WEAVIATE_URL";
-// 可选，用于云部署
-process.env.WEAVIATE_API_KEY = "YOUR_API_KEY";
-```
+## 通过相似性查找对象
 
-如果你在本指南中使用 OpenAI 嵌入，还需要设置你的 OpenAI 密钥：
+以下是一个示例，展示了如何从数据导入到查询 Weaviate 实例，根据与查询的相似性查找对象。
 
-```typescript
-process.env.OPENAI_API_KEY = "YOUR_API_KEY";
-```
+### 步骤 1：数据导入
 
-如果你想获取模型调用的自动化追踪，也可以通过取消注释以下内容来设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+首先，我们将通过加载和分块一个长文本文件的内容来创建要添加到 `Weaviate` 的数据。
 
-```typescript
-// process.env.LANGSMITH_TRACING="true"
-// process.env.LANGSMITH_API_KEY="your-api-key"
-```
-
-## 实例化
-
-### 连接 Weaviate 客户端
-
-在大多数情况下，你应该使用其中一个连接辅助函数来连接到你的 Weaviate 实例：
-
-- connectToWeaviateCloud
-- connectToLocal
-- connectToCustom
-
-```typescript
-import { WeaviateStore } from "@langchain/weaviate";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import weaviate from "weaviate-client";
-
-const embeddings = new OpenAIEmbeddings({
-  model: "text-embedding-3-small",
-});
-
-const weaviateClient = weaviate.connectToWeaviateCloud({
-   clusterURL: process.env.WEAVIATE_URL!,
-  options : {
-      authCredentials: new weaviate.ApiKey(process.env.WEAVIATE_API_KEY || ""),
-      headers: {
-        "X-OpenAI-Api-Key": process.env.OPENAI_API_KEY || "",
-        "X-Cohere-Api-Key": process.env.COHERE_API_KEY || "",
-      },
-    },
-});
-```
-
-### 初始化向量存储
-
-要创建一个集合（collection），至少需要指定集合名称。如果不指定任何属性，`auto-schema` 会自动创建它们。
-
-```typescript
-const vectorStore = new WeaviateStore(embeddings, {
-  client: weaviateClient,
-  indexName: "Langchainjs_test",
-});
-```
-
-要使用 Weaviate 的命名向量（named vectors）、向量化器（vectorizers）、重排序器（reranker）、生成模型（generative-models）等，请在启用向量存储时使用 `schema` 属性。创建向量存储时，`schema` 中的集合名称和其他属性将优先。
-
-```typescript
-const vectorStore = new WeaviateStore(embeddings, {
-  client: weaviateClient,
-  schema: {
-    name: "Langchainjs_test",
-    description: "A simple dataset",
-    properties: [
-      {
-        name: "title",
-        dataType: dataType.TEXT,
-      },
-      {
-        name: "foo",
-        dataType: dataType.TEXT,
-      },
-    ],
-    vectorizers: [
-      vectorizer.text2VecOpenAI({
-        name: "title",
-        sourceProperties: ["title"], // (可选) 设置源属性
-        // vectorIndexConfig: configure.vectorIndex.hnsw()   // (可选) 设置向量索引配置
-      }),
-    ],
-    generative: weaviate.configure.generative.openAI(),
-    reranker: weaviate.configure.reranker.cohere(),
-  },
-});
-```
-
-## 管理向量存储
-
-### 向向量存储添加项目
-
-**注意：** 如果你想为索引文档关联 ID，它们必须是 UUID。
-
-```typescript
-import type { Document } from "@langchain/core/documents";
-import { v4 as uuidv4 } from "uuid";
-
-const document1: Document = {
-  pageContent: "The powerhouse of the cell is the mitochondria",
-  metadata: { source: "https://example.com" }
-};
-
-const document2: Document = {
-  pageContent: "Buildings are made out of brick",
-  metadata: { source: "https://example.com" }
-};
-
-const document3: Document = {
-  pageContent: "Mitochondria are made out of lipids",
-  metadata: { source: "https://example.com" }
-};
-
-const document4: Document = {
-  pageContent: "The 2024 Olympics are in Paris",
-  metadata: { source: "https://example.com" }
-}
-
-const documents = [document1, document2, document3, document4];
-const uuids = [uuidv4(), uuidv4(), uuidv4(), uuidv4()];
-
-await vectorStore.addDocuments(documents, { ids: uuids });
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import CharacterTextSplitter
 ```
 
 ```python
-[
-  '610f9b92-9bee-473f-a4db-8f2ca6e3442d',
-  '995160fa-441e-41a0-b476-cf3785518a0d',
-  '0cdbe6d4-0df8-4f99-9b67-184009fee9a2',
-  '18a8211c-0649-467b-a7c5-50ebb4b9ca9d'
-]
-```
+loader = TextLoader("state_of_the_union.txt")
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
 
-### 从向量存储删除项目
-
-你可以通过传递 `filter` 参数按 ID 删除：
-
-```typescript
-await vectorStore.delete({ ids: [uuids[3]] });
-```
-
-## 查询向量存储
-
-一旦你的向量存储创建完成并且相关文档已添加，你很可能会希望在运行链（chain）或代理（agent）时查询它。
-在 Weaviate 的 v3 版本中，客户端主要通过 `collections` 与数据库中的对象进行交互。`collection` 对象可以在整个代码库中重复使用。
-
-### 直接查询
-
-执行简单的相似性搜索可以按如下方式进行。`Filter` 辅助类使得使用带条件的过滤器更加容易。v3 客户端简化了 `Filter` 的使用方式，使你的代码更简洁。
-
-关于 Weaviate 过滤器语法的更多信息，请参阅 [此页面](https://weaviate.io/developers/weaviate/api/graphql/filters)。
-
-```typescript
-import { Filters } from "weaviate-client";
-
-const collection = client.collections.use('Langchainjs_test');
-
-const filter = Filters.and(collection.filter.byProperty("source").equal("https://example.com"))
-
-const similaritySearchResults = await vectorStore.similaritySearch("biology", 2, filter);
-
-for (const doc of similaritySearchResults) {
-  console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
-}
+embeddings = OpenAIEmbeddings()
 ```
 
 ```text
-* The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
-* Mitochondria are made out of lipids [{"source":"https://example.com"}]
+/workspaces/langchain-weaviate/.venv/lib/python3.12/site-packages/langchain_core/_api/deprecation.py:117: LangChainDeprecationWarning: The class `langchain_community.embeddings.openai.OpenAIEmbeddings` was deprecated in langchain-community 0.1.0 and will be removed in 0.2.0. An updated version of the class exists in the langchain-openai package and should be used instead. To use it run `pip install -U langchain-openai` and import as `from langchain_openai import OpenAIEmbeddings`.
+  warn_deprecated(
 ```
 
-如果你想执行相似性搜索并获取相应的分数，可以运行：
+现在，我们可以导入数据。
 
-```typescript
-const similaritySearchWithScoreResults = await vectorStore.similaritySearchWithScore("biology", 2, filter)
+为此，请连接到 Weaviate 实例并使用生成的 `weaviate_client` 对象。例如，我们可以如下所示导入文档：
 
-for (const [doc, score] of similaritySearchWithScoreResults) {
-  console.log(`* [SIM=${score.toFixed(3)}] ${doc.pageContent} [${JSON.stringify(doc.metadata)}]`);
-}
+```python
+import weaviate
+from langchain_weaviate.vectorstores import WeaviateVectorStore
+```
+
+```python
+weaviate_client = weaviate.connect_to_local()
+db = WeaviateVectorStore.from_documents(docs, embeddings, client=weaviate_client)
 ```
 
 ```text
-* [SIM=0.835] The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
-* [SIM=0.852] Mitochondria are made out of lipids [{"source":"https://example.com"}]
+/workspaces/langchain-weaviate/.venv/lib/python3.12/site-packages/pydantic/main.py:1024: PydanticDeprecatedSince20: The `dict` method is deprecated; use `model_dump` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.6/migration/
+  warnings.warn('The `dict` method is deprecated; use `model_dump` instead.', category=PydanticDeprecatedSince20)
 ```
 
-### 混合搜索
+### 步骤 2：执行搜索
 
-在 Weaviate 中，`混合搜索` 通过融合两个结果集，将向量搜索和关键词（BM25F）搜索的结果结合起来。要改变关键词和向量组件的相对权重，请在查询中设置 `alpha` 值。
+我们现在可以执行相似性搜索。这将返回与查询文本最相似的文档，基于存储在 Weaviate 中的嵌入以及从查询文本生成的等效嵌入。
 
-查看 **[文档](https://weaviate.io/developers/weaviate/search/hybrid)** 获取混合搜索选项的完整列表。
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+docs = db.similarity_search(query)
 
-```typescript
-const results = await vectorStore.hybridSearch("biology",
-  {
-    limit: 1,
-    alpha: 0.25,
-    targetVector: ["title"],
-    rerank: {
-      property: "title",
-      query: "greeting",
-    },
-});
+# 打印每个结果的前 100 个字符
+for i, doc in enumerate(docs):
+    print(f"\nDocument {i + 1}:")
+    print(doc.page_content[:100] + "...")
 ```
 
-### 检索增强生成
+```text
+Document 1:
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Ac...
 
-检索增强生成 将信息检索与生成式 AI 模型相结合。
+Document 2:
+And so many families are living paycheck to paycheck, struggling to keep up with the rising cost of ...
 
-在 Weaviate 中，一个 RAG 查询由两部分组成：一个搜索查询和一个给模型的提示。Weaviate 首先执行搜索，然后将搜索结果和你的提示一起传递给生成式 AI 模型，最后返回生成的响应。
+Document 3:
+Vice President Harris and I ran for office with a new economic vision for America.
 
-- @param query 要搜索的查询。
-- @param options 执行混合搜索的可用选项
-- @param generate 生成的可用选项。查看文档获取完整列表
+Invest in Ameri...
 
-```typescript
-const results = await vectorStore.generate("hello world",
-    {
-        singlePrompt: {
-            prompt: "Translate this into German: {title}",
-        },
-        config: generativeParameters.openAI({
-            model: "gpt-3.5-turbo",
-        }),
-    },
-    {
-        limit: 2,
-        targetVector: ["title"],
-    }
-);
+Document 4:
+A former top litigator in private practice. A former federal public defender. And from a family of p...
 ```
 
-### 通过转换为检索器进行查询
+您还可以添加过滤器，这些过滤器将根据过滤条件包含或排除结果。（请参阅 [更多过滤器示例](https://weaviate.io/developers/weaviate/search/filters)。）
 
-你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+```python
+from weaviate.classes.query import Filter
 
-```typescript
-const retriever = vectorStore.asRetriever({
-  // 可选过滤器
-  filter: filter,
-  k: 2,
-});
-await retriever.invoke("biology");
+for filter_str in ["blah.txt", "state_of_the_union.txt"]:
+    search_filter = Filter.by_property("source").equal(filter_str)
+    filtered_search_results = db.similarity_search(query, filters=search_filter)
+    print(len(filtered_search_results))
+    if filter_str == "state_of_the_union.txt":
+        assert len(filtered_search_results) > 0  # 应该至少有一个结果
+    else:
+        assert len(filtered_search_results) == 0  # 应该没有结果
 ```
 
-```javascript
-[
-  Document {
-    pageContent: 'The powerhouse of the cell is the mitochondria',
-    metadata: { source: 'https://example.com' },
-    id: undefined
-  },
-  Document {
-    pageContent: 'Mitochondria are made out of lipids',
-    metadata: { source: 'https://example.com' },
-    id: undefined
-  }
-]
+```text
+0
+4
 ```
 
-### 用于检索增强生成
+也可以提供 `k`，这是要返回的结果数量的上限。
 
-关于如何使用此向量存储进行检索增强生成的指南，请参阅以下部分：
+```python
+search_filter = Filter.by_property("source").equal("state_of_the_union.txt")
+filtered_search_results = db.similarity_search(query, filters=search_filter, k=3)
+assert len(filtered_search_results) <= 3
+```
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [智能体 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+### 量化结果相似性
 
----
+您可以选择性地检索相关性“分数”。这是一个相对分数，表示特定搜索结果在整个搜索结果池中的好坏程度。
 
-## API 参考
+请注意，这是一个相对分数，意味着不应使用它来确定相关性的阈值。但是，它可以用于比较整个搜索结果集中不同搜索结果的相关性。
 
-有关 `WeaviateStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_weaviate.WeaviateStore.html)。
+```python
+docs = db.similarity_search_with_score("country", k=5)
+
+for doc in docs:
+    print(f"{doc[1]:.3f}", ":", doc[0].page_content[:100] + "...")
+```
+
+```text
+0.935 : For that purpose we’ve mobilized American ground forces, air squadrons, and ship deployments to prot...
+0.500 : And built the strongest, freest, and most prosperous nation the world has ever known.
+
+Now is the h...
+0.462 : If you travel 20 miles east of Columbus, Ohio, you’ll find 1,000 empty acres of land.
+
+It won’t loo...
+0.450 : And my report is this: the State of the Union is strong—because you, the American people, are strong...
+0.442 : Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Ac...
+```
+
+## 搜索机制
+
+`similarity_search` 使用 Weaviate 的 [混合搜索](https://weaviate.io/developers/weaviate/api/graphql/search-operators#hybrid)。
+
+混合搜索结合了向量搜索和关键字搜索，其中 `alpha` 是向量搜索的权重。`similarity_search` 函数允许您将其他参数作为 kwargs 传递。请参阅此 [参考文档](https://weaviate.io/developers/weaviate/api/graphql/search-operators#hybrid) 了解可用参数。
+
+因此，您可以通过添加 `alpha=0` 来执行纯关键字搜索，如下所示：
+
+```python
+docs = db.similarity_search(query, alpha=0)
+docs[0]
+```
+
+```python
+Document(page_content='Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections. \n\nTonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service. \n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court. \n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.', metadata={'source': 'state_of_the_union.txt'})
+```
+
+## 持久性
+
+通过 `langchain-weaviate` 添加的任何数据都将根据其配置持久保存在 Weaviate 中。
+
+例如，WCS 实例配置为无限期持久保存数据，而 Docker 实例可以设置为在卷中持久保存数据。请阅读有关 [Weaviate 持久性](https://weaviate.io/developers/weaviate/configuration/persistence) 的更多信息。
+
+## 多租户
+
+[多租户](https://weaviate.io/developers/weaviate/concepts/data#multi-tenancy) 允许您在单个 Weaviate 实例中拥有大量具有相同集合配置的隔离数据集合。这对于多用户环境（例如构建 SaaS 应用程序）非常有用，其中每个最终用户都将拥有自己隔离的数据集合。
+
+要使用多租户，向量存储需要知道 `tenant` 参数。
+
+因此，在添加任何数据时，请提供 `tenant` 参数，如下所示。
+
+```python
+db_with_mt = WeaviateVectorStore.from_documents(
+    docs, embeddings, client=weaviate_client, tenant="Foo"
+)
+```
+
+```text
+2024-Mar-26 03:40 PM - langchain_weaviate.vectorstores - INFO - Tenant Foo does not exist in index LangChain_30b9273d43b3492db4fb2aba2e0d6871. Creating tenant.
+```
+
+在执行查询时，也请提供 `tenant` 参数。
+
+```python
+db_with_mt.similarity_search(query, tenant="Foo")
+```
+
+```python
+[Document(page_content='Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections. \n\nTonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service. \n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court. \n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.', metadata={'source': 'state_of_the_union.txt'}),
+ Document(page_content='And so many families are living paycheck to paycheck, struggling to keep up with the rising cost of food, gas, housing, and so much more. \n\nI understand. \n\nI remember when my Dad had to leave our home in Scranton, Pennsylvania to find work. I grew up in a family where if the price of food went up, you felt it. \n\nThat’s why one of the first things I did as President was fight to pass the American Rescue Plan.  \n\nBecause people were hurting. We needed to act, and we did. \n\nFew pieces of legislation have done more in a critical moment in our history to lift us out of crisis. \n\nIt fueled our efforts to vaccinate the nation and combat COVID-19. It delivered immediate economic relief for tens of millions of Americans.  \n\nHelped put food on their table, keep a roof over their heads, and cut the cost of health insurance. \n\nAnd as my Dad used to say, it gave people a little breathing room.', metadata={'source': 'state_of_the_union.txt'}),
+ Document(page_content='He and his Dad both have Type 1 diabetes, which means they need insulin every day. Insulin costs about $10 a vial to make.  \n\nBut drug companies charge families like Joshua and his Dad up to 30 times more. I spoke with Joshua’s mom. \n\nImagine what it’s like to look at your child who needs insulin and have no idea how you’re going to pay for it.  \n\nWhat it does to your dignity, your ability to look your child in the eye, to be the parent you expect to be. \n\nJoshua is here with us tonight. Yesterday was his birthday. Happy birthday, buddy.  \n\nFor Joshua, and for the 200,000 other young people with Type 1 diabetes, let’s cap the cost of insulin at $35 a month so everyone can afford it.  \n\nDrug companies will still do very well. And while we’re at it let Medicare negotiate lower prices for prescription drugs, like the VA already does.', metadata={'source': 'state_of_the_union.txt'}),
+ Document(page_content='Putin’s latest attack on Ukraine was premeditated and unprovoked. \n\nHe rejected repeated efforts at diplomacy. \n\nHe thought the West and NATO wouldn’t respond. And he thought he could divide us at home. Putin was wrong. We were ready.  Here is what we did.   \n\nWe prepared extensively and carefully. \n\nWe spent months building a coalition of other freedom-loving nations from Europe and the Americas to Asia and Africa to confront Putin. \n\nI spent countless hours unifying our European allies. We shared with the world in advance what we knew Putin was planning and precisely how he would try to falsely justify his aggression.  \n\nWe countered Russia’s lies with truth.   \n\nAnd now that he has acted the free world is holding him accountable. \n\nAlong with twenty-seven members of the European Union including France, Germany, Italy, as well as countries like the United Kingdom, Canada, Japan, Korea, Australia, New Zealand, and many others, even Switzerland.', metadata={'source': 'state_of_the_union.txt'})]
+```
+
+## 检索器选项
+
+Weaviate 也可以用作检索器。
+
+### 最大边际相关性搜索 (MMR)
+
+除了在检索器对象中使用 similaritysearch 外，您还可以使用 `mmr`。
+
+```python
+retriever = db.as_retriever(search_type="mmr")
+retriever.invoke(query)[0]
+```
+
+```text
+/workspaces/langchain-weaviate/.venv/lib/python3.12/site-packages/pydantic/main.py:1024: PydanticDeprecatedSince20: The `dict` method is deprecated; use `model_dump` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.6/migration/
+  warnings.warn('The `dict` method is deprecated; use `model_dump` instead.', category=PydanticDeprecatedSince20)
+```
+
+```python
+Document(page_content='Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections. \n\nTonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service. \n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court. \n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.', metadata={'source': 'state_of_the_union.txt'})
+```
+
+# 与 LangChain 一起使用
+
+大型语言模型 (LLM) 的一个已知限制是它们的训练数据可能过时，或者不包含您所需的特定领域知识。
+
+请看下面的示例：
+
+```python
+from lang

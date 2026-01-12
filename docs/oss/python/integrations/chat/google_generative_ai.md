@@ -1,391 +1,1532 @@
 ---
 title: ChatGoogleGenerativeAI
+description: '开始在 LangChain 中使用 Gemini [聊天模型](/oss/langchain/models)。'
 ---
-[Google AI](https://ai.google.dev/) 提供了多种不同的聊天模型，包括强大的 Gemini 系列。有关最新模型、其功能、上下文窗口等信息，请访问 [Google AI 文档](https://ai.google.dev/gemini-api/docs/models/gemini)。
+通过 **Gemini Developer API** 或 **Vertex AI** 访问 Google 的生成式 AI 模型，包括 Gemini 系列。Gemini Developer API 提供使用 API 密钥的快速设置，非常适合个人开发者。Vertex AI 提供企业级功能，并与 Google Cloud Platform 集成。
 
-本文将帮助您开始使用 `ChatGoogleGenerativeAI` [聊天模型](/oss/langchain/models)。有关 `ChatGoogleGenerativeAI` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_google_genai.ChatGoogleGenerativeAI.html)。
+有关最新模型、模型 ID、功能、上下文窗口等信息，请访问 [Google AI 文档](https://ai.google.dev/gemini-api/docs)。
+
+<Note>
+
+<strong>Vertex AI 整合与兼容性</strong>
+
+自 `langchain-google-genai` 4.0.0 起，本包使用整合后的 [`google-genai`](https://googleapis.github.io/python-genai/) SDK，而非旧的 [`google-ai-generativelanguage`](https://googleapis.dev/python/generativelanguage/latest/) SDK。
+
+此次迁移带来了通过 Gemini Developer API 和 Vertex AI 中的 Gemini API 对 Gemini 模型的支持，取代了 `langchain-google-vertexai` 中的某些类，例如 `ChatVertexAI`。
+
+请阅读 [完整公告和迁移指南](https://github.com/langchain-ai/langchain-google/discussions/1422)。
+
+</Note>
+
+<Tip>
+
+<strong>API 参考</strong>
+
+有关所有功能和配置选项的详细文档，请访问 <a href="https://reference.langchain.com/python/integrations/langchain_google_genai/#langchain_google_genai.ChatGoogleGenerativeAI" target="_blank" rel="noreferrer" class="link"><code>ChatGoogleGenerativeAI</code></a> API 参考。
+
+</Tip>
 
 ## 概述
 
 ### 集成详情
 
-| 类 | 包 | 可序列化 | [PY 支持](https://python.langchain.com/docs/integrations/chat/google_generative_ai) | 下载量 | 版本 |
+| 类 | 包 | 可序列化 | [JS 支持](https://js.langchain.com/docs/integrations/chat/google_generative_ai) | 下载量 | 版本 |
 | :--- | :--- | :---: |  :---: | :---: | :---: |
-| [ChatGoogleGenerativeAI](https://api.js.langchain.com/classes/langchain_google_genai.ChatGoogleGenerativeAI.html) | [@langchain/google-genai](https://api.js.langchain.com/modules/langchain_google_genai.html) | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/google-genai?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/google-genai?style=flat-square&label=%20&) |
+| <a href="https://reference.langchain.com/python/integrations/langchain_google_genai/#langchain_google_genai.ChatGoogleGenerativeAI" target="_blank" rel="noreferrer" class="link"><code>ChatGoogleGenerativeAI</code></a> | <a href="https://reference.langchain.com/python/integrations/langchain_google_genai" target="_blank" rel="noreferrer" class="link"><code>langchain-google-genai</code></a> | beta | ✅ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-google-genai?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-google-genai?style=flat-square&label=%20) |
 
 ### 模型功能
 
-有关如何使用特定功能的指南，请参阅下表标题中的链接。
-
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
-| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
-| ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/python/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/python/langchain/models#token-usage) | [Logprobs](/oss/python/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ |
 
 ## 设置
 
-您可以通过 `@langchain/google-genai` 集成包中的 `ChatGoogleGenerativeAI` 类，在 LangChain 中访问 Google 的 `gemini` 和 `gemini-vision` 模型以及其他生成模型。
-
-<Tip>
-
-您也可以通过 LangChain 的 VertexAI 和 VertexAI-web 集成访问 Google 的 `gemini` 系列模型。点击[此处](/oss/integrations/chat/google_vertex_ai)阅读相关文档。
-
-</Tip>
-
-### 凭证
-
-在此处获取 API 密钥：[https://ai.google.dev/tutorials/setup](https://ai.google.dev/tutorials/setup)
-
-然后设置 `GOOGLE_API_KEY` 环境变量：
-
-```bash
-export GOOGLE_API_KEY="your-api-key"
-```
-
-如果您希望自动追踪模型调用，也可以通过取消注释以下内容来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
-
-```bash
-# export LANGSMITH_TRACING="true"
-# export LANGSMITH_API_KEY="your-api-key"
-```
+要访问 Google AI 模型，您需要创建一个 Google 账户，获取 Google AI API 密钥，并安装 `langchain-google-genai` 集成包。
 
 ### 安装
 
-LangChain 的 `ChatGoogleGenerativeAI` 集成位于 `@langchain/google-genai` 包中：
-
-::: code-group
-
-```bash [npm]
-npm install @langchain/google-genai @langchain/core
+```python
+pip install -U langchain-google-genai
 ```
 
-```bash [yarn]
-yarn add @langchain/google-genai @langchain/core
+### 凭据
+
+此集成支持两个后端：**Gemini Developer API** 和 **Vertex AI**。后端会根据您的配置自动选择。
+
+#### 后端选择
+
+后端按以下规则确定：
+
+1. 如果设置了 `GOOGLE_GENAI_USE_VERTEXAI` 环境变量，则使用该值
+2. 如果提供了 `credentials` 参数，则使用 Vertex AI
+3. 如果提供了 `project` 参数，则使用 Vertex AI
+4. 否则，使用 Gemini Developer API
+
+您也可以显式设置 `vertexai=True` 或 `vertexai=False` 来覆盖自动检测。
+
+<Tabs>
+
+<Tab title="Gemini Developer API">
+
+**使用 API 密钥快速设置**
+
+推荐给个人开发者/新用户。
+
+前往 [Google AI Studio](https://ai.google.dev/gemini-api/docs/api-key) 生成 API 密钥：
+
+```python
+import getpass
+import os
+
+if "GOOGLE_API_KEY" not in os.environ:
+    os.environ["GOOGLE_API_KEY"] = getpass.getpass("Enter your Google AI API key: ")
 ```
 
-```bash [pnpm]
-pnpm add @langchain/google-genai @langchain/core
+集成会首先检查 `GOOGLE_API_KEY`，然后回退到 `GEMINI_API_KEY`。
+
+</Tab>
+
+<Tab title="使用 API 密钥的 Vertex AI">
+
+**使用 API 密钥认证的 Vertex AI**
+
+您可以使用 API 密钥认证的 Vertex AI 以简化设置：
+
+```bash
+export GEMINI_API_KEY='your-api-key'
+export GOOGLE_GENAI_USE_VERTEXAI=true
+export GOOGLE_CLOUD_PROJECT='your-project-id'
 ```
 
-:::
+或者通过编程方式：
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    api_key="your-api-key", # [!code highlight]
+    project="your-project-id", # [!code highlight]
+    vertexai=True, # [!code highlight]
+)
+```
+
+</Tab>
+
+<Tab title="使用凭据的 Vertex AI">
+
+**使用服务账户或 ADC 的 Vertex AI**
+
+设置 [应用程序默认凭据 (ADC)](https://cloud.google.com/docs/authentication/application-default-credentials)：
+
+```bash
+gcloud auth application-default login
+```
+
+设置您的 Google Cloud 项目：
+
+```bash
+export GOOGLE_CLOUD_PROJECT='your-project-id'
+# Optional: set region (defaults to us-central1)
+export GOOGLE_CLOUD_LOCATION='us-central1'
+```
+
+或者使用服务账户凭据：
+
+```python
+from google.oauth2 import service_account
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+credentials = service_account.Credentials.from_service_account_file(
+    "path/to/service-account.json",
+    scopes=["https://www.googleapis.com/auth/cloud-platform"],
+)
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    credentials=credentials, # [!code highlight]
+    project="your-project-id", # [!code highlight]
+)
+```
+
+</Tab>
+
+</Tabs>
+
+#### 环境变量
+
+| 变量 | 用途 | 后端 |
+|----------|---------|---------|
+| `GOOGLE_API_KEY` | API 密钥（主要） | 两者（参见 `GOOGLE_GENAI_USE_VERTEXAI`） |
+| `GEMINI_API_KEY` | API 密钥（备用） | 两者（参见 `GOOGLE_GENAI_USE_VERTEXAI`） |
+| `GOOGLE_GENAI_USE_VERTEXAI` | 强制使用 Vertex AI 后端 (`true`/`false`) | Vertex AI |
+| `GOOGLE_CLOUD_PROJECT` | GCP 项目 ID | Vertex AI |
+| `GOOGLE_CLOUD_LOCATION` | GCP 区域（默认：`us-central1`） | Vertex AI |
+
+要启用模型调用的自动追踪，请设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
+```
 
 ## 实例化
 
-现在我们可以实例化模型对象并生成聊天补全：
+现在我们可以实例化模型对象并生成响应：
 
-```typescript
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai"
+<Tabs>
 
-const llm = new ChatGoogleGenerativeAI({
-    model: "gemini-2.5-pro",
-    temperature: 0,
-    maxRetries: 2,
-    // other params...
-})
+<Tab title="Gemini Developer API">
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(
+    model="gemini-3-pro-preview",
+    temperature=1.0,  # Gemini 3.0+ defaults to 1.0
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+    # other params...
+)
+```
+
+</Tab>
+
+<Tab title="Vertex AI">
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(
+    model="gemini-3-pro-preview",
+    project="your-project-id", # [!code highlight]
+    location="us-central1",  # Optional, defaults to us-central1 [!code highlight]
+    temperature=1.0,  # Gemini 3.0+ defaults to 1.0
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+    # other params...
+)
+```
+
+提供 `project` 会自动选择 Vertex AI 后端，除非您显式设置 `vertexai=False`。
+
+</Tab>
+
+</Tabs>
+
+<Note>
+
+<strong>Gemini 3.0+ 模型的温度设置</strong>
+
+如果未显式设置 `temperature` 且模型是 Gemini 3.0 或更高版本，根据 Google GenAI API 最佳实践，它将自动设置为 `1.0` 而不是默认的 `0.7`。对 Gemini 3.0+ 使用 `0.7` 可能导致无限循环、推理性能下降以及复杂任务失败。
+
+</Note>
+
+有关可用模型参数的完整列表，请参阅 <a href="https://reference.langchain.com/python/integrations/langchain_google_genai/#langchain_google_genai.ChatGoogleGenerativeAI" target="_blank" rel="noreferrer" class="link"><code>ChatGoogleGenerativeAI</code></a> API 参考。
+
+### 代理配置
+
+如果需要使用代理，请在初始化前设置这些环境变量：
+
+```bash
+export HTTPS_PROXY='http://username:password@proxy_uri:port'
+export SSL_CERT_FILE='path/to/cert.pem'  # Optional: custom SSL certificate
+```
+
+对于 SOCKS5 代理或高级代理配置，请使用 `client_args` 参数：
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(
+    model="gemini-3-pro-preview",
+    client_args={"proxy": "socks5://user:pass@host:port"},
+)
 ```
 
 ## 调用
 
-```typescript
-const aiMsg = await llm.invoke([
-    [
+```python
+messages = [
+    (
         "system",
         "You are a helpful assistant that translates English to French. Translate the user sentence.",
-    ],
-    ["human", "I love programming."],
-])
-aiMsg
+    ),
+    ("human", "I love programming."),
+]
+ai_msg = model.invoke(messages)
+ai_msg
+```
+
+::: code-group
+
+```plaintext [Gemini 3]
+AIMessage(content=[{'type': 'text', 'text': "J'adore la programmation.", 'extras': {'signature': 'EpoWCpc...'}}], additional_kwargs={}, response_metadata={'prompt_feedback': {'block_reason': 0, 'safety_ratings': []}, 'finish_reason': 'STOP', 'model_name': 'gemini-3-pro-preview', 'safety_ratings': [], 'model_provider': 'google_genai'}, id='lc_run--fb732b64-1ab4-4a28-b93b-dcfb2a164a3d-0', usage_metadata={'input_tokens': 21, 'output_tokens': 779, 'total_tokens': 800, 'input_token_details': {'cache_read': 0}, 'output_token_details': {'reasoning': 772}})
+```
+
+```plaintext [Gemini 2.5]
+AIMessage(content="J'adore la programmation.", additional_kwargs={}, response_metadata={'prompt_feedback': {'block_reason': 0, 'safety_ratings': []}, 'finish_reason': 'STOP', 'model_name': 'gemini-2.5-flash', 'safety_ratings': []}, id='run-3b28d4b8-8a62-4e6c-ad4e-b53e6e825749-0', usage_metadata={'input_tokens': 20, 'output_tokens': 7, 'total_tokens': 27, 'input_token_details': {'cache_read': 0}})
+```
+
+:::
+
+<Note>
+
+<strong>消息内容格式</strong>
+
+Gemini 3 系列模型将始终返回一个内容块列表以捕获[思维签名](#thought-signatures)。使用 `.text` 属性来恢复字符串内容。
+
+```python
+response.content  # -> [{"type": "text", "text": "Hello!", "extras": {"signature": "EpQFCp...lKx64r"}}]
+response.text     # -> "Hello!"
+```
+
+</Note>
+
+```python
+print(ai_msg.content)
+```
+
+::: code-group
+
+```plaintext [Gemini 3]
+[{'type': 'text',
+'text': "J'adore la programmation.",
+'extras': {'signature': '...'}}]
+```
+
+```plaintext [Gemini 2.5]
+J'adore la programmation.
+```
+
+:::
+
+```python
+print(ai_msg.text)
 ```
 
 ```text
-AIMessage {
-  "content": "J'adore programmer. \n",
-  "additional_kwargs": {
-    "finishReason": "STOP",
-    "index": 0,
-    "safetyRatings": [
-      {
-        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_HATE_SPEECH",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_HARASSMENT",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-        "probability": "NEGLIGIBLE"
-      }
+J'adore la programmation.
+```
+
+## 多模态使用
+
+Gemini 模型可以接受多模态输入（文本、图像、音频、视频），并且某些模型可以生成多模态输出。
+
+### 支持的输入方法
+
+| 方法 | [图像](#image-input) | [视频](#video-input) | [音频](#audio-input) | [PDF](#pdf-input) |
+|--------|:-----:|:-----:|:-----:|:---:|
+| [文件上传](#file-upload) (Files API) | ✅ | ✅ | ✅ | ✅ |
+| Base64 内联数据 | ✅ | ✅ | ✅ | ✅ |
+| HTTP/HTTPS URL* | ✅ | ✅ | ✅ | ✅ |
+| GCS URI (`gs://...`) | ✅ | ✅ | ✅ | ✅ |
+
+*YouTube URL 在预览中支持视频输入。
+
+### 文件上传
+
+您可以将文件上传到 Google 的服务器，并通过 URI 引用它们。这适用于 PDF、图像、视频和音频文件。
+
+```python
+import time
+from google import genai
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+client = genai.Client()
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+# Upload file to Google's servers
+myfile = client.files.upload(file="/path/to/your/file.pdf")
+while myfile.state.name == "PROCESSING":
+    time.sleep(2)
+    myfile = client.files.get(name=myfile.name)
+
+# Reference by file_id in FileContentBlock
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "What is in the document?"},
+        {
+            "type": "file",
+            "file_id": myfile.uri,  # or myfile.name
+            "mime_type": "application/pdf",
+        },
     ]
-  },
-  "response_metadata": {
-    "finishReason": "STOP",
-    "index": 0,
-    "safetyRatings": [
-      {
-        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_HATE_SPEECH",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_HARASSMENT",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-        "probability": "NEGLIGIBLE"
-      }
+)
+response = model.invoke([message])
+```
+
+上传后，您可以在下面任何特定媒体部分中使用 `file_id` 模式引用该文件。
+
+### 图像输入
+
+使用带有列表内容格式的 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.HumanMessage" target="_blank" rel="noreferrer" class="link"><code>HumanMessage</code></a> 提供图像输入以及文本。
+
+::: code-group
+
+```python [Image URL]
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Describe the image at the URL."},
+        {
+            "type": "image",
+            "url": "https://picsum.photos/seed/picsum/200/300",
+        },
     ]
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": [],
-  "usage_metadata": {
-    "input_tokens": 21,
-    "output_tokens": 5,
-    "total_tokens": 26
-  }
-}
+)
+response = model.invoke([message])
 ```
 
-```typescript
-console.log(aiMsg.content)
+```python [Chat Completions image_url format]
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Describe the image at the URL."},
+        {"type": "image_url", "image_url": "https://picsum.photos/seed/picsum/200/300"},
+    ]
+)
+response = model.invoke([message])
 ```
 
-```text
-J'adore programmer.
+```python [Base64 encoded]
+import base64
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+image_bytes = open("path/to/your/image.jpg", "rb").read()
+image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+mime_type = "image/jpeg"
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Describe the local image."},
+        {
+            "type": "image",
+            "base64": image_base64,
+            "mime_type": mime_type,
+        },
+    ]
+)
+response = model.invoke([message])
 ```
 
-## 安全设置
+```python [Uploaded file]
+import time
+from google import genai
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-Gemini 模型具有可以覆盖的默认安全设置。如果您从模型收到大量“安全警告”，可以尝试调整模型的 `safety_settings` 属性。例如，要关闭对危险内容的安全阻止，您可以从 `@google/generative-ai` 包导入枚举，然后按如下方式构建您的 LLM：
+client = genai.Client()
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
 
-```typescript
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
+# Upload and wait for processing
+myfile = client.files.upload(file="/path/to/image.jpg")
+while myfile.state.name == "PROCESSING":
+    time.sleep(2)
+    myfile = client.files.get(name=myfile.name)
 
-const llmWithSafetySettings = new ChatGoogleGenerativeAI({
-  model: "gemini-2.5-pro",
-  temperature: 0,
-  safetySettings: [
-    {
-      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-      threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-    },
-  ],
-  // other params...
-});
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Describe this image."},
+        {
+            "type": "file",
+            "file_id": myfile.uri,
+            "mime_type": "image/jpeg",
+        },
+    ]
+)
+response = model.invoke([message])
+```
+
+:::
+
+其他支持的图像格式：
+
+- Google Cloud Storage URI (`gs://...`)。确保服务账户具有访问权限。
+
+### PDF 输入
+
+提供 PDF 文件输入以及文本。
+
+::: code-group
+
+```python [URL]
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Describe the document in a sentence."},
+        {
+            "type": "image_url",  # (PDFs are treated as images)
+            "image_url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        },
+    ]
+)
+response = model.invoke([message])
+```
+
+```python [Base64 encoded]
+import base64
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+pdf_bytes = open("path/to/your/document.pdf", "rb").read()
+pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
+mime_type = "application/pdf"
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Describe the document in a sentence."},
+        {
+            "type": "file",
+            "base64": pdf_base64,
+            "mime_type": mime_type,
+        },
+    ]
+)
+response = model.invoke([message])
+```
+
+```python [Uploaded file]
+import time
+from google import genai
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+client = genai.Client()
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+# Upload and wait for processing
+myfile = client.files.upload(file="/path/to/document.pdf")
+while myfile.state.name == "PROCESSING":
+    time.sleep(2)
+    myfile = client.files.get(name=myfile.name)
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Describe the document in a sentence."},
+        {
+            "type": "file",
+            "file_id": myfile.uri,
+            "mime_type": "application/pdf",
+        },
+    ]
+)
+response = model.invoke([message])
+```
+
+:::
+
+### 音频输入
+
+提供音频文件输入以及文本。
+
+::: code-group
+
+```python [URL]
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Summarize this audio in a sentence."},
+        {
+            "type": "image_url",
+            "image_url": "https://example.com/audio.mp3",
+        },
+    ]
+)
+response = model.invoke([message])
+```
+
+```python [Base64 encoded]
+import base64
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+audio_bytes = open("path/to/your/audio.mp3", "rb").read()
+audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
+mime_type = "audio/mpeg"
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Summarize this audio in a sentence."},
+        {
+            "type": "audio",
+            "base64": audio_base64,
+            "mime_type": mime_type,
+        },
+    ]
+)
+response = model.invoke([message])
+```
+
+```python [Uploaded file]
+import time
+from google import genai
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+client = genai.Client()
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+# Upload and wait for processing
+myfile = client.files.upload(file="/path/to/audio.mp3")
+while myfile.state.name == "PROCESSING":
+    time.sleep(2)
+    myfile = client.files.get(name=myfile.name)
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Summarize this audio in a sentence."},
+        {
+            "type": "file",
+            "file_id": myfile.uri,
+            "mime_type": "audio/mpeg",
+        },
+    ]
+)
+response = model.invoke([message])
+```
+
+:::
+
+### 视频输入
+
+提供视频文件输入以及文本。
+
+::: code-group
+
+```python [Base64 encoded]
+import base64
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+video_bytes = open("path/to/your/video.mp4", "rb").read()
+video_base64 = base64.b64encode(video_bytes).decode("utf-8")
+mime_type = "video/mp4"
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Describe what's in this video in a sentence."},
+        {
+            "type": "video",
+            "base64": video_base64,
+            "mime_type": mime_type,
+        },
+    ]
+)
+response = model.invoke([message])
+```
+
+```python [Uploaded file]
+import time
+from google import genai
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+client = genai.Client()
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+# Upload and wait for processing
+myfile = client.files.upload(file="/path/to/video.mp4")
+while myfile.state.name == "PROCESSING":
+    time.sleep(2)
+    myfile = client.files.get(name=myfile.name)
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Summarize the video in 3 sentences."},
+        {
+            "type": "file",
+            "file_id": myfile.uri,
+            "mime_type": "video/mp4",
+        },
+    ]
+)
+response = model.invoke([message])
+```
+
+```python [YouTube URL]
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+message = HumanMessage(
+    content=[
+        {"type": "text", "text": "Summarize the video in 3 sentences."},
+        {
+            "type": "video",
+            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "mime_type": "video/mp4",
+        },
+    ]
+)
+response = model.invoke([message])
+```
+
+:::
+
+<Note>
+
+<strong>YouTube 限制</strong>
+- 仅支持公开视频（不支持私有或未列出视频）
+- 免费层：每天最多 8 小时 YouTube 视频
+- 该功能目前处于预览阶段
+
+</Note>
+
+### 图像生成
+
+某些模型可以内联生成文本和图像。有关详细信息，请参阅 [Gemini API 文档](https://ai.google.dev/gemini-api/docs/image-generation)。
+
+此示例演示了如何在 Jupyter notebook 中生成和显示图像：
+
+```python
+import base64
+
+from IPython.display import Image, display
+from langchain.messages import AIMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-flash-image") # [!code highlight]
+
+response = model.invoke("Generate a photorealistic image of a cuddly cat wearing a hat.")
+
+def _get_image_base64(response: AIMessage) -> None:
+    image_block = next(
+        block
+        for block in response.content
+        if isinstance(block, dict) and block.get("image_url")
+    )
+    return image_block["image_url"].get("url").split(",")[-1]
+
+image_base64 = _get_image_base64(response)
+display(Image(data=base64.b64decode(image_base64), width=300))
+```
+
+使用 `image_config` 来控制生成的图像尺寸和质量。有关支持的字段及其值的列表，请参阅 [`genai.types.ImageConfig`](https://googleapis.github.io/python-genai/genai.html#genai.types.ImageConfig)。
+
+在实例化期间设置 `image_config` 会将配置应用于所有调用，而在调用期间设置则会覆盖该调用的默认配置；这允许在每个请求的基础上灵活控制生成参数。
+
+::: code-group
+
+```python [Instantiation]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash-image", # [!code highlight]
+    image_config={ # [!code highlight]
+        "aspect_ratio": "16:9", # [!code highlight]
+    }, # [!code highlight]
+)
+
+response = model.invoke("Generate a photorealistic image of a cuddly cat wearing a hat.")
+```
+
+```python [Invocation]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-flash-image") # [!code highlight]
+
+response = model.invoke(
+    "Generate a photorealistic image of a cuddly cat wearing a hat.",
+    image_config={ # [!code highlight]
+        "aspect_ratio": "1:1", # [!code highlight]
+    }, # [!code highlight]
+)
+```
+
+:::
+
+<Note>
+
+支持的参数因模型和后端而异（Gemini Developer API 和 Vertex AI 各自支持不同的参数和模型子集）。
+
+</Note>
+
+默认情况下，图像生成模型可能同时返回文本和图像（例如，*"好的！这是一张..."*）。
+
+您可以通过设置 `response_modalities` 参数来请求模型仅返回图像：
+
+::: code-group
+
+```python [Instantiation]
+from langchain_google_genai import ChatGoogleGenerativeAI, Modality
+
+model = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash-image",
+    response_modalities=[Modality.IMAGE],  # [!code highlight]
+)
+
+# All invocations will return only images
+response = model.invoke("Generate a photorealistic image of a cuddly cat wearing a hat.")
+```
+
+```python [Invocation]
+from langchain_google_genai import ChatGoogleGenerativeAI, Modality
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-flash-image")
+
+# Only this invocation will return images; others may return text+images
+response = model.invoke(
+    "Generate a photorealistic image of a cuddly cat wearing a hat.",
+    response_modalities=[Modality.IMAGE], # [!code highlight]
+)
+```
+
+:::
+
+### 音频生成
+
+某些模型可以生成音频文件。有关详细信息，请参阅 [Gemini API 文档](https://ai.google.dev/gemini-api/docs/speech-generation)。
+
+<Warning>
+
+<strong>Vertex AI 限制</strong>
+
+音频生成模型目前在 Vertex AI 上处于有限预览状态，可能需要允许列表访问。如果在使用 `vertexai=True` 的 TTS 模型时遇到 `INVALID_ARGUMENT` 错误，您的 GCP 项目可能需要加入允许列表。
+
+更多详情，请参阅此 [Google AI 论坛讨论](https://discuss.ai.google.dev/t/request-allowlist-access-for-audio-output-in-gemini-2-5-pro-flash-tts-vertex-ai/108067)。
+
+</Warning>
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-flash-preview-tts") # [!code highlight]
+
+response = model.invoke("Please say The quick brown fox jumps over the lazy dog")
+
+# Base64 encoded binary data of the audio
+wav_data = response.additional_kwargs.get("audio")
+with open("output.wav", "wb") as f:
+    f.write(wav_data)
 ```
 
 ## 工具调用
 
-使用 Google AI 进行工具调用与[使用其他模型进行工具调用](/oss/langchain/tools)大致相同，但在模式（schema）上有一些限制。
+您可以为模型配备要调用的工具。
 
-Google AI API 不允许工具模式包含具有未知属性的对象。例如，以下 Zod 模式将抛出错误：
+```python
+from langchain.tools import tool
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-`const invalidSchema = z.object({ properties: z.record(z.unknown()) });`
+# Define the tool
+@tool(description="Get the current weather in a given location")
+def get_weather(location: str) -> str:
+    return "It's sunny."
 
-和
+# Initialize and bind (potentially multiple) tools to the model
+model_with_tools = ChatGoogleGenerativeAI(model="gemini-3-pro-preview").bind_tools([get_weather])
 
-`const invalidSchema2 = z.record(z.unknown());`
+# Step 1: Model generates tool calls
+messages = [HumanMessage("What's the weather in Boston?")]
+ai_msg = model_with_tools.invoke(messages)
+messages.append(ai_msg)
 
-相反，您应该明确定义对象字段的属性。这是一个示例：
+# Check the tool calls in the response
+print(ai_msg.tool_calls)
 
-```typescript
-import { tool } from "@langchain/core/tools";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import * as z from "zod";
+# Step 2: Execute tools and collect results
+for tool_call in ai_msg.tool_calls:
+    # Execute the tool with the generated arguments
+    tool_result = get_weather.invoke(tool_call)
+    messages.append(tool_result)
 
-// 定义您的工具
-const fakeBrowserTool = tool((_) => {
-  return "The search result is xyz..."
-}, {
-  name: "browser_tool",
-  description: "Useful for when you need to find something on the web or summarize a webpage.",
-  schema: z.object({
-    url: z.string().describe("The URL of the webpage to search."),
-    query: z.string().optional().describe("An optional search query to use."),
-  }),
-})
-
-const llmWithTool = new ChatGoogleGenerativeAI({
-  model: "gemini-pro",
-}).bindTools([fakeBrowserTool]) // 将您的工具绑定到模型
-
-const toolRes = await llmWithTool.invoke([
-  [
-    "human",
-    "Search the web and tell me what the weather will be like tonight in new york. use a popular weather website",
-  ],
-]);
-
-console.log(toolRes.tool_calls);
+# Step 3: Pass results back to model for final response
+final_response = model_with_tools.invoke(messages)
+final_response
 ```
 
 ```text
-[
-  {
-    name: 'browser_tool',
-    args: {
-      url: 'https://www.weather.com',
-      query: 'weather tonight in new york'
+[{'name': 'get_weather', 'args': {'location': 'Boston'}, 'id': '879b4233-901b-4bbb-af56-3771ca8d3a75', 'type': 'tool_call'}]
+```
+
+```text
+AIMessage(content=[{'type': 'text', 'text': 'The weather in Boston is sunny.'}], additional_kwargs={}, response_metadata={'prompt_feedback': {'block_reason': 0, 'safety_ratings': []}, 'finish_reason': 'STOP', 'model_name': 'gemini-3-pro-preview', 'safety_ratings': [], 'model_provider': 'google_genai'}, id='lc_run--190be543-c974-460b-a708-7257892c3121-0', usage_metadata={'input_tokens': 143, 'output_tokens': 7, 'total_tokens': 150, 'input_token_details': {'cache_read': 0}})
+```
+
+## 结构化输出
+
+强制模型以特定结构进行响应。更多信息请参阅 [Gemini API 文档](https://ai.google.dev/gemini-api/docs/structured-output)。
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+from pydantic import BaseModel
+from typing import Literal
+
+class Feedback(BaseModel):
+    sentiment: Literal["positive", "neutral", "negative"]
+    summary: str
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+structured_model = model.with_structured_output(
+    schema=Feedback.model_json_schema(), method="json_schema"
+)
+
+response = structured_model.invoke("The new UI is great!")
+response["sentiment"]  # "positive"
+response["summary"]  # "The user expresses positive..."
+```
+
+对于流式结构化输出，请合并字典而不是使用 `+=`：
+
+```python
+stream = structured_model.stream("The interface is intuitive and beautiful!")
+full = next(stream)
+for chunk in stream:
+    full.update(chunk)  # Merge dictionaries
+print(full)  # Complete structured response
+# -> {'sentiment': 'positive', 'summary': 'The user praises...'}
+```
+
+### 结构化输出方法
+
+支持两种结构化输出方法：
+
+- **`method="json_schema"`（默认）**：使用 Gemini 的原生结构化输出。推荐以获得更好的可靠性，因为它直接约束模型的生成过程，而不是依赖后处理的工具调用。
+- **`method="function_calling"`**：使用工具调用来提取结构化数据。
+
+## 令牌使用量追踪
+
+从响应元数据中访问令牌使用量信息。
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+result = model.invoke("Explain the concept of prompt engineering in one sentence.")
+
+print(result.content)
+print("\nUsage Metadata:")
+print(result.usage_metadata)
+```
+
+```python
+Prompt engineering is the art and science of crafting effective text prompts to elicit desired and accurate responses from large language models.
+
+Usage Metadata:
+{'input_tokens': 10, 'output_tokens': 24, 'total_tokens': 34, 'input_token_details': {'cache_read': 0}}
+```
+
+## 思维支持
+
+某些 Gemini 模型支持可配置的思维深度。根据所使用的模型版本，您可以通过 `thinking_level`（Gemini 3+）或 `thinking_budget`（Gemini 2.5）来控制。
+
+### 思维级别
+
+对于 Gemini 3+ 模型，使用 `thinking_level` 来控制推理深度。一些模型提供商称之为"推理努力"。
+
+| 值 | 模型 | 描述 |
+|-------|--------|-------------|
+| `'minimal'` | Flash | 匹配大多数查询的"无思维"设置 |
+| `'low'` | Flash, Pro | 最小化延迟和成本 |
+| `'medium'` | Flash | 在延迟/成本与推理深度之间取得平衡 |
+| `'high'` | Pro | 最大化推理深度（默认） |
+
+请注意，`minimal` 并不保证思维被关闭。
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-3-pro-preview",
+    thinking_level="low",  # [!code highlight]
+)
+
+response = llm.invoke("How many O's are in Google?")
+```
+
+### Gemini 2.5 模型：`thinking_budget`
+
+对于 Gemini 2.5 模型，请改用 `thinking_budget`（一个整数令牌计数）：
+
+- 设置为 `0` 以禁用思维（在支持的情况下）
+- 设置为 `-1` 进行动态思维（由模型决定）
+- 设置为正整数以限制令牌使用量
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    thinking_budget=1024,  # [!code highlight]
+)
+```
+
+<Warning>
+
+并非所有模型都允许禁用思维。详情请参阅 [Gemini 模型文档](https://ai.google.dev/gemini-api/docs/models)。
+
+</Warning>
+
+### 查看模型思维
+
+要查看思维模型的推理过程，请设置 `include_thoughts=True`：
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-3-pro-preview",
+    include_thoughts=True,  # [!code highlight]
+)
+
+response = llm.invoke("How many O's are in Google? How did you verify your answer?")
+reasoning_tokens = response.usage_metadata["output_token_details"]["reasoning"]
+
+print("Response:", response.content)
+print("Reasoning tokens used:", reasoning_tokens)
+```
+
+```text
+Response: [{'type': 'thinking', 'thinking': '**Analyzing and Cou...'}, {'type': 'text', 'text': 'There a...', 'extras': {'signature': 'EroR...'}}]
+Reasoning tokens used: 672
+```
+
+有关思维的更多信息，请参阅 [Gemini API 文档](https://ai.google.dev/gemini-api/docs/thinking)。
+
+### 思维签名
+
+[思维签名](https://ai.google.dev/gemini-api/docs/thinking) 是模型推理过程的加密表示。它们使 Gemini 能够在多轮对话中保持思维上下文，因为 API 是无状态的，并且独立处理每个请求。
+
+<Note>
+
+如果工具调用响应未传回思维签名，Gemini 3 可能会引发 4xx 错误。升级到 `langchain-google-genai >= 3.1.0` 以确保正确处理。
+
+</Note>
+
+签名出现在 `AIMessage` 响应的两个位置：
+- **文本块**：存储在内容块内的 `extras.signature` 中
+- **工具调用**：存储在 `additional_kwargs["__gemini_function_call_thought_signatures__"]` 中
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-3-pro-preview",
+    include_thoughts=True, # [!code highlight]
+)
+
+response = llm.invoke("How many O's are in Google? How did you verify your answer?")
+
+response.content_blocks[-1]
+```
+
+```text
+{'type': 'text',
+ 'text': 'There are **2** O\'s in the word "Google...',
+ 'extras': {'signature': 'EsUSCsIS...'}}
+```
+
+对于涉及工具调用的多轮对话，您必须将完整的 `AIMessage` 传回给模型，以便保留签名。当您将 `AIMessage` 附加到消息列表时，这会自动发生：
+
+```python
+from langchain.tools import tool
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+@tool
+def get_weather(location: str) -> str:
+    """Get current weather for a location."""
+    return f"Weather in {location}: sunny, 22°C"
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview").bind_tools([get_weather])
+messages = [HumanMessage("What's the weather in Tokyo?")]
+
+# Step 1: Model returns tool call with thought signature attached
+ai_msg = model.invoke(messages)
+messages.append(ai_msg)  # Preserves thought signature
+
+# Step 2: Execute tool and add result
+for tool_call in ai_msg.tool_calls:
+    result = get_weather.invoke(tool_call)
+    messages.append(result)
+
+# Step 3: Model receives signature back, continues reasoning coherently
+final_response = model.invoke(messages)
+```
+
+<Warning>
+
+<strong>不要手动重建消息。</strong> 如果您创建新的 `AIMessage` 而不是传递原始对象，签名将丢失，API 可能会拒绝该请求。
+
+</Warning>
+
+## 内置工具
+
+Google Gemini 支持多种内置工具，可以按通常的方式绑定到模型。
+
+### Google 搜索
+
+详情请参阅 [Gemini 文档](https://ai.google.dev/gemini-api/docs/grounding/search-suggestions)。
+
+::: code-group
+
+```python [Bind to model]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+model_with_search = model.bind_tools([{"google_search": {}}]) # [!code highlight]
+response = model_with_search.invoke("When is the next total solar eclipse in US?")
+
+response.content_blocks
+```
+
+```python [Use on invocation]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+response = model.invoke(
+    "When is the next total solar eclipse in US?",
+    tools=[{"google_search": {}}], # [!code highlight]
+)
+
+response.content_blocks
+```
+
+:::
+
+```text
+[{'type': 'text',
+  'text': 'The next total solar eclipse visible in the contiguous United States will occur on...',
+  'annotations': [{'type': 'citation',
+    'id': 'abc123',
+    'url': '<url for source 1>',
+    'title': '<source 1 title>',
+    'start_index': 0,
+    'end_index': 99,
+    'cited_text': 'The next total solar eclipse...',
+    'extras': {'google_ai_metadata': {'web_search_queries': ['next total solar eclipse in US'],
+       'grounding_chunk_index': 0,
+       'confidence_scores': []}}},
+   ...
+```
+
+### Google 地图
+
+某些模型支持使用 Google Maps 进行落地。地图落地将 Gemini 的生成能力与 Google Maps 当前、事实性的位置数据连接起来。这使得能够提供准确、特定地理位置的响应。详情请参阅 [Gemini 文档](https://ai.google.dev/gemini-api/docs/maps-grounding)。
+
+::: code-group
+
+```python [Bind to model]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-pro")
+
+model_with_maps = model.bind_tools([{"google_maps": {}}]) # [!code highlight]
+response = model_with_maps.invoke(
+    "What are some good Italian restaurants near the Eiffel Tower in Paris?"
+)
+```
+
+```python [Use on invocation]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-pro")
+
+response = model.invoke(
+    "What are some good Italian restaurants near the Eiffel Tower in Paris?",
+    tools=[{"google_maps": {}}], # [!code highlight]
+)
+```
+
+:::
+
+响应将包含来自 Google Maps 的位置信息的落地元数据。
+
+您可以选择使用带有 `lat_lng` 的 `tool_config` 来提供特定的位置上下文。当您希望相对于特定地理点进行落地查询时，这很有用。
+
+::: code-group
+
+```python [Bind to model]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-pro")
+
+# Provide location context (latitude and longitude)
+model_with_maps = model.bind_tools(
+    [{"google_maps": {}}], # [!code highlight]
+    tool_config={
+        "retrieval_config": {  # Eiffel Tower
+            "lat_lng": { # [!code highlight]
+                "latitude": 48.858844, # [!code highlight]
+                "longitude": 2.294351, # [!code highlight]
+            } # [!code highlight]
+        }
     },
-    type: 'tool_call'
-  }
-]
+)
+
+response = model_with_maps.invoke(
+    "What Italian restaurants are within a 5 minute walk from here?"
+)
 ```
 
-### 内置 Google 搜索检索
+```python [Use on invocation]
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-Google 还提供了一个内置的搜索工具，您可以使用它来将内容生成基于现实世界的信息。以下是如何使用它的示例：
+model = ChatGoogleGenerativeAI(model="gemini-2.5-pro")
 
-```typescript
-import { DynamicRetrievalMode, GoogleSearchRetrievalTool } from "@google/generative-ai";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+response = model.invoke(
+    "What Italian restaurants are within a 5 minute walk from here?",
+    tools=[{"google_maps": {}}], # [!code highlight]
+    tool_config={
+        "retrieval_config": {  # Eiffel Tower
+            "lat_lng": { # [!code highlight]
+                "latitude": 48.858844, # [!code highlight]
+                "longitude": 2.294351, # [!code highlight]
+            } # [!code highlight]
+        }
+    },
+)
+```
 
-const searchRetrievalTool: GoogleSearchRetrievalTool = {
-  googleSearchRetrieval: {
-    dynamicRetrievalConfig: {
-      mode: DynamicRetrievalMode.MODE_DYNAMIC,
-      dynamicThreshold: 0.7, // 默认值为 0.7
-    }
-  }
-};
-const searchRetrievalModel = new ChatGoogleGenerativeAI({
-  model: "gemini-2.5-pro",
-  temperature: 0,
-  maxRetries: 0,
-}).bindTools([searchRetrievalTool]);
+:::
 
-const searchRetrievalResult = await searchRetrievalModel.invoke("Who won the 2024 MLB World Series?");
+### URL 上下文
 
-console.log(searchRetrievalResult.content);
+URL 上下文工具使模型能够访问和分析您在提示中提供的 URL 内容。这对于总结网页、从多个来源提取数据或回答有关在线内容的问题等任务非常有用。详情和限制请参阅 [Gemini 文档](https://ai.google.dev/gemini-api/docs/url-context)。
+
+::: code-group
+
+```python [Bind to model]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
+
+model_with_url_context = model.bind_tools([{"url_context": {}}]) # [!code highlight]
+response = model_with_url_context.invoke(
+    "Summarize the content at https://docs.langchain.com"
+)
+```
+
+```python [Use on invocation]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
+
+response = model.invoke(
+    "Summarize the content at https://docs.langchain.com",
+    tools=[{"url_context": {}}], # [!code highlight]
+)
+```
+
+:::
+
+### 代码执行
+
+详情请参阅 [Gemini 文档](https://ai.google.dev/gemini-api/docs/code-execution?lang=python)。
+
+::: code-group
+
+```python [Bind to model]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+model_with_code_interpreter = model.bind_tools([{"code_execution": {}}]) # [!code highlight]
+response = model_with_code_interpreter.invoke("Use Python to calculate 3^3.")
+
+response.content_blocks
+```
+
+```python [Use on invocation]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+response = model.invoke(
+    "Use Python to calculate 3^3.",
+    tools=[{"code_execution": {}}], # [!code highlight]
+)
+
+response.content_blocks
+```
+
+:::
+
+```text
+[{'type': 'server_tool_call',
+  'name': 'code_interpreter',
+  'args': {'code': 'print(3**3)', 'language': <Language.PYTHON: 1>},
+  'id': '...'},
+ {'type': 'server_tool_result',
+  'tool_call_id': '',
+  'status': 'success',
+  'output': '27\n',
+  'extras': {'block_type': 'code_execution_result',
+   'outcome': <Outcome.OUTCOME_OK: 1>}},
+ {'type': 'text', 'text': 'The calculation of 3 to the power of 3 is 27.'}]
+```
+
+### 计算机使用
+
+Gemini 2.5 计算机使用模型 (`gemini-2.5-computer-use-preview-10-2025`) 可以与浏览器环境交互，以自动化点击、输入和滚动等网页任务。
+
+<Warning>
+
+<strong>预览版模型限制</strong>
+
+计算机使用模型处于预览阶段，可能会产生意外行为。请务必监督自动化任务，避免用于敏感数据或关键操作。安全最佳实践请参阅 [Gemini API 文档](https://ai.google.dev/gemini-api/docs/computer-use)。
+
+</Warning>
+
+::: code-group
+
+```python [Bind to model]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-computer-use-preview-10-2025") # [!code highlight]
+model_with_computer = model.bind_tools([{"computer_use": {}}]) # [!code highlight]
+
+response = model_with_computer.invoke("Please navigate to example.com")
+
+response.content_blocks
+```
+
+```python [Use on invocation]
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-computer-use-preview-10-2025") # [!code highlight]
+
+response = model.invoke(
+    "Please navigate to example.com",
+    tools=[{"computer_use": {}}], # [!code highlight]
+)
+
+response.content_blocks
+```
+
+:::
+
+```text
+[{'type': 'tool_call',
+  'id': '08a8b175-16ab-4861-8965-b736d5d4dd7e',
+  'name': 'open_web_browser',
+  'args': {}}]
+```
+
+您可以配置环境并排除特定的 UI 操作：
+
+```python [Advanced configuration]
+from langchain_google_genai import ChatGoogleGenerativeAI, Environment
+
+model = ChatGoogleGenerativeAI(model="gemini-2.5-computer-use-preview-10-2025") # [!code highlight]
+
+# Specify the environment (browser is default)
+model_with_computer = model.bind_tools(
+    [{"computer_use": {"environment": Environment.ENVIRONMENT_BROWSER}}] # [!code highlight]
+)
+
+# Exclude specific UI actions
+model_with_computer = model.bind_tools(
+    [
+        {
+            "computer_use": {
+                "environment": Environment.ENVIRONMENT_BROWSER,
+                "excludedPredefinedFunctions": [ # [!code highlight]
+                    "drag_and_drop", # [!code highlight]
+                    "key_combination", # [!code highlight]
+                ], # [!code highlight]
+            }
+        }
+    ]
+)
+
+response = model_with_computer.invoke("Search for Python tutorials")
+```
+
+模型会返回 UI 操作（如 `click_at`、`type_text_at`、`scroll`）的函数调用，并附带归一化坐标。您需要在浏览器自动化框架中实现这些操作的实际执行。
+
+## 安全设置
+
+Gemini 模型具有可覆盖的默认安全设置。如果您的模型收到大量 `'Safety Warnings'`，可以尝试调整模型的 `safety_settings` 属性。例如，要关闭对危险内容的安全阻止，可以按如下方式构建您的 LLM：
+
+```python
+from langchain_google_genai import (
+    ChatGoogleGenerativeAI,
+    HarmBlockThreshold,
+    HarmCategory,
+)
+
+llm = ChatGoogleGenerativeAI(
+        model="gemini-3-pro-preview",
+        safety_settings={
+        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+    },
+)
+```
+
+有关可用类别和阈值的枚举，请参阅 Google 的 [安全设置类型](https://ai.google.dev/api/python/google/generativeai/types/SafetySettingDict)。
+
+## 上下文缓存
+
+上下文缓存允许您存储和重用内容（例如 PDF、图像）以加快处理速度。`cached_content` 参数接受通过 Google Generative AI API 创建的缓存名称。
+
+:::: details 单文件示例
+
+此示例缓存单个文件并对其进行查询。
+
+```python
+import time
+from google import genai
+from google.genai import types
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+client = genai.Client()
+
+# Upload file
+file = client.files.upload(file="path/to/your/file")
+while file.state.name == "PROCESSING":
+    time.sleep(2)
+    file = client.files.get(name=file.name)
+
+# Create cache
+model = "gemini-3-pro-preview"
+cache = client.caches.create(
+    model=model,
+    config=types.CreateCachedContentConfig(
+        display_name="Cached Content",
+        system_instruction=(
+            "You are an expert content analyzer, and your job is to answer "
+            "the user's query based on the file you have access to."
+        ),
+        contents=[file],
+        ttl="300s",
+    ),
+)
+
+# Query with LangChain
+llm = ChatGoogleGenerativeAI(
+    model=model,
+    cached_content=cache.name,
+)
+message = HumanMessage(content="Summarize the main points of the content.")
+llm.invoke([message])
+```
+
+::::
+
+:::: details 多文件示例
+
+此示例使用 `Part` 缓存两个文件并一起查询它们。
+
+```python
+import time
+from google import genai
+from google.genai.types import CreateCachedContentConfig, Content, Part
+from langchain.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+client = genai.Client()
+
+# Upload files
+file_1 = client.files.upload(file="./file1")
+while file_1.state.name == "PROCESSING":
+    time.sleep(2)
+    file_1 = client.files.get(name=file_1.name)
+
+file_2 = client.files.upload(file="./file2")
+while file_2.state.name == "PROCESSING":
+    time.sleep(2)
+    file_2 = client.files.get(name=file_2.name)
+
+# Create cache with multiple files
+contents = [
+    Content(
+        role="user",
+        parts=[
+            Part.from_uri(file_uri=file_1.uri, mime_type=file_1.mime_type),
+            Part.from_uri(file_uri=file_2.uri, mime_type=file_2.mime_type),
+        ],
+    )
+]
+model = "gemini-3-pro-preview"
+cache = client.caches.create(
+    model=model,
+    config=CreateCachedContentConfig(
+        display_name="Cached Contents",
+        system_instruction=(
+            "You are an expert content analyzer, and your job is to answer "
+            "the user's query based on the files you have access to."
+        ),
+        contents=contents,
+        ttl="300s",
+    ),
+)
+
+# Query with LangChain
+llm = ChatGoogleGenerativeAI(
+    model=model,
+    cached_content=cache.name,
+)
+message = HumanMessage(
+    content="Provide a summary of the key information across both files."
+)
+llm.invoke([message])
+```
+
+::::
+
+更多信息请参阅 Gemini API 文档中的 [上下文缓存](https://ai.google.dev/gemini-api/docs/caching?lang=python)。
+
+## 响应元数据
+
+从模型响应中访问响应元数据。
+
+```python
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+llm = ChatGoogleGenerativeAI(model="gemini-3-pro-preview")
+
+response = llm.invoke("Hello!")
+response.response_metadata
 ```
 
 ```text
-The Los Angeles Dodgers won the 2024 World Series, defeating the New York Yankees in Game 5 on October 30, 2024, by a score of 7-6. This victory marks the Dodgers' eighth World Series title and their first in a full season since 1988.  They achieved this win by overcoming a 5-0 deficit, making them the first team in World Series history to win a clinching game after being behind by such a margin.  The Dodgers also became the first team in MLB postseason history to overcome a five-run deficit, fall behind again, and still win.  Walker Buehler earned the save in the final game, securing the championship for the Dodgers.
+{'prompt_feedback': {'block_reason': 0, 'safety_ratings': []},
+ 'finish_reason': 'STOP',
+ 'model_name': 'gemini-3-pro-preview',
+ 'safety_ratings': [],
+ 'model_provider': 'google_genai'}
 ```
 
-响应还包括有关搜索结果的元数据：
+---
 
-```typescript
-console.dir(searchRetrievalResult.response_metadata?.groundingMetadata, { depth: null });
-```
+## API 参考
 
-```javascript
-{
-  searchEntryPoint: {
-renderedContent: '<style>\n' +
-'.container {\n' +
-'  align-items: center;\n' +
-'  border-radius: 8px;\n' +
-'  display: flex;\n' +
-'  font-family: Google Sans, Roboto, sans-serif;\n' +
-'  font-size: 14px;\n' +
-'  line-height: 20px;\n' +
-'  padding: 8px 12px;\n' +
-'}\n' +
-'.chip {\n' +
-'  display: inline-block;\n' +
-'  border: solid 1px;\n' +
-'  border-radius: 16px;\n' +
-'  min-width: 14px;\n' +
-'  padding: 5px 16px;\n' +
-'  text-align: center;\n' +
-'  user-select: none;\n' +
-'  margin: 0 8px;\n' +
-'  -webkit-tap-highlight-color: transparent;\n' +
-'}\n' +
-'.carousel {\n' +
-'  overflow: auto;\n' +
-'  scrollbar-width: none;\n' +
-'  white-space: nowrap;\n' +
-'  margin-right: -12px;\n' +
-'}\n' +
-'.headline {\n' +
-'  display: flex;\n' +
-'  margin-right: 4px;\n' +
-'}\n' +
-'.gradient-container {\n' +
-'  position: relative;\n' +
-'}\n' +
-'.gradient {\n' +
-'  position: absolute;\n' +
-'  transform: translate(3px, -9px);\n' +
-'  height: 36px;\n' +
-'  width: 9px;\n' +
-'}\n' +
-'@media (prefers-color-scheme: light) {\n' +
-'  .container {\n' +
-'    background-color: #fafafa;\n' +
-'    box-shadow: 0 0 0 1px #0000000f;\n' +
-'  }\n' +
-'  .headline-label {\n' +
-'    color: #1f1f1f;\n' +
-'  }\n' +
-'  .chip {\n' +
-'    background-color: #ffffff;\n' +
-'    border-color: #d2d2d2;\n' +
-'    color: #5e5e5e;\n' +
-'    text-decoration: none;\n' +
-'  }\n' +
-'  .chip:hover {\n' +
-'    background-color: #f2f2f2;\n' +
-'  }\n' +
-'  .chip:focus {\n' +
-'    background-color: #f2f2f2;\n' +
-'  }\n' +
-'  .chip:active {\n' +
-'    background-color: #d8d8d8;\n' +
-'    border-color: #b6b6b6;\n' +
-'  }\n' +
-'  .logo-dark {\n' +
-'    display: none;\n' +
-'  }\n' +
-'  .gradient {\n' +
-'    background: linear-gradient(90deg, #fafafa 15%, #fafafa00 100%);\n' +
-'  }\n' +
-'}\n' +
-'@media (prefers-color-scheme: dark) {\n' +
-'  .container {\n' +
-'    background-color: #1f1f1f;\n' +
-'    box-shadow: 0 0 0 1px #ffffff26;\n' +
-'  }\n' +
-'  .headline-label {\n' +
-'    color: #fff;\n' +
-'  }\n' +
-'  .chip {\n' +
-'    background-color: #2c2c2c;\n' +
-'    border-color: #3c4043;\n' +
-'    color: #fff;\n' +
-'    text-decoration: none;\n' +
-'  }\n' +
-'  .chip:hover {\n' +
-'    background-color: #353536;\n' +
-'  }\n' +
-'  .chip:focus {\n' +
-'    background-color: #353536;\n' +
-'  }\n' +
-'  .chip:active {\n' +
-'    background-color: #464849;\n' +
-'    border-color: #53575b;\n' +
-'  }\n' +
-'  .logo-light {\n' +
-'    display: none;\n' +
-'  }\n' +
-'  .gradient {\n' +
-'    background: linear-gradient(90deg, #1f1f1f 15%, #1f1f1f00 100%);\n' +
-'  }\n' +
-'}\n' +
-'</style>\n' +
-'<div class="container">\n' +
-'  <div class="headline">\n' +
-'    <svg class="logo-light" width="18" height="18" viewBox="9 9 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
-'      <path fill-rule="evenodd" clip-rule="evenodd" d="M42.8622 27.0064C42.8622 25.7839 42.7525 24.6084 42.5487 23.4799H26.3109V30.1568H35.5897C35.1821 32.3041 33.9596 34.1222 32.1258 35.3448V39.6864H37.7213C40.9814 36.677 42.8622 32.2571 42.8622 27.0064V27.0064Z" fill="#4285F4"/>\n' +
-'      <path fill-rule="evenodd" clip-rule="evenodd" d="M26.3109 43.8555C30.9659 43.8555 34.8687 42.3195 37.7213 39.6863L32.1258 35.3447C30.5898 36.3792 28.6306 37.0061 26.3109 37.0061C21.8282 37.0061 18.0195 33.9811 16.6559 29.906H10.9194V34.3573C13.7563 39.9841 19.5712 43.8555 26.3109 43.8555V43.8555Z" fill="#34A853"/>\n' +
-'      <path fill-rule="evenodd" clip-rule="evenodd" d="M16.6559 29.8904C16.3111 28.8559 16.1074 27.7588 16.1074 26.6146C16.1074 25.4704 16.3111 24.3733
+有关所有功能和配置选项的详细文档，请前往 <a href="https://reference.langchain.com/python/integrations/langchain_google_genai/#langchain_google_genai.ChatGoogleGenerativeAI" target="_blank" rel="noreferrer" class="link"><code>ChatGoogleGenerativeAI</code></a> API 参考。
+

@@ -25,7 +25,7 @@ uv add ctranslate2
 
 ## 大语言模型
 
-查看[使用示例](/oss/integrations/llms/ctranslate2)。
+查看[使用示例](/oss/javascript/integrations/llms/ctranslate2)。
 
 ```python
 from langchain_community.llms import CTranslate2

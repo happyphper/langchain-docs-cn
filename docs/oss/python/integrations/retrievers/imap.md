@@ -3,7 +3,7 @@ title: Imap
 ---
 # ImapRetriever
 
-本指南将帮助您开始使用 IMAP [检索器](/oss/integrations/retrievers)。`ImapRetriever` 能够从 IMAP 服务器搜索和检索电子邮件，并将其转换为 LangChain `Document` 对象。
+本指南将帮助您开始使用 IMAP [检索器](/oss/python/integrations/retrievers)。`ImapRetriever` 能够从 IMAP 服务器搜索和检索电子邮件，并将其转换为 LangChain `Document` 对象。
 
 ## 集成详情
 

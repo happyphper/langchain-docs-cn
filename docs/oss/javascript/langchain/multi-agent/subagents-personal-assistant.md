@@ -6,25 +6,25 @@ sidebarTitle: 'Subagents: Personal assistant'
 
 ## 概述
 
-**监督者模式**是一种[多智能体](/oss/langchain/multi-agent)架构，其中一个中央监督者智能体协调专门的执行者智能体。当任务需要不同类型的专业知识时，这种方法表现出色。与其构建一个管理跨领域工具选择的智能体，不如创建由理解整体工作流程的监督者协调的、专注的专家。
+**监督者模式**是一种[多智能体](/oss/javascript/langchain/multi-agent)架构，其中一个中央监督者智能体协调专门的执行者智能体。当任务需要不同类型的专业知识时，这种方法表现出色。与其构建一个管理跨领域工具选择的智能体，不如创建由理解整体工作流程的监督者协调的、专注的专家。
 
 在本教程中，你将构建一个个人助理系统，通过一个现实的工作流程来展示这些优势。该系统将协调两个职责根本不同的专家：
 
 - 一个**日历智能体**，负责处理日程安排、可用性检查和事件管理。
 - 一个**电子邮件智能体**，负责管理通信、起草消息和发送通知。
 
-我们还将引入[人工介入审查](/oss/langchain/human-in-the-loop)，允许用户根据需要批准、编辑和拒绝操作（例如外发电子邮件）。
+我们还将引入[人工介入审查](/oss/javascript/langchain/human-in-the-loop)，允许用户根据需要批准、编辑和拒绝操作（例如外发电子邮件）。
 
 ### 为什么使用监督者？
 
-多智能体架构允许你将[工具](/oss/langchain/tools)划分给各个执行者，每个执行者都有自己的提示词或指令。考虑一个可以直接访问所有日历和电子邮件 API 的智能体：它必须从许多相似的工具中进行选择，理解每个 API 的确切格式，并同时处理多个领域。如果性能下降，将相关工具和关联的提示词分离到逻辑组中可能会有所帮助（部分是为了管理迭代改进）。
+多智能体架构允许你将[工具](/oss/javascript/langchain/tools)划分给各个执行者，每个执行者都有自己的提示词或指令。考虑一个可以直接访问所有日历和电子邮件 API 的智能体：它必须从许多相似的工具中进行选择，理解每个 API 的确切格式，并同时处理多个领域。如果性能下降，将相关工具和关联的提示词分离到逻辑组中可能会有所帮助（部分是为了管理迭代改进）。
 
 ### 概念
 
 我们将涵盖以下概念：
 
-- [多智能体系统](/oss/langchain/multi-agent)
-- [人工介入审查](/oss/langchain/human-in-the-loop)
+- [多智能体系统](/oss/javascript/langchain/multi-agent)
+- [人工介入审查](/oss/javascript/langchain/human-in-the-loop)
 
 ## 设置
 
@@ -48,7 +48,7 @@ pnpm add langchain
 
 :::
 
-更多详情，请参阅我们的[安装指南](/oss/langchain/install)。
+更多详情，请参阅我们的[安装指南](/oss/javascript/langchain/install)。
 
 ### LangSmith
 
@@ -676,11 +676,11 @@ for await (const step of stream) {
 
 ## 6. 添加人工介入审查
 
-对敏感操作进行[人工介入审查](/oss/langchain/human-in-the-loop)可能是审慎的做法。LangChain 包含[内置中间件](/oss/langchain/human-in-the-loop#configuring-interrupts)来审查工具调用，在本例中是子智能体调用的工具。
+对敏感操作进行[人工介入审查](/oss/javascript/langchain/human-in-the-loop)可能是审慎的做法。LangChain 包含[内置中间件](/oss/javascript/langchain/human-in-the-loop#configuring-interrupts)来审查工具调用，在本例中是子智能体调用的工具。
 
 让我们为两个子智能体添加人工介入审查：
-- 我们将 `create_calendar_event` 和 `send_email` 工具配置为中断，允许所有[响应类型](/oss/langchain/human-in-the-loop)（`approve`、`edit`、`reject`）
-- 我们添加一个[检查点](/oss/langchain/short-term-memory)**仅到顶层智能体**。这是暂停和恢复执行所必需的。
+- 我们将 `create_calendar_event` 和 `send_email` 工具配置为中断，允许所有[响应类型](/oss/javascript/langchain/human-in-the-loop)（`approve`、`edit`、`reject`）
+- 我们添加一个[检查点](/oss/javascript/langchain/short-term-memory)**仅到顶层智能体**。这是暂停和恢复执行所必需的。
 
 ```typescript
 import { createAgent, humanInTheLoopMiddleware } from "langchain"; // [!code highlight]
@@ -790,7 +790,7 @@ Tool: send_email
 Args: {'to': ['designteam@example.com'], 'subject': 'Reminder: Review New Mockups Before Meeting Next Tuesday at 2pm', 'body': "Hello Team,\n\nThis is a reminder to review the new mockups ahead of our meeting scheduled for next Tuesday at 2pm. Your feedback and insights will be valuable for our discussion and next steps.\n\nPlease ensure you've gone through the designs and are ready to share your thoughts during the meeting.\n\nThank you!\n\nBest regards,\n[Your Name]"}
 ```
 
-我们可以通过使用 <a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Command.html" target="_blank" rel="noreferrer" class="link"><code>Command</code></a> 引用其 ID 来为每个中断指定决策。有关更多详细信息，请参阅[人工介入指南](/oss/langchain/human-in-the-loop)。出于演示目的，这里我们将接受日历事件，但编辑外发电子邮件的主题：
+我们可以通过使用 <a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Command.html" target="_blank" rel="noreferrer" class="link"><code>Command</code></a> 引用其 ID 来为每个中断指定决策。有关更多详细信息，请参阅[人工介入指南](/oss/javascript/langchain/human-in-the-loop)。出于演示目的，这里我们将接受日历事件，但编辑外发电子邮件的主题：
 
 ```typescript
 import { Command } from "@langchain/langgraph"; // [!code highlight]
@@ -955,11 +955,11 @@ const scheduleEvent = tool(
 
 当你有多个不同的领域（日历、电子邮件、CRM、数据库），每个领域都有多个工具或复杂逻辑，你希望集中控制工作流程，并且子智能体不需要直接与用户对话时，请使用监督者模式。
 
-对于只有少数工具的简单情况，请使用单个智能体。当智能体需要与用户对话时，请改用[交接](/oss/langchain/multi-agent/handoffs)。对于智能体之间的点对点协作，请考虑其他多智能体模式。
+对于只有少数工具的简单情况，请使用单个智能体。当智能体需要与用户对话时，请改用[交接](/oss/javascript/langchain/multi-agent/handoffs)。对于智能体之间的点对点协作，请考虑其他多智能体模式。
 
 </Tip>
 
 ## 后续步骤
 
-了解用于智能体间对话的[交接](/oss/langchain/multi-agent/handoffs)，探索[上下文工程](/oss/langchain/context-engineering)以微调信息流，阅读[多智能体概述](/oss/langchain/multi-agent)以比较不同模式，并使用 [LangSmith](https://smith.langchain.com) 来调试和监控你的多智能体系统。
+了解用于智能体间对话的[交接](/oss/javascript/langchain/multi-agent/handoffs)，探索[上下文工程](/oss/javascript/langchain/context-engineering)以微调信息流，阅读[多智能体概述](/oss/javascript/langchain/multi-agent)以比较不同模式，并使用 [LangSmith](https://smith.langchain.com) 来调试和监控你的多智能体系统。
 

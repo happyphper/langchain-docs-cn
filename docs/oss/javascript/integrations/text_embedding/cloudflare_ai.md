@@ -1,7 +1,7 @@
 ---
 title: CloudflareWorkersAIEmbeddings
 ---
-本文将帮助您开始使用 LangChain 结合 Cloudflare Workers AI [嵌入模型](/oss/integrations/text_embedding)。有关 `CloudflareWorkersAIEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_cloudflare.CloudflareWorkersAIEmbeddings.html)。
+本文将帮助您开始使用 LangChain 结合 Cloudflare Workers AI [嵌入模型](/oss/javascript/integrations/text_embedding)。有关 `CloudflareWorkersAIEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_cloudflare.CloudflareWorkersAIEmbeddings.html)。
 
 ## 概述
 
@@ -63,7 +63,7 @@ pnpm add @langchain/cloudflare @langchain/core
 
 ## 用法
 
-以下是一个示例 Worker，它使用 Workers AI 嵌入与 [Cloudflare Vectorize 向量存储](/oss/integrations/vectorstores/cloudflare_vectorize/)。
+以下是一个示例 Worker，它使用 Workers AI 嵌入与 [Cloudflare Vectorize 向量存储](/oss/javascript/integrations/vectorstores/cloudflare_vectorize/)。
 
 ```typescript
 // @ts-nocheck

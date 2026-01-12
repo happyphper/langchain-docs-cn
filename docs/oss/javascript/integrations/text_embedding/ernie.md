@@ -7,7 +7,7 @@ title: 文心一言
 
 我们建议使用 `langchain_community.embeddings.ErnieEmbeddings` 的用户改用 `langchain_community.embeddings.QianfanEmbeddingsEndpoint`。
 
-`QianfanEmbeddingsEndpoint` 的文档在[这里](/oss/integrations/text_embedding/baidu_qianfan_endpoint/)。
+`QianfanEmbeddingsEndpoint` 的文档在[这里](/oss/javascript/integrations/text_embedding/baidu_qianfan_endpoint/)。
 
 我们推荐用户使用 `QianfanEmbeddingsEndpoint` 主要有两个原因：
 

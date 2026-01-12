@@ -7,7 +7,7 @@ title: PromptLayer OpenAI
 
 此示例展示了如何连接到 [PromptLayer](https://www.promptlayer.com) 以开始记录您的 OpenAI 请求。
 
-另一个示例在[这里](/oss/integrations/providers/promptlayer)。
+另一个示例在[这里](/oss/javascript/integrations/providers/promptlayer)。
 
 ## 安装 PromptLayer
 

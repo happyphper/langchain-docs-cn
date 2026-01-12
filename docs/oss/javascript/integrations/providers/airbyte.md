@@ -33,7 +33,7 @@ uv add langchain-airbyte
 
 ### AirbyteLoader
 
-查看[使用示例](/oss/integrations/document_loaders/airbyte)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/airbyte)。
 
 ```python
 from langchain_airbyte import AirbyteLoader

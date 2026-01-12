@@ -17,8 +17,8 @@ pip install langchain-netmind
 
 ## 聊天模型
 
-有关 Netmind 聊天模型的更多信息，请访问[此指南](/oss/integrations/chat/netmind)。
+有关 Netmind 聊天模型的更多信息，请访问[此指南](/oss/javascript/integrations/chat/netmind)。
 
 ## 嵌入模型
 
-有关 Netmind 嵌入模型的更多信息，请访问[此指南](/oss/integrations/text_embedding/netmind)。
+有关 Netmind 嵌入模型的更多信息，请访问[此指南](/oss/javascript/integrations/text_embedding/netmind)。

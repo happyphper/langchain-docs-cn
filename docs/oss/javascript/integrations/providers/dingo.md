@@ -29,4 +29,4 @@ DingoDB 索引存在一个包装器，允许您将其用作向量存储，无论
 from langchain_community.vectorstores import Dingo
 ```
 
-有关 DingoDB 包装器的更详细演练，请参阅 [此笔记本](/oss/integrations/vectorstores/dingo)
+有关 DingoDB 包装器的更详细演练，请参阅 [此笔记本](/oss/javascript/integrations/vectorstores/dingo)

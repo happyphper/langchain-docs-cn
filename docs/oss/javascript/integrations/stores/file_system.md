@@ -8,7 +8,7 @@ title: LocalFileStore
 
 </Tip>
 
-本文将帮助您开始使用 [LocalFileStore](/oss/integrations/stores)。如需了解 LocalFileStore 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/langchain.storage_file_system.LocalFileStore.html)。
+本文将帮助您开始使用 [LocalFileStore](/oss/javascript/integrations/stores)。如需了解 LocalFileStore 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/langchain.storage_file_system.LocalFileStore.html)。
 
 ## 概述
 

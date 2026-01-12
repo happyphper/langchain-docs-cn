@@ -1,7 +1,7 @@
 ---
 title: ChatOCIGenAI
 ---
-本指南提供了 OCIGenAI [聊天模型](/oss/langchain/models) 的快速入门概览。有关 ChatOCIGenAI 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.oci_generative_ai.ChatOCIGenAI.html)。
+本指南提供了 OCIGenAI [聊天模型](/oss/javascript/langchain/models) 的快速入门概览。有关 ChatOCIGenAI 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.oci_generative_ai.ChatOCIGenAI.html)。
 
 Oracle Cloud Infrastructure (OCI) Generative AI 是一项全托管服务，提供一套涵盖广泛用例的、可定制的最先进大型语言模型 (LLMs)，并通过单一 API 提供。使用 OCI Generative AI 服务，您可以访问开箱即用的预训练模型，也可以在专用的 AI 集群上基于您自己的数据创建和托管您自己微调的自定义模型。该服务和 API 的详细文档可在此处 __[查看](https://docs.oracle.com/en-us/iaas/Content/generative-ai/home.htm)__ 和 __[此处](https://docs.oracle.com/en-us/iaas/api/#/en/generative-ai/20231130/)__。
 
@@ -15,7 +15,7 @@ Oracle Cloud Infrastructure (OCI) Generative AI 是一项全托管服务，提�
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools/) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools/) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
 

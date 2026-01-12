@@ -4,9 +4,9 @@ title: AnthropicLLM
 
 <Warning>
 
-<strong>您当前正在查看的是关于使用 Anthropic 旧版 Claude 2 模型作为文本补全模型的文档页面。最新且最受欢迎的 Anthropic 模型是 [聊天补全模型](/oss/langchain/models)，而文本补全模型已被弃用。</strong>
+<strong>您当前正在查看的是关于使用 Anthropic 旧版 Claude 2 模型作为文本补全模型的文档页面。最新且最受欢迎的 Anthropic 模型是 [聊天补全模型](/oss/javascript/langchain/models)，而文本补全模型已被弃用。</strong>
 
-您可能正在寻找 [这个页面](/oss/integrations/chat/anthropic/)。
+您可能正在寻找 [这个页面](/oss/javascript/integrations/chat/anthropic/)。
 
 </Warning>
 

@@ -37,14 +37,14 @@ chat = ChatPipeshift(api_key="<your_api_key>", model="meta-llama/Meta-Llama-3.1-
 
 ## 聊天模型
 
-查看一个[示例](/oss/integrations/chat/pipeshift)。
+查看一个[示例](/oss/python/integrations/chat/pipeshift)。
 
 ```python
 from langchain_pipeshift import ChatPipeshift
 ```
 ## 大语言模型
 
-查看一个[示例](/oss/integrations/llms/pipeshift)。
+查看一个[示例](/oss/python/integrations/llms/pipeshift)。
 
 ```python
 from langchain_pipeshift import Pipeshift

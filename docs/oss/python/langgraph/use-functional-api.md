@@ -2,11 +2,11 @@
 title: 使用函数式 API
 sidebarTitle: Use the Functional API
 ---
-[**Functional API**](/oss/langgraph/functional-api) 允许您以最小的代码改动，为您的应用程序添加 LangGraph 的核心功能——[持久化](/oss/langgraph/persistence)、[记忆](/oss/langgraph/add-memory)、[人在回路](/oss/langgraph/interrupts) 和 [流式传输](/oss/langgraph/streaming)。
+[**Functional API**](/oss/python/langgraph/functional-api) 允许您以最小的代码改动，为您的应用程序添加 LangGraph 的核心功能——[持久化](/oss/python/langgraph/persistence)、[记忆](/oss/python/langgraph/add-memory)、[人在回路](/oss/python/langgraph/interrupts) 和 [流式传输](/oss/python/langgraph/streaming)。
 
 <Tip>
 
-有关 Functional API 的概念性信息，请参阅 [Functional API](/oss/langgraph/functional-api)。
+有关 Functional API 的概念性信息，请参阅 [Functional API](/oss/python/langgraph/functional-api)。
 
 </Tip>
 
@@ -154,7 +154,7 @@ print(result)
 
 ## 调用图
 
-**Functional API** 和 [**Graph API**](/oss/langgraph/graph-api) 可以在同一个应用程序中一起使用，因为它们共享相同的底层运行时。
+**Functional API** 和 [**Graph API**](/oss/python/langgraph/graph-api) 可以在同一个应用程序中一起使用，因为它们共享相同的底层运行时。
 
 ```python
 from langgraph.func import entrypoint
@@ -259,7 +259,7 @@ print(main.invoke({"x": 6, "y": 7}, config=config))  # Output: {'product': 42}
 
 ## 流式传输
 
-**Functional API** 使用与 **Graph API** 相同的流式传输机制。请阅读 [**流式传输指南**](/oss/langgraph/streaming) 部分以获取更多详细信息。
+**Functional API** 使用与 **Graph API** 相同的流式传输机制。请阅读 [**流式传输指南**](/oss/python/langgraph/streaming) 部分以获取更多详细信息。
 
 使用流式 API 同时流式传输更新和自定义数据的示例。
 
@@ -306,7 +306,7 @@ for mode, chunk in main.stream(   # [!code highlight]
 <Warning>
 
 **Python < 3.11 下的异步**
-如果使用 Python < 3.11 并编写异步代码，使用 <a href="https://reference.langchain.com/python/langgraph/config/#langgraph.config.get_stream_writer" target="_blank" rel="noreferrer" class="link"><code>get_stream_writer</code></a> 将无效。请直接使用 `StreamWriter` 类。更多详情请参阅 [Python < 3.11 下的异步](/oss/langgraph/streaming#async)。
+如果使用 Python < 3.11 并编写异步代码，使用 <a href="https://reference.langchain.com/python/langgraph/config/#langgraph.config.get_stream_writer" target="_blank" rel="noreferrer" class="link"><code>get_stream_writer</code></a> 将无效。请直接使用 `StreamWriter` 类。更多详情请参阅 [Python < 3.11 下的异步](/oss/python/langgraph/streaming#async)。
 
 ```python
 from langgraph.types import StreamWriter
@@ -469,11 +469,11 @@ main.invoke(None, config=config)
 
 ## 人在回路
 
-Functional API 支持使用 <a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.interrupt" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 函数和 `Command` 原语实现 [人在回路](/oss/langgraph/interrupts) 工作流。
+Functional API 支持使用 <a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.interrupt" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 函数和 `Command` 原语实现 [人在回路](/oss/python/langgraph/interrupts) 工作流。
 
 ### 基本的人在回路工作流
 
-我们将创建三个 [任务](/oss/langgraph/functional-api#task)：
+我们将创建三个 [任务](/oss/python/langgraph/functional-api#task)：
 
 1. 追加 `"bar"`。
 2. 暂停等待人工输入。恢复时，追加人工输入。
@@ -500,7 +500,7 @@ def step_3(input_query):
     return f"{input_query} qux"
 ```
 
-现在，我们可以在一个 [入口点](/oss/langgraph/functional-api#entrypoint) 中组合这些任务：
+现在，我们可以在一个 [入口点](/oss/python/langgraph/functional-api#entrypoint) 中组合这些任务：
 
 ```python
 from langgraph.checkpoint.memory import InMemorySaver
@@ -516,7 +516,7 @@ def graph(input_query):
     return result_3
 ```
 
-[interrupt()](/oss/langgraph/interrupts#pause-using-interrupt) 在任务内部被调用，使人工能够审查和编辑前一个任务的输出。先前任务（本例中为 `step_1`）的结果会被持久化，因此在 <a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.interrupt" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 之后不会再次运行。
+[interrupt()](/oss/python/langgraph/interrupts#pause-using-interrupt) 在任务内部被调用，使人工能够审查和编辑前一个任务的输出。先前任务（本例中为 `step_1`）的结果会被持久化，因此在 <a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.interrupt" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 之后不会再次运行。
 
 让我们发送一个查询字符串：
 
@@ -528,7 +528,7 @@ for event in graph.stream("foo", config):
     print("\n")
 ```
 
-注意，我们在 `step_1` 之后通过 <a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.interrupt" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 暂停了。中断提供了恢复运行的指令。要恢复，我们发出一个包含 `human_feedback` 任务期望数据的 [`Command`](/oss/langgraph/interrupts#resuming-interrupts)。
+注意，我们在 `step_1` 之后通过 <a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.interrupt" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 暂停了。中断提供了恢复运行的指令。要恢复，我们发出一个包含 `human_feedback` 任务期望数据的 [`Command`](/oss/python/langgraph/interrupts#resuming-interrupts)。
 
 ```python
 # Continue execution
@@ -541,7 +541,7 @@ for event in graph.stream(Command(resume="baz"), config):
 
 ### 审查工具调用
 
-要在执行前审查工具调用，我们添加一个调用 [`interrupt`](/oss/langgraph/interrupts#pause-using-interrupt) 的 `review_tool_call` 函数。当调用此函数时，执行将暂停，直到我们发出恢复命令。
+要在执行前审查工具调用，我们添加一个调用 [`interrupt`](/oss/python/langgraph/interrupts#pause-using-interrupt) 的 `review_tool_call` 函数。当调用此函数时，执行将暂停，直到我们发出恢复命令。
 
 给定一个工具调用，我们的函数将 <a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.interrupt" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 以等待人工审查。此时我们可以：
 
@@ -573,7 +573,7 @@ def review_tool_call(tool_call: ToolCall) -> Union[ToolCall, ToolMessage]:
         )
 ```
 
-现在我们可以更新我们的 [入口点](/oss/langgraph/functional-api#entrypoint) 来审查生成的工具调用。如果工具调用被接受或修改，我们像以前一样执行。否则，我们只追加人工提供的 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.ToolMessage" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>。先前任务（本例中是初始模型调用）的结果会被持久化，因此在 <a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.interrupt" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 之后不会再次运行。
+现在我们可以更新我们的 [入口点](/oss/python/langgraph/functional-api#entrypoint) 来审查生成的工具调用。如果工具调用被接受或修改，我们像以前一样执行。否则，我们只追加人工提供的 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.ToolMessage" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>。先前任务（本例中是初始模型调用）的结果会被持久化，因此在 <a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.interrupt" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 之后不会再次运行。
 
 ```python
 from langgraph.checkpoint.memory import InMemorySaver
@@ -624,7 +624,7 @@ def agent(messages, previous):
 
 ## 短期记忆
 
-短期记忆允许跨同一 **线程 ID** 的不同 **调用** 存储信息。更多详情请参阅 [短期记忆](/oss/langgraph/functional-api#short-term-memory)。
+短期记忆允许跨同一 **线程 ID** 的不同 **调用** 存储信息。更多详情请参阅 [短期记忆](/oss/python/langgraph/functional-api#short-term-memory)。
 
 ### 管理检查点
 
@@ -810,11 +810,11 @@ for chunk in workflow.stream([input_message], config, stream_mode="values"):
 
 ## 长期记忆
 
-[长期记忆](/oss/concepts/memory#long-term-memory) 允许跨不同的 **线程 ID** 存储信息。这对于在一次对话中学习关于特定用户的信息并在另一次对话中使用它可能很有用。
+[长期记忆](/oss/python/concepts/memory#long-term-memory) 允许跨不同的 **线程 ID** 存储信息。这对于在一次对话中学习关于特定用户的信息并在另一次对话中使用它可能很有用。
 
 ## 工作流
 
-* [工作流和智能体](/oss/langgraph/workflows-agents) 指南，获取更多关于如何使用 Functional API 构建工作流的示例。
+* [工作流和智能体](/oss/python/langgraph/workflows-agents) 指南，获取更多关于如何使用 Functional API 构建工作流的示例。
 
 ## 与其他库集成
 

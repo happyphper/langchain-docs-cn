@@ -26,7 +26,7 @@ description: '开始使用 LangChain 中的 Amazon Nova [聊天模型](/oss/lang
 
 ### 模型功能
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ❌ | 取决于模型 | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ |
 
@@ -126,7 +126,7 @@ Amazon Nova 消息可以包含单个字符串或内容块列表。您可以使�
 ai_msg.content_blocks
 ```
 
-使用 `content_blocks` 将以标准格式呈现内容，该格式在其他模型提供商之间保持一致。了解更多关于 [内容块](/oss/langchain/messages#standard-content-blocks) 的信息。
+使用 `content_blocks` 将以标准格式呈现内容，该格式在其他模型提供商之间保持一致。了解更多关于 [内容块](/oss/javascript/langchain/messages#standard-content-blocks) 的信息。
 
 ## 流式传输
 
@@ -246,7 +246,7 @@ model = ChatAmazonNova(
 
 ## 模型配置文件
 
-Amazon Nova 提供了具有不同功能的各种模型。它支持 LangChain [模型配置文件](/oss/langchain/models#model-profiles)。
+Amazon Nova 提供了具有不同功能的各种模型。它支持 LangChain [模型配置文件](/oss/javascript/langchain/models#model-profiles)。
 
 <Info>
 

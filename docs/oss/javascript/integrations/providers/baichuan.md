@@ -9,7 +9,7 @@ title: 百川
 
 ## 大语言模型
 
-查看[使用示例](/oss/integrations/llms/baichuan)。
+查看[使用示例](/oss/javascript/integrations/llms/baichuan)。
 
 ```python
 from langchain_community.llms import BaichuanLLM
@@ -17,7 +17,7 @@ from langchain_community.llms import BaichuanLLM
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/baichuan)。
+查看[使用示例](/oss/javascript/integrations/chat/baichuan)。
 
 ```python
 from langchain_community.chat_models import ChatBaichuan
@@ -25,7 +25,7 @@ from langchain_community.chat_models import ChatBaichuan
 
 ## 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/baichuan)。
+查看[使用示例](/oss/javascript/integrations/text_embedding/baichuan)。
 
 ```python
 from langchain_community.embeddings import BaichuanTextEmbeddings

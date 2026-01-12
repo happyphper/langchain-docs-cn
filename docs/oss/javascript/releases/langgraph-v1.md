@@ -4,7 +4,7 @@ sidebarTitle: LangGraph v1
 ---
 **LangGraph v1 是一个专注于稳定性的智能体运行时版本。** 它保持了核心的图 API 和执行模型不变，同时改进了类型安全性、文档和开发者体验。
 
-它旨在与 [LangChain v1](/oss/releases/langchain-v1)（其 `createAgent` 构建于 LangGraph 之上）无缝协作，因此您可以快速上手，并在需要时深入进行细粒度控制。
+它旨在与 [LangChain v1](/oss/javascript/releases/langchain-v1)（其 `createAgent` 构建于 LangGraph 之上）无缝协作，因此您可以快速上手，并在需要时深入进行细粒度控制。
 
 <CardGroup :cols="1">
 
@@ -50,14 +50,14 @@ bun add @langchain/langgraph @langchain/core
 
 :::
 
-有关完整的变更列表，请参阅 [迁移指南](/oss/migrate/langgraph-v1)。
+有关完整的变更列表，请参阅 [迁移指南](/oss/javascript/migrate/langgraph-v1)。
 
 ## `createReactAgent` 的弃用
 
 LangGraph 的预构建 `createReactAgent` 已被弃用，转而推荐使用 LangChain 的 `createAgent`。后者提供了更简单的接口，并通过引入中间件提供了更大的自定义潜力。
 
-* 有关新的 `createAgent` API 的信息，请参阅 [LangChain v1 发布说明](/oss/releases/langchain-v1#createagent)。
-* 有关从 `createReactAgent` 迁移到 `createAgent` 的信息，请参阅 [LangChain v1 迁移指南](/oss/migrate/langchain-v1#createagent)。
+* 有关新的 `createAgent` API 的信息，请参阅 [LangChain v1 发布说明](/oss/javascript/releases/langchain-v1#createagent)。
+* 有关从 `createReactAgent` 迁移到 `createAgent` 的信息，请参阅 [LangChain v1 迁移指南](/oss/javascript/migrate/langchain-v1#createagent)。
 
 ## 类型化的中断（Typed interrupts）
 
@@ -101,7 +101,7 @@ if (graph.isInterrupted(result)) {
 }
 ```
 
-有关中断的更多信息，请参阅 [中断](/oss/langgraph/interrupts) 文档。
+有关中断的更多信息，请参阅 [中断](/oss/javascript/langgraph/interrupts) 文档。
 
 ## 前端 SDK 增强
 
@@ -111,7 +111,7 @@ LangGraph v1 在前端与 LangGraph 应用程序交互方面带来了一些增�
 
 底层的 `toLangGraphEventStream` 辅助函数已被移除。流式响应现在由 SDK 原生处理，您可以通过向 `graph.stream` 传入 `encoding` 格式来选择传输格式。这使得在 SSE 和普通 JSON 响应之间切换变得简单，而无需更改 UI 逻辑。
 
-更多信息请参阅 [迁移指南](/oss/migrate/langgraph-v1#stream-encoding)。
+更多信息请参阅 [迁移指南](/oss/javascript/migrate/langgraph-v1#stream-encoding)。
 
 ### `useStream` 中的自定义传输器
 
@@ -125,7 +125,7 @@ const stream = useStream({
 });
 ```
 
-了解如何集成和自定义此钩子：[将 LangGraph 集成到您的 React 应用程序中](/oss/langgraph/ui)。
+了解如何集成和自定义此钩子：[将 LangGraph 集成到您的 React 应用程序中](/oss/javascript/langgraph/ui)。
 
 ## 报告问题
 

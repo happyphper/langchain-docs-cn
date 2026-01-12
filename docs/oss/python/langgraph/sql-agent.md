@@ -6,7 +6,7 @@ sidebarTitle: Custom SQL agent
 
 在本教程中，我们将使用 LangGraph 构建一个能够回答关于 SQL 数据库问题的自定义智能体（agent）。
 
-LangChain 提供了内置的[智能体](/oss/langchain/agents)实现，这些实现使用了 [LangGraph](/oss/langgraph/overview) 的原语。如果需要更深度的定制，可以直接在 LangGraph 中实现智能体。本指南演示了一个 SQL 智能体的示例实现。你也可以查看[这里](/oss/langchain/sql-agent)的教程，它使用更高层级的 LangChain 抽象来构建 SQL 智能体。
+LangChain 提供了内置的[智能体](/oss/python/langchain/agents)实现，这些实现使用了 [LangGraph](/oss/python/langgraph/overview) 的原语。如果需要更深度的定制，可以直接在 LangGraph 中实现智能体。本指南演示了一个 SQL 智能体的示例实现。你也可以查看[这里](/oss/python/langchain/sql-agent)的教程，它使用更高层级的 LangChain 抽象来构建 SQL 智能体。
 
 <Warning>
 
@@ -14,17 +14,17 @@ LangChain 提供了内置的[智能体](/oss/langchain/agents)实现，这些实
 
 </Warning>
 
-[预构建的智能体](/oss/langchain/sql-agent)让我们能够快速开始，但我们依赖系统提示（system prompt）来约束其行为——例如，我们指示智能体总是从“列出表”工具开始，并且在执行查询之前总是运行查询检查器工具。
+[预构建的智能体](/oss/python/langchain/sql-agent)让我们能够快速开始，但我们依赖系统提示（system prompt）来约束其行为——例如，我们指示智能体总是从“列出表”工具开始，并且在执行查询之前总是运行查询检查器工具。
 
-在 LangGraph 中，我们可以通过自定义智能体来实施更高程度的控制。在这里，我们实现一个简单的 ReAct 智能体设置，为特定的工具调用设置专用节点。我们将使用与预构建智能体相同的[状态（state）](/oss/langgraph/state)。
+在 LangGraph 中，我们可以通过自定义智能体来实施更高程度的控制。在这里，我们实现一个简单的 ReAct 智能体设置，为特定的工具调用设置专用节点。我们将使用与预构建智能体相同的[状态（state）](/oss/python/langgraph/state)。
 
 ### 概念
 
 我们将涵盖以下概念：
 
-- 用于从 SQL 数据库读取的[工具（Tools）](/oss/langchain/tools)
-- LangGraph 的[图 API（Graph API）](/oss/langgraph/graph-api)，包括状态（state）、节点（nodes）、边（edges）和条件边（conditional edges）。
-- [人工介入（Human-in-the-loop）](/oss/langgraph/interrupts)流程
+- 用于从 SQL 数据库读取的[工具（Tools）](/oss/python/langchain/tools)
+- LangGraph 的[图 API（Graph API）](/oss/python/langgraph/graph-api)，包括状态（state）、节点（nodes）、边（edges）和条件边（conditional edges）。
+- [人工介入（Human-in-the-loop）](/oss/python/langgraph/interrupts)流程
 
 ## 设置
 
@@ -51,7 +51,7 @@ export LANGSMITH_API_KEY="..."
 
 ## 1. 选择 LLM
 
-选择一个支持[工具调用（tool-calling）](/oss/integrations/providers/overview)的模型：
+选择一个支持[工具调用（tool-calling）](/oss/python/integrations/providers/overview)的模型：
 
 <!--@include: @/snippets/python/chat-model-tabs.md-->
 

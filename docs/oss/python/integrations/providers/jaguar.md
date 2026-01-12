@@ -54,4 +54,4 @@ Jaguar 类支持的 API 函数包括：
 - `login`
 - `logout`
 
-有关 Jaguar API 的更多详细信息，请参阅 [此笔记本](/oss/integrations/vectorstores/jaguar)
+有关 Jaguar API 的更多详细信息，请参阅 [此笔记本](/oss/python/integrations/vectorstores/jaguar)

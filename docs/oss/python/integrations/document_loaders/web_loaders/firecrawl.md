@@ -1,7 +1,7 @@
 ---
 title: FireCrawlLoader
 ---
-本笔记本提供了快速入门 [FireCrawlLoader](/oss/integrations/document_loaders/) 的概述。有关 FireCrawlLoader 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_firecrawl.FireCrawlLoader.html)。
+本笔记本提供了快速入门 [FireCrawlLoader](/oss/python/integrations/document_loaders/) 的概述。有关 FireCrawlLoader 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_firecrawl.FireCrawlLoader.html)。
 
 ## 概述
 

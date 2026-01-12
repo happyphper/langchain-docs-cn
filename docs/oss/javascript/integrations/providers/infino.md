@@ -34,7 +34,7 @@ docker run --rm --detach --name infino-example -p 3000:3000 infinohq/infino:late
 
 ## 使用 Infino
 
-查看 [`InfinoCallbackHandler` 的使用示例](/oss/integrations/callbacks/infino)。
+查看 [`InfinoCallbackHandler` 的使用示例](/oss/javascript/integrations/callbacks/infino)。
 
 ```python
 from langchain.callbacks import InfinoCallbackHandler

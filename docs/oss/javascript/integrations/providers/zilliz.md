@@ -27,4 +27,4 @@ Zilliz 索引的包装器，允许您将其用作向量存储，无论是用于�
 from langchain_community.vectorstores import Milvus
 ```
 
-有关 Milvus 包装器的更详细教程，请参阅 [此笔记本](/oss/integrations/vectorstores/zilliz)。
+有关 Milvus 包装器的更详细教程，请参阅 [此笔记本](/oss/javascript/integrations/vectorstores/zilliz)。

@@ -1,7 +1,7 @@
 ---
 title: 自定义工作流
 ---
-在**自定义工作流**架构中，你可以使用 [LangGraph](/oss/langgraph/overview) 定义自己的专属执行流程。你可以完全控制图的结构——包括顺序步骤、条件分支、循环和并行执行。
+在**自定义工作流**架构中，你可以使用 [LangGraph](/oss/javascript/langgraph/overview) 定义自己的专属执行流程。你可以完全控制图的结构——包括顺序步骤、条件分支、循环和并行执行。
 
 ```mermaid
 graph LR
@@ -23,7 +23,7 @@ graph LR
 
 当标准模式（子智能体、技能等）不符合你的需求、你需要混合确定性逻辑与智能体行为，或者你的用例需要复杂路由或多阶段处理时，请使用自定义工作流。
 
-工作流中的每个节点可以是一个简单函数、一个 LLM 调用，或者是一个包含[工具](/oss/langchain/tools)的完整[智能体](/oss/langchain/agents)。你也可以在自定义工作流中组合其他架构——例如，将一个多智能体系统作为单个节点嵌入。
+工作流中的每个节点可以是一个简单函数、一个 LLM 调用，或者是一个包含[工具](/oss/javascript/langchain/tools)的完整[智能体](/oss/javascript/langchain/agents)。你也可以在自定义工作流中组合其他架构——例如，将一个多智能体系统作为单个节点嵌入。
 
 有关自定义工作流的完整示例，请参阅下面的教程。
 
@@ -34,7 +34,7 @@ href="/oss/langchain/multi-agent/router-knowledge-base"
 arrow cta="了解更多"
 >
 
-[路由模式](/oss/langchain/multi-agent/router)是自定义工作流的一个例子。本教程将逐步指导你构建一个路由器，该路由器可以并行查询 GitHub、Notion 和 Slack，然后综合结果。
+[路由模式](/oss/javascript/langchain/multi-agent/router)是自定义工作流的一个例子。本教程将逐步指导你构建一个路由器，该路由器可以并行查询 GitHub、Notion 和 Slack，然后综合结果。
 >
 
 </Card>
@@ -67,13 +67,13 @@ const workflow = new StateGraph(State)
 
 ## 示例：RAG 管道
 
-一个常见的用例是将[检索](/oss/langchain/retrieval)与智能体结合。这个示例构建了一个 WNBA 数据助手，它可以从知识库中检索信息，并能获取实时新闻。
+一个常见的用例是将[检索](/oss/javascript/langchain/retrieval)与智能体结合。这个示例构建了一个 WNBA 数据助手，它可以从知识库中检索信息，并能获取实时新闻。
 
 :::: details 自定义 RAG 工作流
 
 该工作流展示了三种类型的节点：
 
--   <strong>模型节点</strong> (Rewrite)：使用[结构化输出](/oss/langchain/structured-output)重写用户查询以获得更好的检索效果。
+-   <strong>模型节点</strong> (Rewrite)：使用[结构化输出](/oss/javascript/langchain/structured-output)重写用户查询以获得更好的检索效果。
 -   <strong>确定性节点</strong> (Retrieve)：执行向量相似性搜索——不涉及 LLM。
 -   <strong>智能体节点</strong> (Agent)：基于检索到的上下文进行推理，并可以通过工具获取额外信息。
 

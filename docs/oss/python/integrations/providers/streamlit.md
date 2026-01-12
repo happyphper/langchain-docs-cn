@@ -23,7 +23,7 @@ uv add streamlit
 
 ## 回调函数
 
-查看[使用示例](/oss/integrations/callbacks/streamlit)。
+查看[使用示例](/oss/python/integrations/callbacks/streamlit)。
 
 ```python
 from langchain_community.callbacks import StreamlitCallbackHandler

@@ -53,4 +53,4 @@ model.invoke("Once upon a time, ", callbacks=callbacks)
 
 你可以从 GPT4All 客户端下载模型文件。你可以从 [GPT4All](https://gpt4all.io/index.html) 网站下载客户端。
 
-关于此过程的更详细步骤，请参阅 [此笔记本](/oss/integrations/llms/gpt4all)
+关于此过程的更详细步骤，请参阅 [此笔记本](/oss/python/integrations/llms/gpt4all)

@@ -1,7 +1,7 @@
 ---
 title: SQLDatabase 工具包
 ---
-这将帮助您开始使用 SQL 数据库 [工具包](/oss/langchain/tools#toolkits)。有关 `SQLDatabaseToolkit` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/agent_toolkits/langchain_community.agent_toolkits.sql.toolkit.SQLDatabaseToolkit.html)。
+这将帮助您开始使用 SQL 数据库 [工具包](/oss/python/langchain/tools#toolkits)。有关 `SQLDatabaseToolkit` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/agent_toolkits/langchain_community.agent_toolkits.sql.toolkit.SQLDatabaseToolkit.html)。
 
 `SQLDatabaseToolkit` 中的工具旨在与 `SQL` 数据库交互。
 
@@ -124,7 +124,7 @@ from langchain_community.tools.sql_database.tool import (
 
 ## 在智能体中使用
 
-遵循 [SQL 问答教程](/oss/langchain/sql-agent)，下面我们为简单的问答智能体配备工具包中的工具。首先，我们拉取一个相关的提示并用其必需的参数填充它：
+遵循 [SQL 问答教程](/oss/python/langchain/sql-agent)，下面我们为简单的问答智能体配备工具包中的工具。首先，我们拉取一个相关的提示并用其必需的参数填充它：
 
 ```python
 from langchain_classic import hub

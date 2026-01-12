@@ -1,7 +1,7 @@
 ---
 title: ChatYI
 ---
-这将帮助您开始使用 Yi [聊天模型](/oss/langchain/models)。有关 ChatYi 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/lanchain_community/chat_models/lanchain_community.chat_models.yi.ChatYi.html)。
+这将帮助您开始使用 Yi [聊天模型](/oss/javascript/langchain/models)。有关 ChatYi 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/lanchain_community/chat_models/lanchain_community.chat_models.yi.ChatYi.html)。
 
 [01.AI](https://www.lingyiwanwu.com/en) 由李开复博士创立，是一家处于 AI 2.0 前沿的全球性公司。他们提供尖端的大型语言模型，包括参数规模从 6B 到数千亿不等的 Yi 系列模型。01.AI 还提供多模态模型、开放的 API 平台以及开源选项，如 Yi-34B/9B/6B 和 Yi-VL。
 
@@ -15,7 +15,7 @@ title: ChatYI
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/javascript/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/javascript/langchain/models#token-usage) | [Logprobs](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ |
 

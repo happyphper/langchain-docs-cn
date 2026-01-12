@@ -14,7 +14,7 @@ export PREM_API_KEY=your-api-key
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -38,5 +38,5 @@ console.log(await model.invoke([new HumanMessage("Hello there!")]));
 
 ## 相关链接
 
-- 聊天模型[概念指南](/oss/langchain/models)
-- 聊天模型[操作指南](/oss/langchain/models)
+- 聊天模型[概念指南](/oss/javascript/langchain/models)
+- 聊天模型[操作指南](/oss/javascript/langchain/models)

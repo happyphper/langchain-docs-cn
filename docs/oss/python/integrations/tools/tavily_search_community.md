@@ -12,7 +12,7 @@ title: TavilySearchResults（已弃用）
 
 [Tavily](https://tavily.com/) Search 是一个专为 LLM 智能体（Agent）量身定制的强大搜索 API。它能无缝集成多种数据源，确保提供优质、相关的搜索体验。
 
-本指南提供了快速入门 Tavily [工具](/oss/integrations/tools/) 的概览。关于 Tavily 工具的完整说明，您可以在 [API 参考](https://v03.api.js.langchain.com/classes/_langchain_community.tools_tavily_search.TavilySearchResults.html) 中找到更详细的文档。
+本指南提供了快速入门 Tavily [工具](/oss/python/integrations/tools/) 的概览。关于 Tavily 工具的完整说明，您可以在 [API 参考](https://v03.api.js.langchain.com/classes/_langchain_community.tools_tavily_search.TavilySearchResults.html) 中找到更详细的文档。
 
 ## 概述
 
@@ -72,7 +72,7 @@ const tool = new TavilySearchResults({
 
 ## 调用
 
-### [使用参数直接调用](/oss/langchain/tools)
+### [使用参数直接调用](/oss/python/langchain/tools)
 
 您可以直接调用该工具，如下所示：
 
@@ -82,7 +82,7 @@ await tool.invoke({
 });
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools)
+### [使用 ToolCall 调用](/oss/python/langchain/tools)
 
 我们也可以使用模型生成的 `ToolCall` 来调用该工具，在这种情况下，将返回一个 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.ToolMessage" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>：
 
@@ -102,7 +102,7 @@ await tool.invoke(modelGeneratedToolCall)
 
 ## 链式调用
 
-我们可以通过先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后在链中使用它：
+我们可以通过先将工具绑定到一个 [工具调用模型](/oss/python/langchain/tools/)，然后在链中使用它：
 
 ```typescript
 // @lc-docs-hide-cell
@@ -170,4 +170,4 @@ console.log("AIMessage", JSON.stringify({
 
 ## 相关
 
-* [工具文档](/oss/langchain/tools)
+* [工具文档](/oss/python/langchain/tools)

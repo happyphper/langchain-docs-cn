@@ -4,9 +4,9 @@ title: TogetherAI
 
 <Warning>
 
-<strong>您当前正在查看的是关于将 Together AI 模型用作文本补全模型的文档。Together AI 上提供的许多流行模型是[聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查看的是关于将 Together AI 模型用作文本补全模型的文档。Together AI 上提供的许多流行模型是[聊天补全模型](/oss/javascript/langchain/models)。</strong>
 
-您可能正在寻找[这个页面](/oss/integrations/chat/togetherai/)。
+您可能正在寻找[这个页面](/oss/javascript/integrations/chat/togetherai/)。
 
 </Warning>
 

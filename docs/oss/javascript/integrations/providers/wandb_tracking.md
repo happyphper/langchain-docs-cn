@@ -12,7 +12,7 @@ title: Weights & Biases 追踪
 
 **注意**：_`WandbCallbackHandler` 正在被弃用，转而支持 `WandbTracer`_。未来请使用 `WandbTracer`，因为它更灵活，允许更细粒度的日志记录。
 
-要了解更多关于 `WandbTracer` 的信息，请参考 [agent_with_wandb_tracing](/oss/integrations/providers/wandb_tracing) 笔记本或使用以下 [colab notebook](http://wandb.me/prompts-quickstart)。
+要了解更多关于 `WandbTracer` 的信息，请参考 [agent_with_wandb_tracing](/oss/javascript/integrations/providers/wandb_tracing) 笔记本或使用以下 [colab notebook](http://wandb.me/prompts-quickstart)。
 
 要了解更多关于 Weights & Biases Prompts 的信息，请参考以下 [prompts 文档](https://docs.wandb.ai/guides/prompts)。
 

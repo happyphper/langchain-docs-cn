@@ -1,210 +1,172 @@
 ---
-title: GoogleGenerativeAIEmbeddings
+title: Google Generative AI Embeddings（AI Studio 与 Gemini API）
+sidebarTitle: GoogleGenerativeAIEmbeddings
 ---
-本文将帮助您开始使用 LangChain 集成 Google Generative AI 的[嵌入模型](/oss/integrations/text_embedding)。有关 `GoogleGenerativeAIEmbeddings` 功能的详细文档和配置选项，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_google_genai.GoogleGenerativeAIEmbeddings.html)。
+使用 `GoogleGenerativeAIEmbeddings` 类连接 Google 的生成式 AI 嵌入服务，该类位于 [langchain-google-genai](https://pypi.org/project/langchain-google-genai/) 包中。
+
+这将帮助您开始使用 LangChain 集成 Google 的生成式 AI 嵌入模型（如 Gemini）。有关 `GoogleGenerativeAIEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://python.langchain.com/v0.2/api_reference/google_genai/embeddings/langchain_google_genai.embeddings.GoogleGenerativeAIEmbeddings.html)。
 
 ## 概述
 
 ### 集成详情
 
-| 类 | 包 | 本地 | [Python 支持](https://python.langchain.com/docs/integrations/text_embedding/google_generative_ai/) | 下载量 | 版本 |
-| :--- | :--- | :---: | :---: |  :---: | :---: |
-| [`GoogleGenerativeAIEmbeddings`](https://api.js.langchain.com/classes/langchain_google_genai.GoogleGenerativeAIEmbeddings.html) | [`@langchain/google-genai`](https://npmjs.com/@langchain/google-genai) | ❌ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/google-genai?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/google-genai?style=flat-square&label=%20&) |
+<ItemTable category="text_embedding" item="Google Gemini" />
 
 ## 设置
 
-要访问 Google Generative AI 的嵌入模型，您需要注册 Google AI 账户、获取 API 密钥并安装 `@langchain/google-genai` 集成包。
+要访问 Google 生成式 AI 嵌入模型，您需要创建一个 Google Cloud 项目，启用 Generative Language API，获取一个 API 密钥，并安装 `langchain-google-genai` 集成包。
 
 ### 凭证
 
-在此处获取 API 密钥：[ai.google.dev/tutorials/setup](https://ai.google.dev/tutorials/setup)。
+要使用 Google 生成式 AI 模型，您必须拥有一个 API 密钥。您可以在 Google AI Studio 中创建一个。请参阅 [Google 文档](https://ai.google.dev/gemini-api/docs/api-key) 获取说明。
 
-接下来，将您的密钥设置为名为 `GOOGLE_API_KEY` 的环境变量：
+获取密钥后，将其设置为环境变量 `GOOGLE_API_KEY`：
 
-```bash
-export GOOGLE_API_KEY="your-api-key"
+```python
+import getpass
+import os
+
+if not os.getenv("GOOGLE_API_KEY"):
+    os.environ["GOOGLE_API_KEY"] = getpass.getpass("Enter your Google API key: ")
 ```
 
-如果您希望自动追踪模型调用，还可以通过取消注释以下行来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+要启用模型调用的自动追踪，请设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
 
-```bash
-# export LANGSMITH_TRACING="true"
-# export LANGSMITH_API_KEY="your-api-key"
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
 ```
 
-### 安装
+## 安装
 
-LangChain 的 `GoogleGenerativeAIEmbeddings` 集成位于 `@langchain/google-genai` 包中。您可能还需要安装官方 SDK：
-
-::: code-group
-
-```bash [npm]
-npm install @langchain/google-genai @langchain/core @google/generative-ai
+```python
+pip install -qU  langchain-google-genai
 ```
 
-```bash [yarn]
-yarn add @langchain/google-genai @langchain/core @google/generative-ai
+## 用法
+
+```python
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
+embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
+vector = embeddings.embed_query("hello, world!")
+vector[:5]
 ```
 
-```bash [pnpm]
-pnpm add @langchain/google-genai @langchain/core @google/generative-ai
+```text
+[-0.024917153641581535,
+ 0.012005362659692764,
+ -0.003886754624545574,
+ -0.05774897709488869,
+ 0.0020742062479257584]
 ```
 
-:::
+## 批量处理
 
-## 实例化
+您也可以一次性嵌入多个字符串以提高处理速度：
 
-现在我们可以实例化模型对象并嵌入文本：
+```python
+vectors = embeddings.embed_documents(
+    [
+        "Today is Monday",
+        "Today is Tuesday",
+        "Today is April Fools day",
+    ]
+)
+len(vectors), len(vectors[0])
+```
 
-```typescript
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
-import { TaskType } from "@google/generative-ai";
-
-const embeddings = new GoogleGenerativeAIEmbeddings({
-  model: "gemini-embedding-001", // 768 维
-  taskType: TaskType.RETRIEVAL_DOCUMENT,
-  title: "Document title",
-});
+```text
+(3, 3072)
 ```
 
 ## 索引与检索
 
-嵌入模型通常用于检索增强生成 (RAG) 流程中，既用于索引数据，也用于后续检索。更详细的说明，请参阅 [**学习** 选项卡](/oss/learn/)下的 RAG 教程。
+嵌入模型通常用于检索增强生成 (RAG) 流程中，既作为索引数据的一部分，也用于后续检索。更详细的说明，请参阅我们的 [RAG 教程](/oss/python/langchain/rag)。
 
-下面，我们将演示如何使用上面初始化的 `embeddings` 对象来索引和检索数据。在此示例中，我们将使用演示用的 [`MemoryVectorStore`](/oss/integrations/vectorstores/memory) 来索引和检索一个示例文档。
+下面，我们将展示如何使用上面初始化的 `embeddings` 对象来索引和检索数据。在这个例子中，我们将在 `InMemoryVectorStore` 中索引和检索一个示例文档。
 
-```typescript
-// 使用示例文本创建向量存储
-import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
+```python
+# 使用示例文本创建向量存储
+from langchain_core.vectorstores import InMemoryVectorStore
 
-const text = "LangChain is the framework for building context-aware reasoning applications";
+text = "LangChain is the framework for building context-aware reasoning applications"
 
-const vectorstore = await MemoryVectorStore.fromDocuments(
-  [{ pageContent: text, metadata: {} }],
-  embeddings,
-);
+vectorstore = InMemoryVectorStore.from_texts(
+    [text],
+    embedding=embeddings,
+)
 
-// 将向量存储用作返回单个文档的检索器
-const retriever = vectorstore.asRetriever(1);
+# 将向量存储用作检索器
+retriever = vectorstore.as_retriever()
 
-// 检索最相似的文本
-const retrievedDocuments = await retriever.invoke("What is LangChain?");
+# 检索最相似的文本
+retrieved_documents = retriever.invoke("What is LangChain?")
 
-retrievedDocuments[0].pageContent;
+# 显示检索到的文档内容
+retrieved_documents[0].page_content
 ```
 
 ```text
-LangChain is the framework for building context-aware reasoning applications
+'LangChain is the framework for building context-aware reasoning applications'
 ```
 
-## 直接使用
+## 任务类型
 
-在底层，向量存储和检索器的实现分别调用 `embeddings.embedDocument(...)` 和 `embeddings.embedQuery(...)` 来为 `fromDocuments` 中使用的文本和检索器的 `invoke` 操作创建嵌入向量。
+`GoogleGenerativeAIEmbeddings` 可选地支持一个 `task_type` 参数，当前必须是以下之一：
 
-您可以直接调用这些方法来获取嵌入向量，以满足您自己的用例。
+- `SEMANTIC_SIMILARITY`：用于生成优化以评估文本相似度的嵌入。
+- `CLASSIFICATION`：用于生成优化以根据预设标签对文本进行分类的嵌入。
+- `CLUSTERING`：用于生成优化以基于相似性对文本进行聚类的嵌入。
+- `RETRIEVAL_DOCUMENT`、`RETRIEVAL_QUERY`、`QUESTION_ANSWERING` 和 `FACT_VERIFICATION`：用于生成优化用于文档搜索或信息检索的嵌入。
+- `CODE_RETRIEVAL_QUERY`：用于根据自然语言查询（例如对数组排序或反转链表）检索代码块。代码块的嵌入使用 `RETRIEVAL_DOCUMENT` 计算。
 
-### 嵌入单个文本
+默认情况下，我们在 `embed_documents` 方法中使用 `RETRIEVAL_DOCUMENT`，在 `embed_query` 方法中使用 `RETRIEVAL_QUERY`。如果您提供了任务类型，我们将在所有方法中使用该类型。
 
-您可以使用 `embedQuery` 嵌入查询以进行搜索。这会生成特定于查询的向量表示：
-
-```typescript
-const singleVector = await embeddings.embedQuery(text);
-
-console.log(singleVector.slice(0, 100));
+```python
+pip install -qU  matplotlib scikit-learn
 ```
 
-```text
-[
-  -0.018286658,   0.020051053,  -0.057487167,   0.0059406986, -0.0036901247,
-  -0.010400916,    0.03396853,  -0.010867519,    0.015650319,   0.026443942,
-   0.012251757,   -0.01581729,    0.02031182, -0.00062176475,  0.0065521155,
-   -0.07107355,   0.033614952,    0.07109807,   -0.021078493,   0.048039366,
-   0.022973344,    -0.0361746,   -0.04550704,   -0.048807852,    0.03414146,
-   0.042450827,    0.02930612,   0.027274853,   -0.027707053,   -0.04167595,
-    0.01708843,   0.028532283, -0.0018593844,      -0.096786,  -0.034648854,
-  0.0013152987,   0.024425535,    0.04937838,    0.036890924,  -0.074619934,
-  -0.028723065,   0.029158255,  -0.023993572,     0.03163398,   -0.02036324,
-   -0.02333609,  -0.017407075, -0.0059643993,    -0.05564625,   0.051022638,
-    0.03264913,  -0.008254581,  -0.030552095,    0.072952054,   -0.05448913,
-   0.012030814,   -0.07978849,  -0.030417662,   0.0038343794,    0.03237516,
-  -0.054259773,    -0.0524064,   -0.02145499,    0.006439614,    0.04988943,
-   -0.03232189,    0.00990776,   -0.03863326,    -0.04979561,   0.009874035,
-   -0.02617946,    0.02135152,  -0.070599854,     0.08655627,   -0.02080979,
-  -0.014944934,  0.0034440767,  -0.035236854,    0.027093545,   0.032249685,
-   -0.03559674,   0.046849757,    0.06965356,    0.028780492,    0.02865287,
-   -0.07999455, -0.0058599655,  -0.050316703,   -0.018346578,  -0.038311094,
-    0.08026719,   0.049136136,   -0.05372233,  -0.0062247813,    0.01791339,
-   -0.03635157,  -0.031860247,  -0.031322744,    0.044055287,   0.034934316
-]
-```
+```python
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from sklearn.metrics.pairwise import cosine_similarity
 
-### 嵌入多个文本
+query_embeddings = GoogleGenerativeAIEmbeddings(
+    model="models/gemini-embedding-001", task_type="RETRIEVAL_QUERY"
+)
+doc_embeddings = GoogleGenerativeAIEmbeddings(
+    model="models/gemini-embedding-001", task_type="RETRIEVAL_DOCUMENT"
+)
 
-您可以使用 `embedDocuments` 嵌入多个文本以进行索引。此方法内部使用的机制可能（但不一定）与嵌入查询时不同：
+q_embed = query_embeddings.embed_query("What is the capital of France?")
+d_embed = doc_embeddings.embed_documents(
+    ["The capital of France is Paris.", "Philipp is likes to eat pizza."]
+)
 
-```typescript
-const text2 = "LangGraph is a library for building stateful, multi-actor applications with LLMs";
-
-const vectors = await embeddings.embedDocuments([text, text2]);
-
-console.log(vectors[0].slice(0, 100));
-console.log(vectors[1].slice(0, 100));
+for i, d in enumerate(d_embed):
+    print(f"Document {i + 1}:")
+    print(f"Cosine similarity with query: {cosine_similarity([q_embed], [d])[0][0]}")
+    print("---")
 ```
 
 ```text
-[
-  -0.018286658,   0.020051053,  -0.057487167,   0.0059406986, -0.0036901247,
-  -0.010400916,    0.03396853,  -0.010867519,    0.015650319,   0.026443942,
-   0.012251757,   -0.01581729,    0.02031182, -0.00062176475,  0.0065521155,
-   -0.07107355,   0.033614952,    0.07109807,   -0.021078493,   0.048039366,
-   0.022973344,    -0.0361746,   -0.04550704,   -0.048807852,    0.03414146,
-   0.042450827,    0.02930612,   0.027274853,   -0.027707053,   -0.04167595,
-    0.01708843,   0.028532283, -0.0018593844,      -0.096786,  -0.034648854,
-  0.0013152987,   0.024425535,    0.04937838,    0.036890924,  -0.074619934,
-  -0.028723065,   0.029158255,  -0.023993572,     0.03163398,   -0.02036324,
-   -0.02333609,  -0.017407075, -0.0059643993,    -0.05564625,   0.051022638,
-    0.03264913,  -0.008254581,  -0.030552095,    0.072952054,   -0.05448913,
-   0.012030814,   -0.07978849,  -0.030417662,   0.0038343794,    0.03237516,
-  -0.054259773,    -0.0524064,   -0.02145499,    0.006439614,    0.04988943,
-   -0.03232189,    0.00990776,   -0.03863326,    -0.04979561,   0.009874035,
-   -0.02617946,    0.02135152,  -0.070599854,     0.08655627,   -0.02080979,
-  -0.014944934,  0.0034440767,  -0.035236854,    0.027093545,   0.032249685,
-   -0.03559674,   0.046849757,    0.06965356,    0.028780492,    0.02865287,
-   -0.07999455, -0.0058599655,  -0.050316703,   -0.018346578,  -0.038311094,
-    0.08026719,   0.049136136,   -0.05372233,  -0.0062247813,    0.01791339,
-   -0.03635157,  -0.031860247,  -0.031322744,    0.044055287,   0.034934316
-]
-[
-    0.011669316,    0.02170385,   -0.07519182,     0.003981285,
-   0.0053525288,   0.008397044,   0.036672726,     0.016549919,
-    0.061946314,    0.06280753,  -0.009199135,     0.014644887,
-    0.046459496,  0.0122919325,  -0.013300706,    -0.051746193,
-     -0.0490098,   0.045586824,   -0.05053146,     0.044294067,
-   -0.012607168, -0.0071777054,  -0.048455723,    -0.075109236,
-    0.013327612,  -0.025612017,   0.050875787,     0.030091539,
-   -0.027163379,   -0.05760821,   0.014368641,    0.0044602253,
-    0.035219245,  -0.033304706,  -0.045474708,    -0.038022216,
-    0.012366698,   0.028978042,   0.038591366,     -0.10646444,
-   -0.036803752,   0.018911313,   0.005681761,     0.025365992,
-   -0.017165288, -0.0048005017,  -0.011460135,    0.0027811683,
-    -0.04971402, -0.0019232291,    0.02141983,   -0.0013272346,
-    -0.03337951,   0.030568397,   -0.05704511,     -0.01187748,
-   -0.025354648,   0.016188234,  -0.022018699,    0.0096449675,
-   -0.027020318,  -0.038059015,  -0.024455398,     0.021858294,
-    0.010713859,   -0.07203855,   -0.05562406, 0.0000034690818,
-   -0.054289237, -0.0027928432, -0.0010051605,     0.008493095,
-   -0.064746305,   0.024419345,  -0.016629996,     -0.02686531,
-    -0.02300653,   -0.03263113,   0.019998727,     0.029680967,
-    -0.04365641,   0.013594972,   0.056486532,     0.025913332,
-    0.025457978,  -0.048536208,   0.020046104,     -0.05857287,
-   -0.032664414,  -0.032940287,    0.10053288,    -0.021389635,
-  -0.0044220444,   0.037026003,    0.03142132,    -0.048912503,
-    -0.07961264,  -0.051056523,   0.048032805,      0.04831778
-]
+Document 1
+Cosine similarity with query: 0.7892893360164779
+---
+Document 2
+Cosine similarity with query: 0.5438283285204146
+---
 ```
 
 ---
 
 ## API 参考
 
-有关 `GoogleGenerativeAIEmbeddings` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_google_genai.GoogleGenerativeAIEmbeddings.html)。
+有关 `GoogleGenerativeAIEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/google_genai/embeddings/langchain_google_genai.embeddings.GoogleGenerativeAIEmbeddings.html)。
+
+## 附加配置
+
+您可以将以下参数传递给 ChatGoogleGenerativeAI 以自定义 SDK 的行为：
+
+- `client_options`：要传递给 Google API 客户端的 [客户端选项](https://googleapis.dev/python/google-api-core/latest/client_options.html#module-google.api_core.client_options)，例如自定义的 `client_options["api_endpoint"]`
+- `transport`：要使用的传输方法，例如 `rest`、`grpc` 或 `grpc_asyncio`。

@@ -11,7 +11,7 @@ title: 阿里云
 
 ### 阿里云 PAI EAS
 
-查看[安装说明和使用示例](/oss/integrations/llms/alibabacloud_pai_eas_endpoint)。
+查看[安装说明和使用示例](/oss/javascript/integrations/llms/alibabacloud_pai_eas_endpoint)。
 
 ```python
 from langchain_community.llms.pai_eas_endpoint import PaiEasEndpoint
@@ -19,7 +19,7 @@ from langchain_community.llms.pai_eas_endpoint import PaiEasEndpoint
 
 ### 通义千问 (Tongyi Qwen)
 
-查看[安装说明和使用示例](/oss/integrations/llms/tongyi)。
+查看[安装说明和使用示例](/oss/javascript/integrations/llms/tongyi)。
 
 ```python
 from langchain_community.llms import Tongyi
@@ -29,7 +29,7 @@ from langchain_community.llms import Tongyi
 
 ### 阿里云 PAI EAS
 
-查看[安装说明和使用示例](/oss/integrations/chat/alibaba_cloud_pai_eas)。
+查看[安装说明和使用示例](/oss/javascript/integrations/chat/alibaba_cloud_pai_eas)。
 
 ```python
 from langchain_community.chat_models import PaiEasChatEndpoint
@@ -37,7 +37,7 @@ from langchain_community.chat_models import PaiEasChatEndpoint
 
 ### 通义千问聊天 (Tongyi Qwen Chat)
 
-查看[安装说明和使用示例](/oss/integrations/chat/tongyi)。
+查看[安装说明和使用示例](/oss/javascript/integrations/chat/tongyi)。
 
 ```python
 from langchain_community.chat_models.tongyi import ChatTongyi
@@ -45,7 +45,7 @@ from langchain_community.chat_models.tongyi import ChatTongyi
 
 ### Qwen QwQ 聊天
 
-查看[安装说明和使用示例](/oss/integrations/chat/qwq)
+查看[安装说明和使用示例](/oss/javascript/integrations/chat/qwq)
 
 ```python
 from langchain_qwq import ChatQwQ
@@ -53,7 +53,7 @@ from langchain_qwq import ChatQwQ
 
 ### Qwen 模型聊天
 
-查看[安装说明和使用示例](/oss/integrations/chat/qwen)
+查看[安装说明和使用示例](/oss/javascript/integrations/chat/qwen)
 
 ```python
 from langchain_qwq import ChatQwen
@@ -63,7 +63,7 @@ from langchain_qwq import ChatQwen
 
 ### 阿里云 MaxCompute
 
-查看[安装说明和使用示例](/oss/integrations/document_loaders/alibaba_cloud_maxcompute)。
+查看[安装说明和使用示例](/oss/javascript/integrations/document_loaders/alibaba_cloud_maxcompute)。
 
 ```python
 from langchain_community.document_loaders import MaxComputeLoader
@@ -73,7 +73,7 @@ from langchain_community.document_loaders import MaxComputeLoader
 
 ### 阿里云 OpenSearch
 
-查看[安装说明和使用示例](/oss/integrations/vectorstores/alibabacloud_opensearch)。
+查看[安装说明和使用示例](/oss/javascript/integrations/vectorstores/alibabacloud_opensearch)。
 
 ```python
 from langchain_community.vectorstores import AlibabaCloudOpenSearch, AlibabaCloudOpenSearchSettings
@@ -81,7 +81,7 @@ from langchain_community.vectorstores import AlibabaCloudOpenSearch, AlibabaClou
 
 ### 阿里云 Tair
 
-查看[安装说明和使用示例](/oss/integrations/vectorstores/tair)。
+查看[安装说明和使用示例](/oss/javascript/integrations/vectorstores/tair)。
 
 ```python
 from langchain_community.vectorstores import Tair
@@ -89,7 +89,7 @@ from langchain_community.vectorstores import Tair
 
 ### AnalyticDB
 
-查看[安装说明和使用示例](/oss/integrations/vectorstores/analyticdb)。
+查看[安装说明和使用示例](/oss/javascript/integrations/vectorstores/analyticdb)。
 
 ```python
 from langchain_community.vectorstores import AnalyticDB
@@ -97,7 +97,7 @@ from langchain_community.vectorstores import AnalyticDB
 
 ### Hologres
 
-查看[安装说明和使用示例](/oss/integrations/vectorstores/hologres)。
+查看[安装说明和使用示例](/oss/javascript/integrations/vectorstores/hologres)。
 
 ```python
 from langchain_community.vectorstores import Hologres
@@ -105,7 +105,7 @@ from langchain_community.vectorstores import Hologres
 
 ### Tablestore
 
-查看[安装说明和使用示例](/oss/integrations/vectorstores/tablestore)。
+查看[安装说明和使用示例](/oss/javascript/integrations/vectorstores/tablestore)。
 
 ```python
 from langchain_community.vectorstores import TablestoreVectorStore

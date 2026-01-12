@@ -3,7 +3,7 @@ title: 无效的并发图更新
 ---
 当 LangGraph 的 [`StateGraph`](https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph) 从多个节点接收到对某个不支持并发更新的状态属性进行并发更新时，会发生此错误。
 
-一种可能的情况是，你在图中使用了[扇出（fanout）](/oss/langgraph/graph-api#map-reduce-and-the-send-api)或其他并行执行，并且定义了类似以下的图：
+一种可能的情况是，你在图中使用了[扇出（fanout）](/oss/javascript/langgraph/graph-api#map-reduce-and-the-send-api)或其他并行执行，并且定义了类似以下的图：
 
 ```typescript
 import { StateGraph, Annotation, START } from "@langchain/langgraph";

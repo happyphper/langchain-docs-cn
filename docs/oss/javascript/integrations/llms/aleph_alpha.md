@@ -7,7 +7,7 @@ LangChain.js 支持 AlephAlpha 的 Luminous 系列模型。您需要[在其网�
 
 <Tip>
 
-关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/langchain/install)。
+关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -35,4 +35,4 @@ console.log({ res });
 
 ## 相关链接
 
-- [模型指南](/oss/langchain/models)
+- [模型指南](/oss/javascript/langchain/models)

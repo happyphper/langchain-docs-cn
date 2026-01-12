@@ -102,7 +102,7 @@ print(result["messages"][-1].content)
 
 现在您已经构建了第一个深度智能体：
 
--   **自定义您的智能体**：了解[自定义选项](/oss/deepagents/customization)，包括自定义系统提示、工具和子代理。
--   **理解中间件**：深入了解驱动深度智能体的[中间件架构](/oss/deepagents/middleware)。
--   **添加长期记忆**：启用跨对话的[持久性记忆](/oss/deepagents/long-term-memory)。
--   **部署到生产环境**：了解 LangGraph 应用程序的[部署选项](/oss/langgraph/deploy)。
+-   **自定义您的智能体**：了解[自定义选项](/oss/python/deepagents/customization)，包括自定义系统提示、工具和子代理。
+-   **理解中间件**：深入了解驱动深度智能体的[中间件架构](/oss/python/deepagents/middleware)。
+-   **添加长期记忆**：启用跨对话的[持久性记忆](/oss/python/deepagents/long-term-memory)。
+-   **部署到生产环境**：了解 LangGraph 应用程序的[部署选项](/oss/python/langgraph/deploy)。

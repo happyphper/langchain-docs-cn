@@ -20,4 +20,4 @@ uv add langchain-tavily
 
 ## 工具
 
-有关可用工具的详细信息，请参阅 [tavily_search](/oss/integrations/tools/tavily_search) 和 [tavily_extract](/oss/integrations/tools/tavily_extract)。
+有关可用工具的详细信息，请参阅 [tavily_search](/oss/python/integrations/tools/tavily_search) 和 [tavily_extract](/oss/python/integrations/tools/tavily_extract)。

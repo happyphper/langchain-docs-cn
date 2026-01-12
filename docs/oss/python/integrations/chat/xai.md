@@ -1,135 +1,177 @@
 ---
 title: ChatXAI
+description: '开始使用 LangChain 中的 xAI [聊天模型](/oss/langchain/models)。'
 ---
-[xAI](https://x.ai/) 是一家开发大型语言模型（LLMs）的人工智能公司。其旗舰模型 Grok 基于实时 X（原 Twitter）数据进行训练，旨在提供机智且富有个性的回复，同时在技术任务上保持高能力。
 
-本指南将帮助您开始使用 `ChatXAI` [聊天模型](/oss/langchain/models)。有关 `ChatXAI` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_xai.ChatXAI.html)。
+<Warning>
+
+本页面提及的是由 [xAI](https://docs.x.ai/docs/overview) 提供的 Grok 模型——请勿与另一家独立的 AI 硬件和软件公司 [Groq](https://console.groq.com/docs/overview) 混淆。请参阅 [Groq 供应商页面](/oss/python/integrations/providers/groq)。
+
+</Warning>
+
+[xAI](https://console.x.ai/) 提供了一个用于与 Grok 模型交互的 API。
+
+<Tip>
+
+<strong>API 参考</strong>
+
+关于所有功能和配置选项的详细文档，请前往 <a href="https://reference.langchain.com/python/integrations/langchain_xai/#langchain_xai.ChatXAI" target="_blank" rel="noreferrer" class="link"><code>ChatXAI</code></a> API 参考。
+
+</Tip>
 
 ## 概述
 
 ### 集成详情
 
-| 类 | 包 | 可序列化 | PY 支持 | 下载量 | 版本 |
+| 类 | 包 | 可序列化 | [JS 支持](https://js.langchain.com/docs/integrations/chat/xai) | 下载量 | 版本 |
 | :--- | :--- | :---: |  :---: | :---: | :---: |
-| [ChatXAI](https://api.js.langchain.com/classes/_langchain_xai.ChatXAI.html) | [`@langchain/xai`](https://www.npmjs.com/package/@langchain/xai) | ✅ | ❌ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/xai?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/xai?style=flat-square&label=%20&) |
+| <a href="https://reference.langchain.com/python/integrations/langchain_xai/#langchain_xai.ChatXAI" target="_blank" rel="noreferrer" class="link"><code>ChatXAI</code></a> | <a href="https://reference.langchain.com/python/integrations/langchain_xai" target="_blank" rel="noreferrer" class="link"><code>langchain-xai</code></a> | beta | ✅ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-xai?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-xai?style=flat-square&label=%20) |
 
-### 模型功能
+### 模型特性
 
-有关如何使用特定功能的指南，请参阅下表标题中的链接。
-
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
-| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
-| ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/python/langchain/streaming#llm-tokens) | 原生异步 | [Token 使用量](/oss/python/langchain/models#token-usage) | [Logprobs](/oss/python/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
 
 ## 设置
 
-要访问 `ChatXAI` 模型，您需要创建一个 xAI 账户，[获取一个 API 密钥](https://console.x.ai/)，并安装 `@langchain/xai` 集成包。
+要访问 xAI 模型，你需要创建一个 xAI 账户，获取一个 API 密钥，并安装 `langchain-xai` 集成包。
 
-### 凭据
+### 凭证
 
-前往 [xAI 网站](https://x.ai) 注册 xAI 并生成 API 密钥。完成后，设置 `XAI_API_KEY` 环境变量：
+前往[此页面](https://console.x.ai/)注册 xAI 并生成 API 密钥。完成后，设置 `XAI_API_KEY` 环境变量：
 
-```bash
-export XAI_API_KEY="your-api-key"
+```python
+import getpass
+import os
+
+if "XAI_API_KEY" not in os.environ:
+    os.environ["XAI_API_KEY"] = getpass.getpass("Enter your xAI API key: ")
 ```
 
-如果您希望自动追踪模型调用，也可以通过取消注释以下行来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+要启用模型调用的自动追踪，请设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
 
-```bash
-# export LANGSMITH_TRACING="true"
-# export LANGSMITH_API_KEY="your-api-key"
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
 ```
 
 ### 安装
 
-LangChain 的 `ChatXAI` 集成位于 `@langchain/xai` 包中：
+LangChain xAI 集成位于 `langchain-xai` 包中：
 
-::: code-group
-
-```bash [npm]
-npm install @langchain/xai @langchain/core
+```python
+pip install -qU langchain-xai
 ```
-
-```bash [yarn]
-yarn add @langchain/xai @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @langchain/xai @langchain/core
-```
-
-:::
 
 ## 实例化
 
-现在我们可以实例化模型对象并生成聊天补全：
+现在我们可以实例化我们的模型对象并生成聊天补全：
 
-```typescript
-import { ChatXAI } from "@langchain/xai"
+```python
+from langchain_xai import ChatXAI
 
-const llm = new ChatXAI({
-    model: "grok-beta", // 默认值
-    temperature: 0,
-    maxTokens: undefined,
-    maxRetries: 2,
-    // 其他参数...
-})
+llm = ChatXAI(
+    model="grok-beta",
+    temperature=0,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+    # 其他参数...
+)
 ```
 
 ## 调用
 
-```typescript
-const aiMsg = await llm.invoke([
-    [
-      "system",
-      "You are a helpful assistant that translates English to French. Translate the user sentence.",
-    ],
-    ["human", "I love programming."],
-])
-console.log(aiMsg)
+```python
+messages = [
+    (
+        "system",
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+    ),
+    ("human", "I love programming."),
+]
+ai_msg = llm.invoke(messages)
+ai_msg
 ```
 
 ```text
-AIMessage {
-  "id": "71d7e3d8-30dd-472c-8038-b6b283dcee63",
-  "content": "J'adore programmer.",
-  "additional_kwargs": {},
-  "response_metadata": {
-    "tokenUsage": {
-      "promptTokens": 30,
-      "completionTokens": 6,
-      "totalTokens": 36
-    },
-    "finish_reason": "stop",
-    "usage": {
-      "prompt_tokens": 30,
-      "completion_tokens": 6,
-      "total_tokens": 36
-    },
-    "system_fingerprint": "fp_3e3898d4ce"
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": [],
-  "usage_metadata": {
-    "output_tokens": 6,
-    "input_tokens": 30,
-    "total_tokens": 36,
-    "input_token_details": {},
-    "output_token_details": {}
-  }
-}
+AIMessage(content="J'adore programmer.", additional_kwargs={'refusal': None}, response_metadata={'token_usage': {'completion_tokens': 6, 'prompt_tokens': 30, 'total_tokens': 36, 'completion_tokens_details': None, 'prompt_tokens_details': None}, 'model_name': 'grok-beta', 'system_fingerprint': 'fp_14b89b2dfc', 'finish_reason': 'stop', 'logprobs': None}, id='run-adffb7a3-e48a-4f52-b694-340d85abe5c3-0', usage_metadata={'input_tokens': 30, 'output_tokens': 6, 'total_tokens': 36, 'input_token_details': {}, 'output_token_details': {}})
 ```
 
-```typescript
-console.log(aiMsg.content)
+```python
+print(ai_msg.content)
 ```
 
 ```text
 J'adore programmer.
 ```
 
+## 工具调用
+
+ChatXAI 有一个[工具调用](https://docs.x.ai/docs#capabilities)（我们在此处交替使用“工具调用”和“函数调用”）API，允许你描述工具及其参数，并让模型返回一个 JSON 对象，其中包含要调用的工具和该工具的输入。工具调用对于构建使用工具的链和智能体，以及更普遍地从模型获取结构化输出非常有用。
+
+### ChatXAI.bind_tools()
+
+使用 `ChatXAI.bind_tools`，我们可以轻松地将 Pydantic 类、字典模式、LangChain 工具，甚至函数作为工具传递给模型。在底层，这些会被转换为一个 OpenAI 工具模式，其结构如下：
+
+```
+{
+    "name": "...",
+    "description": "...",
+    "parameters": {...}  # JSONSchema
+}
+```
+
+并在每次模型调用中传递。
+
+```python
+from pydantic import BaseModel, Field
+
+class GetWeather(BaseModel):
+    """Get the current weather in a given location"""
+
+    location: str = Field(..., description="The city and state, e.g. San Francisco, CA")
+
+llm_with_tools = llm.bind_tools([GetWeather])
+```
+
+```python
+ai_msg = llm_with_tools.invoke(
+    "what is the weather like in San Francisco",
+)
+ai_msg
+```
+
+```text
+AIMessage(content='I am retrieving the current weather for San Francisco.', additional_kwargs={'tool_calls': [{'id': '0', 'function': {'arguments': '{"location":"San Francisco, CA"}', 'name': 'GetWeather'}, 'type': 'function'}], 'refusal': None}, response_metadata={'token_usage': {'completion_tokens': 11, 'prompt_tokens': 151, 'total_tokens': 162, 'completion_tokens_details': None, 'prompt_tokens_details': None}, 'model_name': 'grok-beta', 'system_fingerprint': 'fp_14b89b2dfc', 'finish_reason': 'tool_calls', 'logprobs': None}, id='run-73707da7-afec-4a52-bee1-a176b0ab8585-0', tool_calls=[{'name': 'GetWeather', 'args': {'location': 'San Francisco, CA'}, 'id': '0', 'type': 'tool_call'}], usage_metadata={'input_tokens': 151, 'output_tokens': 11, 'total_tokens': 162, 'input_token_details': {}, 'output_token_details': {}})
+```
+
+## 实时搜索
+
+xAI 支持[实时搜索](https://docs.x.ai/docs/guides/live-search)功能，使 Grok 能够利用网络搜索结果来支撑其答案：
+
+```python
+from langchain_xai import ChatXAI
+
+llm = ChatXAI(
+    model="grok-3-latest",
+    search_parameters={
+        "mode": "auto",
+        # 以下是可选的参数示例：
+        "max_search_results": 3,
+        "from_date": "2025-05-26",
+        "to_date": "2025-05-27",
+    },
+)
+
+llm.invoke("Provide me a digest of world news in the last 24 hours.")
+```
+
+有关完整的网络搜索选项集，请参阅 [xAI 文档](https://docs.x.ai/docs/guides/live-search)。
+
 ---
 
 ## API 参考
 
-有关 ChatXAI 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_xai.ChatXAI.html)。
+有关所有 `ChatXAI` 功能和配置的详细文档，请前往 [API 参考](https://reference.langchain.com/python/integrations/langchain_xai/)。

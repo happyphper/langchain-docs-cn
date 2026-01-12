@@ -210,7 +210,7 @@ comet_callback.flush_tracker(synopsis_chain, finish=True)
 
 还有另一种与 Comet 的集成方式：
 
-请参阅 [示例](/oss/integrations/callbacks/comet_tracing)。
+请参阅 [示例](/oss/python/integrations/callbacks/comet_tracing)。
 
 ```python
 from langchain_community.callbacks.tracers.comet import CometTracer

@@ -8,7 +8,7 @@ title: Snowflake
 ## 嵌入模型
 
 Snowflake 在 [Hugging Face](https://huggingface.co/Snowflake/snowflake-arctic-embed-m-v1.5) 上免费提供了其开放权重的 `arctic` 系列嵌入模型。最新的模型 snowflake-arctic-embed-m-v1.5 具有 [matryoshka embedding](https://arxiv.org/abs/2205.13147) 功能，允许进行有效的向量截断。
-您可以通过 [HuggingFaceEmbeddings](/oss/integrations/text_embedding/huggingfacehub) 连接器使用这些模型：
+您可以通过 [HuggingFaceEmbeddings](/oss/python/integrations/text_embedding/huggingfacehub) 连接器使用这些模型：
 
 ::: code-group
 
@@ -30,7 +30,7 @@ model = HuggingFaceEmbeddings(model_name="snowflake/arctic-embed-m-v1.5")
 
 ## 文档加载器
 
-您可以使用 [`SnowflakeLoader`](/oss/integrations/document_loaders/snowflake) 从 Snowflake 加载数据：
+您可以使用 [`SnowflakeLoader`](/oss/python/integrations/document_loaders/snowflake) 从 Snowflake 加载数据：
 
 ```python
 from langchain_community.document_loaders import SnowflakeLoader

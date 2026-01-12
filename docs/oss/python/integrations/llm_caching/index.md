@@ -1,7 +1,7 @@
 ---
 title: 模型缓存
 ---
-[缓存 LLM 调用](/oss/langchain/models#caching) 对于测试、节约成本和提升速度都很有用。
+[缓存 LLM 调用](/oss/python/langchain/models#caching) 对于测试、节约成本和提升速度都很有用。
 
 以下是一些集成方案，允许您使用不同策略的缓存来缓存单个 LLM 调用的结果。
 

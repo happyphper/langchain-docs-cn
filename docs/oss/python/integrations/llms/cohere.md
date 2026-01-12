@@ -4,114 +4,102 @@ title: Cohere
 
 <Warning>
 
-<strong>旧版功能</strong>
+<strong>您当前正在查阅的是关于将 Cohere 模型用作文本补全模型的文档。许多流行的 Cohere 模型是 [聊天补全模型](/oss/python/langchain/models)。</strong>
 
-Cohere 已将其用于 LLM 的 `generate` 端点标记为弃用。请遵循其[迁移指南](https://docs.cohere.com/docs/migrating-from-cogenerate-to-cochat)，通过 [`ChatCohere`](/oss/integrations/chat/cohere) 集成开始使用其 Chat API。
+您可能正在寻找 [这个页面](/oss/python/integrations/chat/cohere/)。
 
 </Warning>
 
-本文将帮助您开始使用 LangChain 配合 Cohere 的补全模型（LLM）。有关 `Cohere` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_cohere.Cohere.html)。
+>[Cohere](https://cohere.ai/about) 是一家加拿大初创公司，提供自然语言处理模型，帮助企业改善人机交互。
+
+请前往 [API 参考](https://python.langchain.com/api_reference/community/llms/langchain_community.llms.cohere.Cohere.html) 查看所有属性和方法的详细文档。
 
 ## 概述
 
 ### 集成详情
 
-| 类 | 包 | 本地 | 可序列化 | [PY 支持](https://python.langchain.com/docs/integrations/llms/cohere) | 下载量 | 版本 |
+| 类 | 包 | 本地 | 可序列化 | [JS 支持](https://js.langchain.com/docs/integrations/llms/cohere/) | 下载量 | 版本 |
 | :--- | :--- | :---: | :---: |  :---: | :---: | :---: |
-| [Cohere](https://api.js.langchain.com/classes/langchain_cohere.Cohere.html) | [@langchain/cohere](https://api.js.langchain.com/modules/langchain_cohere.html) | ❌ | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/cohere?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/cohere?style=flat-square&label=%20&) |
+| [Cohere](https://python.langchain.com/api_reference/community/llms/langchain_community.llms.cohere.Cohere.html) | [langchain-community](https://python.langchain.com/api_reference/community/index.html) | ❌ | beta | ✅ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain_community?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain_community?style=flat-square&label=%20) |
 
 ## 设置
 
-要访问 Cohere 模型，您需要创建一个 Cohere 账户，获取一个 API 密钥，并安装 `@langchain/cohere` 集成包。
+该集成位于 `langchain-community` 包中。我们还需要安装 `cohere` 包本身。我们可以通过以下命令安装：
 
 ### 凭证
 
-前往 [cohere.com](https://cohere.com) 注册 Cohere 并生成一个 API 密钥。完成后，请设置 `COHERE_API_KEY` 环境变量：
+我们需要获取一个 [Cohere API 密钥](https://cohere.com/) 并设置 `COHERE_API_KEY` 环境变量：
 
-```bash
-export COHERE_API_KEY="your-api-key"
-```
+```python
+import getpass
+import os
 
-如果您希望自动追踪模型调用，还可以通过取消注释以下行来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
-
-```bash
-# export LANGSMITH_TRACING="true"
-# export LANGSMITH_API_KEY="your-api-key"
+if "COHERE_API_KEY" not in os.environ:
+    os.environ["COHERE_API_KEY"] = getpass.getpass()
 ```
 
 ### 安装
 
-LangChain 的 Cohere 集成位于 `@langchain/cohere` 包中：
-
-::: code-group
-
-```bash [npm]
-npm install @langchain/cohere @langchain/core
+```python
+pip install -U langchain-community langchain-cohere
 ```
 
-```bash [yarn]
-yarn add @langchain/cohere @langchain/core
-```
+为了获得最佳的观测性，设置 [LangSmith](https://smith.langchain.com/) 也很有帮助（但不是必需的）：
 
-```bash [pnpm]
-pnpm add @langchain/cohere @langchain/core
-```
-
-:::
-
-## 实例化
-
-现在我们可以实例化我们的模型对象并生成聊天补全：
-
-```typescript
-import { Cohere } from "@langchain/cohere"
-
-const llm = new Cohere({
-  model: "command",
-  temperature: 0,
-  maxTokens: undefined,
-  maxRetries: 2,
-  // 其他参数...
-})
-```
-
-### 用于 Azure 上的 Cohere、AWS Bedrock 上的 Cohere 以及独立 Cohere 实例的自定义客户端
-
-我们可以实例化一个自定义的 `CohereClient` 并将其传递给 ChatCohere 构造函数。
-
-**注意：** 如果提供了自定义客户端，则 `COHERE_API_KEY` 环境变量和构造函数中的 `apiKey` 参数都将被忽略。
-
-```typescript
-import { Cohere } from "@langchain/cohere";
-import { CohereClient } from "cohere-ai";
-
-const client = new CohereClient({
-  token: "<your-api-key>",
-  environment: "<your-cohere-deployment-url>", //可选
-  // 其他参数
-});
-
-const llmWithCustomClient = new Cohere({
-  client,
-  // 其他参数...
-});
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+# os.environ["LANGSMITH_API_KEY"] = getpass.getpass()
 ```
 
 ## 调用
 
-```typescript
-const inputText = "Cohere is an AI company that "
+Cohere 支持所有 [LLM](/oss/python/langchain/models) 功能：
 
-const completion = await llm.invoke(inputText)
-completion
+```python
+from langchain_cohere import Cohere
+from langchain.messages import HumanMessage
+```
+
+```python
+model = Cohere(max_tokens=256, temperature=0.75)
+```
+
+```python
+message = "Knock knock"
+model.invoke(message)
 ```
 
 ```text
-Cohere is a company that provides natural language processing models that help companies improve human-machine interactions. Cohere was founded in 2019 by Aidan Gomez, Ivan Zhang, and Nick Frosst.
+" Who's there?"
+```
+
+```python
+await model.ainvoke(message)
+```
+
+```text
+" Who's there?"
+```
+
+```python
+for chunk in model.stream(message):
+    print(chunk, end="", flush=True)
+```
+
+```text
+Who's there?
+```
+
+```python
+model.batch([message])
+```
+
+```text
+[" Who's there?"]
 ```
 
 ---
 
 ## API 参考
 
-有关所有 Cohere 功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_cohere.Cohere.html)。
+关于 `Cohere` LLM 所有功能和配置的详细文档，请前往 API 参考：[python.langchain.com/api_reference/community/llms/langchain_community.llms.cohere.Cohere.html](https://python.langchain.com/api_reference/community/llms/langchain_community.llms.cohere.Cohere.html)

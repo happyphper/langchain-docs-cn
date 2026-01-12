@@ -32,7 +32,7 @@ if not os.environ.get("OPENAI_API_KEY"):
 
 ## 创建和调用代理
 
-以下示例借鉴自 [Pandas DataFrames 代理笔记本](/oss/integrations/tools/pandas)，并做了一些修改以突出关键区别。
+以下示例借鉴自 [Pandas DataFrames 代理笔记本](/oss/javascript/integrations/tools/pandas)，并做了一些修改以突出关键区别。
 
 第一个示例展示了如何直接将 Bodo DataFrame 传递给 `create_bodo_dataframes_agent` 并询问一个简单问题。
 

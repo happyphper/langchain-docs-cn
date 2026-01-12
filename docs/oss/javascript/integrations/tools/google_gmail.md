@@ -19,7 +19,7 @@ Gmail 工具允许您的代理从关联的电子邮件账户创建和查看邮�
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -92,5 +92,5 @@ export async function run() {
 
 ## 相关
 
-- 工具 [概念指南](/oss/langchain/tools)
-- 工具 [操作指南](/oss/langchain/tools)
+- 工具 [概念指南](/oss/javascript/langchain/tools)
+- 工具 [操作指南](/oss/javascript/langchain/tools)

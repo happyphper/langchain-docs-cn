@@ -31,4 +31,4 @@ console.log(docs);
 
 ## 相关链接
 
-- [检索指南](/oss/langchain/retrieval)
+- [检索指南](/oss/javascript/langchain/retrieval)

@@ -25,7 +25,7 @@ DeepInfra 提供了一系列可供部署的开源 LLM。
 
 ## LLM
 
-查看[使用示例](/oss/integrations/llms/deepinfra)。
+查看[使用示例](/oss/python/integrations/llms/deepinfra)。
 
 ```python
 from langchain_community.llms import DeepInfra
@@ -33,7 +33,7 @@ from langchain_community.llms import DeepInfra
 
 ## 嵌入
 
-查看[使用示例](/oss/integrations/text_embedding/deepinfra)。
+查看[使用示例](/oss/python/integrations/text_embedding/deepinfra)。
 
 ```python
 from langchain_community.embeddings import DeepInfraEmbeddings
@@ -41,7 +41,7 @@ from langchain_community.embeddings import DeepInfraEmbeddings
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/deepinfra)。
+查看[使用示例](/oss/python/integrations/chat/deepinfra)。
 
 ```python
 from langchain_community.chat_models import ChatDeepInfra

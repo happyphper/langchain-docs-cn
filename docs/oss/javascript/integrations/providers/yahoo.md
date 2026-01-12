@@ -23,7 +23,7 @@ uv add yfinance
 
 :::
 
-查看[使用示例](/oss/integrations/tools/yahoo_finance_news)。
+查看[使用示例](/oss/javascript/integrations/tools/yahoo_finance_news)。
 
 ```python
 from langchain_community.tools import YahooFinanceNewsTool

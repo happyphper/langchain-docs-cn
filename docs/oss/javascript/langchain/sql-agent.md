@@ -6,7 +6,7 @@ sidebarTitle: SQL agent
 
 ## 概述
 
-在本教程中，您将学习如何使用 LangChain [智能体（agents）](/oss/langchain/agents)构建一个能够回答关于 SQL 数据库问题的智能体。
+在本教程中，您将学习如何使用 LangChain [智能体（agents）](/oss/javascript/langchain/agents)构建一个能够回答关于 SQL 数据库问题的智能体。
 
 从高层次来看，该智能体将执行以下步骤：
 
@@ -33,9 +33,9 @@ sidebarTitle: SQL agent
 
 我们将涵盖以下概念：
 
-- 用于从 SQL 数据库读取的[工具（Tools）](/oss/langchain/tools)
-- LangChain [智能体（agents）](/oss/langchain/agents)
-- [人工介入（Human-in-the-loop）](/oss/langchain/human-in-the-loop)流程
+- 用于从 SQL 数据库读取的[工具（Tools）](/oss/javascript/langchain/tools)
+- LangChain [智能体（agents）](/oss/javascript/langchain/agents)
+- [人工介入（Human-in-the-loop）](/oss/javascript/langchain/human-in-the-loop)流程
 
 ## 设置
 
@@ -69,7 +69,7 @@ export LANGSMITH_API_KEY="..."
 
 ## 1. 选择 LLM
 
-选择一个支持[工具调用（tool-calling）](/oss/integrations/providers/overview)的模型：
+选择一个支持[工具调用（tool-calling）](/oss/javascript/integrations/providers/overview)的模型：
 <!--@include: @/snippets/javascript/chat-model-tabs-js.md-->
 
 下面示例中显示的输出使用了 OpenAI。
@@ -127,7 +127,7 @@ async function getSchema() {
 
 在执行智能体的 SQL 查询之前，检查是否存在任何意外操作或低效之处是审慎的做法。
 
-LangChain 智能体支持内置的[人工介入中间件（human-in-the-loop middleware）](/oss/langchain/human-in-the-loop)，以增加对智能体工具调用的监督。让我们配置智能体，使其在调用 `sql_db_query` 工具时暂停以进行人工审查：
+LangChain 智能体支持内置的[人工介入中间件（human-in-the-loop middleware）](/oss/javascript/langchain/human-in-the-loop)，以增加对智能体工具调用的监督。让我们配置智能体，使其在调用 `sql_db_query` 工具时暂停以进行人工审查：
 
 ```python
 from langchain.agents import create_agent

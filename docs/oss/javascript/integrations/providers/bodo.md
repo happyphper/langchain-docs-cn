@@ -29,7 +29,7 @@ pip install -U langchain_bodo
 ## 工具包
 
 [langchain-bodo 包](https://pypi.org/project/langchain-bodo/) 提供了创建智能体的功能，这些智能体可以使用 Bodo DataFrames 回答关于大型数据集的问题。
-有关更详细的使用示例，请参阅 [Bodo DataFrames 工具页面](/oss/integrations/tools/bodo)。
+有关更详细的使用示例，请参阅 [Bodo DataFrames 工具页面](/oss/javascript/integrations/tools/bodo)。
 
 **注意：此功能在底层使用了 `Python` 智能体，它会执行 LLM 生成的 Python 代码——如果 LLM 生成的 Python 代码有害，这可能很危险。请谨慎使用。**
 

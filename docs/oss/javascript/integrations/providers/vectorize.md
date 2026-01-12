@@ -48,4 +48,4 @@ retriever = VectorizeRetriever(
 retriever.invoke("query")
 ```
 
-在 [示例笔记本](/oss/integrations/retrievers/vectorize) 中了解更多信息。
+在 [示例笔记本](/oss/javascript/integrations/retrievers/vectorize) 中了解更多信息。

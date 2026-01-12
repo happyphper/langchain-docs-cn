@@ -1,13 +1,13 @@
 ---
 title: UpstashRedisByteStore
 ---
-本文将帮助您开始使用 Upstash Redis [键值存储](/oss/integrations/stores)。如需了解 `UpstashRedisByteStore` 所有功能和配置的详细文档，请查阅 [API 参考](https://python.langchain.com/api_reference/community/storage/langchain_community.storage.upstash_redis.UpstashRedisByteStore.html)。
+本文将帮助您开始使用 Upstash Redis [键值存储](/oss/python/integrations/stores)。如需了解 `UpstashRedisByteStore` 所有功能和配置的详细文档，请查阅 [API 参考](https://python.langchain.com/api_reference/community/storage/langchain_community.storage.upstash_redis.UpstashRedisByteStore.html)。
 
 ## 概述
 
 `UpstashRedisStore` 是 `ByteStore` 的一个实现，它将所有数据存储在您 [Upstash](https://upstash.com/) 托管的 Redis 实例中。
 
-如需使用基础的 `RedisStore`，请参阅 [本指南](/oss/integrations/stores/redis/)。
+如需使用基础的 `RedisStore`，请参阅 [本指南](/oss/python/integrations/stores/redis/)。
 
 ### 集成详情
 

@@ -23,7 +23,7 @@ uv add langchain-hana
 
 >[SAP HANA Cloud Vector Engine](https://help.sap.com/docs/hana-cloud-database/sap-hana-cloud-sap-hana-database-vector-engine-guide/sap-hana-cloud-sap-hana-database-vector-engine-guide) 是一个完全集成到 `SAP HANA Cloud` 数据库中的向量存储。
 
-查看 [使用示例](/oss/integrations/vectorstores/sap_hanavector)。
+查看 [使用示例](/oss/python/integrations/vectorstores/sap_hanavector)。
 
 ```python
 from langchain_hana import HanaDB

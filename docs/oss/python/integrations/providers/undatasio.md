@@ -23,7 +23,7 @@ title: UnDatasIO
 
 ### UnDatasIOLoader
 
-有关单文件解析和延迟加载，请参阅[使用示例](/oss/integrations/document_loaders/undatasio)。
+有关单文件解析和延迟加载，请参阅[使用示例](/oss/python/integrations/document_loaders/undatasio)。
 
 ```python
 from langchain_undatasio import UnDatasIOLoader

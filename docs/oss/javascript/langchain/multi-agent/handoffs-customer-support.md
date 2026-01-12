@@ -4,7 +4,7 @@ sidebarTitle: 'Handoffs: Customer support'
 ---
 
 
-[状态机模式](/oss/langchain/multi-agent/handoffs)描述了智能体在任务的不同状态间移动时其行为发生变化的工作流。本教程展示了如何通过使用工具调用来动态更改单个智能体的配置，从而基于当前状态实现状态机——根据当前状态更新其可用工具和指令。状态可以由多个来源确定：智能体的过往操作（工具调用）、外部状态（例如 API 调用结果），甚至初始用户输入（例如，通过运行分类器来确定用户意图）。
+[状态机模式](/oss/javascript/langchain/multi-agent/handoffs)描述了智能体在任务的不同状态间移动时其行为发生变化的工作流。本教程展示了如何通过使用工具调用来动态更改单个智能体的配置，从而基于当前状态实现状态机——根据当前状态更新其可用工具和指令。状态可以由多个来源确定：智能体的过往操作（工具调用）、外部状态（例如 API 调用结果），甚至初始用户输入（例如，通过运行分类器来确定用户意图）。
 
 在本教程中，你将构建一个客户支持智能体，其功能如下：
 
@@ -13,7 +13,7 @@ sidebarTitle: 'Handoffs: Customer support'
 - 提供解决方案或升级到人工支持。
 - 在多轮对话中维护会话状态。
 
-与[子智能体模式](/oss/langchain/multi-agent/subagents-personal-assistant)（其中子智能体作为工具被调用）不同，**状态机模式**使用单个智能体，其配置根据工作流进度而变化。每个“步骤”只是同一个底层智能体的不同配置（系统提示词 + 工具），根据状态动态选择。
+与[子智能体模式](/oss/javascript/langchain/multi-agent/subagents-personal-assistant)（其中子智能体作为工具被调用）不同，**状态机模式**使用单个智能体，其配置根据工作流进度而变化。每个“步骤”只是同一个底层智能体的不同配置（系统提示词 + 工具），根据状态动态选择。
 
 以下是我们将要构建的工作流：
 
@@ -74,7 +74,7 @@ pnpm add langchain
 
 :::
 
-更多详情，请参阅我们的[安装指南](/oss/langchain/install)。
+更多详情，请参阅我们的[安装指南](/oss/javascript/langchain/install)。
 
 ### LangSmith
 
@@ -444,7 +444,7 @@ Command(update={
 
 ## 8. 管理消息历史记录
 
-随着智能体在步骤中前进，消息历史记录会增长。使用[摘要中间件](/oss/langchain/short-term-memory#summarize-messages)来压缩较早的消息，同时保留对话上下文：
+随着智能体在步骤中前进，消息历史记录会增长。使用[摘要中间件](/oss/javascript/langchain/short-term-memory#summarize-messages)来压缩较早的消息，同时保留对话上下文：
 
 ```python
 from langchain.agents import create_agent

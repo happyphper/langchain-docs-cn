@@ -3,7 +3,7 @@ title: Google Cloud SQL for MySQL
 ---
 > [Cloud SQL](https://cloud.google.com/sql) 是一个全托管的关系型数据库服务，提供高性能、无缝集成和卓越的可扩展性。它支持 [MySQL](https://cloud.google.com/sql/mysql)、[PostgreSQL](https://cloud.google.com/sql/postgresql) 和 [SQL Server](https://cloud.google.com/sql/sqlserver) 数据库引擎。借助 Cloud SQL 的 LangChain 集成，您可以扩展数据库应用程序，构建由 AI 驱动的体验。
 
-本笔记本将介绍如何使用 [Cloud SQL for MySQL](https://cloud.google.com/sql/mysql) 通过 `MySQLLoader` 和 `MySQLDocumentSaver` 来[保存、加载和删除 LangChain 文档](/oss/integrations/document_loaders)。
+本笔记本将介绍如何使用 [Cloud SQL for MySQL](https://cloud.google.com/sql/mysql) 通过 `MySQLLoader` 和 `MySQLDocumentSaver` 来[保存、加载和删除 LangChain 文档](/oss/javascript/integrations/document_loaders)。
 
 在 [GitHub](https://github.com/googleapis/langchain-google-cloud-sql-mysql-python/) 上了解更多关于该软件包的信息。
 

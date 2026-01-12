@@ -32,7 +32,7 @@ docs = loader.load()
 Fetching pages: 100%|##########| 939/939 [01:19<00:00, 11.85it/s]
 ```
 
-> `SitemapLoader` 还提供了利用和调整并发性的能力，这有助于优化加载源文档所需的时间。更多信息请参阅 [sitemap 文档](/oss/integrations/document_loaders/sitemap)。
+> `SitemapLoader` 还提供了利用和调整并发性的能力，这有助于优化加载源文档所需的时间。更多信息请参阅 [sitemap 文档](/oss/python/integrations/document_loaders/sitemap)。
 
 ```python
 docs[0]

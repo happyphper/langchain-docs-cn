@@ -61,4 +61,4 @@ llm("What is the difference between a duck and a goose? And why there are so man
 ### 用法
 
 关于 OpenLLM 包装器的更详细演练，请参阅
-[示例笔记本](/oss/integrations/llms/openllm)
+[示例笔记本](/oss/javascript/integrations/llms/openllm)

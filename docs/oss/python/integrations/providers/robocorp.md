@@ -38,7 +38,7 @@ from langchain_robocorp.toolkits import ActionServerRequestTool
 
 ## 工具包
 
-查看[使用示例](/oss/integrations/tools/robocorp)。
+查看[使用示例](/oss/python/integrations/tools/robocorp)。
 
 ```python
 from langchain_robocorp import ActionServerToolkit

@@ -1,39 +1,132 @@
 ---
-title: 智谱AI
+title: 智谱AI嵌入
 ---
-`ZhipuAIEmbeddings` 类使用智谱 AI API 为给定文本生成嵌入向量。
+本文将帮助您开始使用 LangChain 集成 ZhipuAI 的嵌入模型。有关 `ZhipuAIEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://bigmodel.cn/dev/api#vector)。
+
+## 概述
+
+### 集成详情
+
+| 提供商 | 包 |
+|:--------:|:-------:|
+| [ZhipuAI](/oss/python/integrations/providers/zhipuai/) | [langchain-community](https://python.langchain.com/api_reference/community/embeddings/langchain_community.embeddings.zhipuai.ZhipuAIEmbeddings.html) |
 
 ## 设置
 
-你需要注册一个智谱 AI API 密钥，并将其设置为名为 `ZHIPUAI_API_KEY` 的环境变量。
+要访问 ZhipuAI 的嵌入模型，您需要创建一个 ZhipuAI 账户，获取 API 密钥，并安装 `zhipuai` 集成包。
 
-https://open.bigmodel.cn
+### 凭证
 
-然后，你需要安装 [`@langchain/community`](https://www.npmjs.com/package/@langchain/community) 包：
+前往 [https://bigmodel.cn/](https://bigmodel.cn/usercenter/apikeys) 注册 ZhipuAI 并生成 API 密钥。完成后，请设置 `ZHIPUAI_API_KEY` 环境变量：
 
-<Tip>
+```python
+import getpass
+import os
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/community @langchain/core jsonwebtoken
+if not os.getenv("ZHIPUAI_API_KEY"):
+    os.environ["ZHIPUAI_API_KEY"] = getpass.getpass("Enter your ZhipuAI API key: ")
 ```
 
-## 用法
+要启用模型调用的自动追踪，请设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
 
-```typescript
-import { ZhipuAIEmbeddings } from "@langchain/community/embeddings/zhipuai";
-
-const model = new ZhipuAIEmbeddings({});
-const res = await model.embedQuery(
-  "What would be a good company name a company that makes colorful socks?"
-);
-console.log({ res });
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
 ```
 
-## 相关
+### 安装
 
-- 嵌入模型[概念指南](/oss/integrations/text_embedding)
-- 嵌入模型[操作指南](/oss/integrations/text_embedding)
+LangChain 的 ZhipuAI 集成位于 `zhipuai` 包中：
+
+```python
+pip install -qU zhipuai
+```
+
+## 实例化
+
+现在我们可以实例化模型对象并生成嵌入：
+
+```python
+from langchain_community.embeddings import ZhipuAIEmbeddings
+
+embeddings = ZhipuAIEmbeddings(
+    model="embedding-3",
+    # 对于 `embedding-3` 系列的模型，
+    # 您可以指定希望返回的嵌入向量维度。
+    # dimensions=1024
+)
+```
+
+## 索引与检索
+
+嵌入模型通常用于检索增强生成（RAG）流程中，既用于索引数据，也用于后续检索。更详细的说明，请参阅我们的 [RAG 教程](/oss/python/langchain/rag)。
+
+下面展示了如何使用上面初始化的 `embeddings` 对象来索引和检索数据。在这个例子中，我们将在 `InMemoryVectorStore` 中索引和检索一个示例文档。
+
+```python
+# 使用示例文本创建向量存储
+from langchain_core.vectorstores import InMemoryVectorStore
+
+text = "LangChain is the framework for building context-aware reasoning applications"
+
+vectorstore = InMemoryVectorStore.from_texts(
+    [text],
+    embedding=embeddings,
+)
+
+# 将向量存储用作检索器
+retriever = vectorstore.as_retriever()
+
+# 检索最相似的文本
+retrieved_documents = retriever.invoke("What is LangChain?")
+
+# 显示检索到的文档内容
+retrieved_documents[0].page_content
+```
+
+```text
+'LangChain is the framework for building context-aware reasoning applications'
+```
+
+## 直接使用
+
+在底层，向量存储和检索器的实现分别调用了 `embeddings.embed_documents(...)` 和 `embeddings.embed_query(...)` 来为 `from_texts` 中使用的文本和检索 `invoke` 操作创建嵌入。
+
+您可以直接调用这些方法来获取嵌入，以满足您自己的用例。
+
+### 嵌入单个文本
+
+您可以使用 `embed_query` 嵌入单个文本或文档：
+
+```python
+single_vector = embeddings.embed_query(text)
+print(str(single_vector)[:100])  # 显示向量的前 100 个字符
+```
+
+```text
+[-0.022979736, 0.007785797, 0.04598999, 0.012741089, -0.01689148, 0.008277893, 0.016464233, 0.009246
+```
+
+### 嵌入多个文本
+
+您可以使用 `embed_documents` 嵌入多个文本：
+
+```python
+text2 = (
+    "LangGraph is a library for building stateful, multi-actor applications with LLMs"
+)
+two_vectors = embeddings.embed_documents([text, text2])
+for vector in two_vectors:
+    print(str(vector)[:100])  # 显示向量的前 100 个字符
+```
+
+```text
+[-0.022979736, 0.007785797, 0.04598999, 0.012741089, -0.01689148, 0.008277893, 0.016464233, 0.009246
+[-0.02330017, -0.013916016, 0.00022411346, 0.017196655, -0.034240723, 0.011131287, 0.011497498, -0.0
+```
+
+---
+
+## API 参考
+
+有关 `ZhipuAIEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/embeddings/langchain_community.embeddings.zhipuai.ZhipuAIEmbeddings.html)。

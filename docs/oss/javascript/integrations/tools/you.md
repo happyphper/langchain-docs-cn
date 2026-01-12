@@ -75,7 +75,7 @@ page_content='- Humidity70%\n- UV Index1 of 11\n- Sunrise7:18 am\n- Sunset4:34 p
 
 ## 链式调用
 
-我们在这里展示如何将其用作[智能体](/oss/langchain/agents)的一部分。我们使用 OpenAI Functions Agent，因此需要设置和安装其所需的依赖项。我们还将使用 [LangSmith Hub](https://smith.langchain.com/hub) 来拉取提示词，因此也需要安装它。
+我们在这里展示如何将其用作[智能体](/oss/javascript/langchain/agents)的一部分。我们使用 OpenAI Functions Agent，因此需要设置和安装其所需的依赖项。我们还将使用 [LangSmith Hub](https://smith.langchain.com/hub) 来拉取提示词，因此也需要安装它。
 
 ```python
 # 您需要一个模型用于链式调用

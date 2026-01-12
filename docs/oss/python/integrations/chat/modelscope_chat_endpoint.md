@@ -11,7 +11,7 @@ ModelScope（[官网](https://www.modelscope.cn/) | [GitHub](https://github.com/
 
 |提供商| 类 | 包 | 可序列化 | 下载量 | 版本 |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-|[ModelScope](/oss/integrations/providers/modelscope/)| ModelScopeChatEndpoint | [langchain-modelscope-integration](https://pypi.org/project/langchain-modelscope-integration/) | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-modelscope-integration?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-modelscope-integration?style=flat-square&label=%20) |
+|[ModelScope](/oss/python/integrations/providers/modelscope/)| ModelScopeChatEndpoint | [langchain-modelscope-integration](https://pypi.org/project/langchain-modelscope-integration/) | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-modelscope-integration?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-modelscope-integration?style=flat-square&label=%20) |
 
 ## 设置
 

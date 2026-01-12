@@ -23,4 +23,4 @@ uv add uptrain
 from langchain_community.callbacks.uptrain_callback import UpTrainCallbackHandler
 ```
 
-查看一个[示例](/oss/integrations/callbacks/uptrain)。
+查看一个[示例](/oss/javascript/integrations/callbacks/uptrain)。

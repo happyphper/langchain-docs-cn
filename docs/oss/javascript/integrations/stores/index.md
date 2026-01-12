@@ -3,7 +3,7 @@ title: 键值存储
 ---
 ## 概述
 
-LangChain 提供了一个键值存储接口，用于通过键存储和检索数据。LangChain 中的键值存储接口主要用于缓存[嵌入向量](/oss/integrations/text_embedding)。
+LangChain 提供了一个键值存储接口，用于通过键存储和检索数据。LangChain 中的键值存储接口主要用于缓存[嵌入向量](/oss/javascript/integrations/text_embedding)。
 
 ## 接口
 

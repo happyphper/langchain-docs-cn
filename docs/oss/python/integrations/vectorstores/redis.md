@@ -10,7 +10,7 @@ title: RedisVectorStore
 
 [Redis](https://redis.io/) 是一个快速的开源内存数据存储。作为 [Redis Stack](https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/) 的一部分，[RediSearch](https://redis.io/docs/latest/develop/interact/search-and-query/) 是支持向量相似性语义搜索以及许多其他类型搜索的模块。
 
-本指南提供了快速入门 Redis [向量存储](/oss/integrations/vectorstores) 的概述。有关 `RedisVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_redis.RedisVectorStore.html)。
+本指南提供了快速入门 Redis [向量存储](/oss/python/integrations/vectorstores) 的概述。有关 `RedisVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_redis.RedisVectorStore.html)。
 
 ## 概述
 
@@ -24,7 +24,7 @@ title: RedisVectorStore
 
 要使用 Redis 向量存储，您需要设置一个 Redis 实例并安装 `@langchain/redis` 集成包。您也可以安装 [`node-redis`](https://github.com/redis/node-redis) 包，以便使用特定的客户端实例初始化向量存储。
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要您安装 `@langchain/openai` 集成包。如果您愿意，也可以使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+本指南还将使用 [OpenAI 嵌入](/oss/python/integrations/text_embedding/openai)，这需要您安装 `@langchain/openai` 集成包。如果您愿意，也可以使用 [其他支持的嵌入模型](/oss/python/integrations/text_embedding)。
 
 ::: code-group
 
@@ -165,7 +165,7 @@ for (const [doc, score] of similaritySearchWithScoreResults) {
 
 ### 通过转换为检索器进行查询
 
-您还可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在链中更轻松地使用。
+您还可以将向量存储转换为 [检索器](/oss/python/langchain/retrieval)，以便在链中更轻松地使用。
 
 ```typescript
 const retriever = vectorStore.asRetriever({
@@ -193,9 +193,9 @@ await retriever.invoke("biology");
 
 有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [代理式 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/python/langchain/rag)。
+- [代理式 RAG](/oss/python/langgraph/agentic-rag)
+- [检索文档](/oss/python/langchain/retrieval)
 
 ## 删除文档
 

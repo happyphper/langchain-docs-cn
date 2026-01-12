@@ -15,7 +15,7 @@ LangChain 提供了一个适用于所有模型提供商的标准消息类型，�
 
 ## 基本用法
 
-使用消息最简单的方法是创建消息对象，并在[调用](/oss/langchain/models#invocation)模型时将其传递给模型。
+使用消息最简单的方法是创建消息对象，并在[调用](/oss/python/langchain/models#invocation)模型时将其传递给模型。
 
 ```python
 from langchain.chat_models import init_chat_model
@@ -82,7 +82,7 @@ response = model.invoke(messages)
 - <Icon icon="gear" :size="16" /> [系统消息](#system-message) - 告诉模型如何行为，并为交互提供上下文
 - <Icon icon="user" :size="16" /> [人类消息](#human-message) - 代表用户输入和与模型的交互
 - <Icon icon="robot" :size="16" /> [AI 消息](#ai-message) - 模型生成的响应，包括文本内容、工具调用和元数据
-- <Icon icon="wrench" :size="16" /> [工具消息](#tool-message) - 代表[工具调用](/oss/langchain/models#tool-calling)的输出
+- <Icon icon="wrench" :size="16" /> [工具消息](#tool-message) - 代表[工具调用](/oss/python/langchain/models#tool-calling)的输出
 
 ### 系统消息
 
@@ -235,7 +235,7 @@ response = model.invoke(messages)
 
 #### 工具调用
 
-当模型进行[工具调用](/oss/langchain/models#tool-calling)时，它们会包含在 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.AIMessage" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a> 中：
+当模型进行[工具调用](/oss/python/langchain/models#tool-calling)时，它们会包含在 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.AIMessage" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a> 中：
 
 ```python
 from langchain.chat_models import init_chat_model
@@ -255,7 +255,7 @@ for tool_call in response.tool_calls:
     print(f"ID: {tool_call['id']}")
 ```
 
-其他结构化数据，例如推理或引用，也可能出现在消息[内容](/oss/langchain/messages#message-content)中。
+其他结构化数据，例如推理或引用，也可能出现在消息[内容](/oss/python/langchain/messages#message-content)中。
 
 #### 令牌使用情况
 
@@ -296,8 +296,8 @@ for chunk in model.stream("Hi"):
 <Note>
 
 了解更多：
-- [从聊天模型流式传输令牌](/oss/langchain/models#stream)
-- [从代理流式传输令牌和/或步骤](/oss/langchain/streaming)
+- [从聊天模型流式传输令牌](/oss/python/langchain/models#stream)
+- [从代理流式传输令牌和/或步骤](/oss/python/langchain/streaming)
 
 </Note>
 
@@ -305,9 +305,9 @@ for chunk in model.stream("Hi"):
 
 ### 工具消息
 
-对于支持[工具调用](/oss/langchain/models#tool-calling)的模型，AI 消息可以包含工具调用。工具消息用于将单个工具执行的结果传递回模型。
+对于支持[工具调用](/oss/python/langchain/models#tool-calling)的模型，AI 消息可以包含工具调用。工具消息用于将单个工具执行的结果传递回模型。
 
-[工具](/oss/langchain/tools)可以直接生成 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.ToolMessage" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a> 对象。下面，我们展示一个简单的例子。更多信息请参阅[工具指南](/oss/langchain/tools)。
+[工具](/oss/python/langchain/tools)可以直接生成 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.ToolMessage" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a> 对象。下面，我们展示一个简单的例子。更多信息请参阅[工具指南](/oss/python/langchain/tools)。
 
 ```python
 from langchain.messages import AIMessage
@@ -374,7 +374,7 @@ response = model.invoke(messages)  # Model processes the result
 
 :::: details 示例：使用 artifact 存储检索元数据
 
-例如，一个[检索](/oss/langchain/retrieval)工具可以检索文档中的一段文本供模型参考。消息 `content` 包含模型将引用的文本，而 `artifact` 可以包含文档标识符或其他应用程序可以使用的元数据（例如，用于渲染页面）。参见下面的示例：
+例如，一个[检索](/oss/python/langchain/retrieval)工具可以检索文档中的一段文本供模型参考。消息 `content` 包含模型将引用的文本，而 `artifact` 可以包含文档标识符或其他应用程序可以使用的元数据（例如，用于渲染页面）。参见下面的示例：
 
 ```python
 from langchain.messages import ToolMessage
@@ -393,7 +393,7 @@ tool_message = ToolMessage(
 )
 ```
 
-有关使用 LangChain 构建检索[代理](/oss/langchain/agents)的端到端示例，请参阅 [RAG 教程](/oss/langchain/rag)。
+有关使用 LangChain 构建检索[代理](/oss/python/langchain/agents)的端到端示例，请参阅 [RAG 教程](/oss/python/langchain/rag)。
 
 ::::
 
@@ -446,7 +446,7 @@ human_message = HumanMessage(content_blocks=[
 
 LangChain 提供了一个适用于所有提供商的消息内容标准表示。
 
-消息对象实现了一个 `content_blocks` 属性，该属性将惰性地将 `content` 属性解析为标准化的、类型安全的表示。例如，从 [`ChatAnthropic`](/oss/integrations/chat/anthropic) 或 [`ChatOpenAI`](/oss/integrations/chat/openai) 生成的消息将包含各自提供商格式的 `thinking` 或 `reasoning` 块，但可以惰性地解析为一致的 [`ReasoningContentBlock`](#content-block-reference) 表示：
+消息对象实现了一个 `content_blocks` 属性，该属性将惰性地将 `content` 属性解析为标准化的、类型安全的表示。例如，从 [`ChatAnthropic`](/oss/python/integrations/chat/anthropic) 或 [`ChatOpenAI`](/oss/python/integrations/chat/openai) 生成的消息将包含各自提供商格式的 `thinking` 或 `reasoning` 块，但可以惰性地解析为一致的 [`ReasoningContentBlock`](#content-block-reference) 表示：
 
 <Tabs>
 
@@ -506,7 +506,7 @@ message.content_blocks
 
 </Tabs>
 
-请参阅[集成指南](/oss/integrations/providers/overview)以开始使用您选择的推理提供商。
+请参阅[集成指南](/oss/python/integrations/providers/overview)以开始使用您选择的推理提供商。
 
 <Note>
 
@@ -528,13 +528,13 @@ model = init_chat_model("gpt-5-nano", output_version="v1")
 
 **多模态**指的是处理不同形式数据的能力，例如文本、音频、图像和视频。LangChain 包含了可用于所有提供商的这些数据的标准类型。
 
-[聊天模型](/oss/langchain/models)可以接受多模态数据作为输入并生成多模态数据作为输出。下面我们展示包含多模态数据的输入消息的简短示例。
+[聊天模型](/oss/python/langchain/models)可以接受多模态数据作为输入并生成多模态数据作为输出。下面我们展示包含多模态数据的输入消息的简短示例。
 
 <Note>
 
 额外的键可以包含在内容块的顶层或嵌套在 `"extras": {"key": value}` 中。
 
-例如，[OpenAI](/oss/integrations/chat/openai#pdfs) 和 [AWS Bedrock Converse](/oss/integrations/chat/bedrock) 要求 PDF 文件具有文件名。有关详细信息，请参阅您所选模型的[提供商页面](/oss/integrations/providers/overview)。
+例如，[OpenAI](/oss/python/integrations/chat/openai#pdfs) 和 [AWS Bedrock Converse](/oss/python/integrations/chat/bedrock) 要求 PDF 文件具有文件名。有关详细信息，请参阅您所选模型的[提供商页面](/oss/python/integrations/providers/overview)。
 
 </Note>
 
@@ -1155,7 +1155,7 @@ Base64 编码的文件数据。
 
 :::
 
-额外的提供商特定内容类型可以在每个模型提供商的[参考文档](/oss/integrations/providers/overview)中找到。
+额外的提供商特定内容类型可以在每个模型提供商的[参考文档](/oss/python/integrations/providers/overview)中找到。
 
 ::::
 
@@ -1175,10 +1175,10 @@ Base64 编码的文件数据。
 
 ## 与聊天模型一起使用
 
-[聊天模型](/oss/langchain/models) 接受一系列消息对象作为输入，并返回一个 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.AIMessage" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a> 作为输出。交互通常是无状态的，因此一个简单的对话循环涉及使用不断增长的消息列表来调用模型。
+[聊天模型](/oss/python/langchain/models) 接受一系列消息对象作为输入，并返回一个 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.AIMessage" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a> 作为输出。交互通常是无状态的，因此一个简单的对话循环涉及使用不断增长的消息列表来调用模型。
 
 请参考以下指南了解更多信息：
 
-- 用于[持久化和管理对话历史记录](/oss/langchain/short-term-memory)的内置功能
-- 管理上下文窗口的策略，包括[修剪和总结消息](/oss/langchain/short-term-memory#common-patterns)
+- 用于[持久化和管理对话历史记录](/oss/python/langchain/short-term-memory)的内置功能
+- 管理上下文窗口的策略，包括[修剪和总结消息](/oss/python/langchain/short-term-memory#common-patterns)
 

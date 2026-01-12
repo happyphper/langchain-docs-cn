@@ -3,7 +3,7 @@ title: Tavily 提取
 ---
 [Tavily](https://tavily.com/) 是一个专为 AI 智能体（LLMs）构建的搜索引擎，能够快速提供实时、准确且基于事实的结果。Tavily 提供四个关键端点，其中之一是 Extract（提取）端点，它可以从 URL 提供原始提取的内容。
 
-本指南提供了快速入门 Tavily [工具](/oss/integrations/tools/) 的概述。关于 Tavily 工具的完整解析，您可以在 [API 参考](https://v03.api.js.langchain.com/modules/_langchain_tavily.html) 中找到更详细的文档。
+本指南提供了快速入门 Tavily [工具](/oss/javascript/integrations/tools/) 的概述。关于 Tavily 工具的完整解析，您可以在 [API 参考](https://v03.api.js.langchain.com/modules/_langchain_tavily.html) 中找到更详细的文档。
 
 ## 概述
 
@@ -63,7 +63,7 @@ const tool = new TavilyExtract({
 
 ## 调用
 
-### [使用参数直接调用](/oss/langchain/tools)
+### [使用参数直接调用](/oss/javascript/langchain/tools)
 
 Tavily Extract 工具在调用时接受以下参数：
 
@@ -77,7 +77,7 @@ await tool.invoke({
 });
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools)
+### [使用 ToolCall 调用](/oss/javascript/langchain/tools)
 
 我们也可以使用模型生成的 `ToolCall` 来调用该工具，在这种情况下，将返回一个 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.ToolMessage.html" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>：
 
@@ -95,7 +95,7 @@ await tool.invoke(modelGeneratedToolCall)
 
 ## 链式调用
 
-我们可以通过首先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后在链中使用它：
+我们可以通过首先将工具绑定到一个 [工具调用模型](/oss/javascript/langchain/tools/)，然后在链中使用它：
 
 ```typescript
 // @lc-docs-hide-cell
@@ -163,4 +163,4 @@ console.log("AIMessage", JSON.stringify({
 
 ## 相关
 
-* [工具文档](/oss/langchain/tools)
+* [工具文档](/oss/javascript/langchain/tools)

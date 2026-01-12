@@ -26,7 +26,7 @@ LangGraph 提供了两种不同的 API 来构建智能体工作流：**Graph API
 
 ### 何时使用 Graph API
 
-[Graph API](/oss/langgraph/graph-api) 采用声明式方法，您需要定义节点、边和共享状态来创建可视化的图结构。
+[Graph API](/oss/javascript/langgraph/graph-api) 采用声明式方法，您需要定义节点、边和共享状态来创建可视化的图结构。
 
 **1. 复杂的决策树和分支逻辑**
 
@@ -115,7 +115,7 @@ workflow.add_node("output_formatting", frontend_team_function)
 
 ### 何时使用 Functional API
 
-[Functional API](/oss/langgraph/functional-api) 采用命令式方法，将 LangGraph 功能集成到标准的过程式代码中。
+[Functional API](/oss/javascript/langgraph/functional-api) 采用命令式方法，将 LangGraph 功能集成到标准的过程式代码中。
 
 **1. 现有的过程式代码**
 

@@ -1,129 +1,92 @@
 ---
-title: Jina Embeddings
+title: Jina
 ---
-`JinaEmbeddings` 类利用 Jina API 为给定的文本输入生成嵌入向量。本指南将引导您完成 `JinaEmbeddings` 类的设置和使用，帮助您将其无缝集成到您的项目中。
+你可以从[这里](https://jina.ai/embeddings/)查看可用的模型列表。
 
-## 安装
+## 安装与设置
 
-如下所示安装 `@langchain/community` 包：
+安装依赖项
 
-<Tip>
-
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm i @langchain/community @langchain/core
-```
-## 初始化
-
-通过此集成，您可以使用 Jina 嵌入模型来获取文本数据的嵌入向量。这是嵌入模型的[链接](https://jina.ai/embeddings)。
-
-首先，您需要在 Jina 网站上注册，并从[此处](https://jina.ai/embeddings)获取 API 令牌。您可以从 API 游乐场的下拉列表中复制模型名称。
-
-要使用 `JinaEmbeddings` 类，您需要一个来自 Jina 的 API 令牌。您可以将此令牌直接传递给构造函数，或将其设置为环境变量 (`JINA_API_KEY`)。
-
-### 基本用法
-
-以下是创建 `JinaEmbeddings` 实例的方法：
-
-```typescript
-import { JinaEmbeddings } from "@langchain/community/embeddings/jina";
-
-const embeddings = new JinaEmbeddings({
-  apiKey: "YOUR_API_TOKEN",
-  model: "jina-clip-v2", // 可选，默认为 "jina-clip-v2"
-});
-```
-如果未提供 `apiKey`，将从 `JINA_API_KEY` 环境变量中读取。
-
-## 生成嵌入向量
-
-### 嵌入单个查询
-
-要为单个文本查询生成嵌入向量，请使用 `embedQuery` 方法：
-
-```typescript
-const embedding = await embeddings.embedQuery(
-  "What would be a good company name for a company that makes colorful socks?"
-);
-console.log(embedding);
-```
-### 嵌入多个文档
-
-要为多个文档生成嵌入向量，请使用 `embedDocuments` 方法。
-
-```typescript
-import { localImageToBase64 } from "@langchain/community/utils/local_image_to_base64";
-const documents = [
-  "hello",
-  {
-    text: "hello",
-  },
-  {
-    image: "https://i.ibb.co/nQNGqL0/beach1.jpg",
-  },
-  {
-    image: await localImageToBase64("beach1.jpg"),
-  },
-];
-
-const embeddingsArray = await embeddings.embedDocuments(documents);
-console.log(embeddingsArray);
-```
-## 错误处理
-
-如果未提供 API 令牌且在环境变量中找不到，将抛出错误：
-
-```typescript
-try {
-  const embeddings = new JinaEmbeddings();
-} catch (error) {
-  console.error("Jina API token not found");
-}
-```
-## 示例
-
-以下是设置和使用 `JinaEmbeddings` 类的完整示例：
-
-```typescript
-import { JinaEmbeddings } from "@langchain/community/embeddings/jina";
-import { localImageToBase64 } from "@langchain/community/embeddings/jina/util";
-
-const embeddings = new JinaEmbeddings({
-  apiKey: "YOUR_API_TOKEN",
-  model: "jina-embeddings-v2-base-en",
-});
-
-async function runExample() {
-  const queryEmbedding = await embeddings.embedQuery("Example query text.");
-  console.log("Query Embedding:", queryEmbedding);
-
-  const documents = [
-    "hello",
-    {
-      text: "hello",
-    },
-    {
-      image: "https://i.ibb.co/nQNGqL0/beach1.jpg",
-    },
-    {
-      image: await localImageToBase64("beach1.jpg"),
-    },
-  ];
-  const documentEmbeddings = await embeddings.embedDocuments(documents);
-  console.log("Document Embeddings:", documentEmbeddings);
-}
-
-runExample();
+```python
+pip install -U langchain-community
 ```
 
-## 反馈与支持
+导入库
 
-如有反馈或问题，请联系 [support@jina.ai](mailto:support@jina.ai)。
+```python
+import requests
+from langchain_community.embeddings import JinaEmbeddings
+from numpy import dot
+from numpy.linalg import norm
+from PIL import Image
+```
 
-## 相关链接
+## 通过 JinaAI API 使用 Jina 嵌入模型嵌入文本和查询
 
-- 嵌入模型[概念指南](/oss/integrations/text_embedding)
-- 嵌入模型[操作指南](/oss/integrations/text_embedding)
+```python
+text_embeddings = JinaEmbeddings(
+    jina_api_key="jina_*", model_name="jina-embeddings-v2-base-en"
+)
+```
+
+```python
+text = "This is a test document."
+```
+
+```python
+query_result = text_embeddings.embed_query(text)
+```
+
+```python
+print(query_result)
+```
+
+```python
+doc_result = text_embeddings.embed_documents([text])
+```
+
+```python
+print(doc_result)
+```
+
+## 通过 JinaAI API 使用 Jina CLIP 嵌入图像和查询
+
+```python
+multimodal_embeddings = JinaEmbeddings(jina_api_key="jina_*", model_name="jina-clip-v1")
+```
+
+```python
+image = "https://avatars.githubusercontent.com/u/126733545?v=4"
+
+description = "Logo of a parrot and a chain on green background"
+
+im = Image.open(requests.get(image, stream=True).raw)
+print("Image:")
+display(im)
+```
+
+```python
+image_result = multimodal_embeddings.embed_images([image])
+```
+
+```python
+print(image_result)
+```
+
+```python
+description_result = multimodal_embeddings.embed_documents([description])
+```
+
+```python
+print(description_result)
+```
+
+```python
+cosine_similarity = dot(image_result[0], description_result[0]) / (
+    norm(image_result[0]) * norm(description_result[0])
+)
+```
+
+```python
+print(cosine_similarity)
+```

@@ -23,7 +23,7 @@ uv add python-arango
 
 将你的 `ArangoDB` 数据库与聊天模型连接，以获取数据洞察。
 
-查看笔记本示例 [此处](/oss/integrations/graphs/arangodb)。
+查看笔记本示例 [此处](/oss/javascript/integrations/graphs/arangodb)。
 
 ```python
 from arango import ArangoClient

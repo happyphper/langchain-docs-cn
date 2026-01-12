@@ -116,5 +116,5 @@ await store.delete({
 
 ## 相关
 
-- 向量存储 [概念指南](/oss/integrations/vectorstores)
-- 向量存储 [操作指南](/oss/integrations/vectorstores)
+- 向量存储 [概念指南](/oss/javascript/integrations/vectorstores)
+- 向量存储 [操作指南](/oss/javascript/integrations/vectorstores)

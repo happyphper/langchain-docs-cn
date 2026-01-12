@@ -3,7 +3,7 @@ title: Unstructured
 ---
 本笔记本介绍了如何使用 `Unstructured` [文档加载器](https://python.langchain.com/docs/concepts/document_loaders) 来加载多种类型的文件。`Unstructured` 目前支持加载文本文件、PowerPoint 演示文稿、HTML、PDF、图像等。
 
-关于在本地设置 Unstructured 的更多说明，包括设置所需的系统依赖项，请参阅[本指南](/oss/integrations/providers/unstructured)。
+关于在本地设置 Unstructured 的更多说明，包括设置所需的系统依赖项，请参阅[本指南](/oss/javascript/integrations/providers/unstructured)。
 
 ## 概述
 

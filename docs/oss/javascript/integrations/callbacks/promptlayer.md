@@ -3,7 +3,7 @@ title: PromptLayer
 ---
 >[PromptLayer](https://docs.promptlayer.com/introduction) 是一个用于提示工程（prompt engineering）的平台。它还能通过可视化请求、版本化提示词和追踪使用情况来帮助实现 LLM 的可观测性。
 
-虽然 `PromptLayer` 确实有直接与 LangChain 集成的 LLM（例如 [`PromptLayerOpenAI`](/oss/integrations/llms/promptlayer_openai)），但使用回调（callback）是将 `PromptLayer` 与 LangChain 集成的推荐方式。
+虽然 `PromptLayer` 确实有直接与 LangChain 集成的 LLM（例如 [`PromptLayerOpenAI`](/oss/javascript/integrations/llms/promptlayer_openai)），但使用回调（callback）是将 `PromptLayer` 与 LangChain 集成的推荐方式。
 
 在本指南中，我们将介绍如何设置 `PromptLayerCallbackHandler`。
 

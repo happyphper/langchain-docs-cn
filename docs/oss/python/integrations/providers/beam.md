@@ -25,7 +25,7 @@ uv add beam-sdk
 
 ## 大语言模型 (LLMs)
 
-查看[使用示例](/oss/integrations/llms/beam)。
+查看[使用示例](/oss/python/integrations/llms/beam)。
 
 在 [Beam 文档](https://docs.beam.cloud/examples/langchain) 中查看另一个示例。
 

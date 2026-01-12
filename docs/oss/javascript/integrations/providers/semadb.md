@@ -17,4 +17,4 @@ title: SemaDB
 from langchain_community.vectorstores import SemaDB
 ```
 
-您可以按照[此笔记本](/oss/integrations/vectorstores/semadb)中的教程学习如何使用该封装器。
+您可以按照[此笔记本](/oss/javascript/integrations/vectorstores/semadb)中的教程学习如何使用该封装器。

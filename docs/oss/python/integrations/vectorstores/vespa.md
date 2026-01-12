@@ -162,7 +162,7 @@ result = results[0]
 
 ### 作为检索器
 
-要将此向量存储用作 [LangChain 检索器](/oss/langchain/retrieval)，只需调用 `as_retriever` 函数，这是一个标准的向量存储方法：
+要将此向量存储用作 [LangChain 检索器](/oss/python/langchain/retrieval)，只需调用 `as_retriever` 函数，这是一个标准的向量存储方法：
 
 ```python
 db = VespaStore.from_documents(docs, embedding_function, app=vespa_app, **vespa_config)

@@ -13,7 +13,7 @@ pip install langchain-polaris-ai-datainsight
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/polaris_ai_datainsight)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/polaris_ai_datainsight)。
 
 ```
 from langchain_polaris_ai_datainsight import PolarisAIDataInsightLoader

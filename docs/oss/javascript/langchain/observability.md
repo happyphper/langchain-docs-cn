@@ -3,7 +3,7 @@ title: LangSmith 可观测性
 sidebarTitle: Observability
 ---
 
-在使用 LangChain 构建和运行智能体（agent）时，你需要了解其行为细节：它调用了哪些[工具](/oss/langchain/tools)、生成了什么提示（prompt）以及如何做出决策。使用 <a href="https://reference.langchain.com/javascript/functions/langchain.index.createAgent.html" target="_blank" rel="noreferrer" class="link"><code>createAgent</code></a> 构建的 LangChain 智能体自动支持通过 [LangSmith](/langsmith/home) 进行追踪。LangSmith 是一个用于捕获、调试、评估和监控 LLM 应用行为的平台。
+在使用 LangChain 构建和运行智能体（agent）时，你需要了解其行为细节：它调用了哪些[工具](/oss/javascript/langchain/tools)、生成了什么提示（prompt）以及如何做出决策。使用 <a href="https://reference.langchain.com/javascript/functions/langchain.index.createAgent.html" target="_blank" rel="noreferrer" class="link"><code>createAgent</code></a> 构建的 LangChain 智能体自动支持通过 [LangSmith](/langsmith/home) 进行追踪。LangSmith 是一个用于捕获、调试、评估和监控 LLM 应用行为的平台。
 
 [_追踪记录_](/langsmith/observability-concepts#traces) 会记录智能体执行的每一步，从初始用户输入到最终响应，包括所有工具调用、模型交互和决策点。这些执行数据有助于你调试问题、评估不同输入下的性能，并监控生产环境中的使用模式。
 

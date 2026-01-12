@@ -1,7 +1,7 @@
 ---
 title: Anthropic 中间件
 ---
-专为 Anthropic 的 Claude 模型设计的中间件。了解更多关于[中间件](/oss/langchain/middleware/overview)的信息。
+专为 Anthropic 的 Claude 模型设计的中间件。了解更多关于[中间件](/oss/javascript/langchain/middleware/overview)的信息。
 
 | 中间件 | 描述 |
 |------------|-------------|

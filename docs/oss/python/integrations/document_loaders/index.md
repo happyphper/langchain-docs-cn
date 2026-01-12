@@ -1,193 +1,332 @@
 ---
 sidebar_position: 0
-sidebarTitle: Document loaders
+sidebarTitle: 文档加载器
 ---
 
-文档加载器为从不同数据源（如 Slack、Notion 或 Google Drive）读取数据到 LangChain 的 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link">Document</a> 格式提供了一个**标准接口**。
-这确保了无论数据来源如何，都能以一致的方式处理数据。
+文档加载器提供了一个**标准接口**，用于从不同来源（如 Slack、Notion 或 Google Drive）读取数据到 LangChain 的 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link">Document</a> 格式。
+这确保了无论数据来源如何，都能以一致的方式进行处理。
 
-所有文档加载器都实现了 <a href="https://reference.langchain.com/python/langchain_core/document_loaders/#langchain_core.document_loaders.BaseLoader" target="_blank" rel="noreferrer" class="link">BaseLoader</a> 接口。
+所有文档加载器都实现了 <a href="https://reference.langchain.com/python/langchain_core/document_loaders/#langchain_core.document_loaders.BaseLoader" target="_blank" rel="noreferrer" class="link"><code>BaseLoader</code></a> 接口。
 
-## Interface
+## 接口
 
 每个文档加载器可以定义自己的参数，但它们共享一个通用的 API：
 
-- `load()`: 一次性加载所有文档。
-- `loadAndSplit()`: 一次性加载所有文档并将其拆分为更小的文档。
+* `load()` – 一次性加载所有文档。
+* `lazy_load()` – 惰性流式加载文档，适用于大型数据集。
 
-```typescript
-import { CSVLoader } from "@langchain/community/document_loaders/fs/csv";
+```python
+from langchain_community.document_loaders.csv_loader import CSVLoader
 
-const loader = new CSVLoader(
-  ...  // <-- Integration specific parameters here
-);
-const data = await loader.load();
+loader = CSVLoader(
+    ...  # 特定集成参数放在这里
+)
+
+# 加载所有文档
+documents = loader.load()
+
+# 对于大型数据集，惰性加载文档
+for document in loader.lazy_load():
+    print(document)
 ```
 
-## By category
+## 按类别分类
 
-LangChain.js 以两种不同的方式对文档加载器进行分类：
+### 网页
 
-- [File loaders](/oss/integrations/document_loaders/file_loaders/)，用于从本地文件系统将数据加载至 LangChain 格式。
-- [Web loaders](/oss/integrations/document_loaders/web_loaders/)，用于从远程源加载数据。
+以下文档加载器允许您加载网页。
 
-### File loaders
-
-<Info>
-
-如果您想贡献集成，请参阅[贡献集成](/oss/contributing#add-a-new-integration)。
-
-</Info>
-
-#### PDFs
-
-| Document Loader | Description | Package/API |
+| 文档加载器 | 描述 | 包/API |
 |----------------|-------------|-------------|
-| [PDFLoader](/oss/integrations/document_loaders/file_loaders/pdf) | 使用 pdf-parse 加载并解析 PDF 文件 | Package |
+| [Web](/oss/python/integrations/document_loaders/web_base) | 使用 urllib 和 BeautifulSoup 加载和解析 HTML 网页 | 包 |
+| [Unstructured](/oss/python/integrations/document_loaders/unstructured_file) | 使用 Unstructured 加载和解析网页 | 包 |
+| [RecursiveURL](/oss/python/integrations/document_loaders/recursive_url) | 从根 URL 递归抓取所有子链接 | 包 |
+| [Sitemap](/oss/python/integrations/document_loaders/sitemap) | 抓取给定站点地图上的所有页面 | 包 |
+| [Spider](/oss/python/integrations/document_loaders/spider) | 返回可供 LLM 使用的数据的爬虫和抓取器 | API |
+| [Firecrawl](/oss/python/integrations/document_loaders/firecrawl) | 可本地部署的 API 服务 | API |
+| [Docling](/oss/python/integrations/document_loaders/docling) | 使用 Docling 加载和解析网页 | 包 |
+| [Hyperbrowser](/oss/python/integrations/document_loaders/hyperbrowser) | 用于运行和扩展无头浏览器的平台，可用于抓取/爬取任何网站 | API |
+| [AgentQL](/oss/python/integrations/document_loaders/agentql) | 使用 AgentQL 查询或自然语言提示从任何网页进行 Web 交互和结构化数据提取 | API |
 
-#### Common file types
+### PDF 文件
 
-| Document Loader | Description | Package/API |
+以下文档加载器允许您加载 PDF 文档。
+
+| 文档加载器 | 描述 | 包/API |
 |----------------|-------------|-------------|
-| [CSV](/oss/integrations/document_loaders/file_loaders/csv) | 从 CSV 文件加载数据，支持可配置的列提取 | Package |
-| [JSON](/oss/integrations/document_loaders/file_loaders/json) | 使用 JSON 指针加载 JSON 文件以定位特定键 | Package |
-| [JSONLines](/oss/integrations/document_loaders/file_loaders/jsonlines) | 从 JSONLines/JSONL 文件加载数据 | Package |
-| [Text](/oss/integrations/document_loaders/file_loaders/text) | 加载纯文本文件 | Package |
-| [DOCX](/oss/integrations/document_loaders/file_loaders/docx) | 加载 Microsoft Word 文档（.docx 和 .doc 格式） | Package |
-| [EPUB](/oss/integrations/document_loaders/file_loaders/epub) | 加载 EPUB 文件，支持可选的章节拆分 | Package |
-| [PPTX](/oss/integrations/document_loaders/file_loaders/pptx) | 加载 PowerPoint 演示文稿 | Package |
-| [Subtitles](/oss/integrations/document_loaders/file_loaders/subtitles) | 加载字幕文件（.srt 格式） | Package |
+| [PyPDF](/oss/python/integrations/document_loaders/pypdfloader) | 使用 `pypdf` 加载和解析 PDF | 包 |
+| [Unstructured](/oss/python/integrations/document_loaders/unstructured_file) | 使用 Unstructured 的开源库加载 PDF | 包 |
+| [Amazon Textract](/oss/python/integrations/document_loaders/amazon_textract) | 使用 AWS API 加载 PDF | API |
+| [MathPix](/oss/python/integrations/document_loaders/mathpix) | 使用 MathPix 加载 PDF | 包 |
+| [PDFPlumber](/oss/python/integrations/document_loaders/pdfplumber) | 使用 PDFPlumber 加载 PDF 文件 | 包 |
+| [PyPDFDirectry](/oss/python/integrations/document_loaders/pypdfdirectory) | 加载包含 PDF 文件的目录 | 包 |
+| [PyPDFium2](/oss/python/integrations/document_loaders/pypdfium2) | 使用 PyPDFium2 加载 PDF 文件 | 包 |
+| [PyMuPDF](/oss/python/integrations/document_loaders/pymupdf) | 使用 PyMuPDF 加载 PDF 文件 | 包 |
+| [PyMuPDF4LLM](/oss/python/integrations/document_loaders/pymupdf4llm) | 使用 PyMuPDF4LLM 将 PDF 内容加载为 Markdown | 包 |
+| [PDFMiner](/oss/python/integrations/document_loaders/pdfminer) | 使用 PDFMiner 加载 PDF 文件 | 包 |
+| [Upstage Document Parse Loader](/oss/python/integrations/document_loaders/upstage) | 使用 UpstageDocumentParseLoader 加载 PDF 文件 | 包 |
+| [Docling](/oss/python/integrations/document_loaders/docling) | 使用 Docling 加载 PDF 文件 | 包 |
+| [UnDatasIO](/oss/python/integrations/document_loaders/undatasio) | 使用 UnDatasIO 加载 PDF 文件 | 包 |
+| [OpenDataLoader PDF](/oss/python/integrations/document_loaders/opendataloader_pdf) | 使用 OpenDataLoader PDF 加载 PDF 文件 | 包 |
 
-#### Specialized file loaders
+### 云服务提供商
 
-| Document Loader | Description | Package/API |
-|----------------|-------------|-------------|
-| [`DirectoryLoader`](/oss/integrations/document_loaders/file_loaders/directory) | 使用自定义加载器映射从目录加载所有文件 | Package |
-| [`UnstructuredLoader`](/oss/integrations/document_loaders/file_loaders/unstructured) | 使用 Unstructured API 加载多种文件类型 | API |
-| [`MultiFileLoader`](/oss/integrations/document_loaders/file_loaders/multi_file) | 从多个独立文件路径加载数据 | Package |
-| [`ChatGPT`](/oss/integrations/document_loaders/file_loaders/chatgpt) | 加载 ChatGPT 对话导出文件 | Package |
-| [Notion Markdown](/oss/integrations/document_loaders/file_loaders/notion_markdown) | 加载导出为 Markdown 的 Notion 页面 | Package |
-| [OpenAI Whisper Audio](/oss/integrations/document_loaders/file_loaders/openai_whisper_audio) | 使用 OpenAI Whisper API 转录音频文件 | API |
+以下文档加载器允许您从您喜爱的云服务提供商加载文档。
 
-### Web loaders
+| 文档加载器 | 描述 | 合作伙伴包 | API 参考 |
+|----------------|-------------|----------------|---------------|
+| [AWS S3 Directory](/oss/python/integrations/document_loaders/aws_s3_directory) | 从 AWS S3 目录加载文档 | ❌ | [`S3DirectoryLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.s3_directory.S3DirectoryLoader.html) |
+| [AWS S3 File](/oss/python/integrations/document_loaders/aws_s3_file) | 从 AWS S3 文件加载文档 | ❌ | [`S3FileLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.s3_file.S3FileLoader.html) |
+| [Azure AI Data](/oss/python/integrations/document_loaders/azure_ai_data) | 从 Azure AI 服务加载文档 | ❌ | [`AzureAIDataLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.azure_ai_data.AzureAIDataLoader.html) |
+| [Azure Blob Storage](/oss/python/integrations/document_loaders/azure_blob_storage) | 从 Azure Blob Storage 加载文档 | ✅ | [`AzureBlobStorageLoader`](https://reference.langchain.com/python/integrations/langchain_azure/storage/) |
+| [Dropbox](/oss/python/integrations/document_loaders/dropbox) | 从 Dropbox 加载文档 | ❌ | [`DropboxLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.dropbox.DropboxLoader.html) |
+| [Google Cloud Storage Directory](/oss/python/integrations/document_loaders/google_cloud_storage_directory) | 从 GCS 存储桶加载文档 | ✅ | [`GCSDirectoryLoader`](https://python.langchain.com/api_reference/google_community/gcs_directory/langchain_google_community.gcs_directory.GCSDirectoryLoader.html) |
+| [Google Cloud Storage File](/oss/python/integrations/document_loaders/google_cloud_storage_file) | 从 GCS 文件对象加载文档 | ✅ | [`GCSFileLoader`](https://python.langchain.com/api_reference/google_community/gcs_file/langchain_google_community.gcs_file.GCSFileLoader.html) |
+| [Google Drive](/oss/python/integrations/document_loaders/google_drive) | 从 Google Drive 加载文档（仅限 Google 文档） | ✅ | [`GoogleDriveLoader`](https://python.langchain.com/api_reference/google_community/drive/langchain_google_community.drive.GoogleDriveLoader.html) |
+| [Huawei OBS Directory](/oss/python/integrations/document_loaders/huawei_obs_directory) | 从华为对象存储服务目录加载文档 | ❌ | [`OBSDirectoryLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.obs_directory.OBSDirectoryLoader.html) |
+| [Huawei OBS File](/oss/python/integrations/document_loaders/huawei_obs_file) | 从华为对象存储服务文件加载文档 | ❌ | [`OBSFileLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.obs_file.OBSFileLoader.html) |
+| [Microsoft OneDrive](/oss/python/integrations/document_loaders/microsoft_onedrive) | 从 Microsoft OneDrive 加载文档 | ❌ | [`OneDriveLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.onedrive.OneDriveLoader.html) |
+| [Microsoft SharePoint](/oss/python/integrations/document_loaders/microsoft_sharepoint) | 从 Microsoft SharePoint 加载文档 | ❌ | [`SharePointLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.sharepoint.SharePointLoader.html) |
+| [Tencent COS Directory](/oss/python/integrations/document_loaders/tencent_cos_directory) | 从腾讯云对象存储目录加载文档 | ❌ | [`TencentCOSDirectoryLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.tencent_cos_directory.TencentCOSDirectoryLoader.html) |
+| [Tencent COS File](/oss/python/integrations/document_loaders/tencent_cos_file) | 从腾讯云对象存储文件加载文档 | ❌ | [`TencentCOSFileLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.tencent_cos_file.TencentCOSFileLoader.html) |
 
-#### Webpages
+### 社交平台
 
-| Document Loader | Description | Web Support | Package/API |
-|----------------|-------------|:-----------:|-------------|
-| [`Cheerio`](/oss/integrations/document_loaders/web_loaders/web_cheerio) | 使用 Cheerio 加载网页（轻量级，不执行 JavaScript） | ✅ | Package |
-| [`Playwright`](/oss/integrations/document_loaders/web_loaders/web_playwright) | 使用 Playwright 加载动态网页（支持 JavaScript 渲染） | ❌ | Package |
-| [`Puppeteer`](/oss/integrations/document_loaders/web_loaders/web_puppeteer) | 使用 Puppeteer 加载动态网页（无头 Chrome） | ❌ | Package |
-| [`FireCrawl`](/oss/integrations/document_loaders/web_loaders/firecrawl) | 爬取网站并将其转换为适合 LLM 的 Markdown | ✅ | API |
-| [`Spider`](/oss/integrations/document_loaders/web_loaders/spider) | 将网站快速爬取为 HTML、Markdown 或文本 | ✅ | API |
-| [`RecursiveUrlLoader`](/oss/integrations/document_loaders/web_loaders/recursive_url_loader) | 递归加载网页，跟随链接 | ❌ | Package |
-| [`Sitemap`](/oss/integrations/document_loaders/web_loaders/sitemap) | 从 sitemap.xml 加载所有页面 | ✅ | Package |
-| [`Browserbase`](/oss/integrations/document_loaders/web_loaders/browserbase) | 使用托管的无头浏览器（隐身模式）加载网页 | ✅ | API |
-| [`WebPDFLoader`](/oss/integrations/document_loaders/web_loaders/pdf) | 在网络环境中加载 PDF 文件 | ✅ | Package |
+以下文档加载器允许您从不同的社交媒体平台加载文档。
 
-#### Cloud providers
+| 文档加载器 | API 参考 |
+|----------------|---------------|
+| [Twitter](/oss/python/integrations/document_loaders/twitter) | [`TwitterTweetLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.twitter.TwitterTweetLoader.html) |
+| [Reddit](/oss/python/integrations/document_loaders/reddit) | [`RedditPostsLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.reddit.RedditPostsLoader.html) |
 
-| Document Loader | Description | Web Support | Package/API |
-|----------------|-------------|:-----------:|-------------|
-| [S3](/oss/integrations/document_loaders/web_loaders/s3) | 从 AWS S3 存储桶加载文件 | ❌ | Package |
-| [Azure Blob Storage Container](/oss/integrations/document_loaders/web_loaders/azure_blob_storage_container) | 从 Azure Blob Storage 容器加载所有文件 | ❌ | Package |
-| [Azure Blob Storage File](/oss/integrations/document_loaders/web_loaders/azure_blob_storage_file) | 从 Azure Blob Storage 加载单个文件 | ❌ | Package |
-| [Google Cloud Storage](/oss/integrations/document_loaders/web_loaders/google_cloud_storage) | 从 Google Cloud Storage 存储桶加载文件 | ❌ | Package |
-| [Google Cloud SQL for PostgreSQL](/oss/integrations/document_loaders/web_loaders/google_cloudsql_pg) | 从 Cloud SQL PostgreSQL 数据库加载文档 | ✅ | Package |
+### 消息服务
 
-#### Productivity tools
+以下文档加载器允许您从不同的消息平台加载数据。
 
-| Document Loader | Description | Web Support | Package/API |
-|----------------|-------------|:-----------:|-------------|
-| [Notion API](/oss/integrations/document_loaders/web_loaders/notionapi) | 通过 API 加载 Notion 页面和数据库 | ✅ | API |
-| [Figma](/oss/integrations/document_loaders/web_loaders/figma) | 加载 Figma 文件数据 | ✅ | API |
-| [Confluence](/oss/integrations/document_loaders/web_loaders/confluence) | 从 Confluence 空间加载页面 | ❌ | API |
-| [GitHub](/oss/integrations/document_loaders/web_loaders/github) | 从 GitHub 仓库加载文件 | ✅ | API |
-| [GitBook](/oss/integrations/document_loaders/web_loaders/gitbook) | 加载 GitBook 文档页面 | ✅ | Package |
-| [Jira](/oss/integrations/document_loaders/web_loaders/jira) | 从 Jira 项目加载问题 | ❌ | API |
-| [Airtable](/oss/integrations/document_loaders/web_loaders/airtable) | 从 Airtable 基础库加载记录 | ✅ | API |
-| [Taskade](/oss/integrations/document_loaders/web_loaders/taskade) | 加载 Taskade 项目数据 | ✅ | API |
+| 文档加载器 | API 参考 |
+|----------------|---------------|
+| [Telegram](/oss/python/integrations/document_loaders/telegram) | [`TelegramChatFileLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.telegram.TelegramChatFileLoader.html) |
+| [WhatsApp](/oss/python/integrations/document_loaders/whatsapp_chat) | [`WhatsAppChatLoader`](https://python.langchain.com/api_reference/community/chat_loaders/langchain_community.chat_loaders.whatsapp.WhatsAppChatLoader.html) |
+| [Discord](/oss/python/integrations/document_loaders/discord) | [`DiscordChatLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.discord.DiscordChatLoader.html) |
+| [Facebook Chat](/oss/python/integrations/document_loaders/facebook_chat) | [`FacebookChatLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.facebook_chat.FacebookChatLoader.html) |
+| [Mastodon](/oss/python/integrations/document_loaders/mastodon) | [`MastodonTootsLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.mastodon.MastodonTootsLoader.html) |
 
-#### Search & data APIs
+### 生产力工具
 
-| Document Loader | Description | Web Support | Package/API |
-|----------------|-------------|:-----------:|-------------|
-| [SearchAPI](/oss/integrations/document_loaders/web_loaders/searchapi) | 从 SearchAPI 加载网络搜索结果（Google、YouTube 等） | ✅ | API |
-| [SerpApi](/oss/integrations/document_loaders/web_loaders/serpapi) | 从 SerpApi 加载网络搜索结果 | ✅ | API |
-| [Apify Dataset](/oss/integrations/document_loaders/web_loaders/apify_dataset) | 从 Apify 平台加载抓取的数据 | ✅ | API |
+以下文档加载器允许您从常用的生产力工具加载数据。
 
-#### Audio & video
+| 文档加载器 | API 参考 |
+|----------------|---------------|
+| [Figma](/oss/python/integrations/document_loaders/figma) | [`FigmaFileLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.figma.FigmaFileLoader.html) |
+| [Notion](/oss/python/integrations/document_loaders/notion) | [`NotionDirectoryLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.notion.NotionDirectoryLoader.html) |
+| [Slack](/oss/python/integrations/document_loaders/slack) | [`SlackDirectoryLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.slack_directory.SlackDirectoryLoader.html) |
+| [Quip](/oss/python/integrations/document_loaders/quip) | [`QuipLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.quip.QuipLoader.html) |
+| [Trello](/oss/python/integrations/document_loaders/trello) | [`TrelloLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.trello.TrelloLoader.html) |
+| [Roam](/oss/python/integrations/document_loaders/roam) | [`RoamLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.roam.RoamLoader.html) |
+| [GitHub](/oss/python/integrations/document_loaders/github) | [`GithubFileLoader`](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.github.GithubFileLoader.html) |
 
-| Document Loader | Description | Web Support | Package/API |
-|----------------|-------------|:-----------:|-------------|
-| [YouTube](/oss/integrations/document_loaders/web_loaders/youtube) | 加载 YouTube 视频字幕 | ✅ | Package |
-| [AssemblyAI](/oss/integrations/document_loaders/web_loaders/assemblyai_audio_transcription) | 使用 AssemblyAI API 转录音频和视频文件 | ✅ | API |
-| [Sonix](/oss/integrations/document_loaders/web_loaders/sonix_audio_transcription) | 使用 Sonix API 转录音频文件 | ❌ | API |
+### 常见文件类型
 
-#### Other
+以下文档加载器允许您从常见的数据格式加载数据。
 
-| Document Loader | Description | Web Support | Package/API |
-|----------------|-------------|:-----------:|-------------|
-| [Couchbase](/oss/integrations/document_loaders/web_loaders/couchbase) | 使用 SQL++ 查询从 Couchbase 数据库加载文档 | ✅ | Package |
-| [LangSmith](/oss/integrations/document_loaders/web_loaders/langsmith) | 从 LangSmith 加载数据集和追踪记录 | ✅ | API |
-| [Hacker News](/oss/integrations/document_loaders/web_loaders/hn) | 加载 Hacker News 主题和评论 | ✅ | Package |
-| [IMSDB](/oss/integrations/document_loaders/web_loaders/imsdb) | 从互联网电影剧本数据库加载电影剧本 | ✅ | Package |
-| [College Confidential](/oss/integrations/document_loaders/web_loaders/college_confidential) | 从 College Confidential 加载大学信息 | ✅ | Package |
-| [Blockchain Data](/oss/integrations/document_loaders/web_loaders/sort_xyz_blockchain) | 通过 Sort.xyz API 加载区块链数据（NFT、交易） | ✅ | API |
+| 文档加载器 | 数据类型 |
+|----------------|-----------|
+| [`CSVLoader`](/oss/python/integrations/document_loaders/csv) | CSV 文件 |
+| [`Unstructured`](/oss/python/integrations/document_loaders/unstructured_file) | 多种文件类型（参见 https://docs.unstructured.io/platform/supported-file-types） |
+| [`JSONLoader`](/oss/python/integrations/document_loaders/json) | JSON 文件 |
+| [`BSHTMLLoader`](/oss/python/integrations/document_loaders/bshtml) | HTML 文件 |
+| [`DoclingLoader`](/oss/python/integrations/document_loaders/docling) | 多种文件类型（参见 https://ds4sd.github.io/docling/） |
+| [`PolarisAIDataInsightLoader`](/oss/python/integrations/document_loaders/polaris_ai_datainsight) | 多种文件类型（参见 https://datainsight.polarisoffice.com/documentation?docType=doc_extract） |
 
-## All document loaders
+## 所有文档加载器
 
 <Columns :cols="3">
 
-<Card title="Airtable" icon="link" href="/oss/integrations/document_loaders/web_loaders/airtable" arrow="true" cta="View guide" />
-<Card title="Apify Dataset" icon="link" href="/oss/integrations/document_loaders/web_loaders/apify_dataset" arrow="true" cta="View guide" />
-<Card title="AssemblyAI Audio Transcript" icon="link" href="/oss/integrations/document_loaders/web_loaders/assemblyai_audio_transcription" arrow="true" cta="View guide" />
-<Card title="Azure Blob Storage Container" icon="link" href="/oss/integrations/document_loaders/web_loaders/azure_blob_storage_container" arrow="true" cta="View guide" />
-<Card title="Azure Blob Storage File" icon="link" href="/oss/integrations/document_loaders/web_loaders/azure_blob_storage_file" arrow="true" cta="View guide" />
-<Card title="Blockchain Data" icon="link" href="/oss/integrations/document_loaders/web_loaders/sort_xyz_blockchain" arrow="true" cta="View guide" />
-<Card title="Browserbase" icon="link" href="/oss/integrations/document_loaders/web_loaders/browserbase" arrow="true" cta="View guide" />
-<Card title="ChatGPT" icon="link" href="/oss/integrations/document_loaders/file_loaders/chatgpt" arrow="true" cta="View guide" />
-<Card title="Cheerio" icon="link" href="/oss/integrations/document_loaders/web_loaders/web_cheerio" arrow="true" cta="View guide" />
-<Card title="College Confidential" icon="link" href="/oss/integrations/document_loaders/web_loaders/college_confidential" arrow="true" cta="View guide" />
-<Card title="Confluence" icon="link" href="/oss/integrations/document_loaders/web_loaders/confluence" arrow="true" cta="View guide" />
-<Card title="Couchbase" icon="link" href="/oss/integrations/document_loaders/web_loaders/couchbase" arrow="true" cta="View guide" />
-<Card title="CSV" icon="link" href="/oss/integrations/document_loaders/file_loaders/csv" arrow="true" cta="View guide" />
-<Card title="DirectoryLoader" icon="link" href="/oss/integrations/document_loaders/file_loaders/directory" arrow="true" cta="View guide" />
-<Card title="DOCX" icon="link" href="/oss/integrations/document_loaders/file_loaders/docx" arrow="true" cta="View guide" />
-<Card title="EPUB" icon="link" href="/oss/integrations/document_loaders/file_loaders/epub" arrow="true" cta="View guide" />
-<Card title="Figma" icon="link" href="/oss/integrations/document_loaders/web_loaders/figma" arrow="true" cta="View guide" />
-<Card title="FireCrawl" icon="link" href="/oss/integrations/document_loaders/web_loaders/firecrawl" arrow="true" cta="View guide" />
-<Card title="GitHub" icon="link" href="/oss/integrations/document_loaders/web_loaders/github" arrow="true" cta="View guide" />
-<Card title="GitBook" icon="link" href="/oss/integrations/document_loaders/web_loaders/gitbook" arrow="true" cta="View guide" />
-<Card title="Google Cloud SQL for PostgreSQL" icon="link" href="/oss/integrations/document_loaders/web_loaders/google_cloudsql_pg" arrow="true" cta="View guide" />
-<Card title="Google Cloud Storage" icon="link" href="/oss/integrations/document_loaders/web_loaders/google_cloud_storage" arrow="true" cta="View guide" />
-<Card title="Hacker News" icon="link" href="/oss/integrations/document_loaders/web_loaders/hn" arrow="true" cta="View guide" />
-<Card title="IMSDB" icon="link" href="/oss/integrations/document_loaders/web_loaders/imsdb" arrow="true" cta="View guide" />
-<Card title="Jira" icon="link" href="/oss/integrations/document_loaders/web_loaders/jira" arrow="true" cta="View guide" />
-<Card title="JSON" icon="link" href="/oss/integrations/document_loaders/file_loaders/json" arrow="true" cta="View guide" />
-<Card title="JSONLines" icon="link" href="/oss/integrations/document_loaders/file_loaders/jsonlines" arrow="true" cta="View guide" />
-<Card title="LangSmith" icon="link" href="/oss/integrations/document_loaders/web_loaders/langsmith" arrow="true" cta="View guide" />
-<Card title="MultiFileLoader" icon="link" href="/oss/integrations/document_loaders/file_loaders/multi_file" arrow="true" cta="View guide" />
-<Card title="Notion API" icon="link" href="/oss/integrations/document_loaders/web_loaders/notionapi" arrow="true" cta="View guide" />
-<Card title="Notion Markdown" icon="link" href="/oss/integrations/document_loaders/file_loaders/notion_markdown" arrow="true" cta="View guide" />
-<Card title="OpenAI Whisper Audio" icon="link" href="/oss/integrations/document_loaders/file_loaders/openai_whisper_audio" arrow="true" cta="View guide" />
-<Card title="PDFLoader" icon="link" href="/oss/integrations/document_loaders/file_loaders/pdf" arrow="true" cta="View guide" />
-<Card title="Playwright" icon="link" href="/oss/integrations/document_loaders/web_loaders/web_playwright" arrow="true" cta="View guide" />
-<Card title="PPTX" icon="link" href="/oss/integrations/document_loaders/file_loaders/pptx" arrow="true" cta="View guide" />
-<Card title="Puppeteer" icon="link" href="/oss/integrations/document_loaders/web_loaders/web_puppeteer" arrow="true" cta="View guide" />
-<Card title="RecursiveUrlLoader" icon="link" href="/oss/integrations/document_loaders/web_loaders/recursive_url_loader" arrow="true" cta="View guide" />
-<Card title="S3" icon="link" href="/oss/integrations/document_loaders/web_loaders/s3" arrow="true" cta="View guide" />
-<Card title="SearchAPI" icon="link" href="/oss/integrations/document_loaders/web_loaders/searchapi" arrow="true" cta="View guide" />
-<Card title="SerpApi" icon="link" href="/oss/integrations/document_loaders/web_loaders/serpapi" arrow="true" cta="View guide" />
-<Card title="Sitemap" icon="link" href="/oss/integrations/document_loaders/web_loaders/sitemap" arrow="true" cta="View guide" />
-<Card title="Sonix Audio" icon="link" href="/oss/integrations/document_loaders/web_loaders/sonix_audio_transcription" arrow="true" cta="View guide" />
-<Card title="Spider" icon="link" href="/oss/integrations/document_loaders/web_loaders/spider" arrow="true" cta="View guide" />
-<Card title="Subtitles" icon="link" href="/oss/integrations/document_loaders/file_loaders/subtitles" arrow="true" cta="View guide" />
-<Card title="Taskade" icon="link" href="/oss/integrations/document_loaders/web_loaders/taskade" arrow="true" cta="View guide" />
-<Card title="Text" icon="link" href="/oss/integrations/document_loaders/file_loaders/text" arrow="true" cta="View guide" />
-<Card title="UnstructuredLoader" icon="link" href="/oss/integrations/document_loaders/file_loaders/unstructured" arrow="true" cta="View guide" />
-<Card title="WebPDFLoader" icon="link" href="/oss/integrations/document_loaders/web_loaders/pdf" arrow="true" cta="View guide" />
-<Card title="YouTube" icon="link" href="/oss/integrations/document_loaders/web_loaders/youtube" arrow="true" cta="View guide" />
+<Card title="acreom" icon="link" href="/oss/integrations/document_loaders/acreom" arrow="true" cta="查看指南" />
+<Card title="AgentQLLoader" icon="link" href="/oss/integrations/document_loaders/agentql" arrow="true" cta="查看指南" />
+<Card title="AirbyteLoader" icon="link" href="/oss/integrations/document_loaders/airbyte" arrow="true" cta="查看指南" />
+<Card title="Airtable" icon="link" href="/oss/integrations/document_loaders/airtable" arrow="true" cta="查看指南" />
+<Card title="Alibaba Cloud MaxCompute" icon="link" href="/oss/integrations/document_loaders/alibaba_cloud_maxcompute" arrow="true" cta="查看指南" />
+<Card title="Amazon Textract" icon="link" href="/oss/integrations/document_loaders/amazon_textract" arrow="true" cta="查看指南" />
+<Card title="Apify Dataset" icon="link" href="/oss/integrations/document_loaders/apify_dataset" arrow="true" cta="查看指南" />
+<Card title="ArxivLoader" icon="link" href="/oss/integrations/document_loaders/arxiv" arrow="true" cta="查看指南" />
+<Card title="AssemblyAI Audio Transcripts" icon="link" href="/oss/integrations/document_loaders/assemblyai" arrow="true" cta="查看指南" />
+<Card title="AstraDB" icon="link" href="/oss/integrations/document_loaders/astradb" arrow="true" cta="查看指南" />
+<Card title="Async Chromium" icon="link" href="/oss/integrations/document_loaders/async_chromium" arrow="true" cta="查看指南" />
+<Card title="AsyncHtml" icon="link" href="/oss/integrations/document_loaders/async_html" arrow="true" cta="查看指南" />
+<Card title="Athena" icon="link" href="/oss/integrations/document_loaders/athena" arrow="true" cta="查看指南" />
+<Card title="AWS S3 Directory" icon="link" href="/oss/integrations/document_loaders/aws_s3_directory" arrow="true" cta="查看指南" />
+<Card title="AWS S3 File" icon="link" href="/oss/integrations/document_loaders/aws_s3_file" arrow="true" cta="查看指南" />
+<Card title="AZLyrics" icon="link" href="/oss/integrations/document_loaders/azlyrics" arrow="true" cta="查看指南" />
+<Card title="Azure AI Data" icon="link" href="/oss/integrations/document_loaders/azure_ai_data" arrow="true" cta="查看指南" />
+<Card title="Azure Blob Storage" icon="link" href="/oss/integrations/document_loaders/azure_blob_storage" arrow="true" cta="查看指南" />
+<Card title="Azure AI Document Intelligence" icon="link" href="/oss/integrations/document_loaders/azure_document_intelligence" arrow="true" cta="查看指南" />
+<Card title="BibTeX" icon="link" href="/oss/integrations/document_loaders/bibtex" arrow="true" cta="查看指南" />
+<Card title="BiliBili" icon="link" href="/oss/integrations/document_loaders/bilibili" arrow="true" cta="查看指南" />
+<Card title="Blackboard" icon="link" href="/oss/integrations/document_loaders/blackboard" arrow="true" cta="查看指南" />
+<Card title="Blockchain" icon="link" href="/oss/integrations/document_loaders/blockchain" arrow="true" cta="查看指南" />
+<Card title="Box" icon="link" href="/oss/integrations/document_loaders/box" arrow="true" cta="查看指南" />
+<Card title="Brave Search" icon="link" href="/oss/integrations/document_loaders/brave_search" arrow="true" cta="查看指南" />
+<Card title="Browserbase" icon="link" href="/oss/integrations/document_loaders/browserbase" arrow="true" cta="查看指南" />
+<Card title="Browserless" icon="link" href="/oss/integrations/document_loaders/browserless" arrow="true" cta="查看指南" />
+<Card title="BSHTMLLoader" icon="link" href="/oss/integrations/document_loaders/bshtml" arrow="true" cta="查看指南" />
+<Card title="Cassandra" icon="link" href="/oss/integrations/document_loaders/cassandra" arrow="true" cta="查看指南" />
+<Card title="ChatGPT Data" icon="link" href="/oss/integrations/document_loaders/chatgpt_loader" arrow="true" cta="查看指南" />
+<Card title="College Confidential" icon="link" href="/oss/integrations/document_loaders/college_confidential" arrow="true" cta="查看指南" />
+<Card title="Concurrent Loader" icon="link" href="/oss/integrations/document_loaders/concurrent" arrow="true" cta="查看指南" />
+<Card title="Confluence" icon="link" href="/oss/integrations/document_loaders/confluence" arrow="true" cta="查看指南" />
+<Card title="CoNLL-U" icon="link" href="/oss/integrations/document_loaders/conll-u" arrow="true" cta="查看指南" />
+<Card title="Copy Paste" icon="link" href="/oss/integrations/document_loaders/copypaste" arrow="true" cta="查看指南" />
+<Card title="Couchbase" icon="link" href="/oss/integrations/document_loaders/couchbase" arrow="true" cta="查看指南" />
+<Card title="CSV" icon="link" href="/oss/integrations/document_loaders/csv" arrow="true" cta="查看指南" />
+<Card title="Cube Semantic Layer" icon="link" href="/oss/integrations/document_loaders/cube_semantic" arrow="true" cta="查看指南" />
+<Card title="Datadog Logs" icon="link" href="/oss/integrations/document_loaders/datadog_logs" arrow="true" cta="查看指南" />
+<Card title="Dedoc" icon="link" href="/oss/integrations/document_loaders/dedoc" arrow="true" cta="查看指南" />
+<Card title="Diffbot" icon="link" href="/oss/integrations/document_loaders/diffbot" arrow="true" cta="查看指南" />
+<Card title="Discord" icon="link" href="/oss/integrations/document_loaders/discord" arrow="true" cta="查看指南" />
+<Card title="Docling" icon="link" href="/oss/integrations/document_loaders/docling" arrow="true" cta="查看指南" />
+<Card title="Docugami" icon="link" href="/oss/integrations/document_loaders/docugami" arrow="true" cta="查看指南" />
+<Card title="Docusaurus" icon="link" href="/oss/integrations/document_loaders/docusaurus" arrow="true" cta="查看指南" />
+<Card title="Dropbox" icon="link" href="/oss/integrations/document_loaders/dropbox" arrow="true" cta="查看指南" />
+<Card title="Email" icon="link" href="/oss/integrations/document_loaders/email" arrow="true" cta="查看指南" />
+<Card title="EPub" icon="link" href="/oss/integrations/document_loaders/epub" arrow="true" cta="查看指南" />
+<Card title="Etherscan" icon="link" href="/oss/integrations/document_loaders/etherscan" arrow="true" cta="查看指南" />
+<Card title="EverNote" icon="link" href="/oss/integrations/document_loaders/evernote" arrow="true" cta="查看指南" />
+<Card title="Facebook Chat" icon="link" href="/oss/integrations/document_loaders/facebook_chat" arrow="true" cta="查看指南" />
+<Card title="Fauna" icon="link" href="/oss/integrations/document_loaders/fauna" arrow="true" cta="查看指南" />
+<Card title="Figma" icon="link" href="/oss/integrations/document_loaders/figma" arrow="true" cta="查看指南" />
+<Card title="FireCrawl" icon="link" href="/oss/integrations/document_loaders/firecrawl" arrow="true" cta="查看指南" />
+<Card title="Geopandas" icon="link" href="/oss/integrations/document_loaders/geopandas" arrow="true" cta="查看指南" />
+<Card title="Git" icon="link" href="/oss/integrations/document_loaders/git" arrow="true" cta="查看指南" />
+<Card title="GitBook" icon="link" href="/oss/integrations/document_loaders/gitbook" arrow="true" cta="查看指南" />
+<Card title="GitHub" icon="link" href="/oss/integrations/document_loaders/github" arrow="true" cta="查看指南" />
+<Card title="Glue Catalog" icon="link" href="/oss/integrations/document_loaders/glue_catalog" arrow="true" cta="查看指南" />
+<Card title="Google AlloyDB for PostgreSQL" icon="link" href="/oss/integrations/document_loaders/google_alloydb" arrow="true" cta="查看指南" />
+<Card title="Google BigQuery" icon="link" href="/oss/integrations/document_loaders/google_bigquery" arrow="true" cta="查看指南" />
+<Card title="Google Bigtable" icon="link" href="/oss/integrations/document_loaders/google_bigtable" arrow="true" cta="查看指南" />
+<Card title="Google Cloud SQL for SQL Server" icon="link" href="/oss/integrations/document_loaders/google_cloud_sql_mssql" arrow="true" cta="查看指南" />
+<Card title="Google Cloud SQL for MySQL" icon="link" href="/oss/integrations/document_loaders/google_cloud_sql_mysql" arrow="true" cta="查看指南" />
+<Card title="Google Cloud SQL for PostgreSQL" icon="link" href="/oss/integrations/document_loaders/google_cloud_sql_pg" arrow="true" cta="查看指南" />
+<Card title="Google Cloud Storage Directory" icon="link" href="/oss/integrations/document_loaders/google_cloud_storage_directory" arrow="true" cta="查看指南" />
+<Card title="Google Cloud Storage File" icon="link" href="/oss/integrations/document_loaders/google_cloud_storage_file" arrow="true" cta="查看指南" />
+<Card title="Google Firestore in Datastore Mode" icon="link" href="/oss/integrations/document_loaders/google_datastore" arrow="true" cta="查看指南" />
+<Card title="Google Drive" icon="link" href="/oss/integrations/document_loaders/google_drive" arrow="true" cta="查看指南" />
+<Card title="Google El Carro for Oracle Workloads" icon="link" href="/oss/integrations/document_loaders/google_el_carro" arrow="true" cta="查看指南" />
+<Card title="Google Firestore (Native Mode)" icon="link" href="/oss/integrations/document_loaders/google_firestore" arrow="true" cta="查看指南" />
+<Card title="Google Memorystore for Redis" icon="link" href="/oss/integrations/document_loaders/google_memorystore_redis" arrow="true" cta="查看指南" />
+<Card title="Google Spanner" icon="link" href="/oss/integrations/document_loaders/google_spanner" arrow="true" cta="查看指南" />
+<Card title="Google Speech-to-Text" icon="link" href="/oss/integrations/document_loaders/google_speech_to_text" arrow="true" cta="查看指南" />
+<Card title="Grobid" icon="link" href="/oss/integrations/document_loaders/grobid" arrow="true" cta="查看指南" />
+<Card title="Gutenberg" icon="link" href="/oss/integrations/document_loaders/gutenberg" arrow="true" cta="查看指南" />
+<Card title="Hacker News" icon="link" href="/oss/integrations/document_loaders/hacker_news" arrow="true" cta="查看指南" />
+<Card title="Huawei OBS Directory" icon="link" href="/oss/integrations/document_loaders/huawei_obs_directory" arrow="true" cta="查看指南" />
+<Card title="Huawei OBS File" icon="link" href="/oss/integrations/document_loaders/huawei_obs_file" arrow="true" cta="查看指南" />
+<Card title="HuggingFace Dataset" icon="link" href="/oss/integrations/document_loaders/hugging_face_dataset" arrow="true" cta="查看指南" />
+<Card title="HyperbrowserLoader" icon="link" href="/oss/integrations/document_loaders/hyperbrowser" arrow="true" cta="查看指南" />
+<Card title="iFixit" icon="link" href="/oss/integrations/document_loaders/ifixit" arrow="true" cta="查看指南" />
+<Card title="Images" icon="link" href="/oss/integrations/document_loaders/image" arrow="true" cta="查看指南" />
+<Card title="Image Captions" icon="link" href="/oss/integrations/document_loaders/image_captions" arrow="true" cta="查看指南" />
+<Card title="IMSDb" icon="link" href="/oss/integrations/document_loaders/imsdb" arrow="true" cta="查看指南" />
+<Card title="Iugu" icon="link" href="/oss/integrations/document_loaders/iugu" arrow="true" cta="查看指南" />
+<Card title="Joplin" icon="link" href="/oss/integrations/document_loaders/joplin" arrow="true" cta="查看指南" />
+<Card title="JSONLoader" icon="link" href="/oss/integrations/document_loaders/json" arrow="true" cta="查看指南" />
+<Card title="Jupyter Notebook" icon="link" href="/oss/integrations/document_loaders/jupyter_notebook" arrow="true" cta="查看指南" />
+<Card title="Kinetica" icon="link" href="/oss/integrations/document_loaders/kinetica" arrow="true" cta="查看指南" />
+<Card title="lakeFS" icon="link" href="/oss/integrations/document_loaders/lakefs" arrow="true" cta="查看指南" />
+<Card title="LangSmith" icon="link" href="/oss/integrations/document_loaders/langsmith" arrow="true" cta="查看指南" />
+<Card title="LarkSuite (FeiShu)" icon="link" href="/oss/integrations/document_loaders/larksuite" arrow="true" cta="查看指南" />
+<Card title="LLM Sherpa" icon="link" href="/oss/integrations/document_loaders/llmsherpa" arrow="true" cta="查看指南" />
+<Card title="Mastodon" icon="link" href="/oss/integrations/document_loaders/mastodon" arrow="true" cta="查看指南" />
+<Card title="MathPixPDFLoader" icon="link" href="/oss/integrations/document_loaders/mathpix" arrow="true" cta="查看指南" />
+<Card title="MediaWiki Dump" icon="link" href="/oss/integrations/document_loaders/mediawikidump" arrow="true" cta="查看指南" />
+<Card title="Merge Documents Loader" icon="link" href="/oss/integrations/document_loaders/merge_doc" arrow="true" cta="查看指南" />
+<Card title="MHTML" icon="link" href="/oss/integrations/document_loaders/mhtml" arrow="true" cta="查看指南" />
+<Card title="Microsoft Excel" icon="link" href="/oss/integrations/document_loaders/microsoft_excel" arrow="true" cta="查看指南" />
+<Card title="Microsoft OneDrive" icon="link" href="/oss/integrations/document_loaders/microsoft_onedrive" arrow="true" cta="查看指南" />
+<Card title="Microsoft OneNote" icon="link" href="/oss/integrations/document_loaders/microsoft_onenote" arrow="true" cta="查看指南" />
+<Card title="Microsoft PowerPoint" icon="link" href="/oss/integrations/document_loaders/microsoft_powerpoint" arrow="true" cta="查看指南" />
+<Card title="Microsoft SharePoint" icon="link" href="/oss/integrations/document_loaders/microsoft_sharepoint" arrow="true" cta="查看指南" />
+<Card title="Microsoft Word" icon="link" href="/oss/integrations/document_loaders/microsoft_word" arrow="true" cta="查看指南" />
+<Card title="Near Blockchain" icon="link" href="/oss/integrations/document_loaders/mintbase" arrow="true" cta="查看指南" />
+<Card title="Modern Treasury" icon="link" href="/oss/integrations/document_loaders/modern_treasury" arrow="true" cta="查看指南" />
+<Card title="MongoDB" icon="link" href="/oss/integrations/document_loaders/mongodb" arrow="true" cta="查看指南" />
+<Card title="Needle Document Loader" icon="link" href="/oss/integrations/document_loaders/needle" arrow="true" cta="查看指南" />
+<Card title="News URL" icon="link" href="/oss/integrations/document_loaders/news" arrow="true" cta="查看指南" />
+<Card title="Notion DB" icon="link" href="/oss/integrations/document_loaders/notion" arrow="true" cta="查看指南" />
+< Card title="Nuclia" icon="link" href="/oss/integrations/document_loaders/nuclia" arrow="true" cta="查看指南" />
+<Card title="Obsidian" icon="link" href="/oss/integrations/document_loaders/obsidian" arrow="true" cta="查看指南" />
+<Card title="OpenDataLoader PDF" icon="link" href="/oss/integrations/document_loaders/opendataloader_pdf" arrow="true" cta="查看指南" />
+<Card title="Open Document Format (ODT)" icon="link" href="/oss/integrations/document_loaders/odt" arrow="true" cta="查看指南" />
+<Card title="Open City Data" icon="link" href="/oss/integrations/document_loaders/open_city_data" arrow="true" cta="查看指南" />
+<Card title="Oracle Autonomous Database" icon="link" href="/oss/integrations/document_loaders/oracleadb_loader" arrow="true" cta="查看指南" />
+<Card title="Oracle AI Vector Search" icon="link" href="/oss/integrations/document_loaders/oracleai" arrow="true" cta="查看指南" />
+<Card title="Org-mode" icon="link" href="/oss/integrations/document_loaders/org_mode" arrow="true" cta="查看指南" />
+<Card title="Outline Document Loader" icon="link" href="/oss/integrations/document_loaders/outline" arrow="true" cta="查看指南" />
+<Card title="Pandas DataFrame" icon="link" href="/oss/integrations/document_loaders/pandas_dataframe" arrow="true" cta="查看指南" />
+<Card title="PDFMinerLoader" icon="link" href="/oss/integrations/document_loaders/pdfminer" arrow="true" cta="查看指南" />
+<Card title="PDFPlumber" icon="link" href="/oss/integrations/document_loaders/pdfplumber" arrow="true" cta="查看指南" />
+<Card title="Pebblo Safe DocumentLoader" icon="link" href="/oss/integrations/document_loaders/pebblo" arrow="true" cta="查看指南" />
+<Card title="Polaris AI DataInsight" icon="link" href="/oss/integrations/document_loaders/polaris_ai_datainsight" arrow="true" cta="查看指南" />
+<Card title="Polars DataFrame" icon="link" href="/oss/integrations/document_loaders/polars_dataframe" arrow="true" cta="查看指南" />
+<Card title="Dell PowerScale" icon="link" href="/oss/integrations/document_loaders/powerscale" arrow="true" cta="查看指南" />
+<Card title="Psychic" icon="link" href="/oss/integrations/document_loaders/psychic" arrow="true" cta="查看指南" />
+<Card title="PubMed" icon="link" href="/oss/integrations/document_loaders/pubmed" arrow="true" cta="查看指南" />
+<Card title="PullMdLoader" icon="link" href="/oss/integrations/document_loaders/pull_md" arrow="true" cta="查看指南" />
+<Card title="PyMuPDFLoader" icon="link" href="/oss/integrations/document_loaders/pymupdf" arrow="true" cta="查看指南" />
+<Card title="PyMuPDF4LLM" icon="link" href="/oss/integrations/document_loaders/pymupdf4llm" arrow="true" cta="查看指南" />
+<Card title="PyPDFDirectoryLoader" icon="link" href="/oss/integrations/document_loaders/pypdfdirectory" arrow="true" cta="查看指南" />
+<Card title="PyPDFium2Loader" icon="link" href="/oss/integrations/document_loaders/pypdfium2" arrow="true" cta="查看指南" />
+<Card title="PyPDFLoader" icon="link" href="/oss/integrations/document_loaders/pypdfloader" arrow="true" cta="指南" />
+<Card title="PySpark" icon="link" href="/oss/integrations/document_loaders/pyspark_dataframe" arrow="true" cta="查看指南" />
+<Card title="Quip" icon="link" href="/oss/integrations/document_loaders/quip" arrow="true" cta="查看指南" />
+<Card title="ReadTheDocs Documentation" icon="link" href="/oss/integrations/document_loaders/readthedocs_documentation" arrow="true" cta="查看指南" />
+<Card title="Recursive URL" icon="link" href="/oss/integrations/document_loaders/recursive_url" arrow="true" cta="查看指南" />
+<Card title="Reddit" icon="link" href="/oss/integrations/document_loaders/reddit" arrow="true" cta="查看指南" />
+<Card title="Roam" icon="link" href="/oss/integrations/document_loaders/roam" arrow="true" cta="查看指南" />
+<Card title="Rockset" icon="link" href="/oss/integrations/document_loaders/rockset" arrow="true" cta="查看指南" />
+<Card title="rspace" icon="link" href="/oss/integrations/document_loaders/rspace" arrow="true" cta="查看指南" />
+<Card title="RSS Feeds" icon="link" href="/oss/integrations/document_loaders/rss" arrow="true" cta="查看指南" />
+<Card title="RST" icon="link" href="/oss/integrations/document_loaders/rst" arrow="true" cta="查看指南" />
+<Card title="scrapfly" icon="link" href="/oss/integrations/document_loaders/scrapfly" arrow="true" cta="查看指南" />
+<Card title="ScrapingAnt" icon="link" href="/oss/integrations/document_loaders/scrapingant" arrow="true" cta="查看指南" />
+<Card title="SingleStore" icon="link" href="/oss/integrations/document_loaders/singlestore" arrow="true" cta="查看指南" />
+<Card title="Sitemap" icon="link" href="/oss/integrations/document_loaders/sitemap" arrow="true" cta="查看指南" />
+<Card title="Slack" icon="link" href="/oss/integrations/document_loaders/slack" arrow="true" cta="查看指南" />
+<Card title="Snowflake" icon="link" href="/oss/integrations/document_loaders/snowflake" arrow="true" cta="查看指南" />
+<Card title="Source Code" icon="link" href="/oss/integrations/document_loaders/source_code" arrow="true" cta="查看指南" />
+<Card title="Spider" icon="link" href="/oss/integrations/document_loaders/spider" arrow="true" cta="查看指南" />
+<Card title="Spreedly" icon="link" href="/oss/integrations/document_loaders/spreedly" arrow="true" cta="查看指南" />
+<Card title="Stripe" icon="link" href="/oss/integrations/document_loaders/stripe" arrow="true" cta="查看指南" />
+<Card title="Subtitle" icon="link" href="/oss/integrations/document_loaders/subtitle" arrow="true" cta="查看指南" />
+<Card title="SurrealDB" icon="link" href="/oss/integrations/document_loaders/surrealdb" arrow="true" cta="查看指南" />
+<Card title="Telegram" icon="link" href="/oss/integrations/document_loaders/telegram" arrow="true" cta="查看指南" />
+<Card title="Tencent COS Directory" icon="link" href="/oss/integrations/document_loaders/tencent_cos_directory" arrow="true" cta="查看指南" />
+<Card title="Tencent COS File" icon="link" href="/oss/integrations/document_loaders/tencent_cos_file" arrow="true" cta="查看指南" />
+<Card title="TensorFlow Datasets" icon="link" href="/oss/integrations/document_loaders/tensorflow_datasets" arrow="true" cta="查看指南" />
+<Card title="TiDB" icon="link" href="/oss/integrations/document_loaders/tidb" arrow="true" cta="查看指南" />
+<Card title="2Markdown" icon="link" href="/oss/integrations/document_loaders/tomarkdown" arrow="true" cta="查看指南" />
+<Card title="TOML" icon="link" href="/oss/integrations/document_loaders/toml" arrow="true" cta="查看指南" />
+<Card title="Trello" icon="link" href="/oss/integrations/document_loaders/trello" arrow="true" cta="查看指南" />
+<Card title="TSV" icon="link" href="/oss/integrations/document_loaders/tsv" arrow="true" cta="查看指南" />
+<Card title="Twitter" icon="link" href="/oss/integrations/document_loaders/twitter" arrow="true" cta="查看指南" />
+<Card title="UnDatasIO" icon="link" href="/oss/integrations/document_loaders/undatasio" arrow="true" cta="查看指南" />
+<Card title="Unstructured" icon="link" href="/oss/integrations/document_loaders/unstructured_file" arrow="true" cta="查看指南" />
+<Card title="UnstructuredMarkdownLoader" icon="link" href="/oss/integrations/document_loaders/unstructured_markdown" arrow="true" cta="查看指南" />
+<Card title="UnstructuredPDFLoader" icon="link" href="/oss/integrations/document_loaders/unstructured_pdfloader" arrow="true" cta="查看指南" />
+<Card title="Upstage" icon="link" href="/oss/integrations/document_loaders/upstage" arrow="true" cta="查看指南" />
+<Card title="URL" icon="link" href="/oss/integrations/document_loaders/url" arrow="true" cta="查看指南" />
+<Card title="Vsdx" icon="link" href="/oss/integrations/document_loaders/vsdx" arrow="true" cta="查看指南" />
+<Card title="Weather" icon="link" href="/oss/integrations/document_loaders/weather" arrow="true" cta="查看指南" />
+<Card title="WebBaseLoader" icon="link" href="/oss/integrations/document_loaders/web_base" arrow="true" cta="查看指南" />
+<Card title="WhatsApp Chat" icon="link" href="/oss/integrations/document_loaders/whatsapp_chat" arrow="true" cta="查看指南" />
+<Card title="Wikipedia" icon="link" href="/oss/integrations/document_loaders/wikipedia" arrow="true" cta="查看指南" />
+<Card title="UnstructuredXMLLoader" icon="link" href="/oss/integrations/document_loaders/xml" arrow="true" cta="查看指南" />
+<Card title="Xorbits Pandas DataFrame" icon="link" href="/oss/integrations/document_loaders/xorbits" arrow="true" cta="查看指南" />
+<Card title="YouTube Audio" icon="link" href="/oss/integrations/document_loaders/youtube_audio" arrow="true" cta="查看指南" />
+<Card title="YouTube Transcripts" icon="link" href="/oss/integrations/document_loaders/youtube_transcript" arrow="true" cta="查看指南" />
+<Card title="YoutubeLoaderDL" icon="link" href="/oss/integrations/document_loaders/yt_dlp" arrow="true" cta="查看指南" />
+<Card title="Yuque" icon="link" href="/oss/integrations/document_loaders/yuque" arrow="true" cta="查看指南" />
+<Card title="ZeroxPDFLoader" icon="link" href="/oss/integrations/document_loaders/zeroxpdfloader" arrow="true" cta="查看指南" />
 
 </Columns>
 

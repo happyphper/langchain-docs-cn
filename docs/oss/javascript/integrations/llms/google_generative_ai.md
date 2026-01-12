@@ -5,13 +5,13 @@ description: 在 LangChain 中开始使用旧版 Gemini 大语言模型。
 
 <Warning>
 
-<strong>您当前正在查看的是将 Google 模型用作文本补全模型的文档页面。许多流行的 Google 模型是 [聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查看的是将 Google 模型用作文本补全模型的文档页面。许多流行的 Google 模型是 [聊天补全模型](/oss/javascript/langchain/models)。</strong>
 
-您可能正在寻找 [这个页面](/oss/integrations/chat/google_generative_ai/)。
+您可能正在寻找 [这个页面](/oss/javascript/integrations/chat/google_generative_ai/)。
 
 </Warning>
 
-一份关于在 LangChain 中使用 [Google Generative AI](https://developers.generativeai.google/) 模型的指南。注意：它与 Google Cloud Vertex AI [集成](/oss/integrations/llms/google_vertex_ai) 是分开的。
+一份关于在 LangChain 中使用 [Google Generative AI](https://developers.generativeai.google/) 模型的指南。注意：它与 Google Cloud Vertex AI [集成](/oss/javascript/integrations/llms/google_vertex_ai) 是分开的。
 
 ## 设置
 

@@ -10,7 +10,7 @@ title: PGVectorStore
 
 为了在通用 PostgreSQL 数据库中启用向量搜索，LangChain.js 支持使用 [`pgvector`](https://github.com/pgvector/pgvector) Postgres 扩展。
 
-本指南提供了快速入门 PGVector [向量存储](/oss/integrations/vectorstores) 的概述。有关 `PGVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_pgvector.PGVectorStore.html)。
+本指南提供了快速入门 PGVector [向量存储](/oss/javascript/integrations/vectorstores) 的概述。有关 `PGVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_pgvector.PGVectorStore.html)。
 
 ## 概述
 
@@ -24,7 +24,7 @@ title: PGVectorStore
 
 要使用 PGVector 向量存储，你需要设置一个启用了 [`pgvector`](https://github.com/pgvector/pgvector) 扩展的 Postgres 实例。你还需要安装 `@langchain/community` 集成包，并将 [`pg`](https://www.npmjs.com/package/pg) 包作为对等依赖项。
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。如果你愿意，也可以使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+本指南还将使用 [OpenAI 嵌入](/oss/javascript/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。如果你愿意，也可以使用 [其他支持的嵌入模型](/oss/javascript/integrations/text_embedding)。
 
 我们还将使用 [`uuid`](https://www.npmjs.com/package/uuid) 包来生成所需格式的 ID。
 
@@ -252,7 +252,7 @@ for (const [doc, score] of similaritySearchWithScoreResults) {
 
 ### 通过转换为检索器进行查询
 
-你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+你也可以将向量存储转换为 [检索器](/oss/javascript/langchain/retrieval)，以便在你的链中更轻松地使用。
 
 ```typescript
 const retriever = vectorStore.asRetriever({
@@ -282,9 +282,9 @@ await retriever.invoke("biology");
 
 有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [智能体 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/javascript/langchain/rag)。
+- [智能体 RAG](/oss/javascript/langgraph/agentic-rag)
+- [检索文档](/oss/javascript/langchain/retrieval)
 
 ## 高级：重用连接
 

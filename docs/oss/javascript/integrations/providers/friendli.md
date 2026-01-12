@@ -23,7 +23,7 @@ uv add langchain_community friendli-client
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/friendli)。
+查看[使用示例](/oss/javascript/integrations/chat/friendli)。
 
 ```python
 from langchain_community.chat_models.friendli import ChatFriendli
@@ -36,7 +36,7 @@ for m in chat.stream("Tell me fun things to do in NYC"):
 
 ## 大语言模型
 
-查看[使用示例](/oss/integrations/llms/friendli)。
+查看[使用示例](/oss/javascript/integrations/llms/friendli)。
 
 ```python
 from langchain_community.llms.friendli import Friendli

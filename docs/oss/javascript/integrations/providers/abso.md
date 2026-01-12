@@ -11,4 +11,4 @@ pip install langchain-abso
 
 ## 聊天模型
 
-查看使用详情请点击[这里](/oss/integrations/chat/abso)
+查看使用详情请点击[这里](/oss/javascript/integrations/chat/abso)

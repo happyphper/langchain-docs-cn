@@ -34,7 +34,7 @@ uv add dataherald
 from langchain_community.utilities.dataherald import DataheraldAPIWrapper
 ```
 
-关于此包装器的更详细说明，请参阅[此笔记本](/oss/integrations/tools/dataherald)。
+关于此包装器的更详细说明，请参阅[此笔记本](/oss/python/integrations/tools/dataherald)。
 
 ### 工具
 
@@ -73,4 +73,4 @@ FROM
 {'input': 'Return the sql for this question: How many employees are in the company?', 'output': "SELECT \n    COUNT(*)\nFROM \n    employees"}
 ```
 
-有关工具的更多信息，请参阅[此页面](/oss/integrations/tools)。
+有关工具的更多信息，请参阅[此页面](/oss/python/integrations/tools)。

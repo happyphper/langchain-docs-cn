@@ -19,7 +19,7 @@ npm install cheerio
 
 <Tip>
 
-关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/python/langchain/install)。
 
 </Tip>
 

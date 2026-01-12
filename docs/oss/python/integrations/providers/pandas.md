@@ -21,7 +21,7 @@ uv add pandas
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/pandas_dataframe)。
+查看[使用示例](/oss/python/integrations/document_loaders/pandas_dataframe)。
 
 ```python
 from langchain_community.document_loaders import DataFrameLoader
@@ -29,7 +29,7 @@ from langchain_community.document_loaders import DataFrameLoader
 
 ## 工具包
 
-查看[使用示例](/oss/integrations/tools/pandas)。
+查看[使用示例](/oss/python/integrations/tools/pandas)。
 
 ```python
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent

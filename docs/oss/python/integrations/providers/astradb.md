@@ -90,7 +90,7 @@ vector_store_hybrid = AstraDBVectorStore(
 - [混合搜索](https://docs.datastax.com/en/astra-db-serverless/databases/hybrid-search.html#the-hybrid-search-process)（向量 + BM25，然后进行重排序步骤）；
 - 支持非 Astra Data API（例如自托管的 [HCD](https://docs.datastax.com/en/hyper-converged-database/1.1/get-started/get-started-hcd.html) 部署）；
 
-在 [示例笔记本](/oss/integrations/vectorstores/astradb) 中了解更多信息。
+在 [示例笔记本](/oss/python/integrations/vectorstores/astradb) 中了解更多信息。
 
 查看 [DataStax 提供的示例](https://docs.datastax.com/en/astra/astra-db-vector/integrations/langchain.html)。
 
@@ -131,7 +131,7 @@ loader = AstraDBLoader(
 )
 ```
 
-在 [示例笔记本](/oss/integrations/document_loaders/astradb) 中了解更多信息。
+在 [示例笔记本](/oss/python/integrations/document_loaders/astradb) 中了解更多信息。
 
 ## 自查询检索器
 

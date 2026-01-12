@@ -3,7 +3,7 @@ title: 持久化
 ---
 LangGraph 内置了一个通过检查点器实现的持久化层。当你使用检查点器编译图时，检查点器会在每个超级步骤保存图状态的`检查点`。这些检查点被保存到一个`线程`中，可以在图执行后访问。因为`线程`允许在执行后访问图的状态，所以包括人在回路、记忆、时间旅行和容错在内的几个强大功能都成为可能。下面，我们将更详细地讨论这些概念。
 
-![检查点](/oss/images/checkpoints.jpg)
+![检查点](/oss/javascript/images/checkpoints.jpg)
 
 <Info>
 
@@ -14,7 +14,7 @@ LangGraph 内置了一个通过检查点器实现的持久化层。当你使用�
 
 ## 线程
 
-线程是检查点器为每个保存的检查点分配的唯一 ID 或线程标识符。它包含一系列[运行](/langsmith/assistants#execution)的累积状态。当运行被执行时，助手底层图的[状态](/oss/langgraph/graph-api#state)将被持久化到线程中。
+线程是检查点器为每个保存的检查点分配的唯一 ID 或线程标识符。它包含一系列[运行](/langsmith/assistants#execution)的累积状态。当运行被执行时，助手底层图的[状态](/oss/javascript/langgraph/graph-api#state)将被持久化到线程中。
 
 当使用检查点器调用图时，你**必须**在配置的`可配置`部分指定一个`thread_id`：
 
@@ -28,7 +28,7 @@ LangGraph 内置了一个通过检查点器实现的持久化层。当你使用�
 
 可以检索线程的当前和历史状态。为了持久化状态，必须在执行运行之前创建线程。LangSmith API 提供了几个用于创建和管理线程及线程状态的端点。更多详情请参阅 [API 参考](https://reference.langchain.com/python/langsmith/)。
 
-检查点器使用`thread_id`作为存储和检索检查点的主键。没有它，检查点器无法保存状态或在[中断](/oss/langgraph/interrupts)后恢复执行，因为检查点器使用`thread_id`来加载保存的状态。
+检查点器使用`thread_id`作为存储和检索检查点的主键。没有它，检查点器无法保存状态或在[中断](/oss/javascript/langgraph/interrupts)后恢复执行，因为检查点器使用`thread_id`来加载保存的状态。
 
 ## 检查点
 
@@ -38,7 +38,7 @@ LangGraph 内置了一个通过检查点器实现的持久化层。当你使用�
 * `metadata`：与此检查点关联的元数据。
 * `values`：此时状态通道的值。
 * `next`：图中接下来要执行的节点名称的元组。
-* `tasks`：包含要执行的下一个任务信息的`PregelTask`对象元组。如果该步骤之前尝试过，它将包含错误信息。如果图是从节点内部[动态](/oss/langgraph/interrupts#pause-using-interrupt)中断的，任务将包含与中断相关的额外数据。
+* `tasks`：包含要执行的下一个任务信息的`PregelTask`对象元组。如果该步骤之前尝试过，它将包含错误信息。如果图是从节点内部[动态](/oss/javascript/langgraph/interrupts#pause-using-interrupt)中断的，任务将包含与中断相关的额外数据。
 
 检查点被持久化，并可用于在以后恢复线程的状态。
 
@@ -301,7 +301,7 @@ for await (const state of graph.getStateHistory(config)) {
 ]
 ```
 
-![状态](/oss/images/get_state.jpg)
+![状态](/oss/javascript/images/get_state.jpg)
 
 ### 重放
 
@@ -322,9 +322,9 @@ const config = {
 await graph.invoke(null, config);
 ```
 
-重要的是，LangGraph 知道某个特定步骤是否之前已执行过。如果是，LangGraph 只是简单地_重放_图中的该特定步骤，并且不重新执行该步骤，但仅针对提供的 `checkpoint_id` _之前_的步骤。`checkpoint_id` _之后_的所有步骤都将被执行（即一个新的分支），即使它们之前已经执行过。请参阅此[关于时间旅行的操作指南以了解更多关于重放的信息](/oss/langgraph/use-time-travel)。
+重要的是，LangGraph 知道某个特定步骤是否之前已执行过。如果是，LangGraph 只是简单地_重放_图中的该特定步骤，并且不重新执行该步骤，但仅针对提供的 `checkpoint_id` _之前_的步骤。`checkpoint_id` _之后_的所有步骤都将被执行（即一个新的分支），即使它们之前已经执行过。请参阅此[关于时间旅行的操作指南以了解更多关于重放的信息](/oss/javascript/langgraph/use-time-travel)。
 
-![重放](/oss/images/re_play.png)
+![重放](/oss/javascript/images/re_play.png)
 
 ### 更新状态
 
@@ -336,7 +336,7 @@ await graph.invoke(null, config);
 
 #### `values`
 
-这些是用于更新状态的值。请注意，此更新与来自节点的任何更新完全相同。这意味着这些值将被传递给[归约器](/oss/langgraph/graph-api#reducers)函数，如果它们为图状态中的某些通道定义了。这意味着 <a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.pregel.Pregel.html#updateState" target="_blank" rel="noreferrer" class="link"><code>update_state</code></a> 不会自动覆盖每个通道的通道值，而只会覆盖没有归约器的通道。让我们看一个例子。
+这些是用于更新状态的值。请注意，此更新与来自节点的任何更新完全相同。这意味着这些值将被传递给[归约器](/oss/javascript/langgraph/graph-api#reducers)函数，如果它们为图状态中的某些通道定义了。这意味着 <a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.pregel.Pregel.html#updateState" target="_blank" rel="noreferrer" class="link"><code>update_state</code></a> 不会自动覆盖每个通道的通道值，而只会覆盖没有归约器的通道。让我们看一个例子。
 
 假设你已使用以下模式定义了图的状态（参见上面的完整示例）：
 
@@ -377,15 +377,15 @@ await graph.updateState(config, { foo: 2, bar: ["b"] });
 
 #### `as_node`
 
-调用 `updateState` 时可以可选指定的最后一件事是 `asNode`。如果你提供了它，更新将应用为好像来自节点 `asNode`。如果未提供 `asNode`，它将设置为最后更新状态的节点（如果不模糊）。这很重要的原因是，接下来要执行的步骤取决于最后给出更新的节点，因此这可以用来控制哪个节点接下来执行。请参阅此[关于时间旅行的操作指南以了解更多关于分支状态的信息](/oss/langgraph/use-time-travel)。
+调用 `updateState` 时可以可选指定的最后一件事是 `asNode`。如果你提供了它，更新将应用为好像来自节点 `asNode`。如果未提供 `asNode`，它将设置为最后更新状态的节点（如果不模糊）。这很重要的原因是，接下来要执行的步骤取决于最后给出更新的节点，因此这可以用来控制哪个节点接下来执行。请参阅此[关于时间旅行的操作指南以了解更多关于分支状态的信息](/oss/javascript/langgraph/use-time-travel)。
 
-![更新](/oss/images/checkpoints_full_story.jpg)
+![更新](/oss/javascript/images/checkpoints_full_story.jpg)
 
 ## 记忆存储
 
-![共享状态模型](/oss/images/shared_state.png)
+![共享状态模型](/oss/javascript/images/shared_state.png)
 
-[状态模式](/oss/langgraph/graph-api#schema)指定了一组在图执行时填充的键。如上所述，状态可以由检查点器在每个图步骤写入线程，从而实现状态持久化。
+[状态模式](/oss/javascript/langgraph/graph-api#schema)指定了一组在图执行时填充的键。如上所述，状态可以由检查点器在每个图步骤写入线程，从而实现状态持久化。
 
 但是，如果我们想_跨线程_保留一些信息呢？考虑聊天机器人的情况，我们希望在该用户的所有聊天对话（例如，线程）中保留关于该用户的特定信息！
 
@@ -662,15 +662,15 @@ for await (const update of await graph.stream(
 
 ### 人在回路
 
-首先，检查点器通过允许人类检查、中断和批准图步骤，促进了 [人在回路工作流](/oss/langgraph/interrupts)。这些工作流需要检查点器，因为人类必须能够随时查看图的状态，并且图必须在人类对状态进行任何更新后能够恢复执行。有关示例，请参阅 [操作指南](/oss/langgraph/interrupts)。
+首先，检查点器通过允许人类检查、中断和批准图步骤，促进了 [人在回路工作流](/oss/javascript/langgraph/interrupts)。这些工作流需要检查点器，因为人类必须能够随时查看图的状态，并且图必须在人类对状态进行任何更新后能够恢复执行。有关示例，请参阅 [操作指南](/oss/javascript/langgraph/interrupts)。
 
 ### 记忆
 
-其次，检查点器允许在交互之间实现 ["记忆"](/oss/concepts/memory)。在重复的人类交互（如对话）中，任何后续消息都可以发送到该线程，该线程将保留对先前消息的记忆。有关如何使用检查点器添加和管理对话记忆的信息，请参阅 [添加记忆](/oss/langgraph/add-memory)。
+其次，检查点器允许在交互之间实现 ["记忆"](/oss/javascript/concepts/memory)。在重复的人类交互（如对话）中，任何后续消息都可以发送到该线程，该线程将保留对先前消息的记忆。有关如何使用检查点器添加和管理对话记忆的信息，请参阅 [添加记忆](/oss/javascript/langgraph/add-memory)。
 
 ### 时间旅行
 
-第三，检查点器允许 ["时间旅行"](/oss/langgraph/use-time-travel)，使用户能够重放先前的图执行，以审查和/或调试特定的图步骤。此外，检查点器使得可以在任意检查点处分叉图状态，以探索不同的轨迹。
+第三，检查点器允许 ["时间旅行"](/oss/javascript/langgraph/use-time-travel)，使用户能够重放先前的图执行，以审查和/或调试特定的图步骤。此外，检查点器使得可以在任意检查点处分叉图状态，以探索不同的轨迹。
 
 ### 容错性
 

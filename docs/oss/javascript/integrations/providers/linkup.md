@@ -22,7 +22,7 @@ uv add langchain-linkup
 
 ## 检索器
 
-查看[使用示例](/oss/integrations/retrievers/linkup_search)。
+查看[使用示例](/oss/javascript/integrations/retrievers/linkup_search)。
 
 ```python
 from langchain_linkup import LinkupSearchRetriever
@@ -35,7 +35,7 @@ retriever = LinkupSearchRetriever(
 
 ## 工具
 
-查看[使用示例](/oss/integrations/tools/linkup_search)。
+查看[使用示例](/oss/javascript/integrations/tools/linkup_search)。
 
 ```python
 from langchain_linkup import LinkupSearchTool

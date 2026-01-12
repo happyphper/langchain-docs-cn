@@ -18,7 +18,7 @@ sidebarTitle: Publish
 
 <Info>
 
-本指南假设你已经实现了你的包并为其编写了测试。如果还没有，请参考[实现指南](/oss/contributing/implement-langchain)和[测试指南](/oss/contributing/standard-tests-langchain)。
+本指南假设你已经实现了你的包并为其编写了测试。如果还没有，请参考[实现指南](/oss/python/contributing/implement-langchain)和[测试指南](/oss/python/contributing/standard-tests-langchain)。
 
 </Info>
 
@@ -75,7 +75,7 @@ arrow
 
 ## 添加文档
 
-要将你的包的文档添加到本网站的[集成选项卡](/oss/integrations/providers/overview)下，你需要创建相关的文档页面，并在 [LangChain 文档仓库](https://github.com/langchain-ai/docs) 中提交一个 PR。
+要将你的包的文档添加到本网站的[集成选项卡](/oss/python/integrations/providers/overview)下，你需要创建相关的文档页面，并在 [LangChain 文档仓库](https://github.com/langchain-ai/docs) 中提交一个 PR。
 
 ### 编写文档
 
@@ -93,7 +93,7 @@ arrow
 
 <Tip>
 
-要参考现有文档，你可以查看[集成列表](/oss/integrations/providers/overview)并找到与你类似的集成。
+要参考现有文档，你可以查看[集成列表](/oss/python/integrations/providers/overview)并找到与你类似的集成。
 
 要以原始 Markdown 格式查看某个文档页面，请使用页面右上角"复制页面"旁边的下拉按钮，并选择"以 Markdown 查看"。
 
@@ -101,18 +101,18 @@ arrow
 
 ### 提交 PR
 
-在个人 GitHub 账户下 Fork [LangChain 文档仓库](https://github.com/langchain-ai/docs)，并在本地克隆它。为你的集成创建一个新的分支。复制模板并使用你喜欢的 Markdown 文本编辑器进行修改。在编写文档时，请务必参考并遵循[文档指南](/oss/contributing/documentation)。
+在个人 GitHub 账户下 Fork [LangChain 文档仓库](https://github.com/langchain-ai/docs)，并在本地克隆它。为你的集成创建一个新的分支。复制模板并使用你喜欢的 Markdown 文本编辑器进行修改。在编写文档时，请务必参考并遵循[文档指南](/oss/python/contributing/documentation)。
 
 <Warning>
 
 在以下情况下，我们可能会拒绝 PR 或要求修改：
     - CI 检查失败
     - 存在严重的语法错误或拼写错误
-    - [Mintlify 组件](/oss/contributing/documentation#mintlify-components) 使用不正确
-    - 页面缺少 [frontmatter](/oss/contributing/documentation#page-structure)
-    - 缺少 [本地化](/oss/contributing/documentation#localization)（如适用）
-    - [代码示例](/oss/contributing/documentation#in-code-documentation) 无法运行或有错误
-    - 未达到 [质量标准](/oss/contributing/documentation#quality-standards)
+    - [Mintlify 组件](/oss/python/contributing/documentation#mintlify-components) 使用不正确
+    - 页面缺少 [frontmatter](/oss/python/contributing/documentation#page-structure)
+    - 缺少 [本地化](/oss/python/contributing/documentation#localization)（如适用）
+    - [代码示例](/oss/python/contributing/documentation#in-code-documentation) 无法运行或有错误
+    - 未达到 [质量标准](/oss/python/contributing/documentation#quality-standards)
 
 </Warning>
 

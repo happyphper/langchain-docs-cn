@@ -5,9 +5,9 @@ description: 控制和自定义代理执行的每一步
 中间件提供了一种更精细控制智能体内部行为的方式。中间件在以下场景中非常有用：
 
 - 通过日志记录、分析和调试来追踪智能体行为。
-- 转换提示、[工具选择](/oss/langchain/middleware/built-in#llm-tool-selector)和输出格式。
-- 添加[重试](/oss/langchain/middleware/built-in#tool-retry)、[回退](/oss/langchain/middleware/built-in#model-fallback)和提前终止逻辑。
-- 应用[速率限制](/oss/langchain/middleware/built-in#model-call-limit)、护栏和[PII检测](/oss/langchain/middleware/built-in#pii-detection)。
+- 转换提示、[工具选择](/oss/javascript/langchain/middleware/built-in#llm-tool-selector)和输出格式。
+- 添加[重试](/oss/javascript/langchain/middleware/built-in#tool-retry)、[回退](/oss/javascript/langchain/middleware/built-in#model-fallback)和提前终止逻辑。
+- 应用[速率限制](/oss/javascript/langchain/middleware/built-in#model-call-limit)、护栏和[PII检测](/oss/javascript/langchain/middleware/built-in#pii-detection)。
 
 通过传递给 `createAgent` 来添加中间件：
 

@@ -3,7 +3,7 @@ title: Google Firestore（Datastore 模式）
 ---
 > [Datastore 模式下的 Firestore](https://cloud.google.com/datastore) 是一个 NoSQL 文档数据库，专为自动扩展、高性能和简化应用开发而构建。利用 Datastore 的 LangChain 集成，扩展您的数据库应用程序以构建由 AI 驱动的体验。
 
-本笔记本将介绍如何使用 [Datastore 模式下的 Firestore](https://cloud.google.com/datastore)，通过 `DatastoreLoader` 和 `DatastoreSaver` 来[保存、加载和删除 langchain 文档](/oss/integrations/document_loaders)。
+本笔记本将介绍如何使用 [Datastore 模式下的 Firestore](https://cloud.google.com/datastore)，通过 `DatastoreLoader` 和 `DatastoreSaver` 来[保存、加载和删除 langchain 文档](/oss/javascript/integrations/document_loaders)。
 
 在 [GitHub](https://github.com/googleapis/langchain-google-datastore-python/) 上了解更多关于该包的信息。
 

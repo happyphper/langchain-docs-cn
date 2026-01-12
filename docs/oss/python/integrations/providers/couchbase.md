@@ -21,7 +21,7 @@ uv add langchain-couchbase
 
 ## 向量存储
 
-查看[使用示例](/oss/integrations/vectorstores/couchbase)。
+查看[使用示例](/oss/python/integrations/vectorstores/couchbase)。
 
 ```python
 from langchain_couchbase import CouchbaseSearchVectorStore
@@ -71,7 +71,7 @@ API 参考：[CouchbaseSearchVectorStore](https://couchbase-ecosystem.github.io/
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/couchbase)。
+查看[使用示例](/oss/python/integrations/document_loaders/couchbase)。
 
 ```python
 from langchain_community.document_loaders.couchbase import CouchbaseLoader
@@ -131,7 +131,7 @@ API 参考：[CouchbaseCache](https://couchbase-ecosystem.github.io/langchain-co
 
 ### CouchbaseSemanticCache
 语义缓存允许用户基于用户输入与先前缓存输入之间的语义相似性来检索缓存的提示词。其底层使用 Couchbase 同时作为缓存和向量存储。
-CouchbaseSemanticCache 需要定义一个搜索索引才能工作。请查看[使用示例](/oss/integrations/vectorstores/couchbase)了解如何设置索引。
+CouchbaseSemanticCache 需要定义一个搜索索引才能工作。请查看[使用示例](/oss/python/integrations/vectorstores/couchbase)了解如何设置索引。
 
 导入此缓存：
 

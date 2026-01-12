@@ -19,7 +19,7 @@ os.environ["GOOSEAI_API_KEY"] = "YOUR_API_KEY"
 
 ## LLMs
 
-查看[使用示例](/oss/integrations/llms/gooseai)。
+查看[使用示例](/oss/python/integrations/llms/gooseai)。
 
 ```python
 from langchain_community.llms import GooseAI

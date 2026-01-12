@@ -15,7 +15,7 @@ title: 概述
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/openai)。
+查看[使用示例](/oss/javascript/integrations/chat/openai)。
 
 ```typescript
 import { ChatOpenAI } from "@langchain/openai";
@@ -23,11 +23,11 @@ import { ChatOpenAI } from "@langchain/openai";
 
 ## 大语言模型
 
-查看[使用示例](/oss/integrations/llms/openai)。
+查看[使用示例](/oss/javascript/integrations/llms/openai)。
 
 <Tip>
 
-关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -41,7 +41,7 @@ import { OpenAI } from "@langchain/openai";
 
 ## 文本嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/openai)
+查看[使用示例](/oss/javascript/integrations/text_embedding/openai)
 
 ```typescript
 import { OpenAIEmbeddings } from "@langchain/openai";
@@ -55,7 +55,7 @@ import { OpenAIModerationChain } from "@langchain/classic/chains";
 
 ## 中间件
 
-专为 OpenAI 模型设计的中间件。了解更多关于[中间件](/oss/langchain/middleware/overview)的信息。
+专为 OpenAI 模型设计的中间件。了解更多关于[中间件](/oss/javascript/langchain/middleware/overview)的信息。
 
 | 中间件 | 描述 |
 |------------|-------------|

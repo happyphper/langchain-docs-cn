@@ -5,7 +5,7 @@ title: 智谱 AI
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/zhipuai)。
+查看[使用示例](/oss/javascript/integrations/chat/zhipuai)。
 
 ```python
 from langchain_community.chat_models import ChatZhipuAI

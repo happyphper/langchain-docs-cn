@@ -108,4 +108,41 @@ export class LinkProcessor {
         // 注意：VitePress 实际上能处理 Markdown 链接，这里如果我们一定要转 HTML，需要避开 ![]()
         return content.replace(/(?<!\!)\[([^\]]+)\]\(([^\s\)]+)\)/g, '<a href="$2">$1</a>');
     }
+
+    /**
+     * 处理内部链接，根据语言版本自动调整路径
+     * 例如：/oss/langchain/install -> /oss/python/langchain/install 或 /oss/javascript/langchain/install
+     */
+    static processInternalLinks(content: string, targetLang: string): string {
+        if (targetLang === 'all') {
+            // langsmith 文档不需要处理
+            return content;
+        }
+
+        const langDir = targetLang === 'javascript' ? 'javascript' : 'python';
+
+        // 匹配 Markdown 链接 [text](/oss/...)
+        return content.replace(/\[([^\]]+)\]\((\/oss\/[^\)]+)\)/g, (match, text, url) => {
+            // 检查 URL 是否已经包含语言目录
+            if (url.includes('/oss/python/') || url.includes('/oss/javascript/')) {
+                // 已经有语言目录，不需要修改
+                return match;
+            }
+
+            // 检查是否是 /oss/langchain/ 或 /oss/langgraph/ 等路径
+            const ossPattern = /^\/oss\/([^\/]+)\//;
+            const ossMatch = url.match(ossPattern);
+
+            if (ossMatch) {
+                const component = ossMatch[1]; // langchain, langgraph 等
+
+                // 在 oss/ 和 component/ 之间插入语言目录
+                const newUrl = url.replace(/^\/oss\//, `/oss/${langDir}/`);
+                return `[${text}](${newUrl})`;
+            }
+
+            // 其他情况保持不变
+            return match;
+        });
+    }
 }

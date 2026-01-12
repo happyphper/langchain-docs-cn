@@ -1,81 +1,199 @@
 ---
-title: Google Calendar 工具
+title: Google Calendar 工具包
 ---
-Google Calendar 工具允许您的智能体从关联的日历中创建和查看 Google Calendar 事件。
+> [Google Calendar](https://workspace.google.com/intl/en-419/products/calendar/) 是 Google Workspace 的一款产品，允许用户组织他们的日程和事件。它是一个基于云的日历，允许用户创建、编辑和删除事件。它还允许用户与他人共享他们的日历。
+
+## 概述
+
+本笔记本将帮助您开始使用 Google Calendar 工具包。该工具包与 Google Calendar API 交互，以在日历上执行各种操作。它允许您：
+
+- 创建事件。
+- 搜索事件。
+- 更新事件。
+- 在不同日历之间移动事件。
+- 删除事件。
+- 列出事件。
 
 ## 设置
 
-要使用 Google Calendar 工具，您需要安装以下官方对等依赖项：
+要使用此工具包，您需要：
 
-```bash [npm]
-npm install googleapis
+1.  拥有一个可以访问 Google Calendar 的 Google 账户。
+2.  按照 [Google Calendar API 文档](https://developers.google.com/calendar/api/quickstart/python#authorize_credentials_for_a_desktop_application) 中的说明设置您的凭据。下载 `credentials.json` 文件后，您就可以开始使用 Google Calendar API。
+
+要启用对单个工具的自动追踪，请设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
 ```
 
-## 用法
+### 安装
 
-```typescript
-import { createAgent } from "@langchain/agents";
-import { ChatOpenAI } from "@langchain/openai";
-import { Calculator } from "@langchain/community/tools/calculator";
-import {
-  GoogleCalendarCreateTool,
-  GoogleCalendarViewTool,
-} from "@langchain/community/tools/google_calendar";
+此工具包位于 [langchain-google](https://github.com/langchain-ai/langchain-google) 仓库的 `langchain-google-community` 包中。我们需要 `calendar` 额外依赖项：
 
-export async function run() {
-  const model = new ChatOpenAI({
-    temperature: 0,
-    apiKey: process.env.OPENAI_API_KEY,
-    model: "gpt-4o-mini",
-  });
-
-  const googleCalendarParams = {
-    credentials: {
-      clientEmail: process.env.GOOGLE_CALENDAR_CLIENT_EMAIL,
-      privateKey: process.env.GOOGLE_CALENDAR_PRIVATE_KEY,
-      calendarId: process.env.GOOGLE_CALENDAR_CALENDAR_ID,
-    },
-    scopes: [
-      "https://www.googleapis.com/auth/calendar",
-      "https://www.googleapis.com/auth/calendar.events",
-    ],
-    model,
-  };
-
-  const tools = [
-    new Calculator(),
-    new GoogleCalendarCreateTool(googleCalendarParams),
-    new GoogleCalendarViewTool(googleCalendarParams),
-  ];
-
-  const calendarAgent = createAgent({
-    llm: model,
-    tools,
-  });
-
-  const createInput = `Create a meeting with John Doe next Friday at 4pm - adding to the agenda of it the result of 99 + 99`;
-
-  const createResult = await calendarAgent.invoke({
-    messages: [{ role: "user", content: createInput }],
-  });
-  //   Create Result {
-  //     output: 'A meeting with John Doe on 29th September at 4pm has been created and the result of 99 + 99 has been added to the agenda.'
-  //   }
-  console.log("Create Result", createResult);
-
-  const viewInput = `What meetings do I have this week?`;
-
-  const viewResult = await calendarAgent.invoke({
-    messages: [{ role: "user", content: viewInput }],
-  });
-  //   View Result {
-  //     output: "You have no meetings this week between 8am and 8pm."
-  //   }
-  console.log("View Result", viewResult);
-}
+```python
+pip install -qU langchain-google-community\[calendar\]
 ```
 
-## 相关链接
+## 实例化
 
-- 工具 [概念指南](/oss/langchain/tools)
-- 工具 [操作指南](/oss/langchain/tools)
+默认情况下，工具包会读取本地的 `credentials.json` 文件。您也可以手动提供一个 `Credentials` 对象。
+
+```python
+from langchain_google_community import CalendarToolkit
+
+toolkit = CalendarToolkit()
+```
+
+### 自定义身份验证
+
+在后台，使用以下方法创建了一个 `googleapi` 资源。您可以手动构建一个 `googleapi` 资源以获得更多的身份验证控制。
+
+```python
+from langchain_google_community import CalendarToolkit
+from langchain_google_community.calendar.utils import (
+    build_resource_service,
+    get_google_credentials,
+)
+
+# 可以在此处查看作用域：https://developers.google.com/calendar/api/auth
+# 例如，只读作用域是 https://www.googleapis.com/auth/calendar.readonly
+credentials = get_google_credentials(
+    token_file="token.json",
+    scopes=["https://www.googleapis.com/auth/calendar"],
+    client_secrets_file="credentials.json",
+)
+
+api_resource = build_resource_service(credentials=credentials)
+toolkit = CalendarToolkit(api_resource=api_resource)
+```
+
+## 工具
+
+查看可用工具：
+
+```python
+tools = toolkit.get_tools()
+tools
+```
+
+```text
+[CalendarCreateEvent(api_resource=<googleapiclient.discovery.Resource object at 0x10ad13fb0>),
+ CalendarSearchEvents(api_resource=<googleapiclient.discovery.Resource object at 0x10ad13fb0>),
+ CalendarUpdateEvent(api_resource=<googleapiclient.discovery.Resource object at 0x10ad13fb0>),
+ GetCalendarsInfo(api_resource=<googleapiclient.discovery.Resource object at 0x10ad13fb0>),
+ CalendarMoveEvent(api_resource=<googleapiclient.discovery.Resource object at 0x10ad13fb0>),
+ CalendarDeleteEvent(api_resource=<googleapiclient.discovery.Resource object at 0x10ad13fb0>),
+ GetCurrentDatetime(api_resource=<googleapiclient.discovery.Resource object at 0x10ad13fb0>)]
+```
+
+- [CalendarCreateEvent](https://python.langchain.com/api_reference/google_community/calendar/langchain_google_community.calendar.create_event.CalendarCreateEvent.html)
+- [CalendarSearchEvents](https://python.langchain.com/api_reference/google_community/calendar/langchain_google_community.calendar.search_events.CalendarSearchEvents.html)
+- [CalendarUpdateEvent](https://python.langchain.com/api_reference/google_community/calendar/langchain_google_community.calendar.update_event.CalendarUpdateEvent.html)
+- [GetCalendarsInfo](https://python.langchain.com/api_reference/google_community/calendar/langchain_google_community.calendar.get_calendars_info.GetCalendarsInfo.html)
+- [CalendarMoveEvent](https://python.langchain.com/api_reference/google_community/calendar/langchain_google_community.calendar.move_event.CalendarMoveEvent.html)
+- [CalendarDeleteEvent](https://python.langchain.com/api_reference/google_community/calendar/langchain_google_community.calendar.delete_event.CalendarDeleteEvent.html)
+- [GetCurrentDatetime](https://python.langchain.com/api_reference/google_community/calendar/langchain_google_community.calendar.current_datetime.GetCurrentDatetime.html)
+
+## 调用
+
+### [使用参数直接调用](/oss/python/langchain/tools#use-the-tool-directly)
+
+您可以通过以字典格式传递所需参数来直接调用工具。以下是使用 `CalendarCreateEvent` 工具创建新事件的示例。
+
+```python
+from langchain_google_community.calendar.create_event import CalendarCreateEvent
+
+tool = CalendarCreateEvent()
+tool.invoke(
+    {
+        "summary": "Calculus exam",
+        "start_datetime": "2025-07-11 11:00:00",
+        "end_datetime": "2025-07-11 13:00:00",
+        "timezone": "America/Mexico_City",
+        "location": "UAM Cuajimalpa",
+        "description": "Event created from the LangChain toolkit",
+        "reminders": [{"method": "popup", "minutes": 60}],
+        "conference_data": True,
+        "color_id": "5",
+    }
+)
+```
+
+```text
+'Event created: https://www.google.com/calendar/event?eid=amoxdjVsM2UzMW51Yjk2czc4ajhvaGdkcGcgam9yZ2VhbmczM0Bt'
+```
+
+## 在智能体中使用
+
+下面我们将展示如何将工具包集成到 [智能体](/oss/python/langchain/agents) 中。
+
+我们需要一个 LLM 或聊天模型：
+
+<ChatModelTabs customVarName="llm" />
+
+```python
+# | output: false
+# | echo: false
+
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+```
+
+```python
+from langchain.agents import create_agent
+
+agent_executor = create_agent(llm, tools)
+```
+
+```python
+example_query = "Create a green event for this afternoon to go for a 30-minute run."
+
+events = agent_executor.stream(
+    {"messages": [("user", example_query)]},
+    stream_mode="values",
+)
+for event in events:
+    event["messages"][-1].pretty_print()
+```
+
+```text
+================================ Human Message =================================
+
+Create a green event for this afternoon to go for a 30-minute run.
+================================== Ai Message ==================================
+Tool Calls:
+  get_current_datetime (call_drHRRhm6pdvcAuqagONUEKs5)
+ Call ID: call_drHRRhm6pdvcAuqagONUEKs5
+  Args:
+================================= Tool Message =================================
+Name: get_current_datetime
+
+Time zone: America/Mexico_City, Date and time: 2025-04-02 19:07:30
+================================== Ai Message ==================================
+Tool Calls:
+  create_calendar_event (call_p60zSVMmmjTy5Ctezzmlb9zD)
+ Call ID: call_p60zSVMmmjTy5Ctezzmlb9zD
+  Args:
+    summary: Run
+    start_datetime: 2025-04-02 19:30:00
+    end_datetime: 2025-04-02 20:00:00
+    timezone: America/Mexico_City
+    color_id: 2
+================================= Tool Message =================================
+Name: create_calendar_event
+
+Event created: https://www.google.com/calendar/event?eid=czZyZHVpcG43ajNiY241dmJmNWwycjE0NWsgam9yZ2VhbmczM0Bt
+================================== Ai Message ==================================
+
+I have created a green event for your run this afternoon. You can view it [here](https://www.google.com/calendar/event?eid=czZyZHVpcG43ajNiY241dmJmNWwycjE0NWsgam9yZ2VhbmczM0Bt). Enjoy your run!
+```
+
+---
+
+## API 参考
+
+-   有关 Google Calendar API 的更多详细信息，请参阅 [Google Calendar API 概述](https://developers.google.com/calendar/api/guides/overview)。
+-   有关 Google Calendar 工具包所有功能和配置的详细文档，请前往 [calendar 文档](https://python.langchain.com/api_reference/google_community/calendar.html)。

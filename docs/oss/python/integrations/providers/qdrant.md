@@ -46,4 +46,4 @@ from langchain_qdrant import SparseEmbeddings
 from langchain_qdrant import QdrantVectorStore
 ```
 
-关于 Qdrant 包装器的更详细演练，请参阅 [此笔记本](/oss/integrations/vectorstores/qdrant)
+关于 Qdrant 包装器的更详细演练，请参阅 [此笔记本](/oss/python/integrations/vectorstores/qdrant)

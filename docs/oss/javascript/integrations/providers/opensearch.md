@@ -21,4 +21,4 @@ OpenSearch 向量数据库提供了一个封装器，允许您将其用作向量
 from langchain_community.vectorstores import OpenSearchVectorSearch
 ```
 
-有关 OpenSearch 封装器的更详细操作指南，请参阅 [此笔记本](/oss/integrations/vectorstores/opensearch)
+有关 OpenSearch 封装器的更详细操作指南，请参阅 [此笔记本](/oss/javascript/integrations/vectorstores/opensearch)

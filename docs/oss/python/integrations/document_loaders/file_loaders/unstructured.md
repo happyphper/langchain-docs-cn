@@ -8,7 +8,7 @@ title: UnstructuredLoader
 
 </Tip>
 
-本笔记本提供了快速入门 `UnstructuredLoader` [文档加载器](/oss/integrations/document_loaders) 的概述。有关 `UnstructuredLoader` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_fs_unstructured.UnstructuredLoader.html)。
+本笔记本提供了快速入门 `UnstructuredLoader` [文档加载器](/oss/python/integrations/document_loaders) 的概述。有关 `UnstructuredLoader` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_fs_unstructured.UnstructuredLoader.html)。
 
 ## 概述
 
@@ -103,7 +103,7 @@ console.log(docs[0].metadata)
 
 ## 目录
 
-您还可以使用 [`UnstructuredDirectoryLoader`](https://api.js.langchain.com/classes/langchain.document_loaders_fs_unstructured.UnstructuredDirectoryLoader.html) 加载目录中的所有文件，它继承自 [`DirectoryLoader`](/oss/integrations/document_loaders/file_loaders/directory)：
+您还可以使用 [`UnstructuredDirectoryLoader`](https://api.js.langchain.com/classes/langchain.document_loaders_fs_unstructured.UnstructuredDirectoryLoader.html) 加载目录中的所有文件，它继承自 [`DirectoryLoader`](/oss/python/integrations/document_loaders/file_loaders/directory)：
 
 ```typescript
 import { UnstructuredDirectoryLoader } from "@langchain/community/document_loaders/fs/unstructured";

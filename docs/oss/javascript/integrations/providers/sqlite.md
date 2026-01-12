@@ -21,7 +21,7 @@ uv add SQLAlchemy
 
 ## 向量存储
 
-查看[使用示例](/oss/integrations/vectorstores/sqlitevec)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/sqlitevec)。
 
 ```python
 from langchain_community.vectorstores import SQLiteVec

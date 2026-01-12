@@ -1,7 +1,7 @@
 ---
 title: Tilores
 ---
-本笔记本介绍了如何开始使用 [Tilores](/oss/integrations/providers/tilores) 工具。
+本笔记本介绍了如何开始使用 [Tilores](/oss/python/integrations/providers/tilores) 工具。
 如需查看更复杂的示例，请参阅我们的 [客户洞察聊天机器人示例](https://github.com/tilotech/identity-rag-customer-insights-chatbot)。
 
 ## 概述
@@ -51,7 +51,7 @@ edge_tool = tilores_tools.edge_tool()
 
 `tilores_search` 工具的参数取决于 Tilores 内 [配置的模式](https://docs.tilotech.io/tilores/schema/)。以下示例将使用包含生成数据的演示实例的模式。
 
-### [使用参数直接调用](/oss/langchain/tools)
+### [使用参数直接调用](/oss/python/langchain/tools)
 
 以下示例搜索一位名叫 Sophie Müller 且居住在柏林的人。Tilores 数据中包含多个这样的人，并返回他们已知的电子邮件地址和电话号码。
 
@@ -110,7 +110,7 @@ Number of edges: 7
 Edges: ['e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6:f2g3h4i5-j6k7-l8m9-n0o1-p2q3r4s5t6u7:L1', 'e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6:g3h4i5j6-k7l8-m9n0-o1p2-q3r4s5t6u7v8:L4', 'e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6:f2g3h4i5-j6k7-l8m9-n0o1-p2q3r4s5t6u7:L2', 'f2g3h4i5-j6k7-l8m9-n0o1-p2q3r4s5t6u7:g3h4i5j6-k7l8-m9n0-o1p2-q3r4s5t6u7v8:L1', 'f2g3h4i5-j6k7-l8m9-n0o1-p2q3r4s5t6u7:g3h4i5j6-k7l8-m9n0-o1p2-q3r4s5t6u7v8:L4', 'e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6:g3h4i5j6-k7l8-m9n0-o1p2-q3r4s5t6u7v8:L1', 'e1f2g3h4-i5j6-k7l8-m9n0-o1p2q3r4s5t6:f2g3h4i5-j6k7-l8m9-n0o1-p2q3r4s5t6u7:L4']
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools)
+### [使用 ToolCall 调用](/oss/python/langchain/tools)
 
 我们也可以使用模型生成的 ToolCall 来调用该工具，在这种情况下将返回一个 ToolMessage：
 
@@ -140,7 +140,7 @@ ToolMessage(content='{"data": {"search": {"entities": [{"id": "9601cf3b-e85f-46a
 
 ## 链式调用
 
-我们可以通过先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后调用它，从而在链中使用我们的工具：
+我们可以通过先将工具绑定到一个 [工具调用模型](/oss/python/langchain/tools/)，然后调用它，从而在链中使用我们的工具：
 
 <ChatModelTabs customVarName="llm" />
 

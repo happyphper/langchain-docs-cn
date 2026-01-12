@@ -28,7 +28,7 @@ export OPENAI_API_KEY=YOUR_OPENAI_API_KEY_HERE
 6. 安装 Astra TS 客户端和 LangChain 社区包
 
 <提示>
-关于安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+关于安装 LangChain 包的通用说明，请参阅 [此部分](/oss/javascript/langchain/install)。
 </提示>
 
 ```bash [npm]
@@ -89,5 +89,5 @@ vector: {
 
 ## 相关内容
 
-- 向量存储 [概念指南](/oss/integrations/vectorstores)
-- 向量存储 [操作指南](/oss/integrations/vectorstores)
+- 向量存储 [概念指南](/oss/javascript/integrations/vectorstores)
+- 向量存储 [操作指南](/oss/javascript/integrations/vectorstores)

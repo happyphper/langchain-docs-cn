@@ -6,7 +6,7 @@ sidebarTitle: 'Router: Knowledge base'
 
 ## 概述
 
-**路由模式**是一种[多智能体](/oss/langchain/multi-agent)架构，其中路由步骤对输入进行分类并将其定向到专门的智能体，然后将结果合成为一个组合响应。当您组织的知识存在于不同的**垂直领域**（每个领域都需要自己的、配备专用工具和提示词的智能体）时，这种模式表现出色。
+**路由模式**是一种[多智能体](/oss/python/langchain/multi-agent)架构，其中路由步骤对输入进行分类并将其定向到专门的智能体，然后将结果合成为一个组合响应。当您组织的知识存在于不同的**垂直领域**（每个领域都需要自己的、配备专用工具和提示词的智能体）时，这种模式表现出色。
 
 在本教程中，您将构建一个多源知识库路由器，通过一个真实的企业场景来展示这些优势。该系统将协调三个专家：
 
@@ -42,13 +42,13 @@ graph LR
 
 我们将涵盖以下概念：
 
-- [多智能体系统](/oss/langchain/multi-agent)
-- 用于工作流编排的 [StateGraph](/oss/langchain/graphs)
-- 用于并行执行的 [Send API](/oss/langchain/send)
+- [多智能体系统](/oss/python/langchain/multi-agent)
+- 用于工作流编排的 [StateGraph](/oss/python/langchain/graphs)
+- 用于并行执行的 [Send API](/oss/python/langchain/send)
 
 <Tip>
 
-<strong>路由器 vs. 子智能体</strong>：[子智能体模式](/oss/langchain/multi-agent/subagents) 也可以路由到多个智能体。当您需要专门的预处理、自定义路由逻辑或希望显式控制并行执行时，请使用路由模式。当您希望LLM动态决定调用哪些智能体时，请使用子智能体模式。
+<strong>路由器 vs. 子智能体</strong>：[子智能体模式](/oss/python/langchain/multi-agent/subagents) 也可以路由到多个智能体。当您需要专门的预处理、自定义路由逻辑或希望显式控制并行执行时，请使用路由模式。当您希望LLM动态决定调用哪些智能体时，请使用子智能体模式。
 
 </Tip>
 
@@ -74,7 +74,7 @@ conda install langchain langgraph -c conda-forge
 
 :::
 
-更多详情，请参阅我们的 [安装指南](/oss/langchain/install)。
+更多详情，请参阅我们的 [安装指南](/oss/python/langchain/install)。
 
 ### LangSmith
 
@@ -446,7 +446,7 @@ OAuth scope updates.
 
 <Note>
 
-<strong>部分结果</strong>：在本教程中，所有选定的智能体必须在合成之前完成。对于更高级的模式，例如您希望处理部分结果或超时，请参阅 [map-reduce指南](/oss/langchain/map-reduce)。
+<strong>部分结果</strong>：在本教程中，所有选定的智能体必须在合成之前完成。对于更高级的模式，例如您希望处理部分结果或超时，请参阅 [map-reduce指南](/oss/python/langchain/map-reduce)。
 
 </Note>
 
@@ -740,11 +740,11 @@ print(result["messages"][-1].content)
 
 ### 完全持久化方法
 
-如果您需要路由器本身维护状态——例如，在路由决策中使用先前的搜索结果——请使用[持久化](/oss/langchain/short-term-memory)在路由器级别存储消息历史记录。
+如果您需要路由器本身维护状态——例如，在路由决策中使用先前的搜索结果——请使用[持久化](/oss/python/langchain/short-term-memory)在路由器级别存储消息历史记录。
 
 <Warning>
 
-<strong>有状态路由器增加了复杂性。</strong> 当在不同轮次中路由到不同的智能体时，如果智能体具有不同的语气或提示词，对话可能会感觉不一致。请考虑使用 [交接模式](/oss/langchain/multi-agent/handoffs) 或 [子智能体模式](/oss/langchain/multi-agent/subagents) 代替——两者都为与不同智能体的多轮对话提供了更清晰的语义。
+<strong>有状态路由器增加了复杂性。</strong> 当在不同轮次中路由到不同的智能体时，如果智能体具有不同的语气或提示词，对话可能会感觉不一致。请考虑使用 [交接模式](/oss/python/langchain/multi-agent/handoffs) 或 [子智能体模式](/oss/python/langchain/multi-agent/subagents) 代替——两者都为与不同智能体的多轮对话提供了更清晰的语义。
 
 </Warning>
 
@@ -764,14 +764,14 @@ print(result["messages"][-1].content)
 
 当您有多个独立的知识源、需要低延迟的并行查询并且希望显式控制路由逻辑时，请使用路由模式。
 
-对于具有动态工具选择的更简单情况，请考虑 [子智能体模式](/oss/langchain/multi-agent/subagents)。对于需要智能体与用户顺序对话的工作流，请考虑 [交接模式](/oss/langchain/multi-agent/handoffs)。
+对于具有动态工具选择的更简单情况，请考虑 [子智能体模式](/oss/python/langchain/multi-agent/subagents)。对于需要智能体与用户顺序对话的工作流，请考虑 [交接模式](/oss/python/langchain/multi-agent/handoffs)。
 
 </Tip>
 
 ## 后续步骤
 
-- 了解用于智能体间对话的 [交接模式](/oss/langchain/multi-agent/handoffs)
-- 探索用于集中编排的 [子智能体模式](/oss/langchain/multi-agent/subagents-personal-assistant)
-- 阅读 [多智能体概述](/oss/langchain/multi-agent) 以比较不同的模式
+- 了解用于智能体间对话的 [交接模式](/oss/python/langchain/multi-agent/handoffs)
+- 探索用于集中编排的 [子智能体模式](/oss/python/langchain/multi-agent/subagents-personal-assistant)
+- 阅读 [多智能体概述](/oss/python/langchain/multi-agent) 以比较不同的模式
 - 使用 [LangSmith](https://smith.langchain.com) 来调试和监控您的路由器
 

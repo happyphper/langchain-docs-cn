@@ -26,7 +26,7 @@ from langchain_litellm import ChatLiteLLM
 ```python
 from langchain_litellm import ChatLiteLLMRouter
 ```
-更多详细信息请参阅指南[此处](/oss/integrations/chat/litellm)。
+更多详细信息请参阅指南[此处](/oss/python/integrations/chat/litellm)。
 
 ---
 

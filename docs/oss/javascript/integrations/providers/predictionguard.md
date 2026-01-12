@@ -27,9 +27,9 @@ uv add langchain-predictionguard
 ## Prediction Guard LangChain 集成
 |API|描述|端点文档| 导入方式                                                  | 使用示例                                                                 |
 |---|---|---|---------------------------------------------------------|-------------------------------------------------------------------------------|
-|Chat|构建聊天机器人|[Chat](https://docs.predictionguard.com/api-reference/api-reference/chat-completions)| `from langchain_predictionguard import ChatPredictionGuard` | [ChatPredictionGuard.ipynb](/oss/integrations/chat/predictionguard)             |
-|Completions|生成文本|[Completions](https://docs.predictionguard.com/api-reference/api-reference/completions)| `from langchain_predictionguard import PredictionGuard` | [PredictionGuard.ipynb](/oss/integrations/llms/predictionguard)                     |
-|Text Embedding|将字符串嵌入为向量|[Embeddings](https://docs.predictionguard.com/api-reference/api-reference/embeddings)| `from langchain_predictionguard import PredictionGuardEmbeddings` | [PredictionGuardEmbeddings.ipynb](/oss/integrations/text_embedding/predictionguard) |
+|Chat|构建聊天机器人|[Chat](https://docs.predictionguard.com/api-reference/api-reference/chat-completions)| `from langchain_predictionguard import ChatPredictionGuard` | [ChatPredictionGuard.ipynb](/oss/javascript/integrations/chat/predictionguard)             |
+|Completions|生成文本|[Completions](https://docs.predictionguard.com/api-reference/api-reference/completions)| `from langchain_predictionguard import PredictionGuard` | [PredictionGuard.ipynb](/oss/javascript/integrations/llms/predictionguard)                     |
+|Text Embedding|将字符串嵌入为向量|[Embeddings](https://docs.predictionguard.com/api-reference/api-reference/embeddings)| `from langchain_predictionguard import PredictionGuardEmbeddings` | [PredictionGuardEmbeddings.ipynb](/oss/javascript/integrations/text_embedding/predictionguard) |
 
 ## 快速开始
 
@@ -37,7 +37,7 @@ uv add langchain-predictionguard
 
 ### Prediction Guard Chat
 
-查看[使用示例](/oss/integrations/chat/predictionguard)
+查看[使用示例](/oss/javascript/integrations/chat/predictionguard)
 
 ```python
 from langchain_predictionguard import ChatPredictionGuard
@@ -56,7 +56,7 @@ chat.invoke("Tell me a joke")
 
 ### Prediction Guard Embeddings
 
-查看[使用示例](/oss/integrations/text_embedding/predictionguard)
+查看[使用示例](/oss/javascript/integrations/text_embedding/predictionguard)
 
 ```python
 from langchain_predictionguard import PredictionGuardEmbeddings
@@ -76,7 +76,7 @@ output = embeddings.embed_query(text)
 
 ### Prediction Guard LLM
 
-查看[使用示例](/oss/integrations/llms/predictionguard)
+查看[使用示例](/oss/javascript/integrations/llms/predictionguard)
 
 ```python
 from langchain_predictionguard import PredictionGuard

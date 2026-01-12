@@ -1,7 +1,7 @@
 ---
 title: Discord
 ---
-本指南提供了在 [langchain_discord](/oss/integrations/tools/) 中使用 Discord 工具的快速入门概览。关于每个工具和配置的更多细节，请参阅您仓库中的文档字符串或相关文档页面。
+本指南提供了在 [langchain_discord](/oss/python/integrations/tools/) 中使用 Discord 工具的快速入门概览。关于每个工具和配置的更多细节，请参阅您仓库中的文档字符串或相关文档页面。
 
 ## 概述
 

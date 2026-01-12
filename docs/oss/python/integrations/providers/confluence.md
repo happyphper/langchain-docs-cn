@@ -22,7 +22,7 @@ uv add atlassian-python-api
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/confluence)。
+查看[使用示例](/oss/python/integrations/document_loaders/confluence)。
 
 ```python
 from langchain_community.document_loaders import ConfluenceLoader

@@ -8,7 +8,7 @@ title: DirectoryLoader
 
 </Tip>
 
-本笔记本提供了 `DirectoryLoader` [文档加载器](/oss/integrations/document_loaders) 的快速入门概述。有关 `DirectoryLoader` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain.document_loaders_fs_directory.DirectoryLoader.html)。
+本笔记本提供了 `DirectoryLoader` [文档加载器](/oss/javascript/integrations/document_loaders) 的快速入门概述。有关 `DirectoryLoader` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain.document_loaders_fs_directory.DirectoryLoader.html)。
 
 本示例将介绍如何从包含多个文件的文件夹中加载数据。第二个参数是一个文件扩展名到加载器工厂的映射。每个文件将被传递给匹配的加载器，最终生成的文档将被连接在一起。
 

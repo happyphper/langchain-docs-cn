@@ -5,7 +5,7 @@ title: ExaRetriever
 
 [Exa](https://exa.ai/) 是一个搜索引擎，可以根据输入的查询从网络上检索相关内容。
 
-本指南将帮助您开始使用 Exa [检索器](/oss/langchain/retrieval)。有关 `ExaRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_exa.ExaRetriever.html)。
+本指南将帮助您开始使用 Exa [检索器](/oss/javascript/langchain/retrieval)。有关 `ExaRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_exa.ExaRetriever.html)。
 
 ### 集成详情
 

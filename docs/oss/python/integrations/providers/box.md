@@ -149,7 +149,7 @@ loader = BoxLoader(
 
 ### BoxLoader
 
-[查看使用示例](/oss/integrations/document_loaders/box)
+[查看使用示例](/oss/python/integrations/document_loaders/box)
 
 ```python
 from langchain_box.document_loaders import BoxLoader
@@ -159,7 +159,7 @@ from langchain_box.document_loaders import BoxLoader
 
 ### BoxRetriever
 
-[查看使用示例](/oss/integrations/retrievers/box)
+[查看使用示例](/oss/python/integrations/retrievers/box)
 
 ```python
 from langchain_box.retrievers import BoxRetriever
@@ -169,7 +169,7 @@ from langchain_box.retrievers import BoxRetriever
 
 ### BoxBlobLoader
 
-[查看使用示例](/oss/integrations/document_loaders/box)
+[查看使用示例](/oss/python/integrations/document_loaders/box)
 
 ```python
 from langchain_box.blob_loaders import BoxBlobLoader

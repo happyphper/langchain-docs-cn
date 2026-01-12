@@ -1,7 +1,7 @@
 ---
 title: OpenAI 中间件
 ---
-专为 OpenAI 模型设计的中间件。了解更多关于[中间件](/oss/langchain/middleware/overview)的信息。
+专为 OpenAI 模型设计的中间件。了解更多关于[中间件](/oss/python/langchain/middleware/overview)的信息。
 
 | 中间件 | 描述 |
 |------------|-------------|

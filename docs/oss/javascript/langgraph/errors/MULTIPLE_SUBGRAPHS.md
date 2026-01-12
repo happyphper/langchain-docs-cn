@@ -11,4 +11,4 @@ title: 多子图
 
 * 如果你不需要从子图中断/恢复，在编译时传递 `checkpointer: false`，像这样：`.compile({ checkpointer: false })`
 
-* 不要在同一节点中强制多次调用图，而是使用 [`Send`](/oss/langgraph/graph-api#send) API。
+* 不要在同一节点中强制多次调用图，而是使用 [`Send`](/oss/javascript/langgraph/graph-api#send) API。

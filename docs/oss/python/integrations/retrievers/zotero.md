@@ -1,7 +1,7 @@
 ---
 title: Zotero
 ---
-这将帮助您开始使用 Zotero [检索器](/oss/langchain/retrieval)。有关 ZoteroRetriever 所有功能和配置的详细文档，请访问 [GitHub 页面](https://github.com/TimBMK/langchain-zotero-retriever)。
+这将帮助您开始使用 Zotero [检索器](/oss/python/langchain/retrieval)。有关 ZoteroRetriever 所有功能和配置的详细文档，请访问 [GitHub 页面](https://github.com/TimBMK/langchain-zotero-retriever)。
 
 ### 集成详情
 
@@ -77,7 +77,7 @@ retriever.invoke("", tag=tags)
 
 ## 在链中使用
 
-由于 Zotero API 搜索的运作方式，直接将用户问题传递给 ZoteroRetriever 通常不会返回令人满意的结果。为了在链或智能体框架中使用，建议将 ZoteroRetriever 转换为一个 [工具](/oss/langchain/tools)。这样，LLM 可以将用户查询转换为更简洁的 API 搜索查询。此外，这允许 LLM 填充额外的搜索参数，例如标签或项目类型。
+由于 Zotero API 搜索的运作方式，直接将用户问题传递给 ZoteroRetriever 通常不会返回令人满意的结果。为了在链或智能体框架中使用，建议将 ZoteroRetriever 转换为一个 [工具](/oss/python/langchain/tools)。这样，LLM 可以将用户查询转换为更简洁的 API 搜索查询。此外，这允许 LLM 填充额外的搜索参数，例如标签或项目类型。
 
 ```python
 from typing import List, Optional, Union

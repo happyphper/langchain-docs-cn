@@ -5,11 +5,11 @@ title: Etherscan
 
 ## 安装与设置
 
-请参阅详细的[安装指南](/oss/integrations/document_loaders/etherscan)。
+请参阅详细的[安装指南](/oss/javascript/integrations/document_loaders/etherscan)。
 
 ## 文档加载器
 
-请查看[使用示例](/oss/integrations/document_loaders/etherscan)。
+请查看[使用示例](/oss/javascript/integrations/document_loaders/etherscan)。
 
 ```python
 from langchain_community.document_loaders import EtherscanLoader

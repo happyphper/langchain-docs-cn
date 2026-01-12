@@ -282,7 +282,7 @@ make test  # 确保在开始开发前测试通过
 
 :::: details 合作伙伴包
 
-对于[合作伙伴集成](/oss/integrations/providers/overview)的更改：
+对于[合作伙伴集成](/oss/python/integrations/providers/overview)的更改：
 
 ```bash
 cd libs/partners/langchain-{partner}
@@ -334,11 +334,11 @@ LangChain 组织为一个包含多个包的 monorepo：
 :::: details 合作伙伴包
 
 位于 `libs/partners/`，这些是针对特定集成的独立版本包。例如：
-- <strong>[`langchain-openai`](https://github.com/langchain-ai/langchain/tree/master/libs/partners/openai#readme)</strong>：[OpenAI](/oss/integrations/providers/openai) 集成
-- <strong>[`langchain-anthropic`](https://github.com/langchain-ai/langchain/tree/master/libs/partners/anthropic#readme)</strong>：[Anthropic](/oss/integrations/providers/anthropic) 集成
-- <strong>[`langchain-google-genai`](https://github.com/langchain-ai/langchain-google/)</strong>：[Google Generative AI](/oss/integrations/chat/google_generative_ai) 集成
+- <strong>[`langchain-openai`](https://github.com/langchain-ai/langchain/tree/master/libs/partners/openai#readme)</strong>：[OpenAI](/oss/python/integrations/providers/openai) 集成
+- <strong>[`langchain-anthropic`](https://github.com/langchain-ai/langchain/tree/master/libs/partners/anthropic#readme)</strong>：[Anthropic](/oss/python/integrations/providers/anthropic) 集成
+- <strong>[`langchain-google-genai`](https://github.com/langchain-ai/langchain-google/)</strong>：[Google Generative AI](/oss/python/integrations/chat/google_generative_ai) 集成
 
-许多合作伙伴包位于外部仓库中。请查看[集成列表](/oss/integrations/providers/overview)了解详情。
+许多合作伙伴包位于外部仓库中。请查看[集成列表](/oss/python/integrations/providers/overview)了解详情。
 
 ::::
 

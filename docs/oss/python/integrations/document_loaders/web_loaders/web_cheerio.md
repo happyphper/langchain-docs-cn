@@ -1,7 +1,7 @@
 ---
 title: Cheerio
 ---
-本笔记本提供了快速入门 [CheerioWebBaseLoader](/oss/integrations/document_loaders/) 的概述。有关 CheerioWebBaseLoader 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_cheerio.CheerioWebBaseLoader.html)。
+本笔记本提供了快速入门 [CheerioWebBaseLoader](/oss/python/integrations/document_loaders/) 的概述。有关 CheerioWebBaseLoader 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_cheerio.CheerioWebBaseLoader.html)。
 
 ## 概述
 
@@ -11,7 +11,7 @@ title: Cheerio
 
 Cheerio 是一个快速、轻量级的库，允许您使用类似 jQuery 的语法来解析和遍历 HTML 文档。您可以使用 Cheerio 从网页中提取数据，而无需在浏览器中渲染它们。
 
-然而，Cheerio 不模拟 Web 浏览器，因此无法在页面上执行 JavaScript 代码。这意味着它无法从需要 JavaScript 渲染的动态网页中提取数据。为此，您可以使用 [`PlaywrightWebBaseLoader`](/oss/integrations/document_loaders/web_loaders/web_playwright) 或 [`PuppeteerWebBaseLoader`](/oss/integrations/document_loaders/web_loaders/web_puppeteer)。
+然而，Cheerio 不模拟 Web 浏览器，因此无法在页面上执行 JavaScript 代码。这意味着它无法从需要 JavaScript 渲染的动态网页中提取数据。为此，您可以使用 [`PlaywrightWebBaseLoader`](/oss/python/integrations/document_loaders/web_loaders/web_playwright) 或 [`PuppeteerWebBaseLoader`](/oss/python/integrations/document_loaders/web_loaders/web_puppeteer)。
 
 | 类 | 包 | 本地 | 可序列化 | Python 支持 |
 | :--- | :--- | :---: | :---: | :---: |

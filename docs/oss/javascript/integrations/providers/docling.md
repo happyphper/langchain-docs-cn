@@ -39,7 +39,7 @@ loader = DoclingLoader(file_path=FILE_PATH)
 docs = loader.load()
 ```
 
-关于端到端的使用方法，请查看[此示例](/oss/integrations/document_loaders/docling)。
+关于端到端的使用方法，请查看[此示例](/oss/javascript/integrations/document_loaders/docling)。
 
 ## 其他资源
 

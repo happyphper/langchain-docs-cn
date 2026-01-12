@@ -13,7 +13,7 @@ title: 北京智源人工智能研究院
 >[HuggingFace 上的 BGE 模型](https://huggingface.co/BAAI/bge-large-en-v1.5)
 > 是[最佳开源嵌入模型之一](https://huggingface.co/spaces/mteb/leaderboard)。
 
-查看[使用示例](/oss/integrations/text_embedding/bge_huggingface)。
+查看[使用示例](/oss/python/integrations/text_embedding/bge_huggingface)。
 
 ```python
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
@@ -24,8 +24,8 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 >[IPEX-LLM](https://github.com/intel-analytics/ipex-llm) 是一个 PyTorch
 > 库，用于在英特尔 CPU 和 GPU（例如，带有集成显卡的本地 PC，或 Arc、Flex 和 Max 等独立 GPU）上以极低延迟运行 LLM。
 
-查看[在英特尔 CPU 上运行模型的使用示例](/oss/integrations/text_embedding/ipex_llm)。
-查看[在英特尔 GPU 上运行模型的使用示例](/oss/integrations/text_embedding/ipex_llm_gpu)。
+查看[在英特尔 CPU 上运行模型的使用示例](/oss/python/integrations/text_embedding/ipex_llm)。
+查看[在英特尔 GPU 上运行模型的使用示例](/oss/python/integrations/text_embedding/ipex_llm_gpu)。
 
 ```python
 from langchain_community.embeddings import IpexLLMBgeEmbeddings
@@ -33,7 +33,7 @@ from langchain_community.embeddings import IpexLLMBgeEmbeddings
 
 ### QuantizedBgeEmbeddings
 
-查看[使用示例](/oss/integrations/text_embedding/itrex)。
+查看[使用示例](/oss/python/integrations/text_embedding/itrex)。
 
 ```python
 from langchain_community.embeddings import QuantizedBgeEmbeddings

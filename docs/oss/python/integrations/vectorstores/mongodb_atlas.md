@@ -1,318 +1,317 @@
 ---
 title: MongoDB Atlas
 ---
+本笔记本介绍了如何在 LangChain 中使用 `langchain-mongodb` 包进行 MongoDB Atlas 向量搜索。
 
-<Tip>
+>[MongoDB Atlas](https://www.mongodb.com/docs/atlas/) 是一个在 AWS、Azure 和 GCP 上可用的全托管云数据库。它支持对您的 MongoDB 文档数据进行原生向量搜索、全文搜索（BM25）和混合搜索。
 
-<strong>兼容性说明</strong>：仅适用于 Node.js 环境。
-
-你仍然可以通过将 `runtime` 变量设置为 `nodejs` 来创建使用 MongoDB 的 Next.js API 路由，如下所示：
-
-`export const runtime = "nodejs";`
-
-你可以在 Next.js 文档中[此处](https://nextjs.org/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes)阅读更多关于 Edge 运行时的信息。
-
-</Tip>
-
-本指南提供了快速入门 MongoDB Atlas [向量存储](/oss/integrations/vectorstores) 的概述。有关 `MongoDBAtlasVectorSearch` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_mongodb.MongoDBAtlasVectorSearch.html)。
-
-## 概述
-
-### 集成详情
-
-| 类 | 包 | [Python 支持](https://python.langchain.com/docs/integrations/vectorstores/mongodb_atlas/) | 版本 |
-| :--- | :--- | :---: | :---: |
-| [`MongoDBAtlasVectorSearch`](https://api.js.langchain.com/classes/langchain_mongodb.MongoDBAtlasVectorSearch.html) | [`@langchain/mongodb`](https://www.npmjs.com/package/@langchain/mongodb) | ✅ | ![NPM - 版本](https://img.shields.io/npm/v/@langchain/mongodb?style=flat-square&label=%20&) |
+>[MongoDB Atlas Vector Search](https://www.mongodb.com/products/platform/atlas-vector-search) 允许您将嵌入向量存储在 MongoDB 文档中，创建向量搜索索引，并使用近似最近邻算法（`Hierarchical Navigable Small Worlds`）执行 KNN 搜索。它使用 [$vectorSearch MQL 阶段](https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-overview/)。
 
 ## 设置
 
-要使用 MongoDB Atlas 向量存储，你需要配置一个 MongoDB Atlas 集群并安装 `@langchain/mongodb` 集成包。
+>*需要运行 MongoDB 版本 6.0.11、7.0.2 或更高版本（包括 RC 版本）的 Atlas 集群。
 
-### 初始集群配置
+要使用 MongoDB Atlas，您必须首先部署一个集群。我们提供您所选云上的永久免费集群。要开始使用，请访问 Atlas 的[快速入门](https://www.mongodb.com/docs/atlas/getting-started/)。
 
-要创建 MongoDB Atlas 集群，请访问 [MongoDB Atlas 网站](https://www.mongodb.com/products/platform/atlas-database)，如果没有账户请先创建一个。
+您需要安装 `langchain-mongodb` 和 `pymongo` 来使用此集成。
 
-按照提示创建并命名一个集群，然后在 `Database` 下找到它。选择 `Browse Collections` 并创建一个空白集合或使用提供的示例数据创建一个。
-
-**注意：** 创建的集群必须是 MongoDB 7.0 或更高版本。
-
-### 创建索引
-
-配置好集群后，你需要在要搜索的集合字段上创建一个索引。
-
-切换到 `Atlas Search` 选项卡，点击 `Create Search Index`。确保选择 `Atlas Vector Search - JSON Editor`，然后选择适当的数据库和集合，并将以下内容粘贴到文本框中：
-
-```json
-{
-  "fields": [
-    {
-      "numDimensions": 1536,
-      "path": "embedding",
-      "similarity": "euclidean",
-      "type": "vector"
-    }
-  ]
-}
+```python
+pip install -qU langchain-mongodb pymongo
 ```
-
-请注意，`numDimensions` 属性应与你使用的嵌入向量的维度匹配。例如，Cohere 嵌入有 1024 维，而默认的 OpenAI 嵌入有 1536 维。
-
-注意：默认情况下，向量存储期望索引名为 `default`，索引集合字段名为 `embedding`，原始文本字段名为 `text`。你应该使用与你的索引名称和集合模式匹配的字段名来初始化向量存储，如下所示。
-
-最后，继续构建索引。
-
-### 嵌入模型
-
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
-
-### 安装
-
-安装以下包：
-
-::: code-group
-
-```bash [npm]
-npm install @langchain/mongodb mongodb @langchain/openai @langchain/core
-```
-
-```bash [yarn]
-yarn add @langchain/mongodb mongodb @langchain/openai @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @langchain/mongodb mongodb @langchain/openai @langchain/core
-```
-
-:::
 
 ### 凭证
 
-完成上述步骤后，从 MongoDB 仪表板的 `Connect` 按钮设置 `MONGODB_ATLAS_URI` 环境变量。你还需要你的数据库名称和集合名称：
+对于本笔记本，您需要找到您的 MongoDB 集群 URI。
 
-```typescript
-process.env.MONGODB_ATLAS_URI = "your-atlas-url";
-process.env.MONGODB_ATLAS_COLLECTION_NAME = "your-atlas-db-name";
-process.env.MONGODB_ATLAS_DB_NAME = "your-atlas-db-name";
+有关查找集群 URI 的信息，请阅读[本指南](https://www.mongodb.com/docs/manual/reference/connection-string/)。
+
+```python
+import getpass
+
+MONGODB_ATLAS_CLUSTER_URI = getpass.getpass("MongoDB Atlas Cluster URI:")
 ```
 
-如果你在本指南中使用 OpenAI 嵌入，还需要设置你的 OpenAI 密钥：
+如果您希望获得最佳的模型调用自动追踪功能，您也可以通过取消注释以下代码来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
 
-```typescript
-process.env.OPENAI_API_KEY = "YOUR_API_KEY";
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
 ```
 
-如果你想获取模型调用的自动化追踪，也可以通过取消注释以下代码来设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+## 初始化
 
-```typescript
-// process.env.LANGSMITH_TRACING="true"
-// process.env.LANGSMITH_API_KEY="your-api-key"
+<EmbeddingTabs/>
+
+```python
+# | output: false
+# | echo: false
+from langchain_openai import OpenAIEmbeddings
+
+embeddings = OpenAIEmbeddings()
 ```
 
-## 实例化
+```python
+from langchain_mongodb import MongoDBAtlasVectorSearch
+from pymongo import MongoClient
 
-按照上述步骤设置好集群后，你可以按如下方式初始化向量存储：
+# 初始化 MongoDB Python 客户端
+client = MongoClient(MONGODB_ATLAS_CLUSTER_URI)
 
-```typescript
-import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { MongoClient } from "mongodb";
+DB_NAME = "langchain_test_db"
+COLLECTION_NAME = "langchain_test_vectorstores"
+ATLAS_VECTOR_SEARCH_INDEX_NAME = "langchain-test-index-vectorstores"
 
-const client = new MongoClient(process.env.MONGODB_ATLAS_URI || "");
-const collection = client.db(process.env.MONGODB_ATLAS_DB_NAME)
-  .collection(process.env.MONGODB_ATLAS_COLLECTION_NAME);
+MONGODB_COLLECTION = client[DB_NAME][COLLECTION_NAME]
 
-const embeddings = new OpenAIEmbeddings({
-  model: "text-embedding-3-small",
-});
+vector_store = MongoDBAtlasVectorSearch(
+    collection=MONGODB_COLLECTION,
+    embedding=embeddings,
+    index_name=ATLAS_VECTOR_SEARCH_INDEX_NAME,
+    relevance_score_fn="cosine",
+)
 
-const vectorStore = new MongoDBAtlasVectorSearch(embeddings, {
-  collection: collection,
-  indexName: "vector_index", // Atlas 搜索索引的名称。默认为 "default"
-  textKey: "text", // 包含原始内容的集合字段名称。默认为 "text"
-  embeddingKey: "embedding", // 包含嵌入文本的集合字段名称。默认为 "embedding"
-});
+# 在集合上创建向量搜索索引
+# 由于我们使用的是默认的 OpenAI 嵌入模型 (ada-v2)，我们需要将维度指定为 1536
+vector_store.create_vector_search_index(dimensions=1536)
+```
+
+[可选] 除了上面 `vector_store.create_vector_search_index` 命令的替代方案，您也可以使用 Atlas UI 通过以下索引定义来创建向量搜索索引：
+
+```json
+{
+  "fields":[
+    {
+      "type": "vector",
+      "path": "embedding",
+      "numDimensions": 1536,
+      "similarity": "cosine"
+    }
+  ]
+}
 ```
 
 ## 管理向量存储
 
+创建向量存储后，我们可以通过添加和删除不同的项目来与之交互。
+
 ### 向向量存储添加项目
 
-现在你可以向向量存储添加文档：
+我们可以使用 `add_documents` 函数向向量存储添加项目。
 
-```typescript
-import type { Document } from "@langchain/core/documents";
+```python
+from uuid import uuid4
 
-const document1: Document = {
-  pageContent: "The powerhouse of the cell is the mitochondria",
-  metadata: { source: "https://example.com" }
-};
+from langchain_core.documents import Document
 
-const document2: Document = {
-  pageContent: "Buildings are made out of brick",
-  metadata: { source: "https://example.com" }
-};
+document_1 = Document(
+    page_content="I had chocolate chip pancakes and scrambled eggs for breakfast this morning.",
+    metadata={"source": "tweet"},
+)
 
-const document3: Document = {
-  pageContent: "Mitochondria are made out of lipids",
-  metadata: { source: "https://example.com" }
-};
+document_2 = Document(
+    page_content="The weather forecast for tomorrow is cloudy and overcast, with a high of 62 degrees.",
+    metadata={"source": "news"},
+)
 
-const document4: Document = {
-  pageContent: "The 2024 Olympics are in Paris",
-  metadata: { source: "https://example.com" }
-}
+document_3 = Document(
+    page_content="Building an exciting new project with LangChain - come check it out!",
+    metadata={"source": "tweet"},
+)
 
-const documents = [document1, document2, document3, document4];
+document_4 = Document(
+    page_content="Robbers broke into the city bank and stole $1 million in cash.",
+    metadata={"source": "news"},
+)
 
-await vectorStore.addDocuments(documents, { ids: ["1", "2", "3", "4"] });
+document_5 = Document(
+    page_content="Wow! That was an amazing movie. I can't wait to see it again.",
+    metadata={"source": "tweet"},
+)
+
+document_6 = Document(
+    page_content="Is the new iPhone worth the price? Read this review to find out.",
+    metadata={"source": "website"},
+)
+
+document_7 = Document(
+    page_content="The top 10 soccer players in the world right now.",
+    metadata={"source": "website"},
+)
+
+document_8 = Document(
+    page_content="LangGraph is the best framework for building stateful, agentic applications!",
+    metadata={"source": "tweet"},
+)
+
+document_9 = Document(
+    page_content="The stock market is down 500 points today due to fears of a recession.",
+    metadata={"source": "news"},
+)
+
+document_10 = Document(
+    page_content="I have a bad feeling I am going to get deleted :(",
+    metadata={"source": "tweet"},
+)
+
+documents = [
+    document_1,
+    document_2,
+    document_3,
+    document_4,
+    document_5,
+    document_6,
+    document_7,
+    document_8,
+    document_9,
+    document_10,
+]
+uuids = [str(uuid4()) for _ in range(len(documents))]
+
+vector_store.add_documents(documents=documents, ids=uuids)
 ```
 
 ```python
-[ '1', '2', '3', '4' ]
+['03ad81e8-32a0-46f0-b7d8-f5b977a6b52a',
+ '8396a68d-f4a3-4176-a581-a1a8c303eea4',
+ 'e7d95150-67f6-499f-b611-84367c50fa60',
+ '8c31b84e-2636-48b6-8b99-9fccb47f7051',
+ 'aa02e8a2-a811-446a-9785-8cea0faba7a9',
+ '19bd72ff-9766-4c3b-b1fd-195c732c562b',
+ '642d6f2f-3e34-4efa-a1ed-c4ba4ef0da8d',
+ '7614bb54-4eb5-4b3b-990c-00e35cb31f99',
+ '69e18c67-bf1b-43e5-8a6e-64fb3f240e52',
+ '30d599a7-4a1a-47a9-bbf8-6ed393e2e33c']
 ```
-
-**注意：** 添加文档后，需要短暂延迟才能进行查询。
-
-添加具有与现有文档相同 `id` 的文档将更新现有文档。
 
 ### 从向量存储中删除项目
 
-```typescript
-await vectorStore.delete({ ids: ["4"] });
+```python
+vector_store.delete(ids=[uuids[-1]])
+```
+
+```text
+True
 ```
 
 ## 查询向量存储
 
-创建向量存储并添加相关文档后，你很可能会希望在链或代理运行时查询它。
+创建向量存储并添加相关文档后，您很可能希望在运行链或代理时查询它。
 
 ### 直接查询
 
+#### 相似性搜索
+
 执行简单的相似性搜索可以按如下方式进行：
 
-```typescript
-const similaritySearchResults = await vectorStore.similaritySearch("biology", 2);
-
-for (const doc of similaritySearchResults) {
-  console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
-}
+```python
+results = vector_store.similarity_search(
+    "LangChain provides abstractions to make working with LLMs easy", k=2
+)
+for res in results:
+    print(f"* {res.page_content} [{res.metadata}]")
 ```
 
 ```text
-* The powerhouse of the cell is the mitochondria [{"_id":"1","source":"https://example.com"}]
-* Mitochondria are made out of lipids [{"_id":"3","source":"https://example.com"}]
+* Building an exciting new project with LangChain - come check it out! [{'_id': 'e7d95150-67f6-499f-b611-84367c50fa60', 'source': 'tweet'}]
+* LangGraph is the best framework for building stateful, agentic applications! [{'_id': '7614bb54-4eb5-4b3b-990c-00e35cb31f99', 'source': 'tweet'}]
 ```
 
-### 过滤
+#### 带分数的相似性搜索
 
-MongoDB Atlas 支持对其他字段进行预过滤。这要求你通过更新最初创建的索引来定义计划过滤的元数据字段。示例如下：
+您也可以进行带分数的搜索：
+
+```python
+results = vector_store.similarity_search_with_score("Will it be hot tomorrow?", k=1)
+for res, score in results:
+    print(f"* [SIM={score:3f}] {res.page_content} [{res.metadata}]")
+```
+
+```text
+* [SIM=0.784560] The weather forecast for tomorrow is cloudy and overcast, with a high of 62 degrees. [{'_id': '8396a68d-f4a3-4176-a581-a1a8c303eea4', 'source': 'news'}]
+```
+
+### 带预过滤的相似性搜索
+
+Atlas Vector Search 支持使用 MQL 运算符进行预过滤。以下是一个索引和查询示例，基于上面加载的相同数据，允许您对 "page" 字段进行元数据过滤。您可以使用定义的过滤器更新现有索引，并进行带预过滤的向量搜索。
+
+要启用预过滤，您需要更新索引定义以包含过滤器字段。在此示例中，我们将使用 `source` 字段作为过滤器字段。
+
+这可以通过编程方式使用 `MongoDBAtlasVectorSearch.create_vector_search_index` 方法完成。
+
+```python
+vectorstore.create_vector_search_index(
+  dimensions=1536,
+  filters=[{"type":"filter", "path":"source"}],
+  update=True
+)
+```
+
+或者，您也可以使用 Atlas UI 通过以下索引定义来更新索引：
 
 ```json
 {
-  "fields": [
+  "fields":[
     {
-      "numDimensions": 1024,
+      "type": "vector",
       "path": "embedding",
-      "similarity": "euclidean",
-      "type": "vector"
+      "numDimensions": 1536,
+      "similarity": "cosine"
     },
     {
-      "path": "source",
-      "type": "filter"
+      "type": "filter",
+      "path": "source"
     }
   ]
 }
 ```
 
-上面，`fields` 中的第一项是向量索引，第二项是你想要过滤的元数据属性。属性的名称是 `path` 键的值。因此，上述索引将允许我们搜索名为 `source` 的元数据字段。
+然后，您可以按如下方式运行带过滤器的查询：
 
-然后，在你的代码中，你可以使用 [MQL 查询操作符](https://www.mongodb.com/docs/manual/reference/mql/query-predicates/#alphabetical-list-of-operators) 进行过滤。
-
-下面的示例说明了这一点：
-
-```typescript
-const filter = {
-  preFilter: {
-    source: {
-      $eq: "https://example.com",
-    },
-  },
-}
-
-const filteredResults = await vectorStore.similaritySearch("biology", 2, filter);
-
-for (const doc of filteredResults) {
-  console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
-}
+```python
+results = vector_store.similarity_search(query="foo", k=1, pre_filter={"source": {"$eq": "https://example.com"}})
+for doc in results:
+    print(f"* {doc.page_content} [{doc.metadata}]")
 ```
 
-```text
-* The powerhouse of the cell is the mitochondria [{"_id":"1","source":"https://example.com"}]
-* Mitochondria are made out of lipids [{"_id":"3","source":"https://example.com"}]
-```
+#### 其他搜索方法
 
-### 返回分数
-
-如果你想执行相似性搜索并获取相应的分数，可以运行：
-
-```typescript
-const similaritySearchWithScoreResults = await vectorStore.similaritySearchWithScore("biology", 2, filter)
-
-for (const [doc, score] of similaritySearchWithScoreResults) {
-  console.log(`* [SIM=${score.toFixed(3)}] ${doc.pageContent} [${JSON.stringify(doc.metadata)}]`);
-}
-```
-
-```text
-* [SIM=0.374] The powerhouse of the cell is the mitochondria [{"_id":"1","source":"https://example.com"}]
-* [SIM=0.370] Mitochondria are made out of lipids [{"_id":"3","source":"https://example.com"}]
-```
+本笔记本未涵盖多种其他搜索方法，例如 MMR 搜索或按向量搜索。有关 `MongoDBAtlasVectorStore` 可用搜索功能的完整列表，请查看 [API 参考](https://python.langchain.com/api_reference/mongodb/vectorstores/langchain_mongodb.vectorstores.MongoDBAtlasVectorSearch.html)。
 
 ### 转换为检索器进行查询
 
-你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在链中更轻松地使用。
+您也可以将向量存储转换为检索器，以便在链中更轻松地使用。
 
-```typescript
-const retriever = vectorStore.asRetriever({
-  // 可选过滤器
-  filter: filter,
-  k: 2,
-});
-await retriever.invoke("biology");
+以下是如何将向量存储转换为检索器，然后使用简单查询和过滤器调用该检索器。
+
+```python
+retriever = vector_store.as_retriever(
+    search_type="similarity_score_threshold",
+    search_kwargs={"k": 1, "score_threshold": 0.2},
+)
+retriever.invoke("Stealing from the bank is a crime")
 ```
 
-```javascript
-[
-  Document {
-    pageContent: 'The powerhouse of the cell is the mitochondria',
-    metadata: { _id: '1', source: 'https://example.com' },
-    id: undefined
-  },
-  Document {
-    pageContent: 'Mitochondria are made out of lipids',
-    metadata: { _id: '3', source: 'https://example.com' },
-    id: undefined
-  }
-]
+```text
+[Document(metadata={'_id': '8c31b84e-2636-48b6-8b99-9fccb47f7051', 'source': 'news'}, page_content='Robbers broke into the city bank and stole $1 million in cash.')]
 ```
 
-### 用于检索增强生成
+## 用于检索增强生成
 
-有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
+有关如何使用此向量存储进行检索增强生成（RAG）的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [智能体 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [教程](/oss/python/langchain/rag)
+- [操作指南：使用 RAG 进行问答](https://python.langchain.com/docs/how_to/#qa-with-rag)
+- [检索概念文档](https://python.langchain.com/docs/concepts/retrieval)
 
-## 关闭连接
-
-完成后请确保关闭客户端实例，以避免资源过度消耗：
-
-```typescript
-await client.close();
-```
+# 其他说明
+>
+>- 更多文档可在 [MongoDB 的 LangChain 文档](https://www.mongodb.com/docs/atlas/atlas-vector-search/ai-integrations/langchain/) 站点找到。
+>- 此功能已正式发布，可用于生产部署。
+>- LangChain 版本 0.0.305（[发行说明](https://github.com/langchain-ai/langchain/releases/tag/v0.0.305)）引入了对 $vectorSearch MQL 阶段的支持，该功能在 MongoDB Atlas 6.0.11 和 7.0.2 中可用。使用早期版本 MongoDB Atlas 的用户需要将其 LangChain 版本固定到 &lt;=0.0.304。
+>
 
 ---
 
 ## API 参考
 
-有关 `MongoDBAtlasVectorSearch` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_mongodb.MongoDBAtlasVectorSearch.html)。
+有关 `MongoDBAtlasVectorSearch` 所有功能和配置的详细文档，请访问 API 参考：[python.langchain.com/api_reference/mongodb/index.html](https://python.langchain.com/api_reference/mongodb/index.html)

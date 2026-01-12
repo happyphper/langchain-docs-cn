@@ -55,7 +55,7 @@ agent = create_agent(
 
 <Tip>
 
-如果使用 `langchain>=1.1`，`trigger` 和 `keep` 的 `fraction` 条件（如下所示）依赖于聊天模型的[配置文件数据](/oss/langchain/models#model-profiles)。如果数据不可用，请使用其他条件或手动指定：
+如果使用 `langchain>=1.1`，`trigger` 和 `keep` 的 `fraction` 条件（如下所示）依赖于聊天模型的[配置文件数据](/oss/python/langchain/models#model-profiles)。如果数据不可用，请使用其他条件或手动指定：
 
 ```python
 from langchain.chat_models import init_chat_model
@@ -209,7 +209,7 @@ agent3 = create_agent(
 
 ### 人在回路
 
-在工具调用执行之前，暂停智能体执行以等待人工批准、编辑或拒绝。[人在回路](/oss/langchain/human-in-the-loop) 适用于以下情况：
+在工具调用执行之前，暂停智能体执行以等待人工批准、编辑或拒绝。[人在回路](/oss/python/langchain/human-in-the-loop) 适用于以下情况：
 
 - 需要人工批准的高风险操作（例如数据库写入、金融交易）。
 - 强制要求人工监督的合规工作流。
@@ -219,7 +219,7 @@ agent3 = create_agent(
 
 <Warning>
 
-人在回路中间件需要一个[检查点器](/oss/langgraph/persistence#checkpoints)来在中断期间维护状态。
+人在回路中间件需要一个[检查点器](/oss/python/langgraph/persistence#checkpoints)来在中断期间维护状态。
 
 </Warning>
 
@@ -255,7 +255,7 @@ agent = create_agent(
 
 <Tip>
 
-有关完整示例、配置选项和集成模式，请参阅[人在回路文档](/oss/langchain/human-in-the-loop)。
+有关完整示例、配置选项和集成模式，请参阅[人在回路文档](/oss/python/langchain/human-in-the-loop)。
 
 </Tip>
 

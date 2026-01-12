@@ -9,7 +9,7 @@ title: Coze
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/coze/)。
+查看[使用示例](/oss/python/integrations/chat/coze/)。
 
 ```python
 from langchain_community.chat_models import ChatCoze

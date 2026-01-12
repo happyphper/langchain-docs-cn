@@ -3,7 +3,7 @@ title: 交叉编码器重排序器
 ---
 本笔记本展示了如何使用来自 [Hugging Face 交叉编码器模型](https://huggingface.co/cross-encoder) 或实现了交叉编码器功能的 Hugging Face 模型（[例如：BAAI/bge-reranker-base](https://huggingface.co/BAAI/bge-reranker-base)）在检索器中实现重排序器。`SagemakerEndpointCrossEncoder` 使您能够使用部署在 Sagemaker 上的这些 HuggingFace 模型。
 
-这建立在 ContextualCompressionRetriever 中的思想之上。本文档的整体结构源自 [Cohere 重排序器文档](/oss/integrations/retrievers/cohere-reranker)。
+这建立在 ContextualCompressionRetriever 中的思想之上。本文档的整体结构源自 [Cohere 重排序器文档](/oss/javascript/integrations/retrievers/cohere-reranker)。
 
 关于为什么交叉编码器可以与嵌入结合用作重排序机制以实现更好的检索，更多信息请参考 [Hugging Face 交叉编码器文档](https://www.sbert.net/examples/applications/cross-encoder/README.html)。
 

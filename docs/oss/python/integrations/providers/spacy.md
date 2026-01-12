@@ -25,7 +25,7 @@ from langchain_text_splitters import SpacyTextSplitter
 
 ## 文本嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/spacy_embedding)
+查看[使用示例](/oss/python/integrations/text_embedding/spacy_embedding)
 
 ```python
 from langchain_community.embeddings.spacy_embeddings import SpacyEmbeddings

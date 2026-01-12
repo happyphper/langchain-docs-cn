@@ -23,7 +23,7 @@ import pandas as pd
 from langchain_community.document_loaders import OpenCityDataLoader
 ```
 
-以 [`Open City Data`](/oss/integrations/document_loaders/open_city_data) 为例，创建一个 GeoPandas 数据框作为示例输入。
+以 [`Open City Data`](/oss/python/integrations/document_loaders/open_city_data) 为例，创建一个 GeoPandas 数据框作为示例输入。
 
 ```python
 # 加载 Open City Data

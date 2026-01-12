@@ -1,7 +1,7 @@
 ---
 title: DigitalOcean Gradient AI 平台
 ---
-这将帮助您开始使用 DigitalOcean Gradient [聊天模型](/oss/langchain/models)。
+这将帮助您开始使用 DigitalOcean Gradient [聊天模型](/oss/javascript/langchain/models)。
 
 ## 概述
 ### 集成详情

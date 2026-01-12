@@ -5,7 +5,7 @@ title: 图检索增强生成
 
 ## 概述
 
-`langchain-graph-retriever` 包中的 `GraphRetriever` 提供了一个 LangChain [检索器](/oss/langchain/retrieval/)，它结合了对向量的**非结构化**相似性搜索和对元数据属性的**结构化**遍历。这使得可以在**现有**向量存储之上进行基于图的检索。
+`langchain-graph-retriever` 包中的 `GraphRetriever` 提供了一个 LangChain [检索器](/oss/javascript/langchain/retrieval/)，它结合了对向量的**非结构化**相似性搜索和对元数据属性的**结构化**遍历。这使得可以在**现有**向量存储之上进行基于图的检索。
 
 ### 集成详情
 
@@ -99,7 +99,7 @@ vector_store = AstraDBVectorStore.from_documents(
     token=ASTRA_DB_APPLICATION_TOKEN,
 )
 ```
-关于 `ASTRA_DB_API_ENDPOINT` 和 `ASTRA_DB_APPLICATION_TOKEN` 凭据，请查阅 [AstraDB 向量存储指南](/oss/integrations/vectorstores/astradb)。
+关于 `ASTRA_DB_API_ENDPOINT` 和 `ASTRA_DB_APPLICATION_TOKEN` 凭据，请查阅 [AstraDB 向量存储指南](/oss/javascript/integrations/vectorstores/astradb)。
 
 :::note
 为了更快的初始测试，请考虑使用 **InMemory** 向量存储。
@@ -132,7 +132,7 @@ vector_store = Cassandra.from_documents(
 )
 ```
 
-有关创建 Cassandra 连接的帮助，请查阅 [Apache Cassandra 向量存储指南](/oss/integrations/vectorstores/cassandra#connection-parameters)
+有关创建 Cassandra 连接的帮助，请查阅 [Apache Cassandra 向量存储指南](/oss/javascript/integrations/vectorstores/cassandra#connection-parameters)
 
 :::note
 Apache Cassandra 不支持在嵌套元数据中搜索。因此，在插入文档时必须使用 [`ShreddingTransformer`](https://datastax.github.io/graph-rag/reference/langchain_graph_retriever/transformers/#langchain_graph_retriever.transformers.shredding.ShreddingTransformer)。
@@ -167,7 +167,7 @@ vector_store = OpenSearchVectorSearch.from_documents(
 )
 ```
 
-有关创建 OpenSearch 连接的帮助，请查阅 [OpenSearch 向量存储指南](/oss/integrations/vectorstores/opensearch)。
+有关创建 OpenSearch 连接的帮助，请查阅 [OpenSearch 向量存储指南](/oss/javascript/integrations/vectorstores/opensearch)。
 
 </div>
 
@@ -196,7 +196,7 @@ vector_store = Chroma.from_documents(
 )
 ```
 
-有关创建 Chroma 连接的帮助，请查阅 [Chroma 向量存储指南](/oss/integrations/vectorstores/chroma)。
+有关创建 Chroma 连接的帮助，请查阅 [Chroma 向量存储指南](/oss/javascript/integrations/vectorstores/chroma)。
 
 :::note
 Chroma 不支持在嵌套元数据中搜索。因此，在插入文档时必须使用 [`ShreddingTransformer`](https://datastax.github.io/graph-rag/reference/langchain_graph_retriever/transformers/#langchain_graph_retriever.transformers.shredding.ShreddingTransformer)。

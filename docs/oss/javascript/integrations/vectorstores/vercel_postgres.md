@@ -15,7 +15,7 @@ npm install @vercel/postgres
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -41,7 +41,7 @@ const vectorstore = await VercelPostgres.initialize(new OpenAIEmbeddings(), {
 
 ### 连接到其他数据库
 
-如果你更愿意托管自己的 PostgreSQL 实例，可以使用与 LangChain 的 [PGVector](/oss/integrations/vectorstores/pgvector) 向量存储集成类似的流程，并将连接字符串设置为环境变量或如上所示。
+如果你更愿意托管自己的 PostgreSQL 实例，可以使用与 LangChain 的 [PGVector](/oss/javascript/integrations/vectorstores/pgvector) 向量存储集成类似的流程，并将连接字符串设置为环境变量或如上所示。
 
 ## 用法
 
@@ -182,5 +182,5 @@ await vercelPostgresStore.end();
 
 ## 相关链接
 
-- 向量存储[概念指南](/oss/integrations/vectorstores)
-- 向量存储[操作指南](/oss/integrations/vectorstores)
+- 向量存储[概念指南](/oss/javascript/integrations/vectorstores)
+- 向量存储[操作指南](/oss/javascript/integrations/vectorstores)

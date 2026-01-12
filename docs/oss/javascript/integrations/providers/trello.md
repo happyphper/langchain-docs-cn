@@ -18,11 +18,11 @@ uv add py-trello beautifulsoup4
 
 :::
 
-请参阅 [设置说明](/oss/integrations/document_loaders/trello)。
+请参阅 [设置说明](/oss/javascript/integrations/document_loaders/trello)。
 
 ## 文档加载器
 
-请参阅 [使用示例](/oss/integrations/document_loaders/trello)。
+请参阅 [使用示例](/oss/javascript/integrations/document_loaders/trello)。
 
 ```python
 from langchain_community.document_loaders import TrelloLoader

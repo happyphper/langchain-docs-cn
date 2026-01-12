@@ -27,7 +27,7 @@ uv add esdk-obs-python
 
 ### 华为 OBS 目录
 
-查看 [使用示例](/oss/integrations/document_loaders/huawei_obs_directory)。
+查看 [使用示例](/oss/python/integrations/document_loaders/huawei_obs_directory)。
 
 ```python
 from langchain_community.document_loaders import OBSDirectoryLoader
@@ -35,7 +35,7 @@ from langchain_community.document_loaders import OBSDirectoryLoader
 
 ### 华为 OBS 文件
 
-查看 [使用示例](/oss/integrations/document_loaders/huawei_obs_file)。
+查看 [使用示例](/oss/python/integrations/document_loaders/huawei_obs_file)。
 
 ```python
 from langchain_community.document_loaders.obs_file import OBSFileLoader

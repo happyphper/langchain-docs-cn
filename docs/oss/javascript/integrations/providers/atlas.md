@@ -10,7 +10,7 @@ title: Atlas
 
 ## VectorStore
 
-查看[使用示例](/oss/integrations/vectorstores/atlas)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/atlas)。
 
 ```python
 from langchain_community.vectorstores import AtlasDB

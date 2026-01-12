@@ -41,4 +41,4 @@ uv add langchain-weaviate
 from langchain_weaviate import WeaviateVectorStore
 ```
 
-有关 Weaviate 包装器的更详细演练，请参阅[此笔记本](/oss/integrations/vectorstores/weaviate)
+有关 Weaviate 包装器的更详细演练，请参阅[此笔记本](/oss/python/integrations/vectorstores/weaviate)

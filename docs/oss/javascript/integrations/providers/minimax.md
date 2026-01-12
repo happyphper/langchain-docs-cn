@@ -10,7 +10,7 @@ title: Minimax
 ## LLM
 
 提供了一个 Minimax LLM 封装器，您可以通过以下方式访问：
-查看 [使用示例](/oss/integrations/llms/minimax)。
+查看 [使用示例](/oss/javascript/integrations/llms/minimax)。
 
 ```python
 from langchain_community.llms import Minimax
@@ -18,7 +18,7 @@ from langchain_community.llms import Minimax
 
 ## 聊天模型
 
-查看 [使用示例](/oss/integrations/chat/minimax)
+查看 [使用示例](/oss/javascript/integrations/chat/minimax)
 
 ```python
 from langchain_community.chat_models import MiniMaxChat

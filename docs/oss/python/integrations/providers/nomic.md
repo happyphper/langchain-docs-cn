@@ -32,7 +32,7 @@ uv add langchain-community
 
 ### GPT4All
 
-查看[使用示例](/oss/integrations/llms/gpt4all)。
+查看[使用示例](/oss/python/integrations/llms/gpt4all)。
 
 ```python
 from langchain_community.llms import GPT4All
@@ -42,7 +42,7 @@ from langchain_community.llms import GPT4All
 
 ### NomicEmbeddings
 
-查看[使用示例](/oss/integrations/text_embedding/nomic)。
+查看[使用示例](/oss/python/integrations/text_embedding/nomic)。
 
 ```python
 from langchain_nomic import NomicEmbeddings
@@ -50,7 +50,7 @@ from langchain_nomic import NomicEmbeddings
 
 ### GPT4All
 
-查看[使用示例](/oss/integrations/text_embedding/gpt4all)。
+查看[使用示例](/oss/python/integrations/text_embedding/gpt4all)。
 
 ```python
 from langchain_community.embeddings import GPT4AllEmbeddings
@@ -60,7 +60,7 @@ from langchain_community.embeddings import GPT4AllEmbeddings
 
 ### Atlas
 
-查看[使用示例和安装说明](/oss/integrations/vectorstores/atlas)。
+查看[使用示例和安装说明](/oss/python/integrations/vectorstores/atlas)。
 
 ```python
 from langchain_community.vectorstores import AtlasDB

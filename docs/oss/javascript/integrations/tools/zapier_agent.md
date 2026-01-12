@@ -30,7 +30,7 @@ NLA 提供 API 密钥和 OAuth 两种方式来签署 NLA API 请求。
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -71,5 +71,5 @@ console.log(`Got output ${result.output}`);
 
 ## 相关链接
 
-- 工具 [概念指南](/oss/langchain/tools)
-- 工具 [操作指南](/oss/langchain/tools)
+- 工具 [概念指南](/oss/javascript/langchain/tools)
+- 工具 [操作指南](/oss/javascript/langchain/tools)

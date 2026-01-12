@@ -3,11 +3,11 @@ title: 长期记忆
 ---
 ## 概述
 
-LangChain 智能体使用 [LangGraph 持久化](/oss/langgraph/persistence#memory-store) 来实现长期记忆。这是一个更高级的主题，需要了解 LangGraph 才能使用。
+LangChain 智能体使用 [LangGraph 持久化](/oss/python/langgraph/persistence#memory-store) 来实现长期记忆。这是一个更高级的主题，需要了解 LangGraph 才能使用。
 
 ## 记忆存储
 
-LangGraph 将长期记忆作为 JSON 文档存储在 [存储](/oss/langgraph/persistence#memory-store) 中。
+LangGraph 将长期记忆作为 JSON 文档存储在 [存储](/oss/python/langgraph/persistence#memory-store) 中。
 
 每个记忆都组织在一个自定义的 `namespace`（类似于文件夹）和一个唯一的 `key`（类似于文件名）下。命名空间通常包含用户或组织 ID 或其他标签，以便于组织信息。
 
@@ -44,7 +44,7 @@ items = store.search( # [!code highlight]
 )
 ```
 
-有关记忆存储的更多信息，请参阅 [持久化](/oss/langgraph/persistence#memory-store) 指南。
+有关记忆存储的更多信息，请参阅 [持久化](/oss/python/langgraph/persistence#memory-store) 指南。
 
 ## 在工具中读取长期记忆
 

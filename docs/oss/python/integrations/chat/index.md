@@ -1,360 +1,125 @@
 ---
 title: 聊天模型
+mode: wide
 ---
-[聊天模型](/oss/langchain/models) 是一种语言模型，它以一系列[消息](/oss/langchain/messages)作为输入，并返回消息作为输出 <Tooltip tip="较旧的模型不遵循聊天模型接口，而是使用一个以字符串为输入并返回字符串为输出的接口。这些模型通常在其名称中不包含前缀 'Chat' 或包含后缀 'LLM'。">（与纯文本相对）</Tooltip>。
+[聊天模型](/oss/python/langchain/models) 是一种语言模型，它使用一系列[消息](/oss/python/langchain/messages)作为输入，并返回消息作为输出 <Tooltip tip="指那些不遵循聊天模型接口、而是采用接收字符串作为输入并返回字符串作为输出的接口的旧模型。这类模型通常在其名称中不包含‘Chat’前缀，或者包含‘LLM’作为后缀。">（与传统纯文本 LLM 相对）</Tooltip>。
 
-## 安装与使用
-
-<Tip>
-
-关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/langchain/install)。
-
-</Tip>
-
-:::: details OpenAI
-
-安装：
-
-::: code-group
-
-```bash [npm]
-npm i @langchain/openai
-```
-```bash [yarn]
-yarn add @langchain/openai
-```
-```bash [pnpm]
-pnpm add @langchain/openai
-```
-
-:::
-
-添加环境变量：
-
-```bash
-OPENAI_API_KEY=your-api-key
-```
-
-实例化模型：
-
-```typescript
-import { ChatOpenAI } from "@langchain/openai";
-
-const model = new ChatOpenAI({ model: "gpt-4o-mini" });
-```
-```javascript
-await model.invoke("Hello, world!")
-```
-
-::::
-
-:::: details Anthropic
-
-安装：
-
-::: code-group
-
-```bash [npm]
-npm i @langchain/anthropic
-```
-```bash [yarn]
-yarn add @langchain/anthropic
-```
-```bash [pnpm]
-pnpm add @langchain/anthropic
-```
-
-:::
-
-添加环境变量：
-
-```bash
-ANTHROPIC_API_KEY=your-api-key
-```
-
-实例化模型：
-
-```typescript
-import { ChatAnthropic } from "@langchain/anthropic";
-
-const model = new ChatAnthropic({
-model: "claude-3-sonnet-20240620",
-temperature: 0
-});
-```
-```javascript
-await model.invoke("Hello, world!")
-```
-
-::::
-
-:::: details Google Gemini
-
-安装：
-
-::: code-group
-
-```bash [npm]
-npm i @langchain/google-genai
-```
-
-```bash [yarn]
-yarn add @langchain/google-genai
-```
-```bash [pnpm]
-pnpm add @langchain/google-genai
-```
-
-:::
-
-添加环境变量：
-
-```bash
-GOOGLE_API_KEY=your-api-key
-```
-
-实例化模型：
-
-```typescript
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-
-const model = new ChatGoogleGenerativeAI({
-modelName: "gemini-2.5-flash-lite",
-temperature: 0
-});
-```
-```javascript
-await model.invoke("Hello, world!")
-```
-
-::::
-
-:::: details Google VertexAI
-
-安装：
-
-::: code-group
-
-```bash [npm]
-npm i @langchain/google-vertexai
-```
-
-```bash [yarn]
-yarn add @langchain/google-vertexai
-```
-
-```bash [pnpm]
-pnpm add @langchain/google-vertexai
-```
-
-:::
-
-添加环境变量：
-
-```bash
-GOOGLE_APPLICATION_CREDENTIALS=credentials.json
-```
-
-实例化模型：
-
-```typescript
-import { ChatVertexAI } from "@langchain/google-vertexai";
-
-const model = new ChatVertexAI({
-model: "gemini-2.5-flash",
-temperature: 0
-});
-```
-```javascript
-await model.invoke("Hello, world!")
-```
-
-::::
-
-:::: details MistralAI
-
-安装：
-
-::: code-group
-
-```bash [npm]
-npm i @langchain/mistralai
-```
-
-```bash [yarn]
-yarn add @langchain/mistralai
-```
-
-```bash [pnpm]
-pnpm add @langchain/mistralai
-```
-
-:::
-
-添加环境变量：
-
-```bash
-MISTRAL_API_KEY=your-api-key
-```
-
-实例化模型：
-
-```typescript
-import { ChatMistralAI } from "@langchain/mistralai";
-
-const model = new ChatMistralAI({
-model: "mistral-large-latest",
-temperature: 0
-});
-```
-```javascript
-await model.invoke("Hello, world!")
-```
-
-::::
-
-:::: details FireworksAI
-
-安装：
-
-::: code-group
-
-```bash [npm]
-npm i @langchain/community
-```
-
-```bash [yarn]
-yarn add @langchain/community
-```
-
-```bash [pnpm]
-pnpm add @langchain/community
-```
-
-:::
-
-添加环境变量：
-
-```bash
-FIREWORKS_API_KEY=your-api-key
-```
-
-实例化模型：
-
-```typescript
-import { ChatFireworks } from "@langchain/community/chat_models/fireworks";
-
-const model = new ChatFireworks({
-model: "accounts/fireworks/models/llama-v3p1-70b-instruct",
-temperature: 0
-});
-```
-```javascript
-await model.invoke("Hello, world!")
-```
-
-::::
-
-:::: details Groq
-
-安装：
-
-::: code-group
-
-```bash [npm]
-npm i @langchain/groq
-```
-```bash [yarn]
-yarn add @langchain/groq
-```
-```bash [pnpm]
-pnpm add @langchain/groq
-```
-
-:::
-
-添加环境变量：
-
-```bash
-GROQ_API_KEY=your-api-key
-```
-
-实例化模型：
-
-```typescript
-import { ChatGroq } from "@langchain/groq";
-
-const model = new ChatGroq({
-model: "llama-3.3-70b-versatile",
-temperature: 0
-});
-```
-```javascript
-await model.invoke("Hello, world!")
-```
-
-::::
-
-## 特色模型
+## 精选模型
 
 <Info>
 
-<strong>虽然这些 LangChain 类支持所指示的高级功能</strong>，但你可能需要查阅特定提供商的文档，以了解哪些托管模型或后端支持该功能。
+<strong>虽然这些 LangChain 类支持所指示的高级功能</strong>，但您可能需要查阅特定提供商的文档，以了解哪些托管模型或后端支持该功能。
 
 </Info>
 
-| 模型 | 流式传输 | [工具调用](/oss/langchain/tools/) | [`withStructuredOutput()`](/oss/langchain/structured-output#the-.withstructuredoutput-method) | [多模态](/oss/langchain/messages#multimodal) |
-|-|-|-|-|-|
-| [`ChatOpenAI`](/oss/integrations/chat/openai/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatAnthropic`](/oss/integrations/chat/anthropic/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatGoogleGenerativeAI`](/oss/integrations/chat/google_generative_ai/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatVertexAI`](/oss/integrations/chat/google_vertex_ai/) | ✅ | ✅ | ✅ | ✅ |
-| [`BedrockChat`](/oss/integrations/chat/bedrock/) | ✅ | 🟡 (仅限 Bedrock Anthropic) | 🟡 (仅限 Bedrock Anthropic) | 🟡 (仅限 Bedrock Anthropic) |
-| [`ChatBedrockConverse`](/oss/integrations/chat/bedrock_converse/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatCloudflareWorkersAI`](/oss/integrations/chat/cloudflare_workersai/) | ✅ | ❌ | ❌ | ❌ |
-| [`ChatCohere`](/oss/integrations/chat/cohere/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatFireworks`](/oss/integrations/chat/fireworks/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatGroq`](/oss/integrations/chat/groq/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatMistralAI`](/oss/integrations/chat/mistral/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatOllama`](/oss/integrations/chat/ollama/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatTogetherAI`](/oss/integrations/chat/togetherai/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatXAI`](/oss/integrations/chat/xai/) | ✅ | ✅ | ✅ | ❌ |
+| 模型 | [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output/) | [多模态](/oss/python/langchain/messages#multimodal) |
+|-|-|-|-|
+| [`ChatOpenAI`](/oss/python/integrations/chat/openai) | ✅ | ✅ | ✅ |
+| [`ChatAnthropic`](/oss/python/integrations/chat/anthropic) | ✅ | ✅ | ✅ |
+| [`ChatVertexAI`](/oss/python/integrations/chat/google_vertex_ai) (已弃用) | ✅ | ✅ | ✅ |
+| [`ChatGoogleGenerativeAI`](/oss/python/integrations/chat/google_generative_ai) | ✅ | ✅ | ✅ |
+| [`AzureChatOpenAI`](/oss/python/integrations/chat/azure_chat_openai) | ✅ | ✅ | ✅ |
+| [`ChatGroq`](/oss/python/integrations/chat/groq) | ✅ | ✅ | ❌ |
+| [`ChatBedrock`](/oss/python/integrations/chat/bedrock) | ✅ | ✅ | ❌ |
+| [`ChatAmazonNova`](/oss/python/integrations/chat/amazon_nova) | ✅ | ❌ | ✅ |
+| [`ChatHuggingFace`](/oss/python/integrations/chat/huggingface) | ✅ | ✅ | ❌ |
+| [`ChatOllama`](/oss/python/integrations/chat/ollama) | ✅ | ✅ | ❌ |
+| [`ChatWatsonx`](/oss/python/integrations/chat/ibm_watsonx) | ✅ | ✅ | ✅ |
+| [`ChatXAI`](/oss/python/integrations/chat/xai) | ✅ | ✅ | ❌ |
+| [`ChatNVIDIA`](/oss/python/integrations/chat/nvidia_ai_endpoints) | ✅ | ✅ | ✅ |
+| [`ChatCohere`](/oss/python/integrations/chat/cohere) | ✅ | ✅ | ❌ |
+| [`ChatMistralAI`](/oss/python/integrations/chat/mistralai) | ✅ | ✅ | ❌ |
+| [`ChatTogether`](/oss/python/integrations/chat/together) | ✅ | ✅ | ❌ |
+| [`ChatFireworks`](/oss/python/integrations/chat/fireworks) | ✅ | ✅ | ❌ |
+| [`ChatLlamaCpp`](/oss/python/integrations/chat/llamacpp) | ✅ | ✅ | ❌ |
+| [`ChatDatabricks`](/oss/python/integrations/chat/databricks) | ✅ | ✅ | ❌ |
+| [`ChatPerplexity`](/oss/python/integrations/chat/perplexity) | ❌ | ✅ | ✅ |
 
 ## 聊天补全 API
 
-某些模型提供商提供与 OpenAI（旧版）[聊天补全 API](https://platform.openai.com/docs/guides/completions) 兼容的端点。在这种情况下，你可以使用带有自定义 `base_url` 的 [`ChatOpenAI`](/oss/integrations/chat/openai) 来连接到这些端点。请注意，基于聊天补全 API 构建的功能可能不被 `ChatOpenAI` 完全支持；在这种情况下，请考虑使用特定于提供商的类（如果可用）。
+某些模型提供商提供与 OpenAI（旧版）[聊天补全 API](https://platform.openai.com/docs/guides/completions) 兼容的端点。在这种情况下，您可以使用 [`ChatOpenAI`](/oss/python/integrations/chat/openai) 并设置自定义的 `base_url` 来连接到这些端点。请注意，基于聊天补全 API 构建的功能可能无法被 `ChatOpenAI` 完全支持；在这种情况下，如果可用，请考虑使用特定于提供商的类（例如，对于 [LiteLLM](https://litellm.ai/)，可以使用 [`ChatLiteLLM`](https://github.com/Akshay-Dongare/langchain-litellm/)（社区维护））。
 
 :::: details 示例：OpenRouter
 
-要使用 OpenRouter，你需要注册一个账户并获取一个 [API 密钥](https://openrouter.ai/docs/api-reference/authentication)。
+要使用 OpenRouter，您需要注册一个账户并获取一个 [API 密钥](https://openrouter.ai/docs/api-reference/authentication)。
 
-```typescript
-import { ChatOpenAI } from "@langchain/openai";
+```python
+from langchain_openai import ChatOpenAI
 
-const model = new ChatOpenAI({
-    model: "...", // 指定 OpenRouter 上可用的模型
-    configuration: {
-    apiKey: "OPENROUTER_API_KEY",
-    baseURL: "https://openrouter.ai/api/v1",
-    }
-});
+model = ChatOpenAI(
+    model="...",  # 指定 OpenRouter 上可用的模型
+    api_key="OPENROUTER_API_KEY",
+    base_url="https://openrouter.ai/api/v1",
+)
 ```
 
 更多详情请参阅 [OpenRouter 文档](https://openrouter.ai/docs/quickstart)。
+
+<Note>
+
+要捕获[推理令牌](https://openrouter.ai/docs/use-cases/reasoning-tokens)，
+
+1. 将导入从 `langchain_openai` 切换到 `langchain_deepseek`
+2. 使用 `ChatDeepSeek` 代替 `ChatOpenAI`。您需要将参数 `base_url` 改为 `api_base`。
+3. 根据需要调整 `extra_body` 下的推理参数，例如：
+
+```python
+model = ChatDeepSeek(
+    model="...",
+    api_key="...",
+    api_base="https://openrouter.ai/api/v1",
+    extra_body={"reasoning": {"enabled": True}},
+)
+```
+
+这是 `ChatOpenAI` 的一个已知限制，将在未来的版本中解决。
+
+</Note>
 
 ::::
 
 ## 所有聊天模型
 
 <Columns :cols="3">
-
 <Card
-title="Alibaba Tongyi"
+title="Abso"
 icon="link"
-href="/oss/integrations/chat/alibaba_tongyi"
+href="/oss/integrations/chat/abso"
 arrow="true"
 cta="查看指南"
 />
+<Card
+title="AI21 Labs"
+icon="link"
+href="/oss/integrations/chat/ai21"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="AI/ML API"
+icon="link"
+href="/oss/integrations/chat/aimlapi"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="Alibaba Cloud PAI EAS"
+icon="link"
+href="/oss/integrations/chat/alibaba_cloud_pai_eas"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="Amazon Nova"
+icon="link"
+href="/oss/integrations/chat/amazon_nova"
+arrow="true"
+cta="查看指南"
+/>
+
 <Card
 title="Anthropic"
 icon="link"
@@ -362,41 +127,63 @@ href="/oss/integrations/chat/anthropic"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Arcjet Redact"
+title="AzureAIChatCompletionsModel"
 icon="link"
-href="/oss/integrations/chat/arcjet"
+href="/oss/integrations/chat/azure_ai"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
 title="Azure OpenAI"
 icon="link"
-href="/oss/integrations/chat/azure"
+href="/oss/integrations/chat/azure_chat_openai"
 arrow="true"
 cta="查看指南"
 />
+
+<Card
+title="Azure ML Endpoint"
+icon="link"
+href="/oss/integrations/chat/azureml_chat_endpoint"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="Baichuan Chat"
+icon="link"
+href="/oss/integrations/chat/baichuan"
+arrow="true"
+cta="查看指南"
+/>
+
 <Card
 title="Baidu Qianfan"
 icon="link"
-href="/oss/integrations/chat/baidu_qianfan"
+href="/oss/integrations/chat/baidu_qianfan_endpoint"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Amazon Bedrock"
+title="Baseten"
+icon="link"
+href="/oss/integrations/chat/baseten"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="AWS Bedrock"
 icon="link"
 href="/oss/integrations/chat/bedrock"
 arrow="true"
 cta="查看指南"
 />
-<Card
-title="Amazon Bedrock Converse"
-icon="link"
-href="/oss/integrations/chat/bedrock_converse"
-arrow="true"
-cta="查看指南"
-/>
+
 <Card
 title="Cerebras"
 icon="link"
@@ -404,13 +191,15 @@ href="/oss/integrations/chat/cerebras"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Cloudflare Workers AI"
+title="CloudflareWorkersAI"
 icon="link"
 href="/oss/integrations/chat/cloudflare_workersai"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
 title="Cohere"
 icon="link"
@@ -418,13 +207,47 @@ href="/oss/integrations/chat/cohere"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Deep Infra"
+title="ContextualAI"
 icon="link"
-href="/oss/integrations/chat/deep_infra"
+href="/oss/integrations/chat/contextual"
 arrow="true"
 cta="查看指南"
 />
+
+<Card
+title="Coze Chat"
+icon="link"
+href="/oss/integrations/chat/coze"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="Dappier AI"
+icon="link"
+href="/oss/integrations/chat/dappier"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="Databricks"
+icon="link"
+href="/oss/integrations/chat/databricks"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="DeepInfra"
+icon="link"
+href="/oss/integrations/chat/deepinfra"
+arrow="true"
+cta="查看指南"
+/>
+
 <Card
 title="DeepSeek"
 icon="link"
@@ -432,13 +255,31 @@ href="/oss/integrations/chat/deepseek"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Fake LLM"
+title="Eden AI"
 icon="link"
-href="/oss/integrations/chat/fake"
+href="/oss/integrations/chat/edenai"
 arrow="true"
 cta="查看指南"
 />
+
+<Card
+title="EverlyAI"
+icon="link"
+href="/oss/integrations/chat/everlyai"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="Featherless AI"
+icon="link"
+href="/oss/integrations/chat/featherless_ai"
+arrow="true"
+cta="查看指南"
+/>
+
 <Card
 title="Fireworks"
 icon="link"
@@ -446,27 +287,55 @@ href="/oss/integrations/chat/fireworks"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Friendli"
+title="ChatFriendli"
 icon="link"
 href="/oss/integrations/chat/friendli"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Google GenAI"
+title="Google Gemini"
 icon="link"
 href="/oss/integrations/chat/google_generative_ai"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Google Vertex AI"
+title="Google Cloud Vertex AI"
 icon="link"
 href="/oss/integrations/chat/google_vertex_ai"
 arrow="true"
 cta="查看指南"
 />
+
+<Card
+title="GPTRouter"
+icon="link"
+href="/oss/integrations/chat/gpt_router"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="DigitalOcean Gradient"
+icon="link"
+href="/oss/integrations/chat/gradientai"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="GreenNode"
+icon="link"
+href="/oss/integrations/chat/greennode"
+arrow="true"
+cta="查看指南"
+/>
+
 <Card
 title="Groq"
 icon="link"
@@ -474,34 +343,127 @@ href="/oss/integrations/chat/groq"
 arrow="true"
 cta="查看指南"
 />
+
+<Card
+title="ChatHuggingFace"
+icon="link"
+href="/oss/integrations/chat/huggingface"
+arrow="true"
+cta="查看指南"
+/>
+
 <Card
 title="IBM watsonx.ai"
 icon="link"
-href="/oss/integrations/chat/ibm"
+href="/oss/integrations/chat/ibm_watsonx"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Llama CPP"
+title="JinaChat"
 icon="link"
-href="/oss/integrations/chat/llama_cpp"
+href="/oss/integrations/chat/jinachat"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Minimax"
+title="Kinetica"
+icon="link"
+href="/oss/integrations/chat/kinetica"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="Konko"
+icon="link"
+href="/oss/integrations/chat/konko"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="LiteLLM"
+icon="link"
+href="/oss/integrations/chat/litellm"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="Llama 2 Chat"
+icon="link"
+href="/oss/integrations/chat/llama2_chat"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="Llama API"
+icon="link"
+href="/oss/integrations/chat/llama_api"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="LlamaEdge"
+icon="link"
+href="/oss/integrations/chat/llama_edge"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="Llama.cpp"
+icon="link"
+href="/oss/integrations/chat/llamacpp"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="maritalk"
+icon="link"
+href="/oss/integrations/chat/maritalk"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="MiniMax"
 icon="link"
 href="/oss/integrations/chat/minimax"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
 title="MistralAI"
 icon="link"
-href="/oss/integrations/chat/mistral"
+href="/oss/integrations/chat/mistralai"
 arrow="true"
 cta="查看指南"
 />
+
+<Card
+title="MLX"
+icon="link"
+href="/oss/integrations/chat/mlx"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="ModelScope"
+icon="link"
+href="/oss/integrations/chat/modelscope_chat_endpoint"
+arrow="true"
+cta="查看指南"
+/>
+
 <Card
 title="Moonshot"
 icon="link"
@@ -509,13 +471,63 @@ href="/oss/integrations/chat/moonshot"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Novita AI"
+title="Naver"
 icon="link"
-href="/oss/integrations/chat/novita"
+href="/oss/integrations/chat/naver"
 arrow="true"
 cta="查看指南"
 />
+
+<Card
+title="Nebius"
+icon="link"
+href="/oss/integrations/chat/nebius"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="Netmind"
+icon="link"
+href="/oss/integrations/chat/netmind"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="NVIDIA AI Endpoints"
+icon="link"
+href="/oss/integrations/chat/nvidia_ai_endpoints"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="ChatOCIModelDeployment"
+icon="link"
+href="/oss/integrations/chat/oci_data_science"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="OCIGenAI"
+icon="link"
+href="/oss/integrations/chat/oci_generative_ai"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="ChatOctoAI"
+icon="link"
+href="/oss/integrations/chat/octoai"
+arrow="true"
+cta="查看指南"
+/>
+
 <Card
 title="Ollama"
 icon="link"
@@ -523,6 +535,7 @@ href="/oss/integrations/chat/ollama"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
 title="OpenAI"
 icon="link"
@@ -530,6 +543,15 @@ href="/oss/integrations/chat/openai"
 arrow="true"
 cta="查看指南"
 />
+
+<Card
+title="Outlines"
+icon="link"
+href="/oss/integrations/chat/outlines"
+arrow="true"
+cta="查看指南"
+/>
+
 <Card
 title="Perplexity"
 icon="link"
@@ -537,6 +559,23 @@ href="/oss/integrations/chat/perplexity"
 arrow="true"
 cta="查看指南"
 />
+
+<Card
+title="Pipeshift"
+icon="link"
+href="/oss/integrations/chat/pipeshift"
+arrow="true"
+cta="查看指南"
+/>
+
+<Card
+title="ChatPredictionGuard"
+icon="link"
+href="/oss/integrations/chat/predictionguard"
+arrow="true"
+cta="查看指南"
+/>
+
 <Card
 title="PremAI"
 icon="link"
@@ -544,54 +583,33 @@ href="/oss/integrations/chat/premai"
 arrow="true"
 cta="查看指南"
 />
+
 <Card
-title="Tencent Hunyuan"
+title="PromptLayer ChatOpenAI"
 icon="link"
-href="/oss/integrations/chat/tencent_hunyuan"
-arrow="true"
-cta="查看指南"
-/>
-<Card
-title="Together"
-icon="link"
-href="/oss/integrations/chat/togetherai"
-arrow="true"
-cta="查看指南"
-/>
-<Card
-title="WebLLM"
-icon="link"
-href="/oss/integrations/chat/web_llm"
-arrow="true"
-cta="查看指南"
-/>
-<Card
-title="xAI"
-icon="link"
-href="/oss/integrations/chat/xai"
-arrow="true"
-cta="查看指南"
-/>
-<Card
-title="YandexGPT"
-icon="link"
-href="/oss/integrations/chat/yandex"
-arrow="true"
-cta="查看指南"
-/>
-<Card
-title="ZhipuAI"
-icon="link"
-href="/oss/integrations/chat/zhipuai"
+href="/oss/integrations/chat/promptlayer_chatopenai"
 arrow="true"
 cta="查看指南"
 />
 
-</Columns>
+<Card
+title="Qwen QwQ"
+icon="link"
+href="/oss/integrations/chat/qwq"
+arrow="true"
+cta="查看指南"
+/>
 
-<Info>
+<Card
+title="Qwen"
+icon="link"
+href="/oss/integrations/chat/qwen"
+arrow="true"
+cta="查看指南"
+/>
 
-如果你想贡献一个集成，请参阅[贡献集成](/oss/contributing#add-a-new-integration)。
-
-</Info>
-
+<Card
+title="Reka"
+icon="link"
+href="/oss/integrations/chat/reka"
+arrow="true"

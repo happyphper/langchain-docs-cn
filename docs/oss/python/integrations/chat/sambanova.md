@@ -1,7 +1,7 @@
 ---
 title: ChatSambaNova
 ---
-这将帮助您开始使用 SambaNova [聊天模型](/oss/langchain/models/)。有关 `ChatSambaNova` 所有功能和配置的详细文档，请参阅 [API 参考](https://docs.sambanova.ai/cloud/docs/get-started/overview)。
+这将帮助您开始使用 SambaNova [聊天模型](/oss/python/langchain/models/)。有关 `ChatSambaNova` 所有功能和配置的详细文档，请参阅 [API 参考](https://docs.sambanova.ai/cloud/docs/get-started/overview)。
 
 **[SambaNova](https://sambanova.ai/)** 的 [SambaCloud](http://cloud.sambanova.ai?utm_source=langchain&utm_medium=external&utm_campaign=cloud_signup) 是一个使用开源模型进行推理的云平台。
 
@@ -11,11 +11,11 @@ title: ChatSambaNova
 
 | 类 | 包 | 可序列化 | JS 支持 | 下载量 | 版本 |
 | :--- | :--- | :---: |  :---: | :---: | :---: |
-| [`ChatSambaNova`](https://docs.sambanova.ai/cloud/docs/get-started/overview) | [`langchain-sambanova`](/oss/integrations/providers/sambanova/) | beta | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain_sambanova?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain_sambanova?style=flat-square&label=%20) |
+| [`ChatSambaNova`](https://docs.sambanova.ai/cloud/docs/get-started/overview) | [`langchain-sambanova`](/oss/python/integrations/providers/sambanova/) | beta | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain_sambanova?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain_sambanova?style=flat-square&label=%20) |
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/python/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/python/langchain/models#token-usage) | [Logprobs](/oss/python/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
 

@@ -26,7 +26,7 @@ uv add deepeval
 
 ## 回调函数
 
-查看一个[示例](/oss/integrations/callbacks/confident)。
+查看一个[示例](/oss/javascript/integrations/callbacks/confident)。
 
 ```python
 from langchain.callbacks.confident_callback import DeepEvalCallbackHandler

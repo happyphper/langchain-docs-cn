@@ -1,47 +1,47 @@
 ---
-title: Google Trends 工具
+title: 谷歌趋势
 ---
-Google Trends 工具允许您的智能体通过 SerpApi 的 Google Trends API 来获取和分析搜索兴趣数据。
-这对于了解热门话题、区域搜索兴趣以及搜索词的历史流行度非常有用。
+本笔记本将介绍如何使用 Google Trends 工具获取趋势信息。
 
-有关 API 详情，请参见[此处](https://serpapi.com/google-trends-api)。
+首先，您需要在 [serpapi.com/users/sign_up](https://serpapi.com/users/sign_up) 注册一个 `SerpApi key`。
 
-SerpApi 会缓存查询，因此首次查询会较慢，而后续相同的查询会很快。
-偶尔，相关查询可能无法工作，而随时间变化的兴趣数据则正常。您可以在此处[检查您的查询](https://serpapi.com/playground?engine=google_trends&q=monster&data_type=RELATED_QUERIES)。
+然后，您必须使用以下命令安装 `google-search-results`：
 
-## 设置
+`pip install google-search-results`
 
-要使用此工具，您需要配置对 SerpApi 的 Google Trends API 的访问权限。
+接着，您需要将环境变量 `SERPAPI_API_KEY` 设置为您的 `SerpApi key`。
 
-从 [SerpApi](https://serpapi.com/users/sign_in) 获取 API 密钥。
+[或者，您可以将密钥作为参数传递给包装器 `serp_api_key="your secret key"`]
 
-然后，将您的 API 密钥设置为 `process.env.SERPAPI_API_KEY` 或作为 `apiKey` 构造函数参数传入。
+## 使用工具
 
-## 用法
-
-<Tip>
-
-有关安装 LangChain 包的通用说明，请参见[此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/openai @langchain/community @langchain/core
+```python
+pip install -qU  google-search-results langchain_community
 ```
 
-```typescript
-import { SERPGoogleTrendsTool } from "@langchain/community/tools/google_trends";
-
-export async function run() {
-  const tool = new SERPGoogleTrendsTool();
-
-  const res = await tool.invoke("Monster");
-
-  console.log(res);
-}
+```text
+Requirement already satisfied: google-search-results in c:\python311\lib\site-packages (2.4.2)
+Requirement already satisfied: requests in c:\python311\lib\site-packages (from google-search-results) (2.31.0)
+Requirement already satisfied: charset-normalizer<4,>=2 in c:\python311\lib\site-packages (from requests->google-search-results) (3.3.2)
+Requirement already satisfied: idna<4,>=2.5 in c:\python311\lib\site-packages (from requests->google-search-results) (3.4)
+Requirement already satisfied: urllib3<3,>=1.21.1 in c:\python311\lib\site-packages (from requests->google-search-results) (2.1.0)
+Requirement already satisfied: certifi>=2017.4.17 in c:\python311\lib\site-packages (from requests->google-search-results) (2023.7.22)
 ```
 
-## 相关
+```python
+import os
 
-- 工具[概念指南](/oss/langchain/tools)
-- 工具[操作指南](/oss/langchain/tools)
+from langchain_community.tools.google_trends import GoogleTrendsQueryRun
+from langchain_community.utilities.google_trends import GoogleTrendsAPIWrapper
+
+os.environ["SERPAPI_API_KEY"] = ""
+tool = GoogleTrendsQueryRun(api_wrapper=GoogleTrendsAPIWrapper())
+```
+
+```python
+tool.run("Water")
+```
+
+```text
+'Query: Water\nDate From: Nov 20, 2022\nDate To: Nov 11, 2023\nMin Value: 72\nMax Value: 100\nAverage Value: 84.25490196078431\nPrecent Change: 5.555555555555555%\nTrend values: 72, 72, 74, 77, 86, 80, 82, 88, 79, 79, 85, 82, 81, 84, 83, 77, 80, 85, 82, 80, 88, 84, 82, 84, 83, 85, 92, 92, 100, 92, 100, 96, 94, 95, 94, 98, 96, 84, 86, 84, 85, 83, 83, 76, 81, 85, 78, 77, 81, 75, 76\nRising Related Queries: avatar way of water, avatar the way of water, owala water bottle, air up water bottle, lake mead water level\nTop Related Queries: water park, water bottle, water heater, water filter, water tank, water bill, water world, avatar way of water, avatar the way of water, coconut water, deep water, water cycle, water dispenser, water purifier, water pollution, distilled water, hot water heater, water cooler, sparkling water, american water, micellar water, density of water, tankless water heater, tonic water, water jug'
+```

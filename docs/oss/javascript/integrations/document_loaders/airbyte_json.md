@@ -1,7 +1,7 @@
 ---
 title: Airbyte JSON（已弃用）
 ---
-注意：`AirbyteJSONLoader` 已弃用。请改用 [`AirbyteLoader`](/oss/integrations/document_loaders/airbyte)。
+注意：`AirbyteJSONLoader` 已弃用。请改用 [`AirbyteLoader`](/oss/javascript/integrations/document_loaders/airbyte)。
 
 >[Airbyte](https://github.com/airbytehq/airbyte) 是一个数据集成平台，用于将来自 API、数据库和文件的 ELT 管道同步到数据仓库和数据湖。它拥有连接数据仓库和数据库的最大 ELT 连接器目录。
 

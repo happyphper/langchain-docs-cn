@@ -23,7 +23,7 @@ uv add trubrics
 
 ## 回调函数
 
-查看 [使用示例](/oss/integrations/callbacks/trubrics)。
+查看 [使用示例](/oss/javascript/integrations/callbacks/trubrics)。
 
 ```python
 from langchain.callbacks import TrubricsCallbackHandler

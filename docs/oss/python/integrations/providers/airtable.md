@@ -23,4 +23,4 @@ pip install pyairtable
 from langchain_community.document_loaders import AirtableLoader
 ```
 
-查看一个[示例](/oss/integrations/document_loaders/airtable)。
+查看一个[示例](/oss/python/integrations/document_loaders/airtable)。

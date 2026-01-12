@@ -27,7 +27,7 @@ uv add langchain-pinecone
 from langchain_pinecone import PineconeVectorStore
 ```
 
-关于 Pinecone 向量存储的更详细演练，请参阅 [此笔记本](/oss/integrations/vectorstores/pinecone)
+关于 Pinecone 向量存储的更详细演练，请参阅 [此笔记本](/oss/javascript/integrations/vectorstores/pinecone)
 
 ### 稀疏向量存储
 
@@ -47,7 +47,7 @@ vector_store.add_documents(documents)
 results = vector_store.similarity_search("your query", k=3)
 ```
 
-更详细的演练，请参阅 [Pinecone 稀疏向量存储笔记本](/oss/integrations/vectorstores/pinecone_sparse)。
+更详细的演练，请参阅 [Pinecone 稀疏向量存储笔记本](/oss/javascript/integrations/vectorstores/pinecone_sparse)。
 
 ### 稀疏嵌入
 
@@ -68,7 +68,7 @@ docs = ["Document 1 content", "Document 2 content"]
 doc_embeddings = sparse_embeddings.embed_documents(docs)
 ```
 
-更详细的使用方法，请参阅 [Pinecone 稀疏嵌入笔记本](/oss/integrations/vectorstores/pinecone_sparse)。
+更详细的使用方法，请参阅 [Pinecone 稀疏嵌入笔记本](/oss/javascript/integrations/vectorstores/pinecone_sparse)。
 
 ## 检索器
 
@@ -92,7 +92,7 @@ from langchain_community.retrievers import (
 )
 ```
 
-更详细的信息，请参阅 [此笔记本](/oss/integrations/retrievers/pinecone_hybrid_search)。
+更详细的信息，请参阅 [此笔记本](/oss/javascript/integrations/retrievers/pinecone_hybrid_search)。
 
 ### 自查询检索器
 

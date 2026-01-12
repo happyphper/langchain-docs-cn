@@ -3,7 +3,7 @@ title: AzureChatOpenAI
 ---
 Azure OpenAI 是微软 Azure 的一项服务，提供来自 OpenAI 的强大语言模型。
 
-本文将帮助你开始使用 AzureChatOpenAI [聊天模型](/oss/langchain/models)。有关 AzureChatOpenAI 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_openai.AzureChatOpenAI.html)。
+本文将帮助你开始使用 AzureChatOpenAI [聊天模型](/oss/python/langchain/models)。有关 AzureChatOpenAI 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_openai.AzureChatOpenAI.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ Azure OpenAI 是微软 Azure 的一项服务，提供来自 OpenAI 的强大语�
 
 请参阅下表标题中的链接，了解如何使用特定功能的指南。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/python/langchain/streaming/) | [令牌使用量](/oss/python/langchain/models#token-usage) | [对数概率](/oss/python/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
 

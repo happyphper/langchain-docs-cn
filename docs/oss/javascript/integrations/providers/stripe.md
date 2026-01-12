@@ -5,11 +5,11 @@ title: Stripe
 
 ## 安装与设置
 
-请参阅[设置说明](/oss/integrations/document_loaders/stripe)。
+请参阅[设置说明](/oss/javascript/integrations/document_loaders/stripe)。
 
 ## 文档加载器
 
-请参阅[使用示例](/oss/integrations/document_loaders/stripe)。
+请参阅[使用示例](/oss/javascript/integrations/document_loaders/stripe)。
 
 ```python
 from langchain_community.document_loaders import StripeLoader

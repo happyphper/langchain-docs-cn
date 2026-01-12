@@ -11,7 +11,7 @@ title: ChatCerebras
 
 我们的 CS-3 系统可以快速、轻松地集群化，构建出世界上最大的 AI 超级计算机，从而简化大型模型的部署和运行。领先的企业、研究机构和政府已经在使用 Cerebras 解决方案来开发专有模型并训练流行的开源模型。
 
-本文将帮助您开始使用 ChatCerebras [聊天模型](/oss/langchain/models)。有关 ChatCerebras 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_cerebras.ChatCerebras.html)。
+本文将帮助您开始使用 ChatCerebras [聊天模型](/oss/javascript/langchain/models)。有关 ChatCerebras 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_cerebras.ChatCerebras.html)。
 
 ## 概述
 
@@ -25,7 +25,7 @@ title: ChatCerebras
 
 有关如何使用特定功能的指南，请参阅下表表头中的链接。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
 

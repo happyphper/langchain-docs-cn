@@ -25,4 +25,4 @@ uv add langchain-graph-retriever
 from langchain_graph_retriever import GraphRetriever
 ```
 
-更多信息，请参阅 [Graph RAG 集成指南](/oss/integrations/retrievers/graph_rag)。
+更多信息，请参阅 [Graph RAG 集成指南](/oss/python/integrations/retrievers/graph_rag)。

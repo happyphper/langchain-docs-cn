@@ -12,7 +12,7 @@ title: 百度
 
 ### 百度千帆
 
-查看 [使用示例](/oss/integrations/llms/baidu_qianfan_endpoint)。
+查看 [使用示例](/oss/python/integrations/llms/baidu_qianfan_endpoint)。
 
 ```python
 from langchain_community.llms import QianfanLLMEndpoint
@@ -22,8 +22,8 @@ from langchain_community.llms import QianfanLLMEndpoint
 
 ### 千帆聊天端点
 
-查看 [使用示例](/oss/integrations/chat/baidu_qianfan_endpoint)。
-查看另一个 [使用示例](/oss/integrations/chat/ernie)。
+查看 [使用示例](/oss/python/integrations/chat/baidu_qianfan_endpoint)。
+查看另一个 [使用示例](/oss/python/integrations/chat/ernie)。
 
 ```python
 from langchain_community.chat_models import QianfanChatEndpoint
@@ -33,8 +33,8 @@ from langchain_community.chat_models import QianfanChatEndpoint
 
 ### 百度千帆
 
-查看 [使用示例](/oss/integrations/text_embedding/baidu_qianfan_endpoint)。
-查看另一个 [使用示例](/oss/integrations/text_embedding/ernie)。
+查看 [使用示例](/oss/python/integrations/text_embedding/baidu_qianfan_endpoint)。
+查看另一个 [使用示例](/oss/python/integrations/text_embedding/ernie)。
 
 ```python
 from langchain_community.embeddings import QianfanEmbeddingsEndpoint
@@ -58,7 +58,7 @@ from langchain_community.document_loaders.baiducloud_bos_file import BaiduBOSFil
 
 ### 百度云 ElasticSearch 向量搜索
 
-查看 [使用示例](/oss/integrations/vectorstores/baiducloud_vector_search)。
+查看 [使用示例](/oss/python/integrations/vectorstores/baiducloud_vector_search)。
 
 ```python
 from langchain_community.vectorstores import BESVectorStore
@@ -66,7 +66,7 @@ from langchain_community.vectorstores import BESVectorStore
 
 ### 百度向量数据库
 
-查看 [使用示例](/oss/integrations/vectorstores/baiduvectordb)。
+查看 [使用示例](/oss/python/integrations/vectorstores/baiduvectordb)。
 
 ```python
 from langchain_community.vectorstores import BaiduVectorDB

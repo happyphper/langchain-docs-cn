@@ -30,7 +30,7 @@ uv add sqlalchemy
 
 ## VectorStore
 
-查看 [使用示例](/oss/integrations/vectorstores/analyticdb)。
+查看 [使用示例](/oss/javascript/integrations/vectorstores/analyticdb)。
 
 ```python
 from langchain_community.vectorstores import AnalyticDB

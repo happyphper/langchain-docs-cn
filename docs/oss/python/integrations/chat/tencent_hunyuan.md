@@ -1,152 +1,63 @@
 ---
-title: ChatTencentHunyuan
+title: 腾讯混元
 ---
-LangChain.js 支持腾讯混元系列模型。
+>[腾讯的混元模型 API](https://cloud.tencent.com/document/product/1729) (`Hunyuan API`)
+> 实现了对话沟通、内容生成、分析理解等功能，可广泛应用于智能客服、智能营销、角色扮演、广告文案、产品描述、剧本创作、简历生成、文章写作、代码生成、数据分析、内容分析等多种场景。
 
-https://cloud.tencent.com/document/product/1729/104753
+更多详情请参阅[更多信息](https://cloud.tencent.com/document/product/1729)。
 
-## 设置
-
-1. 在此处注册腾讯云账号 [here](https://cloud.tencent.com/register)。
-2. 在此处创建 SecretID 和 SecretKey [here](https://console.cloud.tencent.com/cam/capi)。
-3. 将 SecretID 和 SecretKey 分别设置为名为 `TENCENT_SECRET_ID` 和 `TENCENT_SECRET_KEY` 的环境变量。
-
-<Tip>
-
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/community @langchain/core
-```
-如果您在浏览器环境中使用 LangChain.js，还需要安装以下依赖项：
-
-```bash [npm]
-npm install crypto-js
+```python
+from langchain_community.chat_models import ChatHunyuan
+from langchain.messages import HumanMessage
 ```
 
-然后确保按照下面的示例从 `web` 导入。
-
-## 用法
-
-以下是一个示例：
-
-```typescript
-// 在 nodejs 环境中
-import { ChatTencentHunyuan } from "@langchain/community/chat_models/tencent_hunyuan";
-
-// 在浏览器环境中
-// import { ChatTencentHunyuan } from "@langchain/community/chat_models/tencent_hunyuan/web";
-
-import { HumanMessage } from "@langchain/core/messages";
-import type { LLMResult } from "@langchain/core/outputs";
-
-const messages = [new HumanMessage("Hello")];
-
-// 默认模型是 hunyuan-pro
-const hunyuanPro = new ChatTencentHunyuan({
-  streaming: false,
-  temperature: 1,
-});
-
-let res = await hunyuanPro.invoke(messages);
-console.log(res);
-/*
-AIMessage {
-  content: 'Hello! How can I help you today?Is there anything I can do for you?',
-  name: undefined,
-  additional_kwargs: {},
-  response_metadata: {
-    tokenUsage: { totalTokens: 20, promptTokens: 1, completionTokens: 19 }
-  },
-  tool_calls: [],
-  invalid_tool_calls: []
-}
-*/
-
-// 使用 hunyuan-lite
-const hunyuanLite = new ChatTencentHunyuan({
-  model: "hunyuan-lite",
-  streaming: false,
-});
-
-res = await hunyuanLite.invoke(messages);
-console.log(res);
-/*
-AIMessage {
-  content: '你好！很高兴为你提供服务~有什么我可以帮助你的吗？',
-  name: undefined,
-  additional_kwargs: {},
-  response_metadata: {
-    tokenUsage: { totalTokens: 14, promptTokens: 1, completionTokens: 13 }
-  },
-  tool_calls: [],
-  invalid_tool_calls: []
-}
-*/
-
-// 使用 hunyuan-lite 并开启流式输出
-const hunyuanLiteStream = new ChatTencentHunyuan({
-  model: "hunyuan-lite",
-  streaming: true,
-  temperature: 1,
-});
-
-hunyuanLiteStream.invoke(messages, {
-  callbacks: [
-    {
-      handleLLMEnd(output: LLMResult) {
-        console.log(output);
-        /*
-        {
-          generations: [
-            [
-              [Object], [Object],
-              [Object], [Object],
-              [Object], [Object],
-              [Object], [Object],
-              [Object]
-            ]
-          ],
-          llmOutput: {
-            tokenUsage: { totalTokens: 9, promptTokens: 1, completionTokens: 8 }
-          }
-        }
-      */
-      },
-      handleLLMNewToken(token: string) {
-        console.log(`token: ${token}`);
-        /*
-        token: 你好
-        token: ！
-        token: 很高兴
-        token: 能
-        token: 为您
-        token: 解答
-        token: 问题
-        token: 和建议
-        token: 方案
-        token: .
-        token:  如果您
-        token: 有其他
-        token: 需要帮助
-        token: 的地方
-        token: ,
-        token:
-        token: 随时
-        token: 告诉我
-        token: 哦
-        token: ~
-        token:
-        */
-      },
-    },
-  ],
-});
+```python
+chat = ChatHunyuan(
+    hunyuan_app_id=111111111,
+    hunyuan_secret_id="YOUR_SECRET_ID",
+    hunyuan_secret_key="YOUR_SECRET_KEY",
+)
 ```
 
-## 相关
+```python
+chat(
+    [
+        HumanMessage(
+            content="You are a helpful assistant that translates English to French.Translate this sentence from English to French. I love programming."
+        )
+    ]
+)
+```
 
-- 聊天模型 [概念指南](/oss/langchain/models)
-- 聊天模型 [操作指南](/oss/langchain/models)
+```text
+AIMessage(content="J'aime programmer.")
+```
+
+## 使用 ChatHunyuan 进行流式输出
+
+```python
+chat = ChatHunyuan(
+    hunyuan_app_id="YOUR_APP_ID",
+    hunyuan_secret_id="YOUR_SECRET_ID",
+    hunyuan_secret_key="YOUR_SECRET_KEY",
+    streaming=True,
+)
+```
+
+```python
+chat(
+    [
+        HumanMessage(
+            content="You are a helpful assistant that translates English to French.Translate this sentence from English to French. I love programming."
+        )
+    ]
+)
+```
+
+```text
+AIMessageChunk(content="J'aime programmer.")
+```
+
+```python
+
+```

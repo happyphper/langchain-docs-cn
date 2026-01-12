@@ -4,7 +4,7 @@ title: （已弃用）实验性 Anthropic 工具封装器
 
 <Warning>
 
-<strong>Anthropic API 现已正式支持工具调用功能，因此不再需要此变通方案。请使用 [ChatAnthropic](/oss/integrations/chat/anthropic) 并确保 `langchain-anthropic>=0.1.15`。</strong>
+<strong>Anthropic API 现已正式支持工具调用功能，因此不再需要此变通方案。请使用 [ChatAnthropic](/oss/python/integrations/chat/anthropic) 并确保 `langchain-anthropic>=0.1.15`。</strong>
 
 </Warning>
 
@@ -40,7 +40,7 @@ AIMessage(content='', additional_kwargs={'tool_calls': [{'function': {'name': 'P
 
 ## 结构化输出
 
-`ChatAnthropicTools` 也实现了 [`with_structured_output` 规范](/oss/langchain/structured-output) 用于提取值。注意：这可能不如明确提供工具调用的模型稳定。
+`ChatAnthropicTools` 也实现了 [`with_structured_output` 规范](/oss/python/langchain/structured-output) 用于提取值。注意：这可能不如明确提供工具调用的模型稳定。
 
 ```python
 chain = ChatAnthropicTools(model="claude-3-opus-20240229").with_structured_output(

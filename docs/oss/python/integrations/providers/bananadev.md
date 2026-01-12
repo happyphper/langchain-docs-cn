@@ -70,4 +70,4 @@ def handler(context: dict, request: Request) -> Response:
 from langchain_community.llms import Banana
 ```
 
-查看 [使用示例](/oss/integrations/llms/banana)。
+查看 [使用示例](/oss/python/integrations/llms/banana)。

@@ -28,7 +28,7 @@ export SGAI_API_KEY="your-scrapegraph-api-key"
 
 ## 工具
 
-查看[使用示例](/oss/integrations/tools/scrapegraph)。
+查看[使用示例](/oss/javascript/integrations/tools/scrapegraph)。
 
 目前有四个可用的工具：
 

@@ -17,7 +17,7 @@ title: 短期记忆
 
 即使你的模型支持完整的上下文长度，大多数 LLM 在处理长上下文时表现仍然不佳。它们会被过时或离题的内容“分散注意力”，同时还会遭受响应时间变慢和成本更高的困扰。
 
-聊天模型使用[消息（messages）](/oss/langchain/messages)来接受上下文，这些消息包括指令（系统消息）和输入（人类消息）。在聊天应用中，消息在人类输入和模型响应之间交替，导致消息列表随时间推移而变长。由于上下文窗口有限，许多应用可以通过使用技术来移除或“遗忘”过时信息而受益。
+聊天模型使用[消息（messages）](/oss/python/langchain/messages)来接受上下文，这些消息包括指令（系统消息）和输入（人类消息）。在聊天应用中，消息在人类输入和模型响应之间交替，导致消息列表随时间推移而变长。由于上下文窗口有限，许多应用可以通过使用技术来移除或“遗忘”过时信息而受益。
 
 ## 使用方法
 
@@ -207,7 +207,7 @@ If you'd like me to call you a nickname or use a different name, just say the wo
 
 要从图状态中删除消息，可以使用 `RemoveMessage`。
 
-要使 `RemoveMessage` 生效，你需要使用带有 <a href="https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.message.add_messages" target="_blank" rel="noreferrer" class="link"><code>add_messages</code></a> [归约器（reducer）](/oss/langgraph/graph-api#reducers)的状态键。
+要使 `RemoveMessage` 生效，你需要使用带有 <a href="https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.message.add_messages" target="_blank" rel="noreferrer" class="link"><code>add_messages</code></a> [归约器（reducer）](/oss/python/langgraph/graph-api#reducers)的状态键。
 
 默认的 <a href="https://reference.langchain.com/python/langchain/agents/#langchain.agents.AgentState" target="_blank" rel="noreferrer" class="link"><code>AgentState</code></a> 提供了这个功能。
 

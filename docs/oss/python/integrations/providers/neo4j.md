@@ -20,7 +20,7 @@ Neo4j 向量索引被用作向量存储，无论是用于语义搜索还是示�
 from langchain_neo4j import Neo4jVector
 ```
 
-查看 [使用示例](/oss/integrations/vectorstores/neo4jvector)
+查看 [使用示例](/oss/python/integrations/vectorstores/neo4jvector)
 
 ## GraphCypherQAChain
 
@@ -30,7 +30,7 @@ from langchain_neo4j import Neo4jVector
 from langchain_neo4j import GraphCypherQAChain, Neo4jGraph
 ```
 
-查看 [使用示例](/oss/integrations/graphs/neo4j_cypher)
+查看 [使用示例](/oss/python/integrations/graphs/neo4j_cypher)
 
 ## 从文本构建知识图谱
 
@@ -44,4 +44,4 @@ from langchain_neo4j import Neo4jGraph
 from langchain_experimental.graph_transformers.diffbot import DiffbotGraphTransformer
 ```
 
-查看 [使用示例](/oss/integrations/graphs/diffbot)
+查看 [使用示例](/oss/python/integrations/graphs/diffbot)

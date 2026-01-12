@@ -16,6 +16,6 @@ sidebarTitle: Deployment
 
 ### 1. 在 GitHub 上创建仓库
 
-你的应用程序代码必须存放在 GitHub 仓库中，才能在 LangSmith 上部署。支持公共和私有仓库。对于本快速入门，请首先按照[本地服务器设置指南](/oss/langchain/studio#setup-local-agent-server)确保你的应用程序与 LangGraph 兼容。然后，将你的代码推送到仓库。
+你的应用程序代码必须存放在 GitHub 仓库中，才能在 LangSmith 上部署。支持公共和私有仓库。对于本快速入门，请首先按照[本地服务器设置指南](/oss/javascript/langchain/studio#setup-local-agent-server)确保你的应用程序与 LangGraph 兼容。然后，将你的代码推送到仓库。
 
 <!--@include: @/snippets/javascript/oss/deploy.md-->

@@ -1,7 +1,7 @@
 ---
 title: Slack 工具包
 ---
-这将帮助您开始使用 Slack [工具包](/oss/langchain/tools#toolkits)。有关 SlackToolkit 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/agent_toolkits/langchain_community.agent_toolkits.slack.toolkit.SlackToolkit.html)。
+这将帮助您开始使用 Slack [工具包](/oss/python/langchain/tools#toolkits)。有关 SlackToolkit 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/agent_toolkits/langchain_community.agent_toolkits.slack.toolkit.SlackToolkit.html)。
 
 ## 设置
 

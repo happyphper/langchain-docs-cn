@@ -3,7 +3,7 @@ title: 函数式 API 概览 (Functional API overview)
 sidebarTitle: 函数式 API (Functional API)
 ---
 
-**函数式 API (Functional API)** 允许您以最小的代码改动，为您的应用程序添加 LangGraph 的关键特性——[持久化 (persistence)](/oss/langgraph/persistence)、[记忆 (memory)](/oss/langgraph/add-memory)、[人机交互 (human-in-the-loop)](/oss/langgraph/interrupts) 和 [流式处理 (streaming)](/oss/langgraph/streaming)。
+**函数式 API (Functional API)** 允许您以最小的代码改动，为您的应用程序添加 LangGraph 的关键特性——[持久化 (persistence)](/oss/javascript/langgraph/persistence)、[记忆 (memory)](/oss/javascript/langgraph/add-memory)、[人机交互 (human-in-the-loop)](/oss/javascript/langgraph/interrupts) 和 [流式处理 (streaming)](/oss/javascript/langgraph/streaming)。
 
 它旨在将这些特性集成到可能使用标准语言原语（如 `if` 语句、`for` 循环和函数调用）进行分支和控制流的现有代码中。与许多需要将代码重构为显式管道或 DAG 的数据编排框架不同，函数式 API 允许您在不强制使用严格执行模型的情况下集成这些功能。
 
@@ -16,24 +16,24 @@ sidebarTitle: 函数式 API (Functional API)
 
 <Tip>
 
-有关如何使用函数式 API 的信息，请参阅[使用函数式 API (Use Functional API)](/oss/langgraph/use-functional-api)。
+有关如何使用函数式 API 的信息，请参阅[使用函数式 API (Use Functional API)](/oss/javascript/langgraph/use-functional-api)。
 
 </Tip>
 
 ## 函数式 API 与图 API 对比 (Functional API vs. Graph API)
 
-对于更喜欢声明式方法的用户，LangGraph 的[图 API (Graph API)](/oss/langgraph/graph-api) 允许您使用图范式定义工作流。两个 API 共享相同的底层运行时，因此您可以在同一个应用程序中一起使用它们。
+对于更喜欢声明式方法的用户，LangGraph 的[图 API (Graph API)](/oss/javascript/langgraph/graph-api) 允许您使用图范式定义工作流。两个 API 共享相同的底层运行时，因此您可以在同一个应用程序中一起使用它们。
 
 以下是一些关键区别：
 
 * **控制流 (Control flow)**：函数式 API 不需要考虑图结构。您可以使用标准的 Python 结构来定义工作流。这通常会减少您需要编写的代码量。
-* **短期记忆 (Short-term memory)**：**图 API (Graph API)** 需要声明一个[**状态 (State)**](/oss/langgraph/graph-api#state)，并且可能需要定义[**归约器 (reducers)**](/oss/langgraph/graph-api#reducers)来管理图状态的更新。`@entrypoint` 和 `@tasks` 不需要显式的状态管理，因为它们的状态作用域限定在函数内，并且不在函数间共享。
-* **检查点 (Checkpointing)**：两个 API 都会生成和使用检查点。在 **图 API** 中，每个[超步 (superstep)](/oss/langgraph/graph-api) 之后都会生成一个新的检查点。在 **函数式 API** 中，当任务执行时，它们的结果会保存到与给定入口点关联的现有检查点中，而不是创建新的检查点。
+* **短期记忆 (Short-term memory)**：**图 API (Graph API)** 需要声明一个[**状态 (State)**](/oss/javascript/langgraph/graph-api#state)，并且可能需要定义[**归约器 (reducers)**](/oss/javascript/langgraph/graph-api#reducers)来管理图状态的更新。`@entrypoint` 和 `@tasks` 不需要显式的状态管理，因为它们的状态作用域限定在函数内，并且不在函数间共享。
+* **检查点 (Checkpointing)**：两个 API 都会生成和使用检查点。在 **图 API** 中，每个[超步 (superstep)](/oss/javascript/langgraph/graph-api) 之后都会生成一个新的检查点。在 **函数式 API** 中，当任务执行时，它们的结果会保存到与给定入口点关联的现有检查点中，而不是创建新的检查点。
 * **可视化 (Visualization)**：图 API 可以轻松地将工作流可视化为图，这对于调试、理解工作流和与他人共享非常有用。函数式 API 不支持可视化，因为图是在运行时动态生成的。
 
 ## 示例 (Example)
 
-下面我们演示一个简单的应用程序，它撰写一篇论文并[中断 (interrupts)](/oss/langgraph/interrupts) 以请求人工审核。
+下面我们演示一个简单的应用程序，它撰写一篇论文并[中断 (interrupts)](/oss/javascript/langgraph/interrupts) 以请求人工审核。
 
 ```typescript
 import { MemorySaver, entrypoint, task, interrupt } from "@langchain/langgraph";
@@ -150,7 +150,7 @@ for await (const item of workflow.stream(new Command({ resume: humanReview }), c
 
 ## 入口点 (Entrypoint)
 
-[`entrypoint`][entrypoint] 函数可用于从函数创建工作流。它封装工作流逻辑并管理执行流，包括处理 *长时间运行的任务* 和 [中断 (interrupts)](/oss/langgraph/interrupts)。
+[`entrypoint`][entrypoint] 函数可用于从函数创建工作流。它封装工作流逻辑并管理执行流，包括处理 *长时间运行的任务* 和 [中断 (interrupts)](/oss/javascript/langgraph/interrupts)。
 
 ### 定义 (Definition)
 
@@ -308,7 +308,7 @@ for await (const chunk of myWorkflow.stream(null, config)) {
 
 ### 短期记忆 (Short-term memory)
 
-当 `entrypoint` 定义了 `checkpointer` 时，它会在 [检查点 (checkpoints)](/oss/langgraph/persistence#checkpoints) 中存储同一 **线程 ID (thread id)** 连续调用之间的信息。
+当 `entrypoint` 定义了 `checkpointer` 时，它会在 [检查点 (checkpoints)](/oss/javascript/langgraph/persistence#checkpoints) 中存储同一 **线程 ID (thread id)** 连续调用之间的信息。
 
 这允许使用 `getPreviousState` 函数访问上一次调用的状态。
 
@@ -372,7 +372,7 @@ await myWorkflow.invoke(1, config); // 6 (previous 为上一次调用的 3 * 2)
 **任务 (Task)** 表示一个离散的工作单元，例如 API 调用或数据处理步骤。它有两个关键特征：
 
 * **异步执行 (Asynchronous Execution)**：任务旨在异步执行，允许并发运行多个操作而不会阻塞。
-* **检查点 (Checkpointing)**：任务结果保存在检查点中，从而可以从上次保存的状态恢复工作流。（有关更多详细信息，请参阅 [持久化 (persistence)](/oss/langgraph/persistence)）。
+* **检查点 (Checkpointing)**：任务结果保存在检查点中，从而可以从上次保存的状态恢复工作流。（有关更多详细信息，请参阅 [持久化 (persistence)](/oss/javascript/langgraph/persistence)）。
 
 ### 定义 (Definition)
 
@@ -396,7 +396,7 @@ const slowComputation = task("slowComputation", async (inputValue: any) => {
 
 ### 执行 (Execution)
 
-**任务 (Tasks)** 只能从 **入口点 (entrypoint)**、另一个 **任务 (task)** 或 [状态图节点 (state graph node)](/oss/langgraph/graph-api#nodes) 内部调用。
+**任务 (Tasks)** 只能从 **入口点 (entrypoint)**、另一个 **任务 (task)** 或 [状态图节点 (state graph node)](/oss/javascript/langgraph/graph-api#nodes) 内部调用。
 
 任务 *不能* 直接从主应用程序代码中调用。
 
@@ -438,7 +438,7 @@ LangGraph 中的序列化有两个关键方面：
 
 为了利用 **人机交互 (human-in-the-loop)** 等功能，任何随机性都应该封装在 **任务 (tasks)** 内部。这保证了当执行停止（例如因人机交互停止）并恢复时，即使 **任务 (task)** 结果是非确定性的，它也会遵循相同的 *步骤序列 (sequence of steps)*。
 
-LangGraph 通过在 **任务 (task)** 和 [**子图 (subgraph)**](/oss/langgraph/use-subgraphs) 执行时对结果进行持久化来实现此行为。一个精心设计的工作流可确保恢复执行遵循 *相同的步骤序列*，从而允许正确检索以前计算的结果而无需重新执行它们。这对于长时间运行的 **任务 (tasks)** 或具有非确定性结果的 **任务 (tasks)** 特别有用，因为它避免了重复已完成的工作并允许从基本相同的位置恢复。
+LangGraph 通过在 **任务 (task)** 和 [**子图 (subgraph)**](/oss/javascript/langgraph/use-subgraphs) 执行时对结果进行持久化来实现此行为。一个精心设计的工作流可确保恢复执行遵循 *相同的步骤序列*，从而允许正确检索以前计算的结果而无需重新执行它们。这对于长时间运行的 **任务 (tasks)** 或具有非确定性结果的 **任务 (tasks)** 特别有用，因为它避免了重复已完成的工作并允许从基本相同的位置恢复。
 
 虽然工作流的不同运行可以产生不同的结果，但恢复 *特定* 运行应始终遵循相同的记录步骤序列。这使得 LangGraph 能够有效地查找在图中断之前执行的 **任务 (task)** 和 **子图 (subgraph)** 结果，并避免重新计算它们。
 

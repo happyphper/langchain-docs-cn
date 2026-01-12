@@ -23,4 +23,4 @@ from langchain_community.vectorstores import Lantern
 
 ### 用法
 
-有关 Lantern 封装器的更详细演练，请参阅 [此笔记本](/oss/integrations/vectorstores/lantern)
+有关 Lantern 封装器的更详细演练，请参阅 [此笔记本](/oss/javascript/integrations/vectorstores/lantern)

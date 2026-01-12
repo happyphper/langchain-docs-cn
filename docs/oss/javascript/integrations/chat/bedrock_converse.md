@@ -1,9 +1,9 @@
 ---
 title: ChatBedrockConverse
 ---
-[Amazon Bedrock Converse](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html) 是一项完全托管的服务，它通过 API 提供来自领先 AI 初创公司和亚马逊的基础模型（FMs）。您可以从广泛的 FMs 中选择，找到最适合您用例的模型。它为 Bedrock 模型提供了统一的对话式接口，但尚未完全支持旧版 [Bedrock 模型服务](/oss/integrations/chat/bedrock) 中的所有功能。
+[Amazon Bedrock Converse](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html) 是一项完全托管的服务，它通过 API 提供来自领先 AI 初创公司和亚马逊的基础模型（FMs）。您可以从广泛的 FMs 中选择，找到最适合您用例的模型。它为 Bedrock 模型提供了统一的对话式接口，但尚未完全支持旧版 [Bedrock 模型服务](/oss/javascript/integrations/chat/bedrock) 中的所有功能。
 
-本文将帮助您开始使用 Amazon Bedrock Converse [聊天模型](/oss/langchain/models)。有关 `ChatBedrockConverse` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_aws.ChatBedrockConverse.html)。
+本文将帮助您开始使用 Amazon Bedrock Converse [聊天模型](/oss/javascript/langchain/models)。有关 `ChatBedrockConverse` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_aws.ChatBedrockConverse.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ title: ChatBedrockConverse
 
 有关如何使用特定功能的指南，请参阅下表标题中的链接。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/javascript/langchain/streaming/) | [Token 使用量](/oss/javascript/langchain/models#token-usage) | [Logprobs](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
 
@@ -130,7 +130,7 @@ J'adore la programmation.
 
 ## 工具调用
 
-Bedrock 模型的工具调用方式与 [其他模型](/oss/langchain/tools) 类似，但请注意并非所有 Bedrock 模型都支持工具调用。更多信息请参阅 [AWS 模型文档](https://docs.aws.amazon.com/bedrock/latest/APIReference/welcome.html)。
+Bedrock 模型的工具调用方式与 [其他模型](/oss/javascript/langchain/tools) 类似，但请注意并非所有 Bedrock 模型都支持工具调用。更多信息请参阅 [AWS 模型文档](https://docs.aws.amazon.com/bedrock/latest/APIReference/welcome.html)。
 
 ---
 

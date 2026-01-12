@@ -37,7 +37,7 @@ Unstructured API 需要 API 密钥才能发出请求。
 
 ### UnstructuredLoader
 
-查看[使用示例](/oss/integrations/document_loaders/unstructured_file)，了解如何将此加载器用于本地分区以及通过无服务器 Unstructured API 进行远程分区。
+查看[使用示例](/oss/javascript/integrations/document_loaders/unstructured_file)，了解如何将此加载器用于本地分区以及通过无服务器 Unstructured API 进行远程分区。
 
 ```python
 from langchain_unstructured import UnstructuredLoader
@@ -55,7 +55,7 @@ from langchain_community.document_loaders import UnstructuredCHMLoader
 
 `逗号分隔值` (`CSV`) 文件是一种使用逗号分隔值的分隔文本文件。文件的每一行都是一个数据记录。每个记录由一个或多个字段组成，字段之间用逗号分隔。
 
-查看[使用示例](/oss/integrations/document_loaders/csv#unstructuredcsvloader)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/csv#unstructuredcsvloader)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredCSVLoader
@@ -63,7 +63,7 @@ from langchain_community.document_loaders import UnstructuredCSVLoader
 
 ### UnstructuredEmailLoader
 
-查看[使用示例](/oss/integrations/document_loaders/email)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/email)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredEmailLoader
@@ -73,7 +73,7 @@ from langchain_community.document_loaders import UnstructuredEmailLoader
 
 [EPUB](https://en.wikipedia.org/wiki/EPUB) 是一种使用 ".epub" 文件扩展名的 `电子书文件格式`。该术语是 electronic publication 的缩写，有时也写作 `ePub`。`EPUB` 被许多电子阅读器支持，并且兼容的软件可用于大多数智能手机、平板电脑和计算机。
 
-查看[使用示例](/oss/integrations/document_loaders/epub)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/epub)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredEPubLoader
@@ -81,7 +81,7 @@ from langchain_community.document_loaders import UnstructuredEPubLoader
 
 ### UnstructuredExcelLoader
 
-查看[使用示例](/oss/integrations/document_loaders/microsoft_excel)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/microsoft_excel)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredExcelLoader
@@ -89,7 +89,7 @@ from langchain_community.document_loaders import UnstructuredExcelLoader
 
 ### UnstructuredFileIOLoader
 
-查看[使用示例](/oss/integrations/document_loaders/google_drive#passing-in-optional-file-loaders)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/google_drive#passing-in-optional-file-loaders)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredFileIOLoader
@@ -103,7 +103,7 @@ from langchain_community.document_loaders import UnstructuredHTMLLoader
 
 ### UnstructuredImageLoader
 
-查看[使用示例](/oss/integrations/document_loaders/image)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/image)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredImageLoader
@@ -111,7 +111,7 @@ from langchain_community.document_loaders import UnstructuredImageLoader
 
 ### UnstructuredMarkdownLoader
 
-查看[使用示例](/oss/integrations/vectorstores/starrocks)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/starrocks)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredMarkdownLoader
@@ -121,7 +121,7 @@ from langchain_community.document_loaders import UnstructuredMarkdownLoader
 
 `办公应用程序开放文档格式 (ODF)`，也称为 `OpenDocument`，是一种用于文本文档、电子表格、演示文稿和图形的开放文件格式，使用 ZIP 压缩的 XML 文件。它的开发目的是为办公应用程序提供一个开放的、基于 XML 的文件格式规范。
 
-查看[使用示例](/oss/integrations/document_loaders/odt)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/odt)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredODTLoader
@@ -131,7 +131,7 @@ from langchain_community.document_loaders import UnstructuredODTLoader
 
 [Org Mode](https://en.wikipedia.org/wiki/Org-mode) 文档是一种文档编辑、格式化和组织模式，专为自由软件文本编辑器 Emacs 中的笔记、规划和创作而设计。
 
-查看[使用示例](/oss/integrations/document_loaders/org_mode)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/org_mode)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredOrgModeLoader
@@ -145,7 +145,7 @@ from langchain_community.document_loaders import UnstructuredPDFLoader
 
 ### UnstructuredPowerPointLoader
 
-查看[使用示例](/oss/integrations/document_loaders/microsoft_powerpoint)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/microsoft_powerpoint)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredPowerPointLoader
@@ -155,7 +155,7 @@ from langchain_community.document_loaders import UnstructuredPowerPointLoader
 
 `reStructured Text` (`RST`) 文件是一种文本数据文件格式，主要用于 Python 编程语言社区的技术文档。
 
-查看[使用示例](/oss/integrations/document_loaders/rst)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/rst)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredRSTLoader
@@ -173,7 +173,7 @@ from langchain_community.document_loaders import UnstructuredRTFLoader
 
 `制表符分隔值` (`TSV`) 文件是一种用于存储表格数据的简单、基于文本的文件格式。记录由换行符分隔，记录内的值由制表符分隔。
 
-查看[使用示例](/oss/integrations/document_loaders/tsv)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/tsv)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredTSVLoader
@@ -181,7 +181,7 @@ from langchain_community.document_loaders import UnstructuredTSVLoader
 
 ### UnstructuredURLLoader
 
-查看[使用示例](/oss/integrations/document_loaders/url)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/url)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredURLLoader
@@ -189,7 +189,7 @@ from langchain_community.document_loaders import UnstructuredURLLoader
 
 ### UnstructuredWordDocumentLoader
 
-查看[使用示例](/oss/integrations/document_loaders/microsoft_word#using-unstructured)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/microsoft_word#using-unstructured)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredWordDocumentLoader
@@ -197,7 +197,7 @@ from langchain_community.document_loaders import UnstructuredWordDocumentLoader
 
 ### UnstructuredXMLLoader
 
-查看[使用示例](/oss/integrations/document_loaders/xml)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/xml)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredXMLLoader

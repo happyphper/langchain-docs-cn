@@ -20,7 +20,7 @@ uv add pyvespa
 
 ## 检索器
 
-查看[使用示例](/oss/integrations/retrievers/vespa)。
+查看[使用示例](/oss/python/integrations/retrievers/vespa)。
 
 ```python
 from langchain_classic.retrievers import VespaRetriever

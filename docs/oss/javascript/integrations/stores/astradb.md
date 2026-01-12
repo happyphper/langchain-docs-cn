@@ -1,7 +1,7 @@
 ---
 title: AstraDBByteStore
 ---
-这将帮助您开始使用 Astra DB [键值存储](/oss/integrations/stores)。有关 `AstraDBByteStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/astradb/storage/langchain_astradb.storage.AstraDBByteStore.html)。
+这将帮助您开始使用 Astra DB [键值存储](/oss/javascript/integrations/stores)。有关 `AstraDBByteStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/astradb/storage/langchain_astradb.storage.AstraDBByteStore.html)。
 
 ## 概述
 

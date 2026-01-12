@@ -1,166 +1,209 @@
 ---
 title: ChatCerebras
 ---
-[Cerebras](https://cerebras.ai/) 是一家模型提供商，专注于提供高速的开源模型服务。Cerebras CS-3 系统由晶圆级引擎-3 (Wafer-Scale Engine-3, WSE-3) 驱动，代表了一类新型的 AI 超级计算机，它以无与伦比的性能和可扩展性，为生成式 AI 的训练和推理设定了新标准。
+本指南提供了快速入门 Cerebras [聊天模型](/oss/python/langchain/models) 的概述。有关 ChatCerebras 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/cerebras/chat_models/langchain_cerebras.chat_models.ChatCerebras.html#)。
+
+在 Cerebras，我们开发了世界上最大、最快的人工智能处理器——晶圆级引擎-3（Wafer-Scale Engine-3，WSE-3）。由 WSE-3 驱动的 Cerebras CS-3 系统代表了一类新型的人工智能超级计算机，它以无与伦比的性能和可扩展性为生成式 AI 训练和推理设定了标准。
 
 选择 Cerebras 作为您的推理服务提供商，您可以：
 
 *   为 AI 推理工作负载实现前所未有的速度
-*   凭借高吞吐量进行商业构建
+*   凭借高吞吐量进行商业化构建
 *   利用我们无缝的集群技术轻松扩展您的 AI 工作负载
 
-我们的 CS-3 系统可以快速、轻松地集群化，构建出世界上最大的 AI 超级计算机，从而简化大型模型的部署和运行。领先的企业、研究机构和政府已经在使用 Cerebras 解决方案来开发专有模型并训练流行的开源模型。
+我们的 CS-3 系统可以快速、轻松地集群化，创建世界上最大的人工智能超级计算机，从而简化大型模型的部署和运行。领先的企业、研究机构和政府已经在使用 Cerebras 解决方案来开发专有模型并训练流行的开源模型。
 
-本文将帮助您开始使用 ChatCerebras [聊天模型](/oss/langchain/models)。有关 ChatCerebras 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_cerebras.ChatCerebras.html)。
+想要体验 Cerebras 的强大功能？请访问我们的[网站](https://cerebras.ai)获取更多资源，并探索通过 Cerebras 云或本地部署来使用我们技术的选项！
+
+有关 Cerebras 云的更多信息，请访问 [cloud.cerebras.ai](https://cloud.cerebras.ai/)。我们的 API 参考可在 [inference-docs.cerebras.ai](https://inference-docs.cerebras.ai/) 找到。
 
 ## 概述
 
 ### 集成详情
 
-| 类 | 包 | 可序列化 | [Python 支持](https://python.langchain.com/docs/integrations/chat/cerebras) | 下载量 | 版本 |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| [ChatCerebras](https://api.js.langchain.com/classes/langchain_cerebras.ChatCerebras.html) | [`@langchain/cerebras`](https://www.npmjs.com/package/@langchain/cerebras) | ❌ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/cerebras?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/cerebras?style=flat-square&label=%20&) |
+| 类 | 包 | 可序列化 | [JS 支持](https://js.langchain.com/docs/integrations/chat/cerebras) | 下载量 | 版本 |
+| :--- | :--- | :---: |  :---: | :---: | :---: |
+| [ChatCerebras](https://python.langchain.com/api_reference/cerebras/chat_models/langchain_cerebras.chat_models.ChatCerebras.html#) | [langchain-cerebras](https://python.langchain.com/api_reference/cerebras/index.html) | beta | ❌ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-cerebras?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-cerebras?style=flat-square&label=%20) |
 
 ### 模型特性
 
-有关如何使用特定功能的指南，请参阅下表表头中的链接。
-
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| [工具调用](/oss/python/langchain/tools/) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/python/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/python/langchain/models#token-usage) | [对数概率](/oss/python/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅  | ✅ | ❌ |
 
 ## 设置
 
-要访问 ChatCerebras 模型，您需要创建一个 Cerebras 账户，获取 API 密钥，并安装 `@langchain/cerebras` 集成包。
+```bash
+pip install langchain-cerebras
+```
 
 ### 凭证
 
-从 [cloud.cerebras.ai](https://cloud.cerebras.ai) 获取 API 密钥，并将其添加到您的环境变量中：
+从 [cloud.cerebras.ai](https://cloud.cerebras.ai/) 获取 API 密钥，并将其添加到您的环境变量中：
 
-```bash
-export CEREBRAS_API_KEY="your-api-key"
+```
+export CEREBRAS_API_KEY="your-api-key-here"
 ```
 
-如果您希望自动追踪模型调用，还可以通过取消注释以下行来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+```python
+import getpass
+import os
 
-```bash
-# export LANGSMITH_TRACING="true"
-# export LANGSMITH_API_KEY="your-api-key"
+if "CEREBRAS_API_KEY" not in os.environ:
+    os.environ["CEREBRAS_API_KEY"] = getpass.getpass("Enter your Cerebras API key: ")
+```
+
+```text
+Enter your Cerebras API key:  ········
+```
+
+要启用模型调用的自动追踪，请设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
 ```
 
 ### 安装
 
-LangChain ChatCerebras 集成位于 `@langchain/cerebras` 包中：
+LangChain Cerebras 集成位于 `langchain-cerebras` 包中：
 
-::: code-group
-
-```bash [npm]
-npm install @langchain/cerebras @langchain/core
+```python
+pip install -qU langchain-cerebras
 ```
-
-```bash [yarn]
-yarn add @langchain/cerebras @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @langchain/cerebras @langchain/core
-```
-
-:::
 
 ## 实例化
 
-现在我们可以实例化模型对象并生成聊天补全：
+现在我们可以实例化我们的模型对象并生成聊天补全：
 
-```typescript
-import { ChatCerebras } from "@langchain/cerebras"
+```python
+from langchain_cerebras import ChatCerebras
 
-const llm = new ChatCerebras({
-    model: "llama-3.3-70b",
-    temperature: 0,
-    maxTokens: undefined,
-    maxRetries: 2,
-    // other params...
-})
+llm = ChatCerebras(
+    model="llama-3.3-70b",
+    # other params...
+)
 ```
 
 ## 调用
 
-```typescript
-const aiMsg = await llm.invoke([
-    {
-      role: "system",
-      content: "You are a helpful assistant that translates English to French. Translate the user sentence.",
-    },
-    { role: "user", content: "I love programming." },
-])
-aiMsg
+```python
+messages = [
+    (
+        "system",
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+    ),
+    ("human", "I love programming."),
+]
+ai_msg = llm.invoke(messages)
+ai_msg
 ```
 
 ```text
-AIMessage {
-  "id": "run-17c7d62d-67ac-4677-b33a-18298fc85e35",
-  "content": "J'adore la programmation.",
-  "additional_kwargs": {},
-  "response_metadata": {
-    "id": "chatcmpl-2d1e2de5-4239-46fb-af2a-6200d89d7dde",
-    "created": 1735785598,
-    "model": "llama-3.3-70b",
-    "system_fingerprint": "fp_2e2a2a083c",
-    "object": "chat.completion",
-    "time_info": {
-      "queue_time": 0.00009063,
-      "prompt_time": 0.002163031,
-      "completion_time": 0.012339628,
-      "total_time": 0.01640915870666504,
-      "created": 1735785598
-    }
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": [],
-  "usage_metadata": {
-    "input_tokens": 55,
-    "output_tokens": 9,
-    "total_tokens": 64
-  }
-}
+AIMessage(content='Je adore le programmation.', response_metadata={'token_usage': {'completion_tokens': 7, 'prompt_tokens': 35, 'total_tokens': 42}, 'model_name': 'llama3-8b-8192', 'system_fingerprint': 'fp_be27ec77ff', 'finish_reason': 'stop'}, id='run-e5d66faf-019c-4ac6-9265-71093b13202d-0', usage_metadata={'input_tokens': 35, 'output_tokens': 7, 'total_tokens': 42})
 ```
 
-```typescript
-console.log(aiMsg.content)
+## 流式传输
+
+```python
+from langchain_cerebras import ChatCerebras
+from langchain_core.prompts import ChatPromptTemplate
+
+llm = ChatCerebras(
+    model="llama-3.3-70b",
+    # other params...
+)
+
+system = "You are an expert on animals who must answer questions in a manner that a 5 year old can understand."
+human = "I want to learn more about this animal: {animal}"
+prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
+
+chain = prompt | llm
+
+for chunk in chain.stream({"animal": "Lion"}):
+    print(chunk.content, end="", flush=True)
 ```
 
 ```text
-J'adore la programmation.
+OH BOY! Let me tell you all about LIONS!
+
+Lions are the kings of the jungle! They're really big and have beautiful, fluffy manes around their necks. The mane is like a big, golden crown!
+
+Lions live in groups called prides. A pride is like a big family, and the lionesses (that's what we call the female lions) take care of the babies. The lionesses are like the mommies, and they teach the babies how to hunt and play.
+
+Lions are very good at hunting. They work together to catch their food, like zebras and antelopes. They're super fast and can run really, really fast!
+
+But lions are also very sleepy. They like to take long naps in the sun, and they can sleep for up to 20 hours a day! Can you imagine sleeping that much?
+
+Lions are also very loud. They roar really loudly to talk to each other. It's like they're saying, "ROAR! I'm the king of the jungle!"
+
+And guess what? Lions are very social. They like to play and cuddle with each other. They're like big, furry teddy bears!
+
+So, that's lions! Aren't they just the coolest?
 ```
 
-## JSON 调用
+## 异步
 
-```typescript
-const messages = [
-  {
-    role: "system",
-    content: "You are a math tutor that handles math exercises and makes output in json in format { result: number }.",
-  },
-  { role: "user",  content: "2 + 2" },
-];
+```python
+from langchain_cerebras import ChatCerebras
+from langchain_core.prompts import ChatPromptTemplate
 
-const aiInvokeMsg = await llm.invoke(messages, { response_format: { type: "json_object" } });
+llm = ChatCerebras(
+    model="llama-3.3-70b",
+    # other params...
+)
 
-// 如果您不想在每次调用时都传递 response_format，可以将其绑定到实例上
-const llmWithResponseFormat = llm.bind({ response_format: { type: "json_object" } });
-const aiBindMsg = await llmWithResponseFormat.invoke(messages);
-
-// 它们是相同的
-console.log({ aiInvokeMsgContent: aiInvokeMsg.content, aiBindMsg: aiBindMsg.content });
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "human",
+            "Let's play a game of opposites. What's the opposite of {topic}? Just give me the answer with no extra input.",
+        )
+    ]
+)
+chain = prompt | llm
+await chain.ainvoke({"topic": "fire"})
 ```
 
-```json
-{ aiInvokeMsgContent: '{"result":4}', aiBindMsg: '{"result":4}' }
+```text
+AIMessage(content='Ice', response_metadata={'token_usage': {'completion_tokens': 2, 'prompt_tokens': 36, 'total_tokens': 38}, 'model_name': 'llama3-8b-8192', 'system_fingerprint': 'fp_be27ec77ff', 'finish_reason': 'stop'}, id='run-7434bdde-1bec-44cf-827b-8d978071dfe8-0', usage_metadata={'input_tokens': 36, 'output_tokens': 2, 'total_tokens': 38})
+```
+
+## 异步流式传输
+
+```python
+from langchain_cerebras import ChatCerebras
+from langchain_core.prompts import ChatPromptTemplate
+
+llm = ChatCerebras(
+    model="llama-3.3-70b",
+    # other params...
+)
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "human",
+            "Write a long convoluted story about {subject}. I want {num_paragraphs} paragraphs.",
+        )
+    ]
+)
+chain = prompt | llm
+
+async for chunk in chain.astream({"num_paragraphs": 3, "subject": "blackholes"}):
+    print(chunk.content, end="", flush=True)
+```
+
+```text
+In the distant reaches of the cosmos, there existed a peculiar phenomenon known as the "Eclipse of Eternity," a swirling vortex of darkness that had been shrouded in mystery for eons. It was said that this blackhole, born from the cataclysmic collision of two ancient stars, had been slowly devouring the fabric of space-time itself, warping the very essence of reality. As the celestial bodies of the galaxy danced around it, they began to notice a strange, almost imperceptible distortion in the fabric of space, as if the blackhole's gravitational pull was exerting an influence on the very course of events itself.
+
+As the centuries passed, astronomers from across the galaxy became increasingly fascinated by the Eclipse of Eternity, pouring over ancient texts and scouring the cosmos for any hint of its secrets. One such scholar, a brilliant and reclusive astrophysicist named Dr. Elara Vex, became obsessed with unraveling the mysteries of the blackhole. She spent years pouring over ancient texts, deciphering cryptic messages and hidden codes that hinted at the existence of a long-lost civilization that had once thrived in the heart of the blackhole itself. According to legend, this ancient civilization had possessed knowledge of the cosmos that was beyond human comprehension, and had used their mastery of the universe to create the Eclipse of Eternity as a gateway to other dimensions.
+
+As Dr. Vex delved deeper into her research, she began to experience strange and vivid dreams, visions that seemed to transport her to the very heart of the blackhole itself. In these dreams, she saw ancient beings, their faces twisted in agony as they were consumed by the void. She saw stars and galaxies, their light warped and distorted by the blackhole's gravitational pull. And she saw the Eclipse of Eternity itself, its swirling vortex of darkness pulsing with an otherworldly energy that seemed to be calling to her. As the dreams grew more vivid and more frequent, Dr. Vex became convinced that she was being drawn into the heart of the blackhole, and that the secrets of the universe lay waiting for her on the other side.
 ```
 
 ---
 
 ## API 参考
 
-有关 ChatCerebras 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_cerebras.ChatCerebras.html)。
+有关 ChatCerebras 所有功能和配置的详细文档，请参阅 API 参考：[python.langchain.com/api_reference/cerebras/chat_models/langchain_cerebras.chat_models.ChatCerebras.html#](https://python.langchain.com/api_reference/cerebras/chat_models/langchain_cerebras.chat_models.ChatCerebras.html#)

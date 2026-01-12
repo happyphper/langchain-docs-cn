@@ -1,4 +1,4 @@
-[Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui) 是一个 Next.js 应用程序，它为与任何 LangChain 智能体（agent）交互提供了一个对话式界面。它支持实时聊天、工具可视化以及时间旅行调试（time-travel debugging）和状态分叉（state forking）等高级功能。Agent Chat UI 能与使用 [`create_agent`](/oss/langchain/agents) 创建的智能体无缝协作，并以最少的设置为您的智能体提供交互式体验，无论您是在本地运行还是在部署环境中运行（例如 [LangSmith](/langsmith/home)）。
+[Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui) 是一个 Next.js 应用程序，它为与任何 LangChain 智能体（agent）交互提供了一个对话式界面。它支持实时聊天、工具可视化以及时间旅行调试（time-travel debugging）和状态分叉（state forking）等高级功能。Agent Chat UI 能与使用 [`create_agent`](/oss/javascript/langchain/agents) 创建的智能体无缝协作，并以最少的设置为您的智能体提供交互式体验，无论您是在本地运行还是在部署环境中运行（例如 [LangSmith](/langsmith/home)）。
 
 Agent Chat UI 是开源的，可以根据您的应用需求进行调整。
 

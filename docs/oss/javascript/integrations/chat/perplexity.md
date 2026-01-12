@@ -1,7 +1,7 @@
 ---
 title: ChatPerplexity
 ---
-本指南将帮助您开始使用 Perplexity [聊天模型](/oss/langchain/models)。有关 `ChatPerplexity` 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/_langchain_community.chat_models_perplexity.ChatPerplexity.html)。
+本指南将帮助您开始使用 Perplexity [聊天模型](/oss/javascript/langchain/models)。有关 `ChatPerplexity` 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/_langchain_community.chat_models_perplexity.ChatPerplexity.html)。
 
 ## 概述
 
@@ -15,7 +15,7 @@ title: ChatPerplexity
 
 有关如何使用特定功能的指南，请参阅下表标题中的链接。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | [Token 使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/javascript/langchain/streaming/) | [Token 使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
 

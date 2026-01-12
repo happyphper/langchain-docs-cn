@@ -4,9 +4,9 @@ title: OpenAI
 
 <Warning>
 
-<strong>您当前正在查阅的是 OpenAI 文本补全模型的使用文档。最新且最受欢迎的 OpenAI 模型是 [聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查阅的是 OpenAI 文本补全模型的使用文档。最新且最受欢迎的 OpenAI 模型是 [聊天补全模型](/oss/javascript/langchain/models)。</strong>
 
-除非您明确在使用 `gpt-3.5-turbo-instruct`，否则您可能应该查看 [这个页面](/oss/integrations/chat/openai/)。
+除非您明确在使用 `gpt-3.5-turbo-instruct`，否则您可能应该查看 [这个页面](/oss/javascript/integrations/chat/openai/)。
 
 </Warning>
 
@@ -115,7 +115,7 @@ const llmCustomURL = new OpenAI({
 
 您也可以传递官方 SDK 接受的其他 `ClientOptions` 参数。
 
-如果您使用的是 Azure OpenAI 托管服务，请参阅 [专用页面](/oss/integrations/llms/azure)。
+如果您使用的是 Azure OpenAI 托管服务，请参阅 [专用页面](/oss/javascript/integrations/llms/azure)。
 
 ---
 

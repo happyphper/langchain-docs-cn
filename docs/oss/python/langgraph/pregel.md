@@ -228,7 +228,7 @@ app.invoke({"value": "a"})
 
 ## 高级 API (High-level API)
 
-LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (图 API)](/oss/langgraph/graph-api) 和 [函数式 API (Functional API)](/oss/langgraph/functional-api)。
+LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (图 API)](/oss/python/langgraph/graph-api) 和 [函数式 API (Functional API)](/oss/python/langgraph/functional-api)。
 
 <Tabs>
 
@@ -308,7 +308,7 @@ print(graph.channels)
 
 <Tab title="函数式 API (Functional API)">
 
-在 [函数式 API (Functional API)](/oss/langgraph/functional-api) 中，您可以使用 <a href="https://reference.langchain.com/python/langgraph/func/#langgraph.func.entrypoint" target="_blank" rel="noreferrer" class="link"><code>@entrypoint</code></a> 来创建 Pregel 应用程序。`entrypoint` 装饰器允许您定义一个接收输入并返回输出的函数。
+在 [函数式 API (Functional API)](/oss/python/langgraph/functional-api) 中，您可以使用 <a href="https://reference.langchain.com/python/langgraph/func/#langgraph.func.entrypoint" target="_blank" rel="noreferrer" class="link"><code>@entrypoint</code></a> 来创建 Pregel 应用程序。`entrypoint` 装饰器允许您定义一个接收输入并返回输出的函数。
 
 ```python
 from typing import TypedDict

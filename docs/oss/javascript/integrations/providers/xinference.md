@@ -87,11 +87,11 @@ llm(
 
 ### 用法
 
-更多信息和详细示例，请参阅 [xinference LLMs 示例](/oss/integrations/llms/xinference)。
+更多信息和详细示例，请参阅 [xinference LLMs 示例](/oss/javascript/integrations/llms/xinference)。
 
 ### 嵌入
 
-Xinference 也支持嵌入查询和文档。更详细的演示请参阅 [xinference embeddings 示例](/oss/integrations/text_embedding/xinference)。
+Xinference 也支持嵌入查询和文档。更详细的演示请参阅 [xinference embeddings 示例](/oss/javascript/integrations/text_embedding/xinference)。
 
 ### Xinference LangChain 合作伙伴包安装
 

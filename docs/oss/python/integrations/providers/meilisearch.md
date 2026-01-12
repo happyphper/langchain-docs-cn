@@ -11,7 +11,7 @@ title: Meilisearch
 
 ## 安装与设置
 
-有关详细配置说明，请参阅[使用示例](/oss/integrations/vectorstores/meilisearch)。
+有关详细配置说明，请参阅[使用示例](/oss/python/integrations/vectorstores/meilisearch)。
 
 我们需要安装 `meilisearch` Python 包。
 
@@ -29,7 +29,7 @@ uv add meilisearch
 
 ## 向量存储
 
-请参阅[使用示例](/oss/integrations/vectorstores/meilisearch)。
+请参阅[使用示例](/oss/python/integrations/vectorstores/meilisearch)。
 
 ```python
 from langchain_community.vectorstores import Meilisearch

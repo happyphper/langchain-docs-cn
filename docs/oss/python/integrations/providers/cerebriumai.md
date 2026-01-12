@@ -26,7 +26,7 @@ uv add cerebrium
 
 ## LLMs
 
-请参阅 [使用示例](/oss/integrations/llms/cerebriumai)。
+请参阅 [使用示例](/oss/python/integrations/llms/cerebriumai)。
 
 ```python
 from langchain_community.llms import CerebriumAI

@@ -1,7 +1,7 @@
 ---
 title: WRITER PDF 解析器
 ---
-本指南提供了快速入门使用 WRITER `PDFParser` [文档加载器](/oss/integrations/document_loaders/) 的概述。
+本指南提供了快速入门使用 WRITER `PDFParser` [文档加载器](/oss/javascript/integrations/document_loaders/) 的概述。
 
 WRITER 的 [PDF 解析器](https://dev.writer.com/api-guides/api-reference/tool-api/pdf-parser#parse-pdf) 可将 PDF 文档转换为其他格式，如文本或 Markdown。当您需要从 PDF 文件中提取和处理文本内容以进行进一步分析或集成到工作流中时，这尤其有用。在 `langchain-writer` 中，我们将 WRITER 的 PDF 解析器作为 LangChain 文档解析器提供使用。
 

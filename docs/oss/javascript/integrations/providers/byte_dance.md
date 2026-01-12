@@ -14,7 +14,7 @@ title: 字节跳动
 
 ### 飞书文档
 
-查看 [使用示例](/oss/integrations/document_loaders/larksuite/#load-from-document)。
+查看 [使用示例](/oss/javascript/integrations/document_loaders/larksuite/#load-from-document)。
 
 ```python
 from langchain_community.document_loaders.larksuite import LarkSuiteDocLoader
@@ -22,7 +22,7 @@ from langchain_community.document_loaders.larksuite import LarkSuiteDocLoader
 
 ### 飞书知识库
 
-查看 [使用示例](/oss/integrations/document_loaders/larksuite/#load-from-wiki)。
+查看 [使用示例](/oss/javascript/integrations/document_loaders/larksuite/#load-from-wiki)。
 
 ```python
 from langchain_community.document_loaders.larksuite import LarkSuiteWikiLoader

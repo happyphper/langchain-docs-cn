@@ -152,7 +152,7 @@ for chunk in graph.stream(
 
 ## 流式传输子图输出
 
-要在流式输出中包含[子图](/oss/langgraph/use-subgraphs)的输出，可以在父图的 `.stream()` 方法中设置 `subgraphs=True`。这将同时流式传输父图和任何子图的输出。
+要在流式输出中包含[子图](/oss/python/langgraph/use-subgraphs)的输出，可以在父图的 `.stream()` 方法中设置 `subgraphs=True`。这将同时流式传输父图和任何子图的输出。
 
 输出将作为元组 `(namespace, data)` 流式传输，其中 `namespace` 是一个元组，包含调用子图的节点路径，例如 `("parent_node:<task_id>", "child_node:<task_id>")`。
 

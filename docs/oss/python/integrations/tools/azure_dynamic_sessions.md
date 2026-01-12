@@ -1,104 +1,215 @@
 ---
 title: Azure Container Apps 动态会话
 ---
-> [Azure Container Apps 动态会话](https://learn.microsoft.com/azure/container-apps/sessions) 提供对安全沙盒环境的快速访问，这些环境非常适合运行需要与其他工作负载强隔离的代码或应用程序。
-
-你可以在[此页面](https://learn.microsoft.com/azure/container-apps/sessions)了解更多关于 Azure Container Apps 动态会话及其代码解释能力的信息。如果你没有 Azure 账户，可以[创建一个免费账户](https://azure.microsoft.com/free/)开始使用。
+Azure Container Apps 动态会话提供了一种安全且可扩展的方式，在 Hyper-V 隔离沙箱中运行 Python 代码解释器。这使得您的代理能够在安全环境中运行可能不受信任的代码。代码解释器环境包含许多流行的 Python 包，例如 NumPy、pandas 和 scikit-learn。有关会话工作原理的更多信息，请参阅 [Azure Container App 文档](https://learn.microsoft.com/en-us/azure/container-apps/sessions-code-interpreter)。
 
 ## 设置
 
-首先，你需要安装 [`@langchain/azure-dynamic-sessions`](https://www.npmjs.com/package/@langchain/azure-dynamic-sessions) 包：
+默认情况下，`SessionsPythonREPLTool` 工具使用 `DefaultAzureCredential` 向 Azure 进行身份验证。在本地，它将使用您来自 Azure CLI 或 VS Code 的凭据。请安装 Azure CLI 并使用 `az login` 登录以进行身份验证。
 
-<Tip>
+要使用代码解释器，您还需要创建一个会话池，您可以按照[此处](https://learn.microsoft.com/en-us/azure/container-apps/sessions-code-interpreter?tabs=azure-cli#create-a-session-pool-with-azure-cli)的说明进行操作。完成后，您应该会获得一个池管理会话端点，您需要在下面设置它：
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+```python
+import getpass
 
-</Tip>
-
-```bash [npm]
-npm install @langchain/azure-dynamic-sessions @langchain/core
+POOL_MANAGEMENT_ENDPOINT = getpass.getpass()
 ```
 
-你还需要有一个正在运行的代码解释器会话池实例。你可以按照[此指南](https://learn.microsoft.com/azure/container-apps/sessions-code-interpreter)使用 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) 部署一个版本。
-
-一旦你的实例运行起来，你需要确保已为其正确设置 Azure Entra 身份验证。你可以在[这里](https://learn.microsoft.com/azure/container-apps/sessions?tabs=azure-cli#authentication)找到如何操作的说明。
-
-在为你的身份添加角色后，你需要获取 **会话池管理端点**。你可以在 Azure 门户中，实例的“概览”部分下找到它。然后你需要设置以下环境变量：
-
-```bash [.env example]
-AZURE_CONTAINER_APP_SESSION_POOL_MANAGEMENT_ENDPOINT=<your_endpoint>
+```text
+········
 ```
 
-## 使用示例
+您还需要安装 `langchain-azure-dynamic-sessions` 包：
 
-下面是一个简单的示例，它创建一个新的 Python 代码解释器会话，调用工具并打印结果。
-
-```typescript
-import { SessionsPythonREPLTool } from "@langchain/azure-dynamic-sessions";
-
-const tool = new SessionsPythonREPLTool({
-  poolManagementEndpoint:
-    process.env.AZURE_CONTAINER_APP_SESSION_POOL_MANAGEMENT_ENDPOINT || "",
-});
-
-const result = await tool.invoke("print('Hello, World!')\n1+2");
-
-console.log(result);
-
-// {
-//   stdout: "Hello, World!\n",
-//   stderr: "",
-//   result: 3,
-// }
+```python
+pip install -qU langchain-azure-dynamic-sessions langchain-openai langchainhub langchain langchain-community
 ```
 
-这是一个完整的示例，我们使用 Azure OpenAI 聊天模型来调用 Python 代码解释器会话工具以执行代码并获取结果：
+## 使用工具
 
-```typescript
-import type { ChatPromptTemplate } from "@langchain/core/prompts";
-import { pull } from "@langchain/classic/hub";
-import { AgentExecutor, createToolCallingAgent } from "@langchain/classic/agents";
-import { SessionsPythonREPLTool } from "@langchain/azure-dynamic-sessions";
-import { AzureChatOpenAI } from "@langchain/openai";
+实例化并使用工具：
 
-const tools = [
-  new SessionsPythonREPLTool({
-    poolManagementEndpoint:
-      process.env.AZURE_CONTAINER_APP_SESSION_POOL_MANAGEMENT_ENDPOINT || "",
-  }),
-];
+```python
+from langchain_azure_dynamic_sessions import SessionsPythonREPLTool
 
-// 注意：你需要一个支持函数调用的模型部署，
-// 例如 `gpt-35-turbo` 版本 `1106`。
-const llm = new AzureChatOpenAI({
-  temperature: 0,
-});
-
-// 获取要使用的提示词 - 你可以修改它！
-// 如果你想查看完整的提示词，可以访问：
-// https://smith.langchain.com/hub/jacob/tool-calling-agent
-const prompt = await pull<ChatPromptTemplate>("jacob/tool-calling-agent");
-
-const agent = await createToolCallingAgent({
-  llm,
-  tools,
-  prompt,
-});
-
-const agentExecutor = new AgentExecutor({
-  agent,
-  tools,
-});
-
-const result = await agentExecutor.invoke({
-  input:
-    "Create a Python program that prints the Python version and return the result.",
-});
-
-console.log(result);
+tool = SessionsPythonREPLTool(pool_management_endpoint=POOL_MANAGEMENT_ENDPOINT)
+tool.invoke("6 * 7")
 ```
 
-## 相关
+```text
+'{\n  "result": 42,\n  "stdout": "",\n  "stderr": ""\n}'
+```
 
-- 工具 [概念指南](/oss/langchain/tools)
-- 工具 [操作指南](/oss/langchain/tools)
+调用该工具将返回一个包含代码执行结果的 JSON 字符串，以及任何 stdout 和 stderr 输出。要获取原始的字典结果，请使用 `execute()` 方法：
+
+```python
+tool.execute("6 * 7")
+```
+
+```text
+{'$id': '2',
+ 'status': 'Success',
+ 'stdout': '',
+ 'stderr': '',
+ 'result': 42,
+ 'executionTimeInMilliseconds': 8}
+```
+
+## 上传数据
+
+如果我们希望对特定数据执行计算，可以使用 `upload_file()` 功能将数据上传到我们的会话。您可以通过 `data: BinaryIO` 参数或 `local_file_path: str` 参数（指向您系统上的本地文件）上传数据。数据会自动上传到会话容器的 "/mnt/data/" 目录。您可以通过 `upload_file()` 返回的上传元数据获取完整的文件路径。
+
+```python
+import io
+import json
+
+data = {"important_data": [1, 10, -1541]}
+binary_io = io.BytesIO(json.dumps(data).encode("ascii"))
+
+upload_metadata = tool.upload_file(
+    data=binary_io, remote_file_path="important_data.json"
+)
+
+code = f"""
+import json
+
+with open("{upload_metadata.full_path}") as f:
+    data = json.load(f)
+
+sum(data['important_data'])
+"""
+tool.execute(code)
+```
+
+```text
+{'$id': '2',
+ 'status': 'Success',
+ 'stdout': '',
+ 'stderr': '',
+ 'result': -1530,
+ 'executionTimeInMilliseconds': 12}
+```
+
+## 处理图像结果
+
+动态会话结果可以包含作为 base64 编码字符串的图像输出。在这些情况下，'result' 的值将是一个字典，其键包括 "type"（将为 "image"）、"format"（图像的格式）和 "base64_data"。
+
+```python
+code = """
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Generate values for x from -1 to 1
+x = np.linspace(-1, 1, 400)
+
+# Calculate the sine of each x value
+y = np.sin(x)
+
+# Create the plot
+plt.plot(x, y)
+
+# Add title and labels
+plt.title('Plot of sin(x) from -1 to 1')
+plt.xlabel('x')
+plt.ylabel('sin(x)')
+
+# Show the plot
+plt.grid(True)
+plt.show()
+"""
+
+result = tool.execute(code)
+result["result"].keys()
+```
+
+```text
+dict_keys(['type', 'format', 'base64_data'])
+```
+
+```python
+result["result"]["type"], result["result"]["format"]
+```
+
+```text
+('image', 'png')
+```
+
+我们可以解码图像数据并显示它：
+
+```python
+import base64
+import io
+
+from IPython.display import display
+from PIL import Image
+
+base64_str = result["result"]["base64_data"]
+img = Image.open(io.BytesIO(base64.decodebytes(bytes(base64_str, "utf-8"))))
+display(img)
+```
+
+<p>
+<img src="data:image/png;base64,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
+
+<p align=" alt="" />
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAksAAAHWCAYAAACn9sQfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAHXHSURBVHhe7d0JvE3V+8DxJzNlKjMhU5QpQ4YyJ0qFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqFJkqF
+
+## 简单智能体示例
+
+```python
+from langchain_classic import hub
+from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain_azure_dynamic_sessions import SessionsPythonREPLTool
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o", temperature=0)
+prompt = hub.pull("hwchase17/openai-functions-agent")
+agent = create_tool_calling_agent(llm, [tool], prompt)
+
+agent_executor = AgentExecutor(
+    agent=agent, tools=[tool], verbose=True, handle_parsing_errors=True
+)
+
+response = agent_executor.invoke(
+    {
+        "input": "what's sin of pi . if it's negative generate a random number between 0 and 5. if it's positive between 5 and 10."
+    }
+)
+```
+
+```text
+> Entering new AgentExecutor chain...
+
+Invoking: `Python_REPL` with `import math
+import random
+
+sin_pi = math.sin(math.pi)
+result = sin_pi
+if sin_pi < 0:
+    random_number = random.uniform(0, 5)
+elif sin_pi > 0:
+    random_number = random.uniform(5, 10)
+else:
+    random_number = 0
+
+{'sin_pi': sin_pi, 'random_number': random_number}`
+
+{
+  "result": "{'sin_pi': 1.2246467991473532e-16, 'random_number': 9.68032501928628}",
+  "stdout": "",
+  "stderr": ""
+}The sine of \(\pi\) is approximately \(1.2246467991473532 \times 10^{-16}\), which is effectively zero. Since it is neither negative nor positive, the random number generated is \(0\).
+
+> Finished chain.
+```
+
+## LangGraph 数据分析智能体
+
+如需查看更复杂的智能体示例，请参阅 [LangGraph 数据分析示例](https://github.com/langchain-ai/langchain/blob/v0.3/cookbook/azure_container_apps_dynamic_sessions_data_analyst.ipynb)
+
+```python
+
+```
+

@@ -10,7 +10,7 @@ title: Chaindesk
 
 ## 检索器
 
-查看[使用示例](/oss/integrations/retrievers/chaindesk)。
+查看[使用示例](/oss/javascript/integrations/retrievers/chaindesk)。
 
 ```python
 from langchain_classic.retrievers import ChaindeskRetriever

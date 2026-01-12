@@ -16,7 +16,7 @@ os.environ["OUTLINE_INSTANCE_URL"] = "https://app.getoutline.com"
 
 ## 检索器
 
-查看[使用示例](/oss/integrations/retrievers/outline)。
+查看[使用示例](/oss/javascript/integrations/retrievers/outline)。
 
 ```python
 from langchain_classic.retrievers import OutlineRetriever

@@ -1,7 +1,7 @@
 ---
 title: ElasticsearchEmbeddingsCache
 ---
-这将帮助您开始使用 Elasticsearch [键值存储](/oss/integrations/stores)。有关 `ElasticsearchEmbeddingsCache` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/elasticsearch/cache/langchain_elasticsearch.cache.ElasticsearchEmbeddingsCache.html)。
+这将帮助您开始使用 Elasticsearch [键值存储](/oss/python/integrations/stores)。有关 `ElasticsearchEmbeddingsCache` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/elasticsearch/cache/langchain_elasticsearch.cache.ElasticsearchEmbeddingsCache.html)。
 
 ## 概述
 
@@ -94,7 +94,7 @@ kv_store.mget(
 
 ## 用作嵌入向量缓存
 
-与其他 `ByteStore` 一样，您可以将 `ElasticsearchEmbeddingsCache` 实例用于 RAG 的[文档摄取中的持久化缓存](/oss/integrations/text_embedding#caching)。
+与其他 `ByteStore` 一样，您可以将 `ElasticsearchEmbeddingsCache` 实例用于 RAG 的[文档摄取中的持久化缓存](/oss/python/integrations/text_embedding#caching)。
 
 但是，默认情况下，缓存的向量将不可搜索。开发者可以自定义 Elasticsearch 文档的构建，以添加索引化的向量字段。
 

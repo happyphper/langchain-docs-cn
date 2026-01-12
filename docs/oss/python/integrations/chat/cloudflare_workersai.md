@@ -1,130 +1,176 @@
 ---
 title: ChatCloudflareWorkersAI
 ---
-[Workers AI](https://developers.cloudflare.com/workers-ai/) 允许您在自己的代码中，于 Cloudflare 网络之上运行机器学习模型。
-
-本文将帮助您开始使用 Cloudflare Workers AI 的[聊天模型](/oss/langchain/models)。有关 `ChatCloudflareWorkersAI` 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/langchain_cloudflare.ChatCloudflareWorkersAI.html)。
+本文将帮助你开始使用 CloudflareWorkersAI [聊天模型](/oss/python/langchain/models)。如需了解 ChatCloudflareWorkersAI 所有功能和配置的详细文档，请查阅 [API 参考](https://python.langchain.com/docs/integrations/chat/cloudflare_workersai/)。
 
 ## 概述
 
 ### 集成详情
 
-| 类 | 包 | 可序列化 | PY 支持 | 下载量 | 版本 |
-| :--- | :--- | :---: |  :---: | :---: | :---: |
-| [`ChatCloudflareWorkersAI`](https://api.js.langchain.com/classes/langchain_cloudflare.ChatCloudflareWorkersAI.html) | [`@langchain/cloudflare`](https://npmjs.com/@langchain/cloudflare) | ✅ | ❌ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/cloudflare?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/cloudflare?style=flat-square&label=%20&) |
+| 类 | 包 | 可序列化 | [JS 支持](https://js.langchain.com/docs/integrations/chat/cloudflare) | 下载量 | 版本 |
+| :--- | :--- |:------------:|:------------------------------------------------------------------------:| :---: | :---: |
+| [ChatCloudflareWorkersAI](https://python.langchain.com/docs/integrations/chat/cloudflare_workersai/) | [langchain-cloudflare](https://pypi.org/project/langchain-cloudflare/) |      ❌       |                                     ❌                                     | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-cloudflare?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-cloudflare?style=flat-square&label=%20) |
 
-### 模型功能
+### 模型特性
 
-请参阅下表标题中的链接，了解如何使用特定功能的指南。
-
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
-| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
-| ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式输出](/oss/python/langchain/streaming/) | 原生异步 | [Token 用量](/oss/python/langchain/models#token-usage) | [对数概率](/oss/python/langchain/models#log-probabilities) |
+|:-----------------------------------------:|:----------------------------------------------------:|:----------------------------------------------:|:-----------:|:-----------:|:-----------------------------------------------------:|:------------:|:------------------------------------------------------:|:----------------------------------:|
+|                     ✅                     |                          ✅                           |                       ❌                        |      ❌      |      ❌      |                           ❌                           |      ❌       |                             ✅                            |                 ❌                  |
 
 ## 设置
 
-要访问 Cloudflare Workers AI 模型，您需要创建一个 Cloudflare 账户，获取一个 API 密钥，并安装 `@langchain/cloudflare` 集成包。
+要访问 CloudflareWorkersAI 模型，你需要创建一个 CloudflareWorkersAI 账户，获取 API 密钥，并安装 `langchain-cloudflare` 集成包。
 
 ### 凭证
 
-请前往[此页面](https://developers.cloudflare.com/workers-ai/)注册 Cloudflare 并生成 API 密钥。完成后，请记下您的 `CLOUDFLARE_ACCOUNT_ID` 和 `CLOUDFLARE_API_TOKEN`。
+前往 [www.cloudflare.com/developer-platform/products/workers-ai/](https://www.cloudflare.com/developer-platform/products/workers-ai/) 注册 CloudflareWorkersAI 并生成 API 密钥。完成后，请设置 `CF_AI_API_KEY` 和 `CF_ACCOUNT_ID` 环境变量：
 
-目前尚不支持在 Cloudflare Worker 内部传递绑定。
+```python
+import getpass
+import os
+
+if not os.getenv("CF_AI_API_KEY"):
+    os.environ["CF_AI_API_KEY"] = getpass.getpass(
+        "Enter your CloudflareWorkersAI API key: "
+    )
+
+if not os.getenv("CF_ACCOUNT_ID"):
+    os.environ["CF_ACCOUNT_ID"] = getpass.getpass(
+        "Enter your CloudflareWorkersAI account ID: "
+    )
+```
+
+如果你想自动追踪模型调用，也可以通过取消注释以下代码来设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+```
 
 ### 安装
 
-LangChain ChatCloudflareWorkersAI 集成位于 `@langchain/cloudflare` 包中：
+LangChain CloudflareWorkersAI 集成位于 `langchain-cloudflare` 包中：
 
-::: code-group
-
-```bash [npm]
-npm install @langchain/cloudflare @langchain/core
+```python
+pip install -qU langchain-cloudflare
 ```
-
-```bash [yarn]
-yarn add @langchain/cloudflare @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @langchain/cloudflare @langchain/core
-```
-
-:::
 
 ## 实例化
 
-现在我们可以实例化我们的模型对象并生成聊天补全：
+现在我们可以实例化模型对象并生成聊天补全：
 
-```typescript
-// @lc-docs-hide-cell
+- 使用相关参数更新模型实例化。
 
-// @ts-expect-error Deno is not recognized
-const CLOUDFLARE_ACCOUNT_ID = Deno.env.get("CLOUDFLARE_ACCOUNT_ID");
-// @ts-expect-error Deno is not recognized
-const CLOUDFLARE_API_TOKEN = Deno.env.get("CLOUDFLARE_API_TOKEN");
-```
+```python
+from langchain_cloudflare.chat_models import ChatCloudflareWorkersAI
 
-```typescript
-import { ChatCloudflareWorkersAI } from "@langchain/cloudflare";
-
-const llm = new ChatCloudflareWorkersAI({
-  model: "@cf/meta/llama-2-7b-chat-int8", // 默认值
-  cloudflareAccountId: CLOUDFLARE_ACCOUNT_ID,
-  cloudflareApiToken: CLOUDFLARE_API_TOKEN,
-  // 传递自定义基础 URL 以使用 Cloudflare AI Gateway
-  // baseUrl: `https://gateway.ai.cloudflare.com/v1/{YOUR_ACCOUNT_ID}/{GATEWAY_NAME}/workers-ai/`,
-});
+llm = ChatCloudflareWorkersAI(
+    model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+    temperature=0,
+    max_tokens=1024,
+    # other params...
+)
 ```
 
 ## 调用
 
-```typescript
-const aiMsg = await llm.invoke([
-  [
-    "system",
-    "You are a helpful assistant that translates English to French. Translate the user sentence.",
-  ],
-  ["human", "I love programming."],
-])
-aiMsg
+```python
+messages = [
+    (
+        "system",
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+    ),
+    ("human", "I love programming."),
+]
+ai_msg = llm.invoke(messages)
+ai_msg
 ```
 
 ```text
-AIMessage {
-  lc_serializable: true,
-  lc_kwargs: {
-    content: 'I can help with that! The translation of "I love programming" in French is:\n' +
-      "\n" +
-      `"J'adore le programmati`... 4 more characters,
-    tool_calls: [],
-    invalid_tool_calls: [],
-    additional_kwargs: {},
-    response_metadata: {}
-  },
-  lc_namespace: [ "langchain_core", "messages" ],
-  content: 'I can help with that! The translation of "I love programming" in French is:\n' +
-    "\n" +
-    `"J'adore le programmati`... 4 more characters,
-  name: undefined,
-  additional_kwargs: {},
-  response_metadata: {},
-  tool_calls: [],
-  invalid_tool_calls: []
+AIMessage(content="J'adore la programmation.", additional_kwargs={}, response_metadata={'token_usage': {'prompt_tokens': 37, 'completion_tokens': 9, 'total_tokens': 46}, 'model_name': '@cf/meta/llama-3.3-70b-instruct-fp8-fast'}, id='run-995d1970-b6be-49f3-99ae-af4cdba02304-0', usage_metadata={'input_tokens': 37, 'output_tokens': 9, 'total_tokens': 46})
+```
+
+```python
+print(ai_msg.content)
+```
+
+```text
+J'adore la programmation.
+```
+
+## 结构化输出
+
+```python
+json_schema = {
+    "title": "joke",
+    "description": "Joke to tell user.",
+    "type": "object",
+    "properties": {
+        "setup": {
+            "type": "string",
+            "description": "The setup of the joke",
+        },
+        "punchline": {
+            "type": "string",
+            "description": "The punchline to the joke",
+        },
+        "rating": {
+            "type": "integer",
+            "description": "How funny the joke is, from 1 to 10",
+            "default": None,
+        },
+    },
+    "required": ["setup", "punchline"],
 }
-```
+structured_llm = llm.with_structured_output(json_schema)
 
-```typescript
-console.log(aiMsg.content)
+structured_llm.invoke("Tell me a joke about cats")
 ```
 
 ```text
-I can help with that! The translation of "I love programming" in French is:
+{'setup': 'Why did the cat join a band?',
+ 'punchline': 'Because it wanted to be the purr-cussionist',
+ 'rating': '8'}
+```
 
-"J'adore le programmation."
+## 绑定工具
+
+```python
+from typing import List
+
+from langchain.tools import tool
+
+@tool
+def validate_user(user_id: int, addresses: List[str]) -> bool:
+    """Validate user using historical addresses.
+
+    Args:
+        user_id (int): the user ID.
+        addresses (List[str]): Previous addresses as a list of strings.
+    """
+    return True
+
+llm_with_tools = llm.bind_tools([validate_user])
+
+result = llm_with_tools.invoke(
+    "Could you validate user 123? They previously lived at "
+    "123 Fake St in Boston MA and 234 Pretend Boulevard in "
+    "Houston TX."
+)
+result.tool_calls
+```
+
+```text
+[{'name': 'validate_user',
+  'args': {'user_id': '123',
+   'addresses': '["123 Fake St in Boston MA", "234 Pretend Boulevard in Houston TX"]'},
+  'id': '31ec7d6a-9ce5-471b-be64-8ea0492d1387',
+  'type': 'tool_call'}]
 ```
 
 ---
 
 ## API 参考
 
-有关 `ChatCloudflareWorkersAI` 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/langchain_cloudflare.ChatCloudflareWorkersAI.html)。
+[developers.cloudflare.com/workers-ai/](https://developers.cloudflare.com/workers-ai/)
+[developers.cloudflare.com/agents/](https://developers.cloudflare.com/agents/)

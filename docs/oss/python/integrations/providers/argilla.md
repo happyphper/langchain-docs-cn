@@ -29,4 +29,4 @@ uv add argilla
 from langchain.callbacks import ArgillaCallbackHandler
 ```
 
-查看一个[示例](/oss/integrations/callbacks/argilla)。
+查看一个[示例](/oss/python/integrations/callbacks/argilla)。

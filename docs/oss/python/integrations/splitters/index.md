@@ -20,7 +20,7 @@ uv add langchain-text-splitters
 
 <Tip>
 
-对于大多数用例，建议从 [`RecursiveCharacterTextSplitter`](/oss/integrations/splitters/recursive_text_splitter) 开始。它在保持上下文完整性和管理块大小之间提供了良好的平衡。这个默认策略开箱即用效果很好，只有在需要针对特定应用微调性能时才应考虑调整它。
+对于大多数用例，建议从 [`RecursiveCharacterTextSplitter`](/oss/python/integrations/splitters/recursive_text_splitter) 开始。它在保持上下文完整性和管理块大小之间提供了良好的平衡。这个默认策略开箱即用效果很好，只有在需要针对特定应用微调性能时才应考虑调整它。
 
 </Tip>
 
@@ -28,7 +28,7 @@ uv add langchain-text-splitters
 
 文本自然地组织成层次化单元，如段落、句子和单词。我们可以利用这种固有结构来指导我们的分割策略，创建能保持自然语言流、在分割块内保持语义连贯性，并能适应不同文本粒度的分割。LangChain 的 `RecursiveCharacterTextSplitter` 实现了这一概念：
 
-- [`RecursiveCharacterTextSplitter`](/oss/integrations/splitters/recursive_text_splitter) 尝试保持较大的单元（例如，段落）完整。
+- [`RecursiveCharacterTextSplitter`](/oss/python/integrations/splitters/recursive_text_splitter) 尝试保持较大的单元（例如，段落）完整。
 - 如果一个单元超过了块大小，它会移动到下一个级别（例如，句子）。
 - 如有必要，此过程会一直持续到单词级别。
 
@@ -42,7 +42,7 @@ texts = text_splitter.split_text(document)
 ```
 
 **可用的文本分割器**：
-- [递归分割文本](/oss/integrations/splitters/recursive_text_splitter)
+- [递归分割文本](/oss/python/integrations/splitters/recursive_text_splitter)
 
 ## 基于长度
 
@@ -69,8 +69,8 @@ texts = text_splitter.split_text(document)
 ```
 
 **可用的文本分割器**：
-- [按令牌分割](/oss/integrations/splitters/split_by_token)
-- [按字符分割](/oss/integrations/splitters/character_text_splitter)
+- [按令牌分割](/oss/python/integrations/splitters/split_by_token)
+- [按字符分割](/oss/python/integrations/splitters/character_text_splitter)
 
 ## 基于文档结构
 
@@ -88,8 +88,8 @@ texts = text_splitter.split_text(document)
 - 代码：按函数、类或逻辑块分割
 
 **可用的文本分割器**：
-- [分割 Markdown](/oss/integrations/splitters/markdown_header_metadata_splitter)
-- [分割 JSON](/oss/integrations/splitters/recursive_json_splitter)
-- [分割代码](/oss/integrations/splitters/code_splitter)
-- [分割 HTML](/oss/integrations/splitters/split_html)
+- [分割 Markdown](/oss/python/integrations/splitters/markdown_header_metadata_splitter)
+- [分割 JSON](/oss/python/integrations/splitters/recursive_json_splitter)
+- [分割代码](/oss/python/integrations/splitters/code_splitter)
+- [分割 HTML](/oss/python/integrations/splitters/split_html)
 

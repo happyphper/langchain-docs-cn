@@ -3,7 +3,7 @@ title: Google Memorystore for Redis
 ---
 > [Google Memorystore for Redis](https://cloud.google.com/memorystore/docs/redis/memorystore-for-redis-overview) 是一项全托管服务，由 Redis 内存数据存储提供支持，用于构建提供亚毫秒级数据访问速度的应用程序缓存。借助 Memorystore for Redis 的 LangChain 集成，扩展您的数据库应用程序以构建由 AI 驱动的体验。
 
-本笔记本将介绍如何使用 [Memorystore for Redis](https://cloud.google.com/memorystore/docs/redis/memorystore-for-redis-overview) 通过 `MemorystoreDocumentLoader` 和 `MemorystoreDocumentSaver` 来 [保存、加载和删除 langchain 文档](/oss/integrations/document_loaders)。
+本笔记本将介绍如何使用 [Memorystore for Redis](https://cloud.google.com/memorystore/docs/redis/memorystore-for-redis-overview) 通过 `MemorystoreDocumentLoader` 和 `MemorystoreDocumentSaver` 来 [保存、加载和删除 langchain 文档](/oss/javascript/integrations/document_loaders)。
 
 在 [GitHub](https://github.com/googleapis/langchain-google-memorystore-redis-python/) 上了解更多关于此包的信息。
 

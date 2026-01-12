@@ -1,16 +1,16 @@
 ---
 title: 人机协同
 ---
-人机协同（Human-in-the-Loop，HITL）[中间件](/oss/langchain/middleware/built-in#human-in-the-loop)允许您为智能体（agent）的工具调用添加人工监督。
+人机协同（Human-in-the-Loop，HITL）[中间件](/oss/javascript/langchain/middleware/built-in#human-in-the-loop)允许您为智能体（agent）的工具调用添加人工监督。
 当模型提出一个可能需要审查的操作时——例如写入文件或执行 SQL——该中间件可以暂停执行并等待决策。
 
-它通过根据可配置的策略检查每个工具调用来实现此功能。如果需要干预，中间件会发出一个 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.interrupt.html" target="_blank" rel="noreferrer" class="link">interrupt</a>，从而停止执行。图状态会使用 LangGraph 的[持久化层](/oss/langgraph/persistence)保存，因此执行可以安全地暂停并在稍后恢复。
+它通过根据可配置的策略检查每个工具调用来实现此功能。如果需要干预，中间件会发出一个 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.interrupt.html" target="_blank" rel="noreferrer" class="link">interrupt</a>，从而停止执行。图状态会使用 LangGraph 的[持久化层](/oss/javascript/langgraph/persistence)保存，因此执行可以安全地暂停并在稍后恢复。
 
 然后，人工决策将决定接下来发生什么：操作可以按原样批准（`approve`）、在运行前修改（`edit`），或者拒绝并附带反馈（`reject`）。
 
 ## 中断决策类型
 
-该[中间件](/oss/langchain/middleware/built-in#human-in-the-loop)定义了三种内置的人工响应中断的方式：
+该[中间件](/oss/javascript/langchain/middleware/built-in#human-in-the-loop)定义了三种内置的人工响应中断的方式：
 
 | 决策类型 | 描述                                                                 | 示例用例                                     |
 |---------------|---------------------------------------------------------------------------|-----------------------------------------------------|
@@ -30,7 +30,7 @@ title: 人机协同
 
 ## 配置中断
 
-要使用 HITL，请在创建智能体时将该[中间件](/oss/langchain/middleware/built-in#human-in-the-loop)添加到智能体的 `middleware` 列表中。
+要使用 HITL，请在创建智能体时将该[中间件](/oss/javascript/langchain/middleware/built-in#human-in-the-loop)添加到智能体的 `middleware` 列表中。
 
 您需要配置一个从工具操作到每个操作允许的决策类型的映射。当工具调用与映射中的某个操作匹配时，中间件将中断执行。
 
@@ -71,7 +71,7 @@ const agent = createAgent({
 在生产环境中，请使用持久化的检查点保存器，如 <a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph-checkpoint-postgres.AsyncPostgresSaver.html" target="_blank" rel="noreferrer" class="link"><code>AsyncPostgresSaver</code></a>。对于测试或原型设计，可以使用 <a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph-checkpoint.MemorySaver.html" target="_blank" rel="noreferrer" class="link"><code>InMemorySaver</code></a>。
 
 在调用智能体时，传递一个包含<strong>线程 ID</strong> 的 `config`，以便将执行与会话线程关联起来。
-详情请参阅 [LangGraph 中断文档](/oss/langgraph/interrupts)。
+详情请参阅 [LangGraph 中断文档](/oss/javascript/langgraph/interrupts)。
 
 </Info>
 

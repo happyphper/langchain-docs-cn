@@ -9,7 +9,7 @@ title: Eden AI
 
 ## 大语言模型 (LLMs)
 
-查看[使用示例](/oss/integrations/llms/edenai)。
+查看[使用示例](/oss/javascript/integrations/llms/edenai)。
 
 ```python
 from langchain_community.llms import EdenAI
@@ -17,7 +17,7 @@ from langchain_community.llms import EdenAI
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/edenai)。
+查看[使用示例](/oss/javascript/integrations/chat/edenai)。
 
 ```python
 from langchain_community.chat_models.edenai import ChatEdenAI
@@ -25,7 +25,7 @@ from langchain_community.chat_models.edenai import ChatEdenAI
 
 ## 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/edenai)。
+查看[使用示例](/oss/javascript/integrations/text_embedding/edenai)。
 
 ```python
 from langchain_community.embeddings.edenai import EdenAiEmbeddings
@@ -42,7 +42,7 @@ Eden AI 提供了一系列工具，赋予您的智能体 (Agent) 执行多种任
 * OCR 发票解析
 * OCR 身份证件解析
 
-查看[使用示例](/oss/integrations/tools/edenai_tools)。
+查看[使用示例](/oss/javascript/integrations/tools/edenai_tools)。
 
 ```python
 from langchain_community.tools.edenai import (

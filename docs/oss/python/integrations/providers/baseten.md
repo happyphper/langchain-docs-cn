@@ -23,7 +23,7 @@ export BASETEN_API_KEY="paste_your_api_key_here"
 
 ## 聊天模型（模型 API 与专用部署）
 
-查看[使用示例](/oss/integrations/chat/baseten)。
+查看[使用示例](/oss/python/integrations/chat/baseten)。
 
 ```python
 from langchain_baseten import ChatBaseten
@@ -31,7 +31,7 @@ from langchain_baseten import ChatBaseten
 
 ## 嵌入模型（仅限专用部署）
 
-查看[使用示例](/oss/integrations/text_embedding/baseten)。
+查看[使用示例](/oss/python/integrations/text_embedding/baseten)。
 
 ```python
 from langchain_baseten import BasetenEmbeddings

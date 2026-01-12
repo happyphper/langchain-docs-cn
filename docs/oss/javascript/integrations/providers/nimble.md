@@ -19,10 +19,10 @@ title: Nimble
 pip install -U langchain-nimble
 ```
 
-查看[使用示例](/oss/integrations/retrievers/nimble/)。
+查看[使用示例](/oss/javascript/integrations/retrievers/nimble/)。
 
 ```python
 from langchain_nimble import NimbeSearchRetriever
 ```
 
-请注意，需要进行身份验证，请参阅文档中的[设置部分](/oss/integrations/retrievers/nimble/#setup)。
+请注意，需要进行身份验证，请参阅文档中的[设置部分](/oss/javascript/integrations/retrievers/nimble/#setup)。

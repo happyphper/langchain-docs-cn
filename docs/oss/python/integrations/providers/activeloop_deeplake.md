@@ -38,4 +38,4 @@ uv add deeplake
 from langchain_community.vectorstores import DeepLake
 ```
 
-查看[使用示例](/oss/integrations/vectorstores/activeloop_deeplake)。
+查看[使用示例](/oss/python/integrations/vectorstores/activeloop_deeplake)。

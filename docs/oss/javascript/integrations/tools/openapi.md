@@ -14,7 +14,7 @@ title: OpenApi 工具包
 
 </Warning>
 
-这将帮助您开始使用 [OpenApiToolkit](/oss/langchain/tools#toolkits)。有关 OpenApiToolkit 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain.agents.OpenApiToolkit.html)。
+这将帮助您开始使用 [OpenApiToolkit](/oss/javascript/langchain/tools#toolkits)。有关 OpenApiToolkit 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain.agents.OpenApiToolkit.html)。
 
 `OpenAPIToolkit` 可以访问以下工具：
 

@@ -21,4 +21,4 @@ uv add langchain-salesforce
 
 ## 工具
 
-有关可用工具的详细信息，请参见[此处](/oss/integrations/tools/salesforce/)。
+有关可用工具的详细信息，请参见[此处](/oss/javascript/integrations/tools/salesforce/)。

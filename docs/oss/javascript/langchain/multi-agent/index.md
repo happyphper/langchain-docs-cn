@@ -12,11 +12,11 @@ sidebarTitle: Overview
 - <Icon icon="users" /> **分布式开发**：允许不同团队独立开发和维护功能，并将它们组合成一个具有清晰边界的更大系统。
 - <Icon icon="code-branch" /> **并行化**：为子任务生成专门的执行者，并让它们并发执行以获得更快的结果。
 
-当单个智能体拥有过多[工具](/oss/langchain/tools)且在选择使用哪个工具时决策不佳时，当任务需要具有大量上下文（长提示和领域特定工具）的专业知识时，或者当你需要强制执行顺序约束（即只有在满足特定条件后才能解锁某些能力）时，多智能体模式尤其有价值。
+当单个智能体拥有过多[工具](/oss/javascript/langchain/tools)且在选择使用哪个工具时决策不佳时，当任务需要具有大量上下文（长提示和领域特定工具）的专业知识时，或者当你需要强制执行顺序约束（即只有在满足特定条件后才能解锁某些能力）时，多智能体模式尤其有价值。
 
 <Tip>
 
-多智能体设计的核心是<strong>[上下文工程](/oss/langchain/context-engineering)</strong>——决定每个智能体能看到什么信息。系统的质量取决于能否确保每个智能体都能访问其任务所需的正确数据。
+多智能体设计的核心是<strong>[上下文工程](/oss/javascript/langchain/context-engineering)</strong>——决定每个智能体能看到什么信息。系统的质量取决于能否确保每个智能体都能访问其任务所需的正确数据。
 
 </Tip>
 
@@ -26,11 +26,11 @@ sidebarTitle: Overview
 
 | 模式 | 工作原理 |
 |--------------|--------------|
-| [**子智能体**](/oss/langchain/multi-agent/subagents) | 一个主智能体将子智能体作为工具进行协调。所有路由都通过主智能体，由它决定何时以及如何调用每个子智能体。 |
-| [**交接**](/oss/langchain/multi-agent/handoffs) | 行为根据状态动态变化。工具调用会更新状态变量，从而触发路由或配置更改，切换智能体或调整当前智能体的工具和提示。 |
-| [**技能**](/oss/langchain/multi-agent/skills) | 按需加载的专用提示和知识。单个智能体保持控制，同时根据需要从技能加载上下文。 |
-| [**路由器**](/oss/langchain/multi-agent/router) | 路由步骤对输入进行分类，并将其定向到一个或多个专用智能体。结果被合成为一个组合响应。 |
-| [**自定义工作流**](/oss/langchain/multi-agent/custom-workflow) | 使用 [LangGraph](/oss/langgraph/overview) 构建定制的执行流程，混合确定性逻辑和智能体行为。将其他模式作为节点嵌入到你的工作流中。 |
+| [**子智能体**](/oss/javascript/langchain/multi-agent/subagents) | 一个主智能体将子智能体作为工具进行协调。所有路由都通过主智能体，由它决定何时以及如何调用每个子智能体。 |
+| [**交接**](/oss/javascript/langchain/multi-agent/handoffs) | 行为根据状态动态变化。工具调用会更新状态变量，从而触发路由或配置更改，切换智能体或调整当前智能体的工具和提示。 |
+| [**技能**](/oss/javascript/langchain/multi-agent/skills) | 按需加载的专用提示和知识。单个智能体保持控制，同时根据需要从技能加载上下文。 |
+| [**路由器**](/oss/javascript/langchain/multi-agent/router) | 路由步骤对输入进行分类，并将其定向到一个或多个专用智能体。结果被合成为一个组合响应。 |
+| [**自定义工作流**](/oss/javascript/langchain/multi-agent/custom-workflow) | 使用 [LangGraph](/oss/javascript/langgraph/overview) 构建定制的执行流程，混合确定性逻辑和智能体行为。将其他模式作为节点嵌入到你的工作流中。 |
 
 ### 选择模式
 
@@ -40,10 +40,10 @@ sidebarTitle: Overview
 
 | 模式 | 分布式开发 | 并行化 | 多跳 | 直接用户交互 |
 |---------|:-----------------------:|:---------------:|:----------:|:-----------------------:|
-| [**子智能体**](/oss/langchain/multi-agent/subagents) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐ |
-| [**交接**](/oss/langchain/multi-agent/handoffs) | — | — | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| [**技能**](/oss/langchain/multi-agent/skills) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| [**路由器**](/oss/langchain/multi-agent/router) | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | — | ⭐⭐⭐ |
+| [**子智能体**](/oss/javascript/langchain/multi-agent/subagents) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐ |
+| [**交接**](/oss/javascript/langchain/multi-agent/handoffs) | — | — | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| [**技能**](/oss/javascript/langchain/multi-agent/skills) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| [**路由器**](/oss/javascript/langchain/multi-agent/router) | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | — | ⭐⭐⭐ |
 
 </div>
 
@@ -122,7 +122,7 @@ sidebarTitle: Overview
 
 **关键指标：**
 - **模型调用**：LLM 调用的次数。调用越多 = 延迟越高（尤其是顺序调用时）且每次请求的 API 成本越高。
-- **处理的令牌数**：所有调用中总的[上下文窗口](/oss/langchain/context-engineering)使用量。令牌越多 = 处理成本越高，且可能触及上下文限制。
+- **处理的令牌数**：所有调用中总的[上下文窗口](/oss/javascript/langchain/context-engineering)使用量。令牌越多 = 处理成本越高，且可能触及上下文限制。
 
 ### 单次请求
 
@@ -132,10 +132,10 @@ sidebarTitle: Overview
 
 | 模式 | 模型调用 | 最佳适用 |
 |---------|:-----------:|:--------:|
-| [**子智能体**](/oss/langchain/multi-agent/subagents) | 4 | |
-| [**交接**](/oss/langchain/multi-agent/handoffs) | 3 | ✅ |
-| [**技能**](/oss/langchain/multi-agent/skills) | 3 | ✅ |
-| [**路由器**](/oss/langchain/multi-agent/router) | 3 | ✅ |
+| [**子智能体**](/oss/javascript/langchain/multi-agent/subagents) | 4 | |
+| [**交接**](/oss/javascript/langchain/multi-agent/handoffs) | 3 | ✅ |
+| [**技能**](/oss/javascript/langchain/multi-agent/skills) | 3 | ✅ |
+| [**路由器**](/oss/javascript/langchain/multi-agent/router) | 3 | ✅ |
 
 <Tabs>
 
@@ -202,10 +202,10 @@ sidebarTitle: Overview
 
 | 模式 | 第 2 轮调用 | 总计（两轮） | 最佳适用 |
 |---------|:------------:|:------------------:|:--------:|
-| [**子智能体**](/oss/langchain/multi-agent/subagents) | 4 | 8 | |
-| [**Handoffs**](/oss/langchain/multi-agent/handoffs) | 2 | 5 | ✅ |
-| [**Skills**](/oss/langchain/multi-agent/skills) | 2 | 5 | ✅ |
-| [**Router**](/oss/langchain/multi-agent/router) | 3 | 6 | |
+| [**子智能体**](/oss/javascript/langchain/multi-agent/subagents) | 4 | 8 | |
+| [**Handoffs**](/oss/javascript/langchain/multi-agent/handoffs) | 2 | 5 | ✅ |
+| [**Skills**](/oss/javascript/langchain/multi-agent/skills) | 2 | 5 | ✅ |
+| [**Router**](/oss/javascript/langchain/multi-agent/router) | 3 | 6 | |
 
 </div>
 
@@ -265,10 +265,10 @@ sidebarTitle: Overview
 
 | 模式 | 模型调用 | 总令牌数 | 最佳适用 |
 |---------|:-----------:|:------------:|:--------:|
-| [**子智能体**](/oss/langchain/multi-agent/subagents) | 5 | ~9K | ✅ |
-| [**交接**](/oss/langchain/multi-agent/handoffs) | 7+ | ~14K+ | |
-| [**技能**](/oss/langchain/multi-agent/skills) | 3 | ~15K | |
-| [**路由器**](/oss/langchain/multi-agent/router) | 5 | ~9K | ✅ |
+| [**子智能体**](/oss/javascript/langchain/multi-agent/subagents) | 5 | ~9K | ✅ |
+| [**交接**](/oss/javascript/langchain/multi-agent/handoffs) | 7+ | ~14K+ | |
+| [**技能**](/oss/javascript/langchain/multi-agent/skills) | 3 | ~15K | |
+| [**路由器**](/oss/javascript/langchain/multi-agent/router) | 5 | ~9K | ✅ |
 
 <Tabs>
 
@@ -340,10 +340,10 @@ sidebarTitle: Overview
 
 | 模式 | 单次请求 | 重复请求 | 多领域 |
 |---------|:-----------:|:---------:|:----------------:|
-| [**子智能体**](/oss/langchain/multi-agent/subagents) | 4 次调用 | 8 次调用 (4+4) | 5 次调用，9K 令牌 |
-| [**交接**](/oss/langchain/multi-agent/handoffs) | 3 次调用 | 5 次调用 (3+2) | 7+ 次调用，14K+ 令牌 |
-| [**技能**](/oss/langchain/multi-agent/skills) | 3 次调用 | 5 次调用 (3+2) | 3 次调用，15K 令牌 |
-| [**路由器**](/oss/langchain/multi-agent/router) | 3 次调用 | 6 次调用 (3+3) | 5 次调用，9K 令牌 |
+| [**子智能体**](/oss/javascript/langchain/multi-agent/subagents) | 4 次调用 | 8 次调用 (4+4) | 5 次调用，9K 令牌 |
+| [**交接**](/oss/javascript/langchain/multi-agent/handoffs) | 3 次调用 | 5 次调用 (3+2) | 7+ 次调用，14K+ 令牌 |
+| [**技能**](/oss/javascript/langchain/multi-agent/skills) | 3 次调用 | 5 次调用 (3+2) | 3 次调用，15K 令牌 |
+| [**路由器**](/oss/javascript/langchain/multi-agent/router) | 3 次调用 | 6 次调用 (3+3) | 5 次调用，9K 令牌 |
 
 </div>
 
@@ -351,7 +351,7 @@ sidebarTitle: Overview
 
 <div className="compact-first-col">
 
-| 优化目标 | [子智能体](/oss/langchain/multi-agent/subagents) | [交接](/oss/langchain/multi-agent/handoffs) | [技能](/oss/langchain/multi-agent/skills) | [路由器](/oss/langchain/multi-agent/router) |
+| 优化目标 | [子智能体](/oss/javascript/langchain/multi-agent/subagents) | [交接](/oss/javascript/langchain/multi-agent/handoffs) | [技能](/oss/javascript/langchain/multi-agent/skills) | [路由器](/oss/javascript/langchain/multi-agent/router) |
 |--------------|:---------:|:--------:|:------:|:------:|
 | 单次请求 | | ✅ | ✅ | ✅ |
 | 重复请求 | | ✅ | ✅ | |

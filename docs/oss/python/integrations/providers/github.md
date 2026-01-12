@@ -11,7 +11,7 @@ title: GitHub
 
 GitHub 提供了两种文档加载器。
 
-查看[使用示例](/oss/integrations/document_loaders/github)。
+查看[使用示例](/oss/python/integrations/document_loaders/github)。
 
 ```python
 from langchain_community.document_loaders import GitHubIssuesLoader, GithubFileLoader
@@ -28,7 +28,7 @@ from langchain_community.document_loaders import GitHubIssuesLoader, GithubFileL
 from langchain_community.agent_toolkits.github.toolkit import GitHubToolkit
 ```
 
-在[示例笔记本](/oss/integrations/tools/github)中了解更多信息。
+在[示例笔记本](/oss/python/integrations/tools/github)中了解更多信息。
 
 ### GitHubAction
 

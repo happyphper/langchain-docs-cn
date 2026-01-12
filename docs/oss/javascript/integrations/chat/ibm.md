@@ -1,7 +1,7 @@
 ---
 title: IBM watsonx.ai
 ---
-这将帮助您开始使用 IBM watsonx.ai [聊天模型](/oss/langchain/models)。有关所有 `IBM watsonx.ai` 功能和配置的详细文档，请前往 [IBM watsonx.ai](https://api.js.langchain.com/modules/_langchain_community.chat_models_ibm.html)。
+这将帮助您开始使用 IBM watsonx.ai [聊天模型](/oss/javascript/langchain/models)。有关所有 `IBM watsonx.ai` 功能和配置的详细文档，请前往 [IBM watsonx.ai](https://api.js.langchain.com/modules/_langchain_community.chat_models_ibm.html)。
 
 ## 概述
 
@@ -13,7 +13,7 @@ title: IBM watsonx.ai
 
 ### 模型功能
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
 

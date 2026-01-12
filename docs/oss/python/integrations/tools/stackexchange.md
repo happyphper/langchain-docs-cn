@@ -1,36 +1,22 @@
 ---
-title: StackExchange 工具
+title: StackExchange
 ---
-StackExchange 工具可将您的智能体和链连接到 StackExchange API。
+>[Stack Exchange](https://stackexchange.com/) 是一个涵盖多个领域的问答（Q&A）网站网络，每个网站专注于特定主题，其中的问题、答案和用户都受到声誉奖励机制的约束。该声誉系统使得网站能够实现自我管理。
 
-## 使用方法
+`StackExchange` 组件将 StackExchange API 集成到 LangChain 中，允许访问 Stack Exchange 网络中的 [StackOverflow](https://stackoverflow.com/) 网站。Stack Overflow 专注于计算机编程领域。
 
-```typescript
-import { StackExchangeAPI } from "@langchain/community/tools/stackexchange";
+本笔记本将介绍如何使用 `StackExchange` 组件。
 
-// 从 StackExchange API 获取结果
-const stackExchangeTool = new StackExchangeAPI();
-const result = await stackExchangeTool.invoke("zsh: command not found: python");
-console.log(result);
+首先，我们需要安装实现了 Stack Exchange API 的 Python 包 `stackapi`。
 
-// 通过标题查询从 StackExchange API 获取结果
-const stackExchangeTitleTool = new StackExchangeAPI({
-  queryType: "title",
-});
-const titleResult = await stackExchangeTitleTool.invoke(
-  "zsh: command not found: python"
-);
-console.log(titleResult);
-
-// 使用无效查询从 StackExchange API 获取结果
-const stackExchangeBadTool = new StackExchangeAPI();
-const badResult = await stackExchangeBadTool.invoke(
-  "sjefbsmnazdkhbazkbdoaencopebfoubaef"
-);
-console.log(badResult);
+```python
+pip install -U stackapi
 ```
 
-## 相关链接
+```python
+from langchain_community.utilities import StackExchangeAPIWrapper
 
-- 工具 [概念指南](/oss/langchain/tools)
-- 工具 [操作指南](/oss/langchain/tools)
+stackexchange = StackExchangeAPIWrapper()
+
+stackexchange.run("zsh: command not found: python")
+```

@@ -8,7 +8,7 @@ title: 文心一言聊天模型
 
 我们建议用户从 `langchain_community.chat_models.ErnieBotChat` 切换到 `langchain_community.chat_models.QianfanChatEndpoint`。
 
-`QianfanChatEndpoint` 的文档在[这里](/oss/integrations/chat/baidu_qianfan_endpoint/)。
+`QianfanChatEndpoint` 的文档在[这里](/oss/javascript/integrations/chat/baidu_qianfan_endpoint/)。
 
 我们建议用户使用 `QianfanChatEndpoint` 有 4 个原因：
 

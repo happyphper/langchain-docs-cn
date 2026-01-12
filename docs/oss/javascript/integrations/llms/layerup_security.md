@@ -88,4 +88,4 @@ const response = await layerupSecurity.invoke(
 
 ## 相关链接
 
-- [模型指南](/oss/langchain/models)
+- [模型指南](/oss/javascript/langchain/models)

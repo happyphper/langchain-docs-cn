@@ -25,7 +25,7 @@ uv add hologres-vector
 
 ## 向量存储
 
-查看[使用示例](/oss/integrations/vectorstores/hologres)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/hologres)。
 
 ```python
 from langchain_community.vectorstores import Hologres

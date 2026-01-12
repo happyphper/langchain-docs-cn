@@ -29,7 +29,7 @@ data
 
 ## 使用 Unstructured
 
-关于在本地设置 Unstructured 的更多说明，包括设置所需的系统依赖项，请参阅[本指南](/oss/integrations/providers/unstructured/)。
+关于在本地设置 Unstructured 的更多说明，包括设置所需的系统依赖项，请参阅[本指南](/oss/python/integrations/providers/unstructured/)。
 
 ```python
 from langchain_community.document_loaders import UnstructuredWordDocumentLoader

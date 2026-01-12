@@ -1,96 +1,143 @@
 ---
-title: Gmail 工具
+title: Gmail 工具包
 ---
-Gmail 工具允许您的代理从关联的电子邮件账户创建和查看邮件。
+这将帮助你开始使用 Gmail [工具包](/oss/python/langchain/tools#toolkits)。该工具包与 Gmail API 交互，用于读取邮件、草拟和发送邮件等。有关 GmailToolkit 所有功能和配置的详细文档，请前往 [API 参考](https://python.langchain.com/api_reference/google_community/gmail/langchain_google_community.gmail.toolkit.GmailToolkit.html)。
 
 ## 设置
 
-您可以通过两种方法进行身份验证：
+要使用此工具包，你需要按照 [Gmail API 文档](https://developers.google.com/gmail/api/quickstart/python#authorize_credentials_for_a_desktop_application) 中的说明设置你的凭据。下载 `credentials.json` 文件后，你就可以开始使用 Gmail API 了。
 
-1. 向凭据对象提供通过 OAuth2 令牌交换获得的访问令牌。
-   这可以是一个字符串或一个函数，以便处理令牌过期和验证。
-   这可以使用支持从联合连接获取访问令牌的身份提供程序来完成。
-   这是最安全的方法，因为访问权限和范围将仅限于特定的最终用户。
-   当在旨在供最终用户使用其自己的 Gmail 账户的应用程序中使用该工具时，此方法将更合适。
-2. 您需要从 [Google 此处](https://developers.google.com/gmail/api/guides) 获取 API 密钥，并 [启用新的 Gmail API](https://console.cloud.google.com/apis/library/gmail.googleapis.com)。
-   然后，设置环境变量 `GMAIL_CLIENT_EMAIL`，以及 `GMAIL_PRIVATE_KEY` 或 `GMAIL_KEYFILE`。
+### 安装
 
-要使用 Gmail 工具，您需要安装以下官方对等依赖项：
+此工具包位于 `langchain-google-community` 包中。我们需要 `gmail` 额外依赖项：
 
-<Tip>
-
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/openai @langchain/community @langchain/core googleapis
+```python
+pip install -qU langchain-google-community\[gmail\]
 ```
 
-## 用法
+要启用单个工具的自动追踪，请设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
 
-```typescript
-import { initializeAgentExecutorWithOptions } from "@langchain/classic/agents";
-import { OpenAI } from "@langchain/openai";
-import {
-  GmailCreateDraft,
-  GmailGetMessage,
-  GmailGetThread,
-  GmailSearch,
-  GmailSendMessage,
-} from "@langchain/community/tools/gmail";
-import { StructuredTool } from "@langchain/core/tools";
-
-export async function run() {
-  const model = new OpenAI({
-    temperature: 0,
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-
-  // 这些是 Gmail 工具的默认参数
-  //   const gmailParams = {
-  //     credentials: {
-  //       clientEmail: process.env.GMAIL_CLIENT_EMAIL,
-  //       privateKey: process.env.GMAIL_PRIVATE_KEY,
-  //       // 需要 (privateKey + clientEmail) 或 accessToken 之一
-  //       accessToken: "an access token or function to get access token",
-  //     },
-  //     scopes: ["https://mail.google.com/"], // 如果使用访问令牌，则不需要
-  //   };
-
-  // 对于自定义参数，请取消注释上面的代码，将值替换为您自己的值，并将其传递给下面的工具
-  const tools: StructuredTool[] = [
-    new GmailCreateDraft(),
-    new GmailGetMessage(),
-    new GmailGetThread(),
-    new GmailSearch(),
-    new GmailSendMessage(),
-  ];
-
-  const gmailAgent = await initializeAgentExecutorWithOptions(tools, model, {
-    agentType: "structured-chat-zero-shot-react-description",
-    verbose: true,
-  });
-
-  const createInput = `Create a gmail draft for me to edit of a letter from the perspective of a sentient parrot who is looking to collaborate on some research with her estranged friend, a cat. Under no circumstances may you send the message, however.`;
-
-  const createResult = await gmailAgent.invoke({ input: createInput });
-  //   Create Result {
-  //     output: 'I have created a draft email for you to edit. The draft Id is r5681294731961864018.'
-  //   }
-  console.log("Create Result", createResult);
-
-  const viewInput = `Could you search in my drafts for the latest email?`;
-
-  const viewResult = await gmailAgent.invoke({ input: viewInput });
-  //   View Result {
-  //     output: "The latest email in your drafts is from hopefulparrot@gmail.com with the subject 'Collaboration Opportunity'. The body of the email reads: 'Dear [Friend], I hope this letter finds you well. I am writing to you in the hopes of rekindling our friendship and to discuss the possibility of collaborating on some research together. I know that we have had our differences in the past, but I believe that we can put them aside and work together for the greater good. I look forward to hearing from you. Sincerely, [Parrot]'"
-  //   }
-  console.log("View Result", viewResult);
-}
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
 ```
 
-## 相关
+## 实例化
 
-- 工具 [概念指南](/oss/langchain/tools)
-- 工具 [操作指南](/oss/langchain/tools)
+默认情况下，工具包会读取本地的 `credentials.json` 文件。你也可以手动提供一个 `Credentials` 对象。
+
+```python
+from langchain_google_community import GmailToolkit
+
+toolkit = GmailToolkit()
+```
+
+### 自定义身份验证
+
+在后台，会使用以下方法创建一个 `googleapi` 资源。你可以手动构建一个 `googleapi` 资源以获得更多的身份验证控制。
+
+```python
+from langchain_google_community.gmail.utils import (
+    build_resource_service,
+    get_gmail_credentials,
+)
+
+# 可以在此处查看作用域 https://developers.google.com/gmail/api/auth/scopes
+# 例如，只读作用域是 'https://www.googleapis.com/auth/gmail.readonly'
+credentials = get_gmail_credentials(
+    token_file="token.json",
+    scopes=["https://mail.google.com/"],
+    client_secrets_file="credentials.json",
+)
+api_resource = build_resource_service(credentials=credentials)
+toolkit = GmailToolkit(api_resource=api_resource)
+```
+
+## 工具
+
+查看可用工具：
+
+```python
+tools = toolkit.get_tools()
+tools
+```
+
+```text
+[GmailCreateDraft(api_resource=<googleapiclient.discovery.Resource object at 0x1094509d0>),
+ GmailSendMessage(api_resource=<googleapiclient.discovery.Resource object at 0x1094509d0>),
+ GmailSearch(api_resource=<googleapiclient.discovery.Resource object at 0x1094509d0>),
+ GmailGetMessage(api_resource=<googleapiclient.discovery.Resource object at 0x1094509d0>),
+ GmailGetThread(api_resource=<googleapiclient.discovery.Resource object at 0x1094509d0>)]
+```
+
+- [GmailCreateDraft](https://python.langchain.com/api_reference/google_community/gmail/langchain_google_community.gmail.create_draft.GmailCreateDraft.html)
+- [GmailSendMessage](https://python.langchain.com/api_reference/google_community/gmail/langchain_google_community.gmail.send_message.GmailSendMessage.html)
+- [GmailSearch](https://python.langchain.com/api_reference/google_community/gmail/langchain_google_community.gmail.search.GmailSearch.html)
+- [GmailGetMessage](https://python.langchain.com/api_reference/google_community/gmail/langchain_google_community.gmail.get_message.GmailGetMessage.html)
+- [GmailGetThread](https://python.langchain.com/api_reference/google_community/gmail/langchain_google_community.gmail.get_thread.GmailGetThread.html)
+
+## 在代理中使用
+
+下面我们将展示如何将工具包集成到 [代理](/oss/python/langchain/agents) 中。
+
+我们需要一个 LLM 或聊天模型：
+
+<ChatModelTabs customVarName="llm" />
+
+```python
+# | output: false
+# | echo: false
+
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+```
+
+```python
+from langchain.agents import create_agent
+
+agent_executor = create_agent(llm, tools)
+```
+
+```python
+example_query = "Draft an email to fake@fake.com thanking them for coffee."
+
+events = agent_executor.stream(
+    {"messages": [("user", example_query)]},
+    stream_mode="values",
+)
+for event in events:
+    event["messages"][-1].pretty_print()
+```
+
+```text
+================================ Human Message =================================
+
+Draft an email to fake@fake.com thanking them for coffee.
+================================== Ai Message ==================================
+Tool Calls:
+  create_gmail_draft (call_slGkYKZKA6h3Mf1CraUBzs6M)
+ Call ID: call_slGkYKZKA6h3Mf1CraUBzs6M
+  Args:
+    message: Dear Fake,
+
+I wanted to take a moment to thank you for the coffee yesterday. It was a pleasure catching up with you. Let's do it again soon!
+
+Best regards,
+[Your Name]
+    to: ['fake@fake.com']
+    subject: Thank You for the Coffee
+================================= Tool Message =================================
+Name: create_gmail_draft
+
+Draft created. Draft Id: r-7233782721440261513
+================================== Ai Message ==================================
+
+I have drafted an email to fake@fake.com thanking them for the coffee. You can review and send it from your email draft with the subject "Thank You for the Coffee".
+```
+
+---
+
+## API 参考
+
+有关 `GmailToolkit` 所有功能和配置的详细文档，请前往 [API 参考](https://python.langchain.com/api_reference/community/agent_toolkits/langchain_community.agent_toolkits.gmail.toolkit.GmailToolkit.html)。

@@ -26,7 +26,7 @@ uv add torch-npu
 
 ### 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/ascend)。
+查看[使用示例](/oss/python/integrations/text_embedding/ascend)。
 
 ```python
 from langchain_community.embeddings import AscendEmbeddings

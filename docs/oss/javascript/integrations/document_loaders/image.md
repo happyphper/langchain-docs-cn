@@ -3,7 +3,7 @@ title: 图片
 ---
 本文介绍了如何将图像加载成可供下游其他 LangChain 模块使用的文档格式。
 
-它使用 [Unstructured](https://unstructured.io/) 来处理多种图像格式，例如 `.jpg` 和 `.png`。关于在本地设置 Unstructured 的更多说明，包括设置所需的系统依赖项，请参阅[本指南](/oss/integrations/providers/unstructured/)。
+它使用 [Unstructured](https://unstructured.io/) 来处理多种图像格式，例如 `.jpg` 和 `.png`。关于在本地设置 Unstructured 的更多说明，包括设置所需的系统依赖项，请参阅[本指南](/oss/javascript/integrations/providers/unstructured/)。
 
 ## 使用 Unstructured
 

@@ -1,50 +1,34 @@
 ---
-title: Google Places 工具
+title: Google Places
 ---
-Google Places 工具允许您的智能体利用 Google Places API，从 Google Places 上列出的地点相关文本中查找地址、电话号码、网站等信息。
+本笔记本将介绍如何使用 Google Places API
 
-## 设置
-
-您需要从 [Google 此处](https://developers.google.com/maps/documentation/places/web-service/overview) 获取一个 API 密钥，并 [启用新的 Places API](https://console.cloud.google.com/apis/library/places.googleapis.com)。然后，将您的 API 密钥设置为 `process.env.GOOGLE_PLACES_API_KEY` 或将其作为 `apiKey` 构造函数参数传入。
-
-## 用法
-
-<Tip>
-
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/openai @langchain/community @langchain/core
+```python
+pip install -qU  googlemaps langchain-community
 ```
 
-```typescript
-import { GooglePlacesAPI } from "@langchain/community/tools/google_places";
-import { OpenAI } from "@langchain/openai";
-import { initializeAgentExecutorWithOptions } from "@langchain/classic/agents";
+```python
+import os
 
-export async function run() {
-  const model = new OpenAI({
-    temperature: 0,
-  });
-
-  const tools = [new GooglePlacesAPI()];
-
-  const executor = await initializeAgentExecutorWithOptions(tools, model, {
-    agentType: "zero-shot-react-description",
-    verbose: true,
-  });
-
-  const res = await executor.invoke({
-    input: "Where is the University of Toronto - Scarborough? ",
-  });
-
-  console.log(res.output);
-}
+os.environ["GPLACES_API_KEY"] = ""
 ```
 
-## 相关链接
+```python
+from langchain_community.tools import GooglePlacesTool
+```
 
-- 工具 [概念指南](/oss/langchain/tools)
-- 工具 [操作指南](/oss/langchain/tools)
+```python
+places = GooglePlacesTool()
+```
+
+```python
+places.run("al fornos")
+```
+
+```text
+"1. Delfina Restaurant\nAddress: 3621 18th St, San Francisco, CA 94110, USA\nPhone: (415) 552-4055\nWebsite: https://www.delfinasf.com/\n\n\n2. Piccolo Forno\nAddress: 725 Columbus Ave, San Francisco, CA 94133, USA\nPhone: (415) 757-0087\nWebsite: https://piccolo-forno-sf.com/\n\n\n3. L'Osteria del Forno\nAddress: 519 Columbus Ave, San Francisco, CA 94133, USA\nPhone: (415) 982-1124\nWebsite: Unknown\n\n\n4. Il Fornaio\nAddress: 1265 Battery St, San Francisco, CA 94111, USA\nPhone: (415) 986-0100\nWebsite: https://www.ilfornaio.com/\n\n"
+```
+
+```python
+
+```

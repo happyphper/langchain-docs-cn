@@ -21,7 +21,7 @@ uv add laser_encoders
 
 :::
 
-查看 [使用示例](/oss/integrations/text_embedding/laser)。
+查看 [使用示例](/oss/javascript/integrations/text_embedding/laser)。
 
 ```python
 from langchain_community.embeddings.laser import LaserEmbeddings
@@ -33,7 +33,7 @@ from langchain_community.embeddings.laser import LaserEmbeddings
 
 >[Messenger](https://en.wikipedia.org/wiki/Messenger_(software)) 是一款由 `Meta Platforms` 开发的即时通讯应用和平台。最初于 2008 年作为 `Facebook Chat` 开发，该公司在 2010 年对其消息服务进行了全面改造。
 
-查看 [使用示例](/oss/integrations/document_loaders/facebook_chat)。
+查看 [使用示例](/oss/javascript/integrations/document_loaders/facebook_chat)。
 
 ```python
 from langchain_community.document_loaders import FacebookChatLoader
@@ -75,7 +75,7 @@ uv add faiss-cpu # 适用于 CPU 安装。
 
 :::
 
-查看 [使用示例](/oss/integrations/vectorstores/faiss)。
+查看 [使用示例](/oss/javascript/integrations/vectorstores/faiss)。
 
 ```python
 from langchain_community.vectorstores import FAISS
@@ -87,7 +87,7 @@ from langchain_community.vectorstores import FAISS
 
 >[Messenger](https://en.wikipedia.org/wiki/Messenger_(software)) 是一款由 `Meta Platforms` 开发的即时通讯应用和平台。最初于 2008 年作为 `Facebook Chat` 开发，该公司在 2010 年对其消息服务进行了全面改造。
 
-查看 [使用示例](/oss/integrations/chat_loaders/facebook)。
+查看 [使用示例](/oss/javascript/integrations/chat_loaders/facebook)。
 
 ```python
 from langchain_community.chat_loaders.facebook_messenger import (

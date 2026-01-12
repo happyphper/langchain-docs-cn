@@ -1,7 +1,7 @@
 ---
 title: BoxRetriever
 ---
-这将帮助您开始使用 Box [检索器](/oss/langchain/retrieval)。有关 BoxRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/box/retrievers/langchain_box.retrievers.box.BoxRetriever.html)。
+这将帮助您开始使用 Box [检索器](/oss/javascript/langchain/retrieval)。有关 BoxRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/box/retrievers/langchain_box.retrievers.box.BoxRetriever.html)。
 
 # 概述
 
@@ -33,7 +33,7 @@ Box AI 需要企业增强版许可证。
 
 ### 凭证
 
-在这些示例中，我们将使用 [令牌身份验证](https://developer.box.com/guides/authentication/tokens/developer-tokens)。这可以与任何 [身份验证方法](https://developer.box.com/guides/authentication/) 一起使用。只需使用任何方法获取令牌即可。如果您想了解更多关于如何在 `langchain-box` 中使用其他身份验证类型的信息，请访问 [Box 提供商](/oss/integrations/providers/box) 文档。
+在这些示例中，我们将使用 [令牌身份验证](https://developer.box.com/guides/authentication/tokens/developer-tokens)。这可以与任何 [身份验证方法](https://developer.box.com/guides/authentication/) 一起使用。只需使用任何方法获取令牌即可。如果您想了解更多关于如何在 `langchain-box` 中使用其他身份验证类型的信息，请访问 [Box 提供商](/oss/javascript/integrations/providers/box) 文档。
 
 ```python
 import getpass

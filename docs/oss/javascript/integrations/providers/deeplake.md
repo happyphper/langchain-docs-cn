@@ -19,4 +19,4 @@ uv add langchain-deeplake
 
 ## 向量存储
 
-关于可用向量存储的详细信息，请参阅[此处](/oss/integrations/vectorstores/activeloop_deeplake)。
+关于可用向量存储的详细信息，请参阅[此处](/oss/javascript/integrations/vectorstores/activeloop_deeplake)。

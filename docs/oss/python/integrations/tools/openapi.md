@@ -1,224 +1,311 @@
 ---
-title: OpenApi 工具包
+title: OpenAPI 工具包
+---
+我们可以构建智能体（agent）来消费任意 API，这里特指符合 `OpenAPI`/`Swagger` 规范的 API。
+
+```python
+# 注意：在此示例中，我们必须设置 `allow_dangerous_request=True` 以启用 OpenAPI 智能体自动使用请求工具。
+# 这可能导致调用不希望的请求，存在风险。请确保您的自定义 OpenAPI 规范（yaml）是安全的。
+ALLOW_DANGEROUS_REQUEST = True
+```
+
+## 第一个示例：分层规划智能体
+
+在这个示例中，我们将考虑一种称为分层规划的方法，这在机器人学中很常见，并出现在最近的大语言模型（LLM）与机器人学结合的工作中。我们将看到，这是一种可行的方法，既可以开始处理庞大的 API 规范，也可以协助处理需要针对 API 执行多个步骤的用户查询。
+
+其思想很简单：为了在长序列行为上获得一致的智能体行为并节省令牌（tokens），我们将职责分离：一个“规划器”（planner）负责决定调用哪些端点，而一个“控制器”（controller）负责如何调用它们。
+
+在最初的实现中，规划器是一个 LLM 链（chain），其上下文包含每个端点的名称和简短描述。控制器是一个 LLM 智能体，它仅针对特定计划中的端点文档进行实例化。要使这个系统非常健壮地工作，还有很多工作要做 :)
+
 ---
 
-<Warning>
+### 首先，让我们收集一些 OpenAPI 规范
 
-此代理可以向外部 API 发送请求。请谨慎使用，特别是在授予用户访问权限时。
+```python
+import os
 
-请注意，理论上此代理可能将提供的凭据或其他敏感数据发送到未经验证或可能恶意的 URL——尽管理论上它不应该这样做。
-
-请考虑对代理可以执行的操作、可以访问的 API、可以传递的标头等添加限制。
-
-此外，请考虑实施措施，在发送请求之前验证 URL，并安全地处理和保护敏感数据（如凭据）。
-
-</Warning>
-
-这将帮助您开始使用 [OpenApiToolkit](/oss/langchain/tools#toolkits)。有关 OpenApiToolkit 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain.agents.OpenApiToolkit.html)。
-
-`OpenAPIToolkit` 可以访问以下工具：
-
-| 名称             | 描述 |
-|------------------|-------------|
-| `requests_get`   | 通往互联网的门户。当您需要从网站获取特定内容时使用此工具。输入应为一个 URL 字符串（例如 "[www.google.com](https://www.google.com)"）。输出将是 GET 请求的文本响应。 |
-| `requests_post`  | 当您想向网站发送 POST 请求时使用此工具。输入应为一个包含两个键的 JSON 字符串："url" 和 "data"。"url" 的值应为字符串，"data" 的值应为您要作为 JSON 请求体 POST 到该 URL 的键值对字典。请注意，在 JSON 字符串中始终对字符串使用双引号。输出将是 POST 请求的文本响应。 |
-| `json_explorer`  | 可用于回答有关 API 的 OpenAPI 规范的问题。在尝试发出请求之前，请始终先使用此工具。此工具的示例输入：'GET 请求到 /bar 端点需要哪些必需的查询参数？' 'POST 请求到 /foo 端点需要哪些必需的请求体参数？' 始终向此工具提出具体问题。 |
-
-## 设置
-
-此工具包需要一个 OpenAPI 规范文件。LangChain.js 仓库在 `examples` 目录中有一个 [示例 OpenAPI 规范文件](https://github.com/langchain-ai/langchainjs/blob/cc21aa29102571204f4443a40b53d28581a12e30/examples/openai_openapi.yaml)。您可以使用此文件来测试工具包。
-
-如果您希望从单个工具的运行中获得自动化追踪，您还可以通过取消注释以下内容来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
-
-```typescript
-process.env.LANGSMITH_TRACING="true"
-process.env.LANGSMITH_API_KEY="your-api-key"
+import yaml
 ```
 
-### 安装
+你可以从这里获取 OpenAPI 规范：[APIs-guru/openapi-directory](https://github.com/APIs-guru/openapi-directory)
 
-此工具包位于 `langchain` 包中：
-
-::: code-group
-
-```bash [npm]
-npm install langchain @langchain/core
-```
-
-```bash [yarn]
-yarn add langchain @langchain/core
-```
-
-```bash [pnpm]
-pnpm add langchain @langchain/core
-```
-
-:::
-
-## 实例化
-
-现在我们可以实例化我们的工具包。首先，我们需要定义要在工具包中使用的 LLM。
-
-```typescript
-// @lc-docs-hide-cell
-
-import { ChatOpenAI } from "@langchain/openai";
-const llm = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0,
-})
-```
-
-```typescript
-import { OpenApiToolkit } from "@langchain/classic/agents/toolkits"
-import * as fs from "fs";
-import * as yaml from "js-yaml";
-import { JsonSpec, JsonObject } from "@langchain/classic/tools";
-
-// 加载 OpenAPI 规范并将其从 YAML 转换为 JSON。
-const yamlFile = fs.readFileSync("../../../../../examples/openai_openapi.yaml", "utf8");
-const data = yaml.load(yamlFile) as JsonObject;
-if (!data) {
-  throw new Error("Failed to load OpenAPI spec");
-}
-
-// 为 API 请求定义标头。
-const headers = {
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-};
-
-const toolkit = new OpenApiToolkit(new JsonSpec(data), llm, headers);
-```
-
-## 工具
-
-查看可用工具：
-
-```typescript
-const tools = toolkit.getTools();
-
-console.log(tools.map((tool) => ({
-  name: tool.name,
-  description: tool.description,
-})))
+```python
+!wget https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml -O openai_openapi.yaml
+!wget https://www.klarna.com/us/shopping/public/openai/v0/api-docs -O klarna_openapi.yaml
+!wget https://raw.githubusercontent.com/APIs-guru/openapi-directory/main/APIs/spotify.com/1.0.0/openapi.yaml -O spotify_openapi.yaml
 ```
 
 ```text
-[
-  {
-    name: 'requests_get',
-    description: 'A portal to the internet. Use this when you need to get specific content from a website.\n' +
-      '  Input should be a url string (i.e. "https://www.google.com"). The output will be the text response of the GET request.'
-  },
-  {
-    name: 'requests_post',
-    description: 'Use this when you want to POST to a website.\n' +
-      '  Input should be a json string with two keys: "url" and "data".\n' +
-      '  The value of "url" should be a string, and the value of "data" should be a dictionary of\n' +
-      '  key-value pairs you want to POST to the url as a JSON body.\n' +
-      '  Be careful to always use double quotes for strings in the json string\n' +
-      '  The output will be the text response of the POST request.'
-  },
-  {
-    name: 'json_explorer',
-    description: '\n' +
-      'Can be used to answer questions about the openapi spec for the API. Always use this tool before trying to make a request. \n' +
-      'Example inputs to this tool: \n' +
-      "    'What are the required query parameters for a GET request to the /bar endpoint?'\n" +
-      "    'What are the required parameters in the request body for a POST request to the /foo endpoint?'\n" +
-      'Always give this tool a specific question.'
-  }
-]
+--2023-03-31 15:45:56--  https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml
+Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 185.199.110.133, 185.199.109.133, 185.199.111.133, ...
+Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|185.199.110.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 122995 (120K) [text/plain]
+Saving to: ‘openapi.yaml’
+
+openapi.yaml        100%[===================>] 120.11K  --.-KB/s    in 0.01s
+
+2023-03-31 15:45:56 (10.4 MB/s) - ‘openapi.yaml’ saved [122995/122995]
+
+--2023-03-31 15:45:57--  https://www.klarna.com/us/shopping/public/openai/v0/api-docs
+Resolving www.klarna.com (www.klarna.com)... 52.84.150.34, 52.84.150.46, 52.84.150.61, ...
+Connecting to www.klarna.com (www.klarna.com)|52.84.150.34|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [application/json]
+Saving to: ‘api-docs’
+
+api-docs                [ <=>                ]   1.87K  --.-KB/s    in 0s
+
+2023-03-31 15:45:57 (261 MB/s) - ‘api-docs’ saved [1916]
+
+--2023-03-31 15:45:57--  https://raw.githubusercontent.com/APIs-guru/openapi-directory/main/APIs/spotify.com/1.0.0/openapi.yaml
+Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 185.199.110.133, 185.199.109.133, 185.199.111.133, ...
+Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|185.199.110.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 286747 (280K) [text/plain]
+Saving to: ‘openapi.yaml’
+
+openapi.yaml        100%[===================>] 280.03K  --.-KB/s    in 0.02s
+
+2023-03-31 15:45:58 (13.3 MB/s) - ‘openapi.yaml’ saved [286747/286747]
 ```
 
-## 在代理中使用
-
-首先，确保已安装 LangGraph：
-
-::: code-group
-
-```bash [npm]
-npm install @langchain/langgraph
+```python
+from langchain_community.agent_toolkits.openapi.spec import reduce_openapi_spec
 ```
 
-```bash [yarn]
-yarn add @langchain/langgraph
-```
+```python
+with open("openai_openapi.yaml") as f:
+    raw_openai_api_spec = yaml.load(f, Loader=yaml.Loader)
+openai_api_spec = reduce_openapi_spec(raw_openai_api_spec)
 
-```bash [pnpm]
-pnpm add @langchain/langgraph
-```
+with open("klarna_openapi.yaml") as f:
+    raw_klarna_api_spec = yaml.load(f, Loader=yaml.Loader)
+klarna_api_spec = reduce_openapi_spec(raw_klarna_api_spec)
 
-:::
-
-```typescript
-import { createAgent } from "@langchain/classic"
-
-const agentExecutor = createAgent({ llm, tools });
-```
-
-```typescript
-const exampleQuery = "Make a POST request to openai /chat/completions. The prompt should be 'tell me a joke.'. Ensure you use the model 'gpt-4o-mini'."
-
-const events = await agentExecutor.stream(
-  { messages: [["user", exampleQuery]]},
-  { streamMode: "values", }
-)
-
-for await (const event of events) {
-  const lastMsg = event.messages[event.messages.length - 1];
-  if (lastMsg.tool_calls?.length) {
-    console.dir(lastMsg.tool_calls, { depth: null });
-  } else if (lastMsg.content) {
-    console.log(lastMsg.content);
-  }
-}
-```
-
-```json
-[
-  {
-    name: 'requests_post',
-    args: {
-      input: '{"url":"https://api.openai.com/v1/chat/completions","data":{"model":"gpt-4o-mini","messages":[{"role":"user","content":"tell me a joke."}]}}'
-    },
-    type: 'tool_call',
-    id: 'call_1HqyZrbYgKFwQRfAtsZA2uL5'
-  }
-]
-{
-  "id": "chatcmpl-9t36IIuRCs0WGMEy69HUqPcKvOc1w",
-  "object": "chat.completion",
-  "created": 1722906986,
-  "model": "gpt-4o-mini-2024-07-18",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "Why don't skeletons fight each other? \n\nThey don't have the guts!"
-      },
-      "logprobs": null,
-      "finish_reason": "stop"
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 12,
-    "completion_tokens": 15,
-    "total_tokens": 27
-  },
-  "system_fingerprint": "fp_48196bc67a"
-}
-
-Here's a joke for you:
-
-**Why don't skeletons fight each other?**
-They don't have the guts!
+with open("spotify_openapi.yaml") as f:
+    raw_spotify_api_spec = yaml.load(f, Loader=yaml.Loader)
+spotify_api_spec = reduce_openapi_spec(raw_spotify_api_spec)
 ```
 
 ---
 
-## API 参考
+我们将以 Spotify API 为例，它是一个有些复杂的 API。如果你想复现此示例，需要做一些与认证相关的设置。
 
-有关 OpenApiToolkit 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain.agents.OpenApiToolkit.html)。
+- 你需要在 Spotify 开发者控制台设置一个应用程序，文档见[此处](https://developer.spotify.com/documentation/general/guides/authorization/)，以获取凭证：`CLIENT_ID`、`CLIENT_SECRET` 和 `REDIRECT_URI`。
+- 要获取访问令牌（并保持其新鲜），你可以实现 OAuth 流程，或者使用 `spotipy`。如果你已将 Spotify 凭证设置为环境变量 `SPOTIPY_CLIENT_ID`、`SPOTIPY_CLIENT_SECRET` 和 `SPOTIPY_REDIRECT_URI`，可以使用下面的辅助函数：
+
+```python
+import spotipy.util as util
+from langchain_community.utilities.requests import RequestsWrapper
+
+def construct_spotify_auth_headers(raw_spec: dict):
+    scopes = list(
+        raw_spec["components"]["securitySchemes"]["oauth_2_0"]["flows"][
+            "authorizationCode"
+        ]["scopes"].keys()
+    )
+    access_token = util.prompt_for_user_token(scope=",".join(scopes))
+    return {"Authorization": f"Bearer {access_token}"}
+
+# 获取 API 凭证。
+headers = construct_spotify_auth_headers(raw_spotify_api_spec)
+requests_wrapper = RequestsWrapper(headers=headers)
+```
+
+### 这个规范有多大？
+
+```python
+endpoints = [
+    (route, operation)
+    for route, operations in raw_spotify_api_spec["paths"].items()
+    for operation in operations
+    if operation in ["get", "post"]
+]
+len(endpoints)
+```
+
+```text
+63
+```
+
+```python
+import tiktoken
+
+enc = tiktoken.encoding_for_model("gpt-4")
+
+def count_tokens(s):
+    return len(enc.encode(s))
+
+count_tokens(yaml.dump(raw_spotify_api_spec))
+```
+
+```text
+80326
+```
+
+### 让我们看一些示例
+
+从 GPT-4 开始。（正在为 GPT-3 系列进行一些健壮性迭代。）
+
+```python
+from langchain_community.agent_toolkits.openapi import planner
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model_name="gpt-4", temperature=0.0)
+```
+
+```text
+/Users/jeremywelborn/src/langchain/langchain/llms/openai.py:169: UserWarning: You are trying to use a chat model. This way of initializing it is no longer supported. Instead, please use: `from langchain_openai import ChatOpenAI`
+  warnings.warn(
+/Users/jeremywelborn/src/langchain/langchain/llms/openai.py:608: UserWarning: You are trying to use a chat model. This way of initializing it is no longer supported. Instead, please use: `from langchain_openai import ChatOpenAI`
+  warnings.warn(
+```
+
+```python
+# 注意：出于安全考虑，手动设置 allow_dangerous_requests
+spotify_agent = planner.create_openapi_agent(
+    spotify_api_spec,
+    requests_wrapper,
+    llm,
+    allow_dangerous_requests=ALLOW_DANGEROUS_REQUEST,
+)
+user_query = (
+    "make me a playlist with the first song from kind of blue. call it machine blues."
+)
+spotify_agent.invoke(user_query)
+```
+
+```text
+> Entering new AgentExecutor chain...
+Action: api_planner
+Action Input: I need to find the right API calls to create a playlist with the first song from Kind of Blue and name it Machine Blues
+Observation: 1. GET /search to search for the album "Kind of Blue"
+2. GET /albums/{id}/tracks to get the tracks from the "Kind of Blue" album
+3. GET /me to get the current user's information
+4. POST /users/{user_id}/playlists to create a new playlist named "Machine Blues" for the current user
+5. POST /playlists/{playlist_id}/tracks to add the first song from "Kind of Blue" to the "Machine Blues" playlist
+Thought:I have the plan, now I need to execute the API calls.
+Action: api_controller
+Action Input: 1. GET /search to search for the album "Kind of Blue"
+2. GET /albums/{id}/tracks to get the tracks from the "Kind of Blue" album
+3. GET /me to get the current user's information
+4. POST /users/{user_id}/playlists to create a new playlist named "Machine Blues" for the current user
+5. POST /playlists/{playlist_id}/tracks to add the first song from "Kind of Blue" to the "Machine Blues" playlist
+
+> Entering new AgentExecutor chain...
+Action: requests_get
+Action Input: {"url": "https://api.spotify.com/v1/search?q=Kind%20of%20Blue&type=album", "output_instructions": "Extract the id of the first album in the search results"}
+Observation: 1weenld61qoidwYuZ1GESA
+Thought:Action: requests_get
+Action Input: {"url": "https://api.spotify.com/v1/albums/1weenld61qoidwYuZ1GESA/tracks", "output_instructions": "Extract the id of the first track in the album"}
+Observation: 7q3kkfAVpmcZ8g6JUThi3o
+Thought:Action: requests_get
+Action Input: {"url": "https://api.spotify.com/v1/me", "output_instructions": "Extract the id of the current user"}
+Observation: 22rhrz4m4kvpxlsb5hezokzwi
+Thought:Action: requests_post
+Action Input: {"url": "https://api.spotify.com/v1/users/22rhrz4m4kvpxlsb5hezokzwi/playlists", "data": {"name": "Machine Blues"}, "output_instructions": "Extract the id of the created playlist"}
+Observation: 7lzoEi44WOISnFYlrAIqyX
+Thought:Action: requests_post
+Action Input: {"url": "https://api.spotify.com/v1/playlists/7lzoEi44WOISnFYlrAIqyX/tracks", "data": {"uris": ["spotify:track:7q3kkfAVpmcZ8g6JUThi3o"]}, "output_instructions": "Confirm that the track was added to the playlist"}
+
+Observation: The track was added to the playlist, confirmed by the snapshot_id: MiwxODMxNTMxZTFlNzg3ZWFlZmMxYTlmYWQyMDFiYzUwNDEwMTAwZmE1.
+Thought:I am finished executing the plan.
+Final Answer: The first song from the "Kind of Blue" album has been added to the "Machine Blues" playlist.
+
+> Finished chain.
+
+Observation: The first song from the "Kind of Blue" album has been added to the "Machine Blues" playlist.
+Thought:I am finished executing the plan and have created the playlist with the first song from Kind of Blue.
+Final Answer: I have created a playlist called "Machine Blues" with the first song from the "Kind of Blue" album.
+
+> Finished chain.
+```
+
+```text
+'I have created a playlist called "Machine Blues" with the first song from the "Kind of Blue" album.'
+```
+
+```python
+user_query = "give me a song I'd like, make it blues-ey"
+spotify_agent.invoke(user_query)
+```
+
+```text
+> Entering new AgentExecutor chain...
+Action: api_planner
+Action Input: I need to find the right API calls to get a blues song recommendation for the user
+Observation: 1. GET /me to get the current user's information
+2. GET /recommendations/available-genre-seeds to retrieve a list of available genres
+3. GET /recommendations with the seed_genre parameter set to "blues" to get a blues song recommendation for the user
+Thought:I have the plan, now I need to execute the API calls.
+Action: api_controller
+Action Input: 1. GET /me to get the current user's information
+2. GET /recommendations/available-genre-seeds to retrieve a list of available genres
+3. GET /recommendations with the seed_genre parameter set to "blues" to get a blues song recommendation for the user
+
+> Entering new AgentExecutor chain...
+Action: requests_get
+Action Input: {"url": "https://api.spotify.com/v1/me", "output_instructions": "Extract the user's id and username"}
+Observation: ID: 22rhrz4m4kvpxlsb5hezokzwi, Username: Jeremy Welborn
+Thought:Action: requests_get
+Action Input: {"url": "https://api.spotify.com/v1/recommendations/available-genre-seeds", "output_instructions": "Extract the list of available genres"}
+Observation: acoustic, afrobeat, alt-rock, alternative, ambient, anime, black-metal, bluegrass, blues, bossanova, brazil, breakbeat, british, cantopop, chicago-house, children, chill, classical, club, comedy, country, dance, dancehall, death-metal, deep-house, detroit-techno, disco, disney, drum-and-bass, dub, dubstep, edm, electro, electronic, emo, folk, forro, french, funk, garage, german, gospel, goth, grindcore, groove, grunge, guitar, happy, hard-rock, hardcore, hardstyle, heavy-metal, hip-hop, holidays, honky-tonk, house, idm, indian, indie, indie-pop, industrial, iranian, j-dance, j-idol, j-pop, j-rock, jazz, k-pop, kids, latin, latino, malay, mandopop, metal, metal-misc, metalcore, minimal-techno, movies, mpb, new-age, new-release, opera, pagode, party, philippines-
+Thought:
+```
+
+```text
+Retrying langchain.llms.openai.completion_with_retry.<locals>._completion_with_retry in 4.0 seconds as it raised RateLimitError: That model is currently overloaded with other requests. You can retry your request, or contact us through our help center at help.openai.com if the error persists. (Please include the request ID 2167437a0072228238f3c0c5b3882764 in your message.).
+```
+
+```text
+Action: requests_get
+Action Input: {"url": "https://api.spotify.com/v1/recommendations?seed_genres=blues", "output_instructions": "Extract the list of recommended tracks with their ids and names"}
+Observation: [
+  {
+    id: '03lXHmokj9qsXspNsPoirR',
+    name: 'Get Away Jordan'
+  }
+]
+Thought:I am finished executing the plan.
+Final Answer: The recommended blues song for user Jeremy Welborn (ID: 22rhrz4m4kvpxlsb5hezokzwi) is "Get Away Jordan" with the track ID: 03lXHmokj9qsXspNsPoirR.
+
+> Finished chain.
+
+Observation: The recommended blues song for user Jeremy Welborn (ID: 22rhrz4m4kvpxlsb5hezokzwi) is "Get Away Jordan" with the track ID: 03lXHmokj9qsXspNsPoirR.
+Thought:I am finished executing the plan and have the information the user asked for.
+Final Answer: The recommended blues song for you is "Get Away Jordan" with the track ID: 03lXHmokj9qsXspNsPoirR.
+
+> Finished chain.
+```
+
+```text
+'The recommended blues song for you is "Get Away Jordan" with the track ID: 03lXHmokj9qsXspNsPoirR.'
+```
+
+#### 尝试另一个 API
+
+```python
+headers = {"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"}
+openai_requests_wrapper = RequestsWrapper(headers=headers)
+```
+
+```python
+# 元操作！
+llm = ChatOpenAI(model_name="gpt-4", temperature=0.25)
+openai_agent = planner.create_openapi_agent(
+    openai_api_spec, openai_requests_wrapper, llm
+)
+user_query = "generate a short piece of advice"
+openai_agent.invoke(user_query)
+```
+
+```text
+> Entering new AgentExecutor chain...
+Action: api_planner
+Action Input: I need to find the right API calls to generate a short piece of advice
+Observation: 1. GET /engines to retrieve the list of available engines
+2. POST /completions with the selected engine and a prompt for generating a short piece of advice
+Thought:I have the plan, now I need to execute the API calls.
+Action: api_controller
+Action Input: 1. GET /engines to retrieve the

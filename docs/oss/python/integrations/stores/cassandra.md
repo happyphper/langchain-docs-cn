@@ -1,7 +1,7 @@
 ---
 title: Cassandra字节存储（CassandraByteStore）
 ---
-这将帮助您开始使用 Cassandra [键值存储](/oss/integrations/stores)。有关 `CassandraByteStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/storage/langchain_community.storage.cassandra.CassandraByteStore.html)。
+这将帮助您开始使用 Cassandra [键值存储](/oss/python/integrations/stores)。有关 `CassandraByteStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/storage/langchain_community.storage.cassandra.CassandraByteStore.html)。
 
 ## 概述
 

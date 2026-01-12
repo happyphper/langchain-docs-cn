@@ -7,7 +7,7 @@ Chromium 是 Playwright 支持的浏览器之一，Playwright 是一个用于控
 
 无头模式意味着浏览器在没有图形用户界面的情况下运行。
 
-在下面的示例中，我们将使用 `AsyncChromiumLoader` 来加载页面，然后使用 [`Html2TextTransformer`](/oss/integrations/document_transformers/html2text/) 来剥离 HTML 标签和其他语义信息。
+在下面的示例中，我们将使用 `AsyncChromiumLoader` 来加载页面，然后使用 [`Html2TextTransformer`](/oss/python/integrations/document_transformers/html2text/) 来剥离 HTML 标签和其他语义信息。
 
 ```python
 pip install -qU playwright beautifulsoup4 html2text

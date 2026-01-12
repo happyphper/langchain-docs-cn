@@ -1,118 +1,250 @@
 ---
 title: OpenSearch
 ---
-<提示>
-**兼容性说明**
+> [OpenSearch](https://opensearch.org/) 是一个基于 Apache 2.0 许可的可扩展、灵活且可扩展的开源软件套件，用于搜索、分析和可观测性应用。`OpenSearch` 是一个基于 `Apache Lucene` 的分布式搜索和分析引擎。
 
-仅在 Node.js 环境下可用。
-</提示>
+本笔记本展示了如何使用与 `OpenSearch` 数据库相关的功能。
 
-[OpenSearch](https://opensearch.org/) 是 [Elasticsearch](https://www.elastic.co/elasticsearch/) 的一个分支，完全兼容 Elasticsearch API。了解更多关于其对近似最近邻（Approximate Nearest Neighbors）的支持，请参阅[此处](https://opensearch.org/docs/latest/search-plugins/knn/approximate-knn/)。
+要运行，您需要启动并运行一个 OpenSearch 实例：[查看此处获取简单的 Docker 安装方法](https://hub.docker.com/r/opensearchproject/opensearch)。
 
-LangChain.js 接受 [@opensearch-project/opensearch](https://opensearch.org/docs/latest/clients/javascript/index/) 作为 OpenSearch 向量存储的客户端。
+默认情况下，`similarity_search` 执行近似 k-NN 搜索，该搜索使用 lucene、nmslib、faiss 等几种算法之一，推荐用于大型数据集。要执行暴力搜索，我们还有其他搜索方法，称为脚本评分（Script Scoring）和无痛脚本（Painless Scripting）。
+查看[此链接](https://opensearch.org/docs/latest/search-plugins/knn/index/)了解更多详情。
 
-## 设置
+## 安装
 
-<提示>
-关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/langchain/install)。
-</提示>
+安装 Python 客户端。
 
-```bash [npm]
-npm install -S @langchain/openai @langchain/core @opensearch-project/opensearch
-```
-您还需要运行一个 OpenSearch 实例。您可以使用[官方 Docker 镜像](https://opensearch.org/docs/latest/opensearch/install/docker/)来开始。您也可以在[这里](https://github.com/langchain-ai/langchainjs/blob/main/examples/src/indexes/vector_stores/opensearch/docker-compose.yml)找到一个示例的 docker-compose 文件。
-
-## 索引文档
-
-```typescript
-import { Client } from "@opensearch-project/opensearch";
-import { Document } from "@langchain/classic/document";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { OpenSearchVectorStore } from "@langchain/community/vectorstores/opensearch";
-
-const client = new Client({
-  nodes: [process.env.OPENSEARCH_URL ?? "http://127.0.0.1:9200"],
-});
-
-const docs = [
-  new Document({
-    metadata: { foo: "bar" },
-    pageContent: "opensearch is also a vector db",
-  }),
-  new Document({
-    metadata: { foo: "bar" },
-    pageContent: "the quick brown fox jumped over the lazy dog",
-  }),
-  new Document({
-    metadata: { baz: "qux" },
-    pageContent: "lorem ipsum dolor sit amet",
-  }),
-  new Document({
-    metadata: { baz: "qux" },
-    pageContent:
-      "OpenSearch is a scalable, flexible, and extensible open-source software suite for search, analytics, and observability applications",
-  }),
-];
-
-await OpenSearchVectorStore.fromDocuments(docs, new OpenAIEmbeddings(), {
-  client,
-  indexName: process.env.OPENSEARCH_INDEX, // 默认值为 `documents`
-});
-```
-## 查询文档
-
-```typescript
-import { Client } from "@opensearch-project/opensearch";
-import { VectorDBQAChain } from "@langchain/classic/chains";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { OpenAI } from "@langchain/openai";
-import { OpenSearchVectorStore } from "@langchain/community/vectorstores/opensearch";
-
-const client = new Client({
-  nodes: [process.env.OPENSEARCH_URL ?? "http://127.0.0.1:9200"],
-});
-
-const vectorStore = new OpenSearchVectorStore(new OpenAIEmbeddings(), {
-  client,
-});
-
-/* 使用元数据过滤器独立搜索向量数据库 */
-const results = await vectorStore.similaritySearch("hello world", 1);
-console.log(JSON.stringify(results, null, 2));
-/* [
-    {
-      "pageContent": "Hello world",
-      "metadata": {
-        "id": 2
-      }
-    }
-  ] */
-
-/* 作为链的一部分使用（目前不支持元数据过滤器） */
-const model = new OpenAI();
-const chain = VectorDBQAChain.fromLLM(model, vectorStore, {
-  k: 1,
-  returnSourceDocuments: true,
-});
-const response = await chain.call({ query: "What is opensearch?" });
-
-console.log(JSON.stringify(response, null, 2));
-/*
-  {
-    "text": " Opensearch is a collection of technologies that allow search engines to publish search results in a standard format, making it easier for users to search across multiple sites.",
-    "sourceDocuments": [
-      {
-        "pageContent": "What's this?",
-        "metadata": {
-          "id": 3
-        }
-      }
-    ]
-  }
-  */
+```python
+pip install -qU  opensearch-py langchain-community
 ```
 
-## 相关链接
+我们想使用 <a href="https://reference.langchain.com/python/integrations/langchain_openai/OpenAIEmbeddings" target="_blank" rel="noreferrer" class="link"><code>OpenAIEmbeddings</code></a>，所以必须获取 OpenAI API 密钥。
 
-- 向量存储 [概念指南](/oss/integrations/vectorstores)
-- 向量存储 [操作指南](/oss/integrations/vectorstores)
+```python
+import getpass
+import os
+
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("OpenAI API Key:")
+```
+
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_community.vectorstores import OpenSearchVectorSearch
+from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import CharacterTextSplitter
+```
+
+```python
+from langchain_community.document_loaders import TextLoader
+
+loader = TextLoader("../../how_to/state_of_the_union.txt")
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+
+embeddings = OpenAIEmbeddings()
+```
+
+## 使用近似 k-NN 进行 similarity_search
+
+使用自定义参数通过 `近似 k-NN` 搜索进行 `similarity_search`
+
+```python
+docsearch = OpenSearchVectorSearch.from_documents(
+    docs, embeddings, opensearch_url="http://localhost:9200"
+)
+
+# 如果使用默认的 Docker 安装，请改用此实例化方式：
+# docsearch = OpenSearchVectorSearch.from_documents(
+#     docs,
+#     embeddings,
+#     opensearch_url="https://localhost:9200",
+#     http_auth=("admin", "admin"),
+#     use_ssl = False,
+#     verify_certs = False,
+#     ssl_assert_hostname = False,
+#     ssl_show_warn = False,
+# )
+```
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+docs = docsearch.similarity_search(query, k=10)
+```
+
+```python
+print(docs[0].page_content)
+```
+
+```python
+docsearch = OpenSearchVectorSearch.from_documents(
+    docs,
+    embeddings,
+    opensearch_url="http://localhost:9200",
+    engine="faiss",
+    space_type="innerproduct",
+    ef_construction=256,
+    m=48,
+)
+
+query = "What did the president say about Ketanji Brown Jackson"
+docs = docsearch.similarity_search(query)
+```
+
+```python
+print(docs[0].page_content)
+```
+
+## 使用脚本评分进行 similarity_search
+
+使用自定义参数通过 `脚本评分` 进行 `similarity_search`
+
+```python
+docsearch = OpenSearchVectorSearch.from_documents(
+    docs, embeddings, opensearch_url="http://localhost:9200", is_appx_search=False
+)
+
+query = "What did the president say about Ketanji Brown Jackson"
+docs = docsearch.similarity_search(
+    "What did the president say about Ketanji Brown Jackson",
+    k=1,
+    search_type="script_scoring",
+)
+```
+
+```python
+print(docs[0].page_content)
+```
+
+## 使用无痛脚本进行 similarity_search
+
+使用自定义参数通过 `无痛脚本` 进行 `similarity_search`
+
+```python
+docsearch = OpenSearchVectorSearch.from_documents(
+    docs, embeddings, opensearch_url="http://localhost:9200", is_appx_search=False
+)
+filter = {"bool": {"filter": {"term": {"text": "smuggling"}}}}
+query = "What did the president say about Ketanji Brown Jackson"
+docs = docsearch.similarity_search(
+    "What did the president say about Ketanji Brown Jackson",
+    search_type="painless_scripting",
+    space_type="cosineSimilarity",
+    pre_filter=filter,
+)
+```
+
+```python
+print(docs[0].page_content)
+```
+
+## 最大边际相关性搜索 (MMR)
+
+如果您想查找一些相似的文档，但同时也希望获得多样化的结果，MMR 是您应该考虑的方法。最大边际相关性优化了与查询的相似性以及所选文档之间的多样性。
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+docs = docsearch.max_marginal_relevance_search(query, k=2, fetch_k=10, lambda_param=0.5)
+```
+
+## 使用现有的 OpenSearch 实例
+
+也可以使用已包含向量的文档的现有 OpenSearch 实例。
+
+```python
+# 这只是一个示例，您需要更改这些值以指向另一个 OpenSearch 实例
+docsearch = OpenSearchVectorSearch(
+    index_name="index-*",
+    embedding_function=embeddings,
+    opensearch_url="http://localhost:9200",
+)
+
+# 您可以指定自定义字段名称，以匹配您用于存储嵌入向量、文档文本值和元数据的字段
+docs = docsearch.similarity_search(
+    "Who was asking about getting lunch today?",
+    search_type="script_scoring",
+    space_type="cosinesimil",
+    vector_field="message_embedding",
+    text_field="message",
+    metadata_field="message_metadata",
+)
+```
+
+## 使用 AOSS (Amazon OpenSearch Service Serverless)
+
+这是一个使用 `faiss` 引擎和 `efficient_filter` 的 `AOSS` 示例。
+
+我们需要安装几个 `python` 包。
+
+```python
+pip install -qU  boto3 requests requests-aws4auth
+```
+
+```python
+import boto3
+from opensearchpy import RequestsHttpConnection
+from requests_aws4auth import AWS4Auth
+
+service = "aoss"  # 必须将服务设置为 'aoss'
+region = "us-east-2"
+credentials = boto3.Session(
+    aws_access_key_id="xxxxxx", aws_secret_access_key="xxxxx"
+).get_credentials()
+awsauth = AWS4Auth("xxxxx", "xxxxxx", region, service, session_token=credentials.token)
+
+docsearch = OpenSearchVectorSearch.from_documents(
+    docs,
+    embeddings,
+    opensearch_url="host url",
+    http_auth=awsauth,
+    timeout=300,
+    use_ssl=True,
+    verify_certs=True,
+    connection_class=RequestsHttpConnection,
+    index_name="test-index-using-aoss",
+    engine="faiss",
+)
+
+docs = docsearch.similarity_search(
+    "What is feature selection",
+    efficient_filter=filter,
+    k=200,
+)
+```
+
+## 使用 AOS (Amazon OpenSearch Service)
+
+```python
+pip install -qU  boto3
+```
+
+```python
+# 这只是一个展示如何使用 Amazon OpenSearch Service 的示例，您需要设置适当的值。
+import boto3
+from opensearchpy import RequestsHttpConnection
+
+service = "es"  # 必须将服务设置为 'es'
+region = "us-east-2"
+credentials = boto3.Session(
+    aws_access_key_id="xxxxxx", aws_secret_access_key="xxxxx"
+).get_credentials()
+awsauth = AWS4Auth("xxxxx", "xxxxxx", region, service, session_token=credentials.token)
+
+docsearch = OpenSearchVectorSearch.from_documents(
+    docs,
+    embeddings,
+    opensearch_url="host url",
+    http_auth=awsauth,
+    timeout=300,
+    use_ssl=True,
+    verify_certs=True,
+    connection_class=RequestsHttpConnection,
+    index_name="test-index",
+)
+
+docs = docsearch.similarity_search(
+    "What is feature selection",
+    k=200,
+)
+```

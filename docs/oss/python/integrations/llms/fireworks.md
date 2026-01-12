@@ -4,111 +4,145 @@ title: Fireworks
 
 <Warning>
 
-<strong>您当前正在查看的是关于将 Fireworks 模型用作文本补全模型的文档页面。Fireworks 上提供的许多热门模型是[聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查看的是关于将 Fireworks 模型用作文本补全模型的文档页面。许多流行的 Fireworks 模型是 [聊天补全模型](/oss/python/langchain/models)。</strong>
 
-您可能正在寻找[这个页面](/oss/integrations/chat/fireworks/)。
+您可能想查看 [这个页面](/oss/python/integrations/chat/fireworks/)。
 
 </Warning>
 
-[Fireworks AI](https://fireworks.ai/) 是一个用于运行和定制模型的 AI 推理平台。有关 Fireworks 提供的所有模型列表，请参阅 [Fireworks 文档](https://fireworks.ai/models)。
+>[Fireworks](https://app.fireworks.ai/) 通过创建一个创新的 AI 实验和生产平台，加速生成式 AI 的产品开发。
 
-本文将帮助您开始使用 LangChain 处理 Fireworks 补全模型（LLMs）。有关 `Fireworks` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_llms_fireworks.Fireworks.html)。
+本示例将介绍如何使用 LangChain 与 `Fireworks` 模型进行交互。
 
 ## 概述
 
 ### 集成详情
 
-| 类 | 包 | 本地 | 可序列化 | [Python 支持](https://python.langchain.com/docs/integrations/llms/fireworks) | 下载量 | 版本 |
+| 类 | 包 | 本地 | 可序列化 | [JS 支持](https://js.langchain.com/v0.1/docs/integrations/llms/fireworks/) | 下载量 | 版本 |
 | :--- | :--- | :---: | :---: |  :---: | :---: | :---: |
-| [Fireworks](https://api.js.langchain.com/classes/langchain_community_llms_fireworks.Fireworks.html) | [@langchain/community](https://api.js.langchain.com/modules/langchain_community_llms_fireworks.html) | ❌ | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/community?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/community?style=flat-square&label=%20&) |
+| [`Fireworks`](https://python.langchain.com/api_reference/fireworks/llms/langchain_fireworks.llms.Fireworks.html#langchain_fireworks.llms.Fireworks) | [`langchain-fireworks`](https://pypi.org/project/langchain-fireworks/) | ❌ | ❌ | ✅ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain_fireworks?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain_fireworks?style=flat-square&label=%20) |
 
 ## 设置
 
-要访问 Fireworks 模型，您需要创建一个 Fireworks 账户，获取一个 API 密钥，并安装 `@langchain/community` 集成包。
-
 ### 凭证
 
-前往 [fireworks.ai](https://fireworks.ai/) 注册 Fireworks 并生成一个 API 密钥。完成后，设置 `FIREWORKS_API_KEY` 环境变量：
+登录 [Fireworks AI](http://fireworks.ai) 获取访问我们模型的 API 密钥，并确保将其设置为 `FIREWORKS_API_KEY` 环境变量。
+3. 使用模型 ID 设置您的模型。如果未设置模型，默认模型为 fireworks-llama-v2-7b-chat。请在 [fireworks.ai](https://app.fireworks.ai/models) 上查看完整且最新的模型列表。
 
-```bash
-export FIREWORKS_API_KEY="your-api-key"
-```
+```python
+import getpass
+import os
 
-如果您希望自动追踪模型调用，还可以通过取消注释以下内容来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
-
-```bash
-# export LANGSMITH_TRACING="true"
-# export LANGSMITH_API_KEY="your-api-key"
+if "FIREWORKS_API_KEY" not in os.environ:
+    os.environ["FIREWORKS_API_KEY"] = getpass.getpass("Fireworks API Key:")
 ```
 
 ### 安装
 
-LangChain 的 Fireworks 集成位于 `@langchain/community` 包中：
+您需要安装 `langchain-fireworks` Python 包才能使本笔记本的其余部分正常工作。
 
-::: code-group
-
-```bash [npm]
-npm install @langchain/community @langchain/core
+```python
+pip install -qU langchain-fireworks
 ```
-
-```bash [yarn]
-yarn add @langchain/community @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @langchain/community @langchain/core
-```
-
-:::
 
 ## 实例化
 
-现在我们可以实例化我们的模型对象并生成文本补全：
+```python
+from langchain_fireworks import Fireworks
 
-```typescript
-import { Fireworks } from "@langchain/community/llms/fireworks"
-
-const llm = new Fireworks({
-  model: "accounts/fireworks/models/llama-v3-70b-instruct",
-  temperature: 0,
-  maxTokens: undefined,
-  timeout: undefined,
-  maxRetries: 2,
-  // 其他参数...
-})
+# 初始化一个 Fireworks 模型
+llm = Fireworks(
+    model="accounts/fireworks/models/llama-v3p1-8b-instruct", # 模型库位于: https://app.fireworks.ai/models
+    base_url="https://api.fireworks.ai/inference/v1/completions",
+)
 ```
 
 ## 调用
 
-```typescript
-const inputText = "Fireworks is an AI company that "
+您可以直接使用字符串提示调用模型以获得补全结果。
 
-const completion = await llm.invoke(inputText)
-completion
+```python
+output = llm.invoke("Who's the best quarterback in the NFL?")
+print(output)
 ```
 
 ```text
- helps businesses automate their customer support using AI-powered chatbots. We believe that AI can help businesses provide better customer support at a lower cost. Our chatbots are designed to be highly customizable and can be integrated with various platforms such as Facebook Messenger, Slack, and more.
+That's an easy one. It's Aaron Rodgers. Rodgers has consistently been one
+```
 
-We are looking for a talented and motivated **Machine Learning Engineer** to join our team. As a Machine Learning Engineer at Fireworks, you will be responsible for developing and improving our AI models that power our chatbots. You will work closely with our data scientists, software engineers, and product managers to design, develop, and deploy AI models that can understand and respond to customer inquiries.
+### 使用多个提示调用
 
-**Responsibilities:**
+```python
+# 调用多个提示
+output = llm.generate(
+    [
+        "Who's the best cricket player in 2016?",
+        "Who's the best basketball player in the league?",
+    ]
+)
+print(output.generations)
+```
 
-* Develop and improve AI models that can understand and respond to customer inquiries
-* Work with data scientists to design and develop new AI models
-* Collaborate with software engineers to integrate AI models with our chatbot platform
-* Work with product managers to understand customer requirements and develop AI models that meet those requirements
-* Develop and maintain data pipelines to support AI model development and deployment
-* Develop and maintain tools to monitor and evaluate AI model performance
-* Stay up-to-date with the latest developments in AI and machine learning and apply this knowledge to improve our AI models
+```text
+[[Generation(text=' You could choose one of the top performers in 2016, such as Vir')], [Generation(text=' -- Keith Jackson\nA: LeBron James, Chris Paul and Kobe Bryant are the')]]
+```
 
-**Requirements:**
+### 使用附加参数调用
 
-* Bachelor's
+```python
+# 设置附加参数：temperature, max_tokens, top_p
+llm = Fireworks(
+    model="accounts/fireworks/models/llama-v3p1-8b-instruct",
+    temperature=0.7,
+    max_tokens=15,
+    top_p=1.0,
+)
+print(llm.invoke("What's the weather like in Kansas City in December?"))
+```
+
+```text
+December is a cold month in Kansas City, with temperatures of
+```
+
+## 链式调用
+
+您可以使用 LangChain 表达式语言（LangChain Expression Language）与非聊天模型创建一个简单的链。
+
+```python
+from langchain_core.prompts import PromptTemplate
+from langchain_fireworks import Fireworks
+
+llm = Fireworks(
+    model="accounts/fireworks/models/llama-v3p1-8b-instruct",
+    temperature=0.7,
+    max_tokens=15,
+    top_p=1.0,
+)
+prompt = PromptTemplate.from_template("Tell me a joke about {topic}?")
+chain = prompt | llm
+
+print(chain.invoke({"topic": "bears"}))
+```
+
+```text
+What do you call a bear with no teeth? A gummy bear!
+```
+
+## 流式输出
+
+如果需要，您可以流式输出结果。
+
+```python
+for token in chain.stream({"topic": "bears"}):
+    print(token, end="", flush=True)
+```
+
+```text
+Why do bears hate shoes so much? They like to run around in their
 ```
 
 ---
 
 ## API 参考
 
-有关所有 Fireworks 功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_llms_fireworks.Fireworks.html)。
+有关 `Fireworks` LLM 所有功能和配置的详细文档，请前往 [API 参考](https://reference.langchain.com/python/integrations/langchain_fireworks/)

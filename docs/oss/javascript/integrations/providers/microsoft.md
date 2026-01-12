@@ -7,7 +7,7 @@ title: 概述
 
 ### Azure OpenAI
 
-查看[使用示例](/oss/integrations/chat/azure)
+查看[使用示例](/oss/javascript/integrations/chat/azure)
 
 ```typescript
 import { AzureChatOpenAI } from "@langchain/openai";
@@ -55,14 +55,14 @@ AZURE_OPENAI_API_VERSION="2024-02-01"
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
 ```bash [npm]
 npm install @langchain/openai @langchain/core
 ```
-查看[使用示例](/oss/integrations/llms/azure)。
+查看[使用示例](/oss/javascript/integrations/llms/azure)。
 
 ```typescript
 import { AzureOpenAI } from "@langchain/openai";
@@ -79,7 +79,7 @@ const model = new AzureOpenAI({
 
 ### Azure OpenAI
 
-查看[使用示例](/oss/integrations/text_embedding/azure_openai)
+查看[使用示例](/oss/javascript/integrations/text_embedding/azure_openai)
 
 ```typescript
 import { AzureOpenAIEmbeddings } from "@langchain/openai";
@@ -101,7 +101,7 @@ const model = new AzureOpenAIEmbeddings({
 ```bash [npm]
 npm install -S @langchain/community @langchain/core @azure/search-documents
 ```
-查看[使用示例](/oss/integrations/vectorstores/azure_aisearch)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/azure_aisearch)。
 
 ```typescript
 import { AzureAISearchVectorStore } from "@langchain/community/vectorstores/azure_aisearch";
@@ -113,7 +113,7 @@ import { AzureAISearchVectorStore } from "@langchain/community/vectorstores/azur
 ```bash [npm]
 npm install @langchain/azure-cosmosdb @langchain/core
 ```
-查看[使用示例](/oss/integrations/vectorstores/azure_cosmosdb_nosql)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/azure_cosmosdb_nosql)。
 
 ```typescript
 import { AzureCosmosDBNoSQLVectorStore } from "@langchain/azure-cosmosdb";
@@ -125,7 +125,7 @@ import { AzureCosmosDBNoSQLVectorStore } from "@langchain/azure-cosmosdb";
 ```bash [npm]
 npm install @langchain/azure-cosmosdb @langchain/core
 ```
-查看[使用示例](/oss/integrations/vectorstores/azure_cosmosdb_mongodb)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/azure_cosmosdb_mongodb)。
 
 ```typescript
 import { AzureCosmosDBMongoDBVectorStore } from "@langchain/azure-cosmosdb";
@@ -134,12 +134,12 @@ import { AzureCosmosDBMongoDBVectorStore } from "@langchain/azure-cosmosdb";
 
 ### Azure Cosmos DB NoSQL 语义缓存
 
-> 语义缓存功能通过 Azure Cosmos DB for NoSQL 集成得到支持，使用户能够基于用户输入与先前缓存结果之间的语义相似性来检索缓存的响应。它利用了 [AzureCosmosDBNoSQLVectorStore](/oss/integrations/vectorstores/azure_cosmosdb_nosql)，该存储用于存储缓存提示的向量嵌入。这些嵌入支持基于相似性的搜索，使系统能够检索相关的缓存结果。
+> 语义缓存功能通过 Azure Cosmos DB for NoSQL 集成得到支持，使用户能够基于用户输入与先前缓存结果之间的语义相似性来检索缓存的响应。它利用了 [AzureCosmosDBNoSQLVectorStore](/oss/javascript/integrations/vectorstores/azure_cosmosdb_nosql)，该存储用于存储缓存提示的向量嵌入。这些嵌入支持基于相似性的搜索，使系统能够检索相关的缓存结果。
 
 ```bash [npm]
 npm install @langchain/azure-cosmosdb @langchain/core
 ```
-查看[使用示例](/oss/integrations/llm_caching/azure_cosmosdb_nosql)。
+查看[使用示例](/oss/javascript/integrations/llm_caching/azure_cosmosdb_nosql)。
 
 ```typescript
 import { AzureCosmosDBNoSQLSemanticCache } from "@langchain/azure-cosmosdb";
@@ -165,12 +165,12 @@ import { AzureCosmosDBNoSQLSemanticCache } from "@langchain/azure-cosmosdb";
 ```bash [npm]
 npm install @langchain/community @langchain/core @azure/storage-blob
 ```
-查看 [Azure Blob Storage 的使用示例](/oss/integrations/document_loaders/web_loaders/azure_blob_storage_container)。
+查看 [Azure Blob Storage 的使用示例](/oss/javascript/integrations/document_loaders/web_loaders/azure_blob_storage_container)。
 
 ```typescript
 import { AzureBlobStorageContainerLoader } from "@langchain/community/document_loaders/web/azure_blob_storage_container";
 ```
-查看 [Azure Files 的使用示例](/oss/integrations/document_loaders/web_loaders/azure_blob_storage_file)。
+查看 [Azure Files 的使用示例](/oss/javascript/integrations/document_loaders/web_loaders/azure_blob_storage_file)。
 
 ```typescript
 import { AzureBlobStorageFileLoader } from "@langchain/community/document_loaders/web/azure_blob_storage_file";
@@ -184,7 +184,7 @@ import { AzureBlobStorageFileLoader } from "@langchain/community/document_loader
 ```bash [npm]
 npm install @langchain/azure-dynamic-sessions @langchain/core
 ```
-查看[使用示例](/oss/integrations/tools/azure_dynamic_sessions)。
+查看[使用示例](/oss/javascript/integrations/tools/azure_dynamic_sessions)。
 
 ```typescript
 import { SessionsPythonREPLTool } from "@langchain/azure-dynamic-sessions";

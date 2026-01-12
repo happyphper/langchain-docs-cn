@@ -5,7 +5,7 @@ vLLM 可以部署为模拟 OpenAI API 协议的服务器。这使得 vLLM 可以
 
 ## 概述
 
-本文将帮助您开始使用 vLLM [聊天模型](/oss/langchain/models)，它利用了 `langchain-openai` 包。有关 <a href="https://reference.langchain.com/javascript/classes/_langchain_openai.ChatOpenAI.html" target="_blank" rel="noreferrer" class="link"><code>ChatOpenAI</code></a> 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/openai/chat_models/langchain_openai.chat_models.base.ChatOpenAI.html)。
+本文将帮助您开始使用 vLLM [聊天模型](/oss/javascript/langchain/models)，它利用了 `langchain-openai` 包。有关 <a href="https://reference.langchain.com/javascript/classes/_langchain_openai.ChatOpenAI.html" target="_blank" rel="noreferrer" class="link"><code>ChatOpenAI</code></a> 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/openai/chat_models/langchain_openai.chat_models.base.ChatOpenAI.html)。
 
 ### 集成详情
 

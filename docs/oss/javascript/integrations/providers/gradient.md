@@ -23,7 +23,7 @@ uv add gradientai
 ## LLM
 
 存在一个 Gradient LLM 封装器，您可以通过以下方式访问：
-查看[使用示例](/oss/integrations/llms/gradient)。
+查看[使用示例](/oss/javascript/integrations/llms/gradient)。
 
 ```python
 from langchain_community.llms import GradientLLM
@@ -36,4 +36,4 @@ from langchain_community.llms import GradientLLM
 ```python
 from langchain_community.embeddings import GradientEmbeddings
 ```
-关于更详细的步骤说明，请参阅[此笔记本](/oss/integrations/text_embedding/gradient)
+关于更详细的步骤说明，请参阅[此笔记本](/oss/javascript/integrations/text_embedding/gradient)

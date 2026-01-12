@@ -21,7 +21,7 @@ SerpApi 会缓存查询，因此首次查询会较慢，而后续相同的查询
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参见[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参见[此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -43,5 +43,5 @@ export async function run() {
 
 ## 相关
 
-- 工具[概念指南](/oss/langchain/tools)
-- 工具[操作指南](/oss/langchain/tools)
+- 工具[概念指南](/oss/javascript/langchain/tools)
+- 工具[操作指南](/oss/javascript/langchain/tools)

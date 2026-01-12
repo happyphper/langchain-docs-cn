@@ -1,14 +1,14 @@
 ---
 title: 内存
 ---
-AI应用需要[记忆](/oss/concepts/memory)来在多次交互间共享上下文。在LangGraph中，您可以添加两种类型的记忆：
+AI应用需要[记忆](/oss/javascript/concepts/memory)来在多次交互间共享上下文。在LangGraph中，您可以添加两种类型的记忆：
 
-* [添加短期记忆](#添加短期记忆)作为您智能体[状态](/oss/langgraph/graph-api#state)的一部分，以实现多轮对话。
+* [添加短期记忆](#添加短期记忆)作为您智能体[状态](/oss/javascript/langgraph/graph-api#state)的一部分，以实现多轮对话。
 * [添加长期记忆](#添加长期记忆)以跨会话存储用户特定或应用级别的数据。
 
 ## 添加短期记忆
 
-**短期**记忆（线程级[持久化](/oss/langgraph/persistence)）使智能体能够跟踪多轮对话。要添加短期记忆：
+**短期**记忆（线程级[持久化](/oss/javascript/langgraph/persistence)）使智能体能够跟踪多轮对话。要添加短期记忆：
 
 ```typescript
 import { MemorySaver, StateGraph } from "@langchain/langgraph";
@@ -104,7 +104,7 @@ for await (const chunk of await graph.stream(
 
 ### 在子图中使用
 
-如果您的图包含[子图](/oss/langgraph/use-subgraphs)，您只需在编译父图时提供检查点。LangGraph会自动将检查点传播到子图。
+如果您的图包含[子图](/oss/javascript/langgraph/use-subgraphs)，您只需在编译父图时提供检查点。LangGraph会自动将检查点传播到子图。
 
 ```typescript
 import { StateGraph, START, MemorySaver } from "@langchain/langgraph";
@@ -127,7 +127,7 @@ const checkpointer = new MemorySaver();
 const graph = builder.compile({ checkpointer });
 ```
 
-如果您希望子图拥有自己的记忆，可以使用适当的检查点选项编译它。这在[多智能体](/oss/langchain/multi-agent)系统中非常有用，如果您希望智能体跟踪其内部消息历史记录。
+如果您希望子图拥有自己的记忆，可以使用适当的检查点选项编译它。这在[多智能体](/oss/javascript/langchain/multi-agent)系统中非常有用，如果您希望智能体跟踪其内部消息历史记录。
 
 ```typescript
 const subgraphBuilder = new StateGraph(...);
@@ -442,7 +442,7 @@ Your name is Bob, as you mentioned when you first introduced yourself.
 
 您可以从图状态中删除消息以管理消息历史记录。这在您想要删除特定消息或清除整个消息历史记录时非常有用。
 
-要从图状态中删除消息，可以使用`RemoveMessage`。要使`RemoveMessage`生效，您需要使用带有<a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.messagesStateReducer.html" target="_blank" rel="noreferrer" class="link"><code>messagesStateReducer</code></a>[reducer](/oss/langgraph/graph-api#reducers)的状态键，例如`MessagesZodState`。
+要从图状态中删除消息，可以使用`RemoveMessage`。要使`RemoveMessage`生效，您需要使用带有<a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.messagesStateReducer.html" target="_blank" rel="noreferrer" class="link"><code>messagesStateReducer</code></a>[reducer](/oss/javascript/langgraph/graph-api#reducers)的状态键，例如`MessagesZodState`。
 
 要删除特定消息：
 
@@ -542,7 +542,7 @@ for await (const event of await app.stream(
 
 如上所示，修剪或删除消息的问题在于，您可能会因消息队列的删减而丢失信息。因此，一些应用程序受益于使用聊天模型总结消息历史记录的更复杂方法。
 
-![总结](/oss/images/summary.png)
+![总结](/oss/javascript/images/summary.png)
 
 可以使用提示和编排逻辑来总结消息历史记录。例如，在LangGraph中，您可以在状态中包含一个`summary`键，与`messages`键一起：
 

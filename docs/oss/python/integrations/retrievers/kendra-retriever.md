@@ -10,7 +10,7 @@ Kendra 旨在帮助用户快速准确地找到所需信息，从而提高生产�
 借助 Kendra，用户可以跨多种内容类型进行搜索，包括文档、常见问题解答、知识库、手册和网站。
 它支持多种语言，并能理解复杂的查询、同义词和上下文含义，以提供高度相关的搜索结果。
 
-本文将帮助您开始使用 Amazon Kendra [`retriever`](/oss/langchain/retrieval)。有关 `AWSKendraRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_aws.AmazonKendraRetriever.html)。
+本文将帮助您开始使用 Amazon Kendra [`retriever`](/oss/python/langchain/retrieval)。有关 `AWSKendraRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_aws.AmazonKendraRetriever.html)。
 
 ### 集成详情
 

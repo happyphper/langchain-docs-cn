@@ -23,7 +23,7 @@ uv add mlx-lm transformers huggingface_hub
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/mlx)。
+查看[使用示例](/oss/python/integrations/chat/mlx)。
 
 ```python
 from langchain_community.chat_models.mlx import ChatMLX
@@ -33,7 +33,7 @@ from langchain_community.chat_models.mlx import ChatMLX
 
 ### MLX 本地流水线
 
-查看[使用示例](/oss/integrations/llms/mlx_pipelines)。
+查看[使用示例](/oss/python/integrations/llms/mlx_pipelines)。
 
 ```python
 from langchain_community.llms.mlx_pipeline import MLXPipeline

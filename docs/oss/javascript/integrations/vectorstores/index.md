@@ -4,7 +4,7 @@ title: 向量存储 (Vector stores)
 
 ## 概述 (Overview)
 
-[向量存储 (vector store)](/oss/integrations/vectorstores) 用于存储[嵌入 (embedded)](/oss/integrations/text_embedding)数据并执行相似性搜索。
+[向量存储 (vector store)](/oss/javascript/integrations/vectorstores) 用于存储[嵌入 (embedded)](/oss/javascript/integrations/text_embedding)数据并执行相似性搜索。
 
 ```mermaid
 flowchart LR

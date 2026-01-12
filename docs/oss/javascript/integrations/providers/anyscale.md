@@ -27,7 +27,7 @@ uv add openai
 
 ## LLM
 
-查看[使用示例](/oss/integrations/llms/anyscale)。
+查看[使用示例](/oss/javascript/integrations/llms/anyscale)。
 
 ```python
 from langchain_community.llms.anyscale import Anyscale
@@ -35,7 +35,7 @@ from langchain_community.llms.anyscale import Anyscale
 
 ## 嵌入
 
-查看[使用示例](/oss/integrations/text_embedding/anyscale)。
+查看[使用示例](/oss/javascript/integrations/text_embedding/anyscale)。
 
 ```python
 from langchain_community.embeddings import AnyscaleEmbeddings

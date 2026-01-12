@@ -27,7 +27,7 @@ uv add pyTigerGraph
 
 ### TigerGraph
 
-查看 [使用示例](/oss/integrations/graphs/tigergraph)。
+查看 [使用示例](/oss/python/integrations/graphs/tigergraph)。
 
 ```python
 from langchain_community.graphs import TigerGraph

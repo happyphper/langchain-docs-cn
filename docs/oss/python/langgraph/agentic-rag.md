@@ -4,9 +4,9 @@ sidebarTitle: Custom RAG agent
 ---
 ## 概述
 
-在本教程中，我们将使用 LangGraph 构建一个[检索](/oss/langchain/retrieval)智能体。
+在本教程中，我们将使用 LangGraph 构建一个[检索](/oss/python/langchain/retrieval)智能体。
 
-LangChain 提供了内置的[智能体](/oss/langchain/agents)实现，这些实现使用了 [LangGraph](/oss/langgraph/overview) 原语。如果需要更深度的定制，可以直接在 LangGraph 中实现智能体。本指南演示了一个检索智能体的示例实现。当你希望 LLM 决定是从向量存储中检索上下文还是直接响应用户时，[检索](/oss/langchain/retrieval)智能体非常有用。
+LangChain 提供了内置的[智能体](/oss/python/langchain/agents)实现，这些实现使用了 [LangGraph](/oss/python/langgraph/overview) 原语。如果需要更深度的定制，可以直接在 LangGraph 中实现智能体。本指南演示了一个检索智能体的示例实现。当你希望 LLM 决定是从向量存储中检索上下文还是直接响应用户时，[检索](/oss/python/langchain/retrieval)智能体非常有用。
 
 在本教程结束时，我们将完成以下工作：
 
@@ -20,8 +20,8 @@ LangChain 提供了内置的[智能体](/oss/langchain/agents)实现，这些实
 
 我们将涵盖以下概念：
 
--   使用[文档加载器](/oss/integrations/document_loaders)、[文本分割器](/oss/integrations/splitters)、[嵌入模型](/oss/integrations/text_embedding)和[向量存储](/oss/integrations/vectorstores)进行[检索](/oss/langchain/retrieval)
--   LangGraph 的[图 API](/oss/langgraph/graph-api)，包括状态、节点、边和条件边。
+-   使用[文档加载器](/oss/python/integrations/document_loaders)、[文本分割器](/oss/python/integrations/splitters)、[嵌入模型](/oss/python/integrations/text_embedding)和[向量存储](/oss/python/integrations/vectorstores)进行[检索](/oss/python/langchain/retrieval)
+-   LangGraph 的[图 API](/oss/python/langgraph/graph-api)，包括状态、节点、边和条件边。
 
 ## 设置
 
@@ -113,9 +113,9 @@ retriever_tool.invoke({"query": "types of reward hacking"})
 
 ## 3. 生成查询
 
-现在我们将开始为我们的智能 RAG 图构建组件（[节点](/oss/langgraph/graph-api#nodes) 和 [边](/oss/langgraph/graph-api#edges)）。
+现在我们将开始为我们的智能 RAG 图构建组件（[节点](/oss/python/langgraph/graph-api#nodes) 和 [边](/oss/python/langgraph/graph-api#edges)）。
 
-请注意，组件将在 [`MessagesState`](/oss/langgraph/graph-api#messagesstate) 上运行——这是一种图状态，包含一个带有[聊天消息](https://python.langchain.com/docs/concepts/messages/)列表的 `messages` 键。
+请注意，组件将在 [`MessagesState`](/oss/python/langgraph/graph-api#messagesstate) 上运行——这是一种图状态，包含一个带有[聊天消息](https://python.langchain.com/docs/concepts/messages/)列表的 `messages` 键。
 
 1.  构建 `generate_query_or_respond` 节点。它将调用一个 LLM，根据当前的图状态（消息列表）生成响应。根据输入消息，它将决定是使用检索器工具进行检索，还是直接响应用户。注意，我们通过 `.bind_tools` 让聊天模型能够访问我们之前创建的 `retriever_tool`：
 ```python
@@ -167,7 +167,7 @@ Args:
 
 ## 4. 评估文档
 
-1.  添加一个[条件边](/oss/langgraph/graph-api#conditional-edges)——`grade_documents`——用于确定检索到的文档是否与问题相关。我们将使用一个具有结构化输出模式 `GradeDocuments` 的模型进行文档评估。`grade_documents` 函数将根据评估决策（`generate_answer` 或 `rewrite_question`）返回要前往的节点名称：
+1.  添加一个[条件边](/oss/python/langgraph/graph-api#conditional-edges)——`grade_documents`——用于确定检索到的文档是否与问题相关。我们将使用一个具有结构化输出模式 `GradeDocuments` 的模型进行文档评估。`grade_documents` 函数将根据评估决策（`generate_answer` 或 `rewrite_question`）返回要前往的节点名称：
 ```python
 from pydantic import BaseModel, Field
 from typing import Literal
@@ -270,7 +270,7 @@ grade_documents(input)
 ```
 
 :::js
-1.  添加一个节点——`gradeDocuments`——用于确定检索到的文档是否与问题相关。我们将使用一个带有 Zod 结构化输出的模型进行文档评估。我们还将添加一个[条件边](/oss/langgraph/graph-api#conditional-edges)——`checkRelevance`——它检查评估结果并返回要前往的节点名称（`generate` 或 `rewrite`）：
+1.  添加一个节点——`gradeDocuments`——用于确定检索到的文档是否与问题相关。我们将使用一个带有 Zod 结构化输出的模型进行文档评估。我们还将添加一个[条件边](/oss/python/langgraph/graph-api#conditional-edges)——`checkRelevance`——它检查评估结果并返回要前往的节点名称（`generate` 或 `rewrite`）：
 ```typescript
 import * as z from "zod";
 import { ChatPromptTemplate } from "@langchain/core/prompts";

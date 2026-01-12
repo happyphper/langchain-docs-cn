@@ -17,7 +17,7 @@ title: Zep 开源检索器
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/python/langchain/install)。
 
 </Tip>
 
@@ -171,4 +171,4 @@ export const run = async () => {
 
 ## 相关链接
 
-- [检索指南](/oss/langchain/retrieval)
+- [检索指南](/oss/python/langchain/retrieval)

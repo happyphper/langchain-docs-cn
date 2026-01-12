@@ -1,152 +1,124 @@
 ---
 title: ChatGroq
+sidebarTitle: Groq
+description: '开始使用 LangChain 中的 Groq [聊天模型](/oss/langchain/models)。'
 ---
-[Groq](https://groq.com/) 是一家提供快速 AI 推理服务的公司，其核心是 LPU™ AI 推理技术，该技术能够提供快速、经济且节能的 AI 推理。
 
-本文将帮助您开始使用 ChatGroq [聊天模型](/oss/langchain/models)。有关 ChatGroq 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_groq.ChatGroq.html)。
+<Warning>
+
+本页面提及 [Groq](https://console.groq.com/docs/overview)，这是一家 AI 硬件和软件公司。关于如何使用 Grok 模型（由 [xAI](https://docs.x.ai/docs/overview) 提供）的信息，请参阅 [xAI 供应商页面](/oss/python/integrations/providers/xai)。
+
+</Warning>
+
+<Tip>
+
+<strong>API 参考</strong>
+
+有关所有功能和配置选项的详细文档，请前往 <a href="https://reference.langchain.com/python/integrations/langchain_groq/#langchain_groq.ChatGroq" target="_blank" rel="noreferrer" class="link"><code>ChatGroq</code></a> API 参考。
+
+</Tip>
+
+有关所有 Groq 模型的列表，请访问其 [文档](https://console.groq.com/docs/models?utm_source=langchain)。
 
 ## 概述
 
 ### 集成详情
 
-| 类 | 包 | 可序列化 | [Python 支持](https://python.langchain.com/docs/integrations/chat/groq) | 下载量 | 版本 |
+| 类 | 包 | 可序列化 | [JS 支持](https://js.langchain.com/docs/integrations/chat/groq) | 下载量 | 版本 |
 | :--- | :--- | :---: |  :---: | :---: | :---: |
-| [ChatGroq](https://api.js.langchain.com/classes/langchain_groq.ChatGroq.html) | [`@langchain/groq`](https://www.npmjs.com/package/@langchain/groq) | ❌ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/groq?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/groq?style=flat-square&label=%20&) |
+| <a href="https://reference.langchain.com/python/integrations/langchain_groq/#langchain_groq.ChatGroq" target="_blank" rel="noreferrer" class="link"><code>ChatGroq</code></a> | <a href="https://reference.langchain.com/python/integrations/langchain_groq" target="_blank" rel="noreferrer" class="link"><code>langchain-groq</code></a> | beta | ✅ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-groq?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-groq?style=flat-square&label=%20) |
 
-### 模型功能
+### 模型特性
 
-有关如何使用特定功能的指南，请参阅下表标题中的链接。
-
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
-| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
-| ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/python/langchain/streaming#llm-tokens) | 原生异步 | [Token 使用量](/oss/python/langchain/models#token-usage) | [Logprobs](/oss/python/langchain/models#log-probabilities) |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
+| ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
 
 ## 设置
 
-要访问 ChatGroq 模型，您需要创建一个 Groq 账户，获取一个 API 密钥，并安装 `@langchain/groq` 集成包。
+要访问 Groq 模型，您需要创建一个 Groq 账户，获取一个 API 密钥，并安装 `langchain-groq` 集成包。
 
 ### 凭证
 
-要使用 Groq API，您需要一个 API 密钥。您可以在此处[注册](https://wow.groq.com/)一个 Groq 账户并创建 API 密钥。
-然后，您可以在终端中将 API 密钥设置为环境变量：
+前往 [Groq 控制台](https://console.groq.com/login?utm_source=langchain&utm_content=chat_page) 注册 Groq 并生成一个 API 密钥。完成后，设置 GROQ_API_KEY 环境变量：
 
-```bash
-export GROQ_API_KEY="your-api-key"
+```python
+import getpass
+import os
+
+if "GROQ_API_KEY" not in os.environ:
+    os.environ["GROQ_API_KEY"] = getpass.getpass("Enter your Groq API key: ")
 ```
 
-如果您希望自动追踪模型调用，还可以通过取消注释以下行来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+要启用模型调用的自动追踪，请设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
 
-```bash
-# export LANGSMITH_TRACING="true"
-# export LANGSMITH_API_KEY="your-api-key"
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
 ```
 
 ### 安装
 
-LangChain ChatGroq 集成位于 `@langchain/groq` 包中：
+LangChain Groq 集成位于 `langchain-groq` 包中：
 
-::: code-group
-
-```bash [npm]
-npm install @langchain/groq @langchain/core
+```python
+pip install -qU langchain-groq
 ```
-
-```bash [yarn]
-yarn add @langchain/groq @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @langchain/groq @langchain/core
-```
-
-:::
 
 ## 实例化
 
-现在我们可以实例化模型对象并生成聊天补全：
+现在我们可以实例化我们的模型对象并生成聊天补全。
 
-```typescript
-import { ChatGroq } from "@langchain/groq"
+<Note>
 
-const llm = new ChatGroq({
-    model: "llama-3.3-70b-versatile",
-    temperature: 0,
-    maxTokens: undefined,
-    maxRetries: 2,
-    // other params...
-})
+<strong>推理格式</strong>
+
+如果您选择设置 `reasoning_format`，必须确保您使用的模型支持它。您可以在 [Groq 文档](https://console.groq.com/docs/reasoning) 中找到支持的模型列表。
+
+</Note>
+
+```python
+from langchain_groq import ChatGroq
+
+llm = ChatGroq(
+    model="qwen/qwen3-32b",
+    temperature=0,
+    max_tokens=None,
+    reasoning_format="parsed",
+    timeout=None,
+    max_retries=2,
+    # other params...
+)
 ```
 
 ## 调用
 
-```typescript
-const aiMsg = await llm.invoke([
-    {
-      role: "system",
-      content: "You are a helpful assistant that translates English to French. Translate the user sentence.",
-    },
-    { role: "user", content: "I love programming." },
-])
-aiMsg
+```python
+messages = [
+    (
+        "system",
+        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+    ),
+    ("human", "I love programming."),
+]
+ai_msg = llm.invoke(messages)
+ai_msg
 ```
 
 ```text
-AIMessage {
-  "content": "I enjoy programming. (The French translation is: \"J'aime programmer.\")\n\nNote: I chose to translate \"I love programming\" as \"J'aime programmer\" instead of \"Je suis amoureux de programmer\" because the latter has a romantic connotation that is not present in the original English sentence.",
-  "additional_kwargs": {},
-  "response_metadata": {
-    "tokenUsage": {
-      "completionTokens": 73,
-      "promptTokens": 31,
-      "totalTokens": 104
-    },
-    "finish_reason": "stop"
-  },
-  "tool_calls": [],
-  "invalid_tool_calls": []
-}
+AIMessage(content="J'aime la programmation.", additional_kwargs={'reasoning_content': 'Okay, so I need to translate the sentence "I love programming." into French. Let me think about how to approach this. \n\nFirst, I know that "I" in French is "Je." That\'s straightforward. Now, the verb "love" in French is "aime" when referring to oneself. So, "I love" would be "J\'aime." \n\nNext, the word "programming." In French, programming is "la programmation." But wait, in French, when you talk about loving an activity, you often use the definite article. So, it would be "la programmation." \n\nPutting it all together, "I love programming" becomes "J\'aime la programmation." That sounds right. I think that\'s the correct translation. \n\nI should double-check to make sure I\'m not missing anything. Maybe I can think of similar phrases. For example, "I love reading" is "J\'aime lire," but when it\'s a noun, like "I love music," it\'s "J\'aime la musique." So, yes, using "la programmation" makes sense here. \n\nI don\'t think I need to change anything else. The sentence structure in French is Subject-Verb-Object, just like in English, so "J\'aime la programmation" should be correct. \n\nI guess another way to say it could be "J\'adore la programmation," using "adore" instead of "aime," but "aime" is more commonly used in this context. So, sticking with "J\'aime la programmation" is probably the best choice.\n'}, response_metadata={'token_usage': {'completion_tokens': 346, 'prompt_tokens': 23, 'total_tokens': 369, 'completion_time': 1.447541218, 'prompt_time': 0.000983386, 'queue_time': 0.009673684, 'total_time': 1.448524604}, 'model_name': 'deepseek-r1-distill-llama-70b', 'system_fingerprint': 'fp_e98d30d035', 'finish_reason': 'stop', 'logprobs': None}, id='run--5679ae4f-f4e8-4931-bcd5-7304223832c0-0', usage_metadata={'input_tokens': 23, 'output_tokens': 346, 'total_tokens': 369})
 ```
 
-```typescript
-console.log(aiMsg.content)
+```python
+print(ai_msg.content)
 ```
 
 ```text
-I enjoy programming. (The French translation is: "J'aime programmer.")
-
-Note: I chose to translate "I love programming" as "J'aime programmer" instead of "Je suis amoureux de programmer" because the latter has a romantic connotation that is not present in the original English sentence.
-```
-
-## JSON 调用
-
-```typescript
-const messages = [
-  {
-    role: "system",
-    content: "You are a math tutor that handles math exercises and makes output in json in format { result: number }.",
-  },
-  { role: "user",  content: "2 + 2 * 2" },
-];
-
-const aiInvokeMsg = await llm.invoke(messages, { response_format: { type: "json_object" } });
-
-// 如果您不想在每次调用时都传递 response_format，可以将其绑定到实例上
-const llmWithResponseFormat = llm.bind({ response_format: { type: "json_object" } });
-const aiBindMsg = await llmWithResponseFormat.invoke(messages);
-
-// 它们是相同的
-console.log({ aiInvokeMsgContent: aiInvokeMsg.content, aiBindMsg: aiBindMsg.content });
-```
-
-```json
-{
-  aiInvokeMsgContent: '{\n"result": 6\n}',
-  aiBindMsg: '{\n"result": 6\n}'
-}
+J'aime la programmation.
 ```
 
 ---
 
 ## API 参考
 
-有关 ChatGroq 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_groq.ChatGroq.html)。
+有关 ChatGroq 所有功能和配置的详细文档，请前往 [API 参考](https://python.langchain.com/api_reference/groq/chat_models/langchain_groq.chat_models.ChatGroq.html)。

@@ -45,4 +45,4 @@ from langchain_community.vectorstores import vlite
 
 ### 使用方法
 
-关于 vlite 封装的更详细说明，请参阅 [此笔记本](/oss/integrations/vectorstores/vlite)。
+关于 vlite 封装的更详细说明，请参阅 [此笔记本](/oss/javascript/integrations/vectorstores/vlite)。

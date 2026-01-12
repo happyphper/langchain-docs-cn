@@ -36,4 +36,4 @@ export CEREBRAS_API_KEY="your-api-key-here"
 ```
 
 ## 聊天模型
-查看[使用示例](/oss/integrations/chat/cerebras)。
+查看[使用示例](/oss/python/integrations/chat/cerebras)。

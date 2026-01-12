@@ -3,7 +3,7 @@ title: ChatCohere
 ---
 [Cohere](https://cohere.com/) 是一家加拿大初创公司，提供自然语言处理模型，帮助企业改善人机交互。
 
-本文将帮助您开始使用 Cohere 的[聊天模型](/oss/langchain/models)。有关 `ChatCohere` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_cohere.ChatCohere.html)。
+本文将帮助您开始使用 Cohere 的[聊天模型](/oss/javascript/langchain/models)。有关 `ChatCohere` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_cohere.ChatCohere.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ title: ChatCohere
 
 有关如何使用特定功能的指南，请参阅下表标题中的链接。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
 

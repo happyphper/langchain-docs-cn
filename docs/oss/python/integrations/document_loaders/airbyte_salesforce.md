@@ -1,7 +1,7 @@
 ---
 title: Airbyte Salesforce（已弃用）
 ---
-注意：此特定连接器的加载器已弃用。请改用 [`AirbyteLoader`](/oss/integrations/document_loaders/airbyte)。
+注意：此特定连接器的加载器已弃用。请改用 [`AirbyteLoader`](/oss/python/integrations/document_loaders/airbyte)。
 
 >[Airbyte](https://github.com/airbytehq/airbyte) 是一个用于 ELT 管道的数据集成平台，可将来自 API、数据库和文件的数据传输到数据仓库和数据湖。它拥有最大的 ELT 连接器目录，支持多种数据仓库和数据库。
 

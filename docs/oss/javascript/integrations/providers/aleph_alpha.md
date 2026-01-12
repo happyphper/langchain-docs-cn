@@ -29,7 +29,7 @@ ALEPH_ALPHA_API_KEY = getpass()
 
 ## LLM
 
-查看[使用示例](/oss/integrations/llms/aleph_alpha)。
+查看[使用示例](/oss/javascript/integrations/llms/aleph_alpha)。
 
 ```python
 from langchain_community.llms import AlephAlpha
@@ -37,7 +37,7 @@ from langchain_community.llms import AlephAlpha
 
 ## 文本嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/aleph_alpha)。
+查看[使用示例](/oss/javascript/integrations/text_embedding/aleph_alpha)。
 
 ```python
 from langchain_community.embeddings import AlephAlphaSymmetricSemanticEmbedding, AlephAlphaAsymmetricSemanticEmbedding

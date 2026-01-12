@@ -31,4 +31,4 @@ Marqo 向量存储还可以处理现有的多模态索引，其中您的文档�
 from langchain_community.vectorstores import Marqo
 ```
 
-有关 Marqo 封装器及其一些独特功能的更详细说明，请参阅[此笔记本](/oss/integrations/vectorstores/marqo)
+有关 Marqo 封装器及其一些独特功能的更详细说明，请参阅[此笔记本](/oss/javascript/integrations/vectorstores/marqo)

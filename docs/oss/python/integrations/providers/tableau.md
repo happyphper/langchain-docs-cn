@@ -19,4 +19,4 @@ uv add langchain-tableau
 
 ## 工具
 
-关于可用工具的详细信息，请参见[此处](/oss/integrations/tools/tableau)。
+关于可用工具的详细信息，请参见[此处](/oss/python/integrations/tools/tableau)。

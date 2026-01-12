@@ -15,7 +15,7 @@ title: LlamaEdge
 
 ## 聊天模型
 
-请查看[使用示例](/oss/integrations/chat/llama_edge)。
+请查看[使用示例](/oss/python/integrations/chat/llama_edge)。
 
 ```python
 from langchain_community.chat_models.llama_edge import LlamaEdgeChatService

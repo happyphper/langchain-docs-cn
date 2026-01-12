@@ -1,131 +1,61 @@
 ---
-title: DeepInfra Embeddings
+title: DeepInfra
 ---
-`DeepInfraEmbeddings` 类利用 DeepInfra API 为给定的文本输入生成嵌入向量。本指南将引导您完成 `DeepInfraEmbeddings` 类的设置和使用，帮助您将其无缝集成到您的项目中。
+[DeepInfra](https://deepinfra.com/?utm_source=langchain) 是一个无服务器推理即服务平台，提供对[多种大语言模型](https://deepinfra.com/models?utm_source=langchain)和[嵌入模型](https://deepinfra.com/models?type=embeddings&utm_source=langchain)的访问。本笔记本将介绍如何将 LangChain 与 DeepInfra 结合使用以生成文本嵌入。
 
-## 安装
+```python
+# 注册账户：https://deepinfra.com/login?utm_source=langchain
 
-如下所示安装 `@langchain/community` 包：
+from getpass import getpass
 
-<Tip>
-
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm i @langchain/community @langchain/core
+DEEPINFRA_API_TOKEN = getpass()
 ```
 
-## 初始化
-
-通过此集成，您可以使用 DeepInfra 嵌入模型为您的文本数据获取嵌入向量。这里是嵌入模型的[链接](https://deepinfra.com/models/embeddings)。
-
-首先，您需要在 DeepInfra 网站上注册，并从[此处](https://deepinfra.com/dash/api_keys)获取 API 令牌。您可以从模型卡片中复制名称，并在代码中开始使用它们。
-
-要使用 `DeepInfraEmbeddings` 类，您需要一个来自 DeepInfra 的 API 令牌。您可以直接将此令牌传递给构造函数，或将其设置为环境变量 (`DEEPINFRA_API_TOKEN`)。
-
-### 基本用法
-
-以下是创建 `DeepInfraEmbeddings` 实例的方法：
-
-```typescript
-import { DeepInfraEmbeddings } from "@langchain/community/embeddings/deepinfra";
-
-const embeddings = new DeepInfraEmbeddings({
-  apiToken: "YOUR_API_TOKEN",
-  modelName: "sentence-transformers/clip-ViT-B-32", // 可选，默认为 "sentence-transformers/clip-ViT-B-32"
-  batchSize: 1024, // 可选，默认为 1024
-});
+```text
+········
 ```
 
-如果未提供 `apiToken`，它将从 `DEEPINFRA_API_TOKEN` 环境变量中读取。
+```python
+import os
 
-## 生成嵌入向量
-
-### 嵌入单个查询
-
-要为单个文本查询生成嵌入向量，请使用 `embedQuery` 方法：
-
-```typescript
-const embedding = await embeddings.embedQuery(
-  "What would be a good company name for a company that makes colorful socks?"
-);
-console.log(embedding);
+os.environ["DEEPINFRA_API_TOKEN"] = DEEPINFRA_API_TOKEN
 ```
 
-### 嵌入多个文档
-
-要为多个文档生成嵌入向量，请使用 `embedDocuments` 方法。此方法将根据 `batchSize` 参数自动处理批处理：
-
-```typescript
-const documents = [
-  "Document 1 text...",
-  "Document 2 text...",
-  "Document 3 text...",
-];
-
-const embeddingsArray = await embeddings.embedDocuments(documents);
-console.log(embeddingsArray);
+```python
+from langchain_community.embeddings import DeepInfraEmbeddings
 ```
 
-## 自定义请求
-
-您可以通过传递 `configuration` 参数来自定义 SDK 发送请求的基础 URL：
-
-```typescript
-const customEmbeddings = new DeepInfraEmbeddings({
-  apiToken: "YOUR_API_TOKEN",
-  configuration: {
-    baseURL: "https://your_custom_url.com",
-  },
-});
+```python
+embeddings = DeepInfraEmbeddings(
+    model_id="sentence-transformers/clip-ViT-B-32",
+    query_instruction="",
+    embed_instruction="",
+)
 ```
 
-这允许您在需要时通过自定义端点路由请求。
-
-## 错误处理
-
-如果未提供 API 令牌且在环境变量中找不到，将抛出错误：
-
-```typescript
-try {
-  const embeddings = new DeepInfraEmbeddings();
-} catch (error) {
-  console.error("DeepInfra API token not found");
-}
+```python
+docs = ["Dog is not a cat", "Beta is the second letter of Greek alphabet"]
+document_result = embeddings.embed_documents(docs)
 ```
 
-## 示例
-
-以下是设置和使用 `DeepInfraEmbeddings` 类的完整示例：
-
-```typescript
-import { DeepInfraEmbeddings } from "@langchain/community/embeddings/deepinfra";
-
-const embeddings = new DeepInfraEmbeddings({
-  apiToken: "YOUR_API_TOKEN",
-  modelName: "sentence-transformers/clip-ViT-B-32",
-  batchSize: 512,
-});
-
-async function runExample() {
-  const queryEmbedding = await embeddings.embedQuery("Example query text.");
-  console.log("Query Embedding:", queryEmbedding);
-
-  const documents = ["Text 1", "Text 2", "Text 3"];
-  const documentEmbeddings = await embeddings.embedDocuments(documents);
-  console.log("Document Embeddings:", documentEmbeddings);
-}
-
-runExample();
+```python
+query = "What is the first letter of Greek alphabet"
+query_result = embeddings.embed_query(query)
 ```
 
-## 反馈与支持
+```python
+import numpy as np
 
-如有反馈或问题，请联系 [feedback@deepinfra.com](mailto:feedback@deepinfra.com)。
+query_numpy = np.array(query_result)
+for doc_res, doc in zip(document_result, docs):
+    document_numpy = np.array(doc_res)
+    similarity = np.dot(query_numpy, document_numpy) / (
+        np.linalg.norm(query_numpy) * np.linalg.norm(document_numpy)
+    )
+    print(f'Cosine similarity between "{doc}" and query: {similarity}')
+```
 
-## 相关链接
-
-- 嵌入模型[概念指南](/oss/integrations/text_embedding)
-- 嵌入模型[操作指南](/oss/integrations/text_embedding)
+```text
+Cosine similarity between "Dog is not a cat" and query: 0.7489097144129355
+Cosine similarity between "Beta is the second letter of Greek alphabet" and query: 0.9519380640702013
+```

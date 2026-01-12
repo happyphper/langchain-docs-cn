@@ -12,7 +12,7 @@ title: FaissStore
 
 LangChain.js 支持将 Faiss 用作本地运行的向量存储，并可保存到文件。它还提供了从 [LangChain Python 实现](https://python.langchain.com/docs/integrations/vectorstores/faiss#saving-and-loading) 读取已保存文件的能力。
 
-本指南提供了 Faiss [向量存储](/oss/integrations/vectorstores) 的快速入门概述。有关所有 `FaissStore` 功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_faiss.FaissStore.html)。
+本指南提供了 Faiss [向量存储](/oss/javascript/integrations/vectorstores) 的快速入门概述。有关所有 `FaissStore` 功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_faiss.FaissStore.html)。
 
 ## 概述
 
@@ -26,7 +26,7 @@ LangChain.js 支持将 Faiss 用作本地运行的向量存储，并可保存到
 
 要使用 Faiss 向量存储，你需要安装 `@langchain/community` 集成包以及作为对等依赖项的 [`faiss-node`](https://github.com/ewfian/faiss-node) 包。
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+本指南还将使用 [OpenAI 嵌入](/oss/javascript/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/javascript/integrations/text_embedding)。
 
 ::: code-group
 
@@ -156,7 +156,7 @@ for (const [doc, score] of similaritySearchWithScoreResults) {
 
 ### 转换为检索器进行查询
 
-你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+你也可以将向量存储转换为 [检索器](/oss/javascript/langchain/retrieval)，以便在你的链中更轻松地使用。
 
 ```typescript
 const retriever = vectorStore.asRetriever({
@@ -182,9 +182,9 @@ await retriever.invoke("biology");
 
 关于如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [代理式 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/javascript/langchain/rag)。
+- [代理式 RAG](/oss/javascript/langgraph/agentic-rag)
+- [检索文档](/oss/javascript/langchain/retrieval)
 
 ## 合并索引
 

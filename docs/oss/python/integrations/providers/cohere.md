@@ -24,11 +24,11 @@ uv add langchain-cohere
 
 | API | 描述 | 端点文档 | 导入 | 示例用法 |
 |---|---|---|---|---|
-| Chat | 构建聊天机器人 | [chat](https://docs.cohere.com/reference/chat) | `from langchain_cohere import ChatCohere` | [cohere.ipynb](/oss/integrations/chat/cohere) |
-| LLM | 生成文本 | [generate](https://docs.cohere.com/reference/generate) | `from langchain_cohere.llms import Cohere` | [cohere.ipynb](/oss/integrations/llms/cohere) |
-| RAG Retriever | 连接到外部数据源 | [chat + rag](https://docs.cohere.com/reference/chat) | `from langchain_classic.retrievers import CohereRagRetriever` | [cohere.ipynb](/oss/integrations/retrievers/cohere) |
-| Text Embedding | 将字符串嵌入为向量 | [embed](https://docs.cohere.com/reference/embed) | `from langchain_cohere import CohereEmbeddings` | [cohere.ipynb](/oss/integrations/text_embedding/cohere) |
-| Rerank Retriever | 根据相关性对字符串进行排序 | [rerank](https://docs.cohere.com/reference/rerank) | `from langchain_classic.retrievers.document_compressors import CohereRerank` | [cohere.ipynb](/oss/integrations/retrievers/cohere-reranker) |
+| Chat | 构建聊天机器人 | [chat](https://docs.cohere.com/reference/chat) | `from langchain_cohere import ChatCohere` | [cohere.ipynb](/oss/python/integrations/chat/cohere) |
+| LLM | 生成文本 | [generate](https://docs.cohere.com/reference/generate) | `from langchain_cohere.llms import Cohere` | [cohere.ipynb](/oss/python/integrations/llms/cohere) |
+| RAG Retriever | 连接到外部数据源 | [chat + rag](https://docs.cohere.com/reference/chat) | `from langchain_classic.retrievers import CohereRagRetriever` | [cohere.ipynb](/oss/python/integrations/retrievers/cohere) |
+| Text Embedding | 将字符串嵌入为向量 | [embed](https://docs.cohere.com/reference/embed) | `from langchain_cohere import CohereEmbeddings` | [cohere.ipynb](/oss/python/integrations/text_embedding/cohere) |
+| Rerank Retriever | 根据相关性对字符串进行排序 | [rerank](https://docs.cohere.com/reference/rerank) | `from langchain_classic.retrievers.document_compressors import CohereRerank` | [cohere.ipynb](/oss/python/integrations/retrievers/cohere-reranker) |
 
 ## 快速复制示例
 
@@ -42,7 +42,7 @@ messages = [HumanMessage(content="knock knock")]
 print(chat.invoke(messages))
 ```
 
-Cohere [聊天模型](/oss/integrations/chat/cohere) 的用法。
+Cohere [聊天模型](/oss/python/integrations/chat/cohere) 的用法。
 
 ### LLM
 
@@ -53,7 +53,7 @@ llm = Cohere()
 print(llm.invoke("Come up with a pet name"))
 ```
 
-Cohere（旧版）[LLM 模型](/oss/integrations/llms/cohere) 的用法。
+Cohere（旧版）[LLM 模型](/oss/python/integrations/llms/cohere) 的用法。
 
 ### 工具调用
 
@@ -148,7 +148,7 @@ rag = CohereRagRetriever(llm=ChatCohere())
 print(rag.invoke("What is cohere ai?"))
 ```
 
-Cohere [RAG Retriever](/oss/integrations/retrievers/cohere) 的用法。
+Cohere [RAG Retriever](/oss/python/integrations/retrievers/cohere) 的用法。
 
 ### Text Embedding
 
@@ -159,8 +159,8 @@ embeddings = CohereEmbeddings(model="embed-english-light-v3.0")
 print(embeddings.embed_documents(["This is a test document."]))
 ```
 
-Cohere [文本嵌入模型](/oss/integrations/text_embedding/cohere) 的用法。
+Cohere [文本嵌入模型](/oss/python/integrations/text_embedding/cohere) 的用法。
 
 ### Reranker
 
-Cohere [Reranker](/oss/integrations/retrievers/cohere-reranker) 的用法。
+Cohere [Reranker](/oss/python/integrations/retrievers/cohere-reranker) 的用法。

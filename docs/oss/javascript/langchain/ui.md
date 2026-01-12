@@ -6,7 +6,7 @@ title: 智能体聊天界面
 
 ### 连接到您的智能体
 
-Agent Chat UI 可以连接到[本地](/oss/langchain/studio#setup-local-agent-server)和[已部署的智能体](/oss/langchain/deploy)。
+Agent Chat UI 可以连接到[本地](/oss/javascript/langchain/studio#setup-local-agent-server)和[已部署的智能体](/oss/javascript/langchain/deploy)。
 
 启动 Agent Chat UI 后，您需要配置它以连接到您的智能体：
 

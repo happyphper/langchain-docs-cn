@@ -30,7 +30,7 @@ LangGraph 底层的图算法使用[消息传递](https://en.wikipedia.org/wiki/w
 
 要构建您的图，您首先定义[状态](#state)，然后添加[节点](#nodes)和[边](#edges)，最后编译它。编译图到底是什么，为什么需要它？
 
-编译是一个相当简单的步骤。它对图的结构进行一些基本检查（没有孤立节点等）。这也是您可以指定运行时参数（如[检查点](/oss/langgraph/persistence)和断点）的地方。您只需调用 `.compile` 方法来编译您的图：
+编译是一个相当简单的步骤。它对图的结构进行一些基本检查（没有孤立节点等）。这也是您可以指定运行时参数（如[检查点](/oss/javascript/langgraph/persistence)和断点）的地方。您只需调用 `.compile` 方法来编译您的图：
 
 ```typescript
 const graph = new StateGraph(StateAnnotation)
@@ -65,7 +65,7 @@ const graph = new StateGraph(StateAnnotation)
 
 可以让节点在图中写入私有状态通道，用于内部节点通信。我们可以简单地定义一个私有模式 `PrivateState`。
 
-也可以为图定义显式的输入和输出模式。在这些情况下，我们定义一个“内部”模式，其中包含与图操作相关的_所有_键。但是，我们还定义了 `input` 和 `output` 模式，它们是“内部”模式的子集，以约束图的输入和输出。有关更多详细信息，请参阅[本指南](/oss/langgraph/graph-api#define-input-and-output-schemas)。
+也可以为图定义显式的输入和输出模式。在这些情况下，我们定义一个“内部”模式，其中包含与图操作相关的_所有_键。但是，我们还定义了 `input` 和 `output` 模式，它们是“内部”模式的子集，以约束图的输入和输出。有关更多详细信息，请参阅[本指南](/oss/javascript/langgraph/graph-api#define-input-and-output-schemas)。
 
 让我们看一个例子：
 
@@ -165,9 +165,9 @@ const State = z.object({
 
 #### 为什么使用消息？
 
-大多数现代 LLM 提供商都有一个聊天模型接口，接受消息列表作为输入。特别是 LangChain 的[聊天模型接口](/oss/langchain/models)接受消息对象列表作为输入。这些消息有多种形式，例如 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.HumanMessage.html" target="_blank" rel="noreferrer" class="link"><code>HumanMessage</code></a>（用户输入）或 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.AIMessage.html" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a>（LLM 响应）。
+大多数现代 LLM 提供商都有一个聊天模型接口，接受消息列表作为输入。特别是 LangChain 的[聊天模型接口](/oss/javascript/langchain/models)接受消息对象列表作为输入。这些消息有多种形式，例如 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.HumanMessage.html" target="_blank" rel="noreferrer" class="link"><code>HumanMessage</code></a>（用户输入）或 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.AIMessage.html" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a>（LLM 响应）。
 
-要了解更多关于消息对象的信息，请参阅[消息概念指南](/oss/langchain/messages)。
+要了解更多关于消息对象的信息，请参阅[消息概念指南](/oss/javascript/langchain/messages)。
 
 #### 在您的图中使用消息
 
@@ -451,16 +451,16 @@ builder.addNode("myNode", myNode, {
 
 </Note>
 
-查看这个[操作指南](/oss/langgraph/use-graph-api#combine-control-flow-and-state-updates-with-command)，了解如何使用<a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Command.html" target="_blank" rel="noreferrer" class="link"><code>Command</code></a>的端到端示例。
+查看这个[操作指南](/oss/javascript/langgraph/use-graph-api#combine-control-flow-and-state-updates-with-command)，了解如何使用<a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Command.html" target="_blank" rel="noreferrer" class="link"><code>Command</code></a>的端到端示例。
 
 ### 我应该何时使用Command而不是条件边？
 
-- 当你需要**同时**更新图状态**并**路由到不同节点时，使用<a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Command.html" target="_blank" rel="noreferrer" class="link"><code>Command</code></a>。例如，在实现[多代理交接](/oss/langchain/multi-agent/handoffs)时，路由到不同的代理并向该代理传递一些信息非常重要。
+- 当你需要**同时**更新图状态**并**路由到不同节点时，使用<a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Command.html" target="_blank" rel="noreferrer" class="link"><code>Command</code></a>。例如，在实现[多代理交接](/oss/javascript/langchain/multi-agent/handoffs)时，路由到不同的代理并向该代理传递一些信息非常重要。
 - 使用[条件边](#conditional-edges)来有条件地在节点之间路由，而不更新状态。
 
 ### 导航到父图中的节点
 
-如果你正在使用[子图](/oss/langgraph/use-subgraphs)，你可能希望从子图内的节点导航到不同的子图（即父图中的不同节点）。为此，你可以在`Command`中指定`graph: Command.PARENT`：
+如果你正在使用[子图](/oss/javascript/langgraph/use-subgraphs)，你可能希望从子图内的节点导航到不同的子图（即父图中的不同节点）。为此，你可以在`Command`中指定`graph: Command.PARENT`：
 
 ```typescript
 import { Command } from "@langchain/langgraph";
@@ -482,19 +482,19 @@ graph.addNode("myNode", (state) => {
 
 </Note>
 
-这在实现[多代理交接](/oss/langchain/multi-agent/handoffs)时特别有用。
+这在实现[多代理交接](/oss/javascript/langchain/multi-agent/handoffs)时特别有用。
 
-查看[本指南](/oss/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)了解详情。
+查看[本指南](/oss/javascript/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)了解详情。
 
 ### 在工具内部使用
 
 一个常见的用例是从工具内部更新图状态。例如，在客户支持应用程序中，你可能希望在对话开始时根据客户的账号或ID查找客户信息。
 
-请参阅[本指南](/oss/langgraph/use-graph-api#use-inside-tools)了解详情。
+请参阅[本指南](/oss/javascript/langgraph/use-graph-api#use-inside-tools)了解详情。
 
 ### 人在回路中
 
-<a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Command.html" target="_blank" rel="noreferrer" class="link"><code>Command</code></a> 是人机协同工作流的重要组成部分：当使用 `interrupt()` 收集用户输入时，<a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Command.html" target="_blank" rel="noreferrer" class="link"><code>Command</code></a> 随后用于提供输入并通过 `new Command({ resume: "用户输入" })` 恢复执行。查看[人机协同概念指南](/oss/langgraph/interrupts)了解更多信息。
+<a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Command.html" target="_blank" rel="noreferrer" class="link"><code>Command</code></a> 是人机协同工作流的重要组成部分：当使用 `interrupt()` 收集用户输入时，<a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Command.html" target="_blank" rel="noreferrer" class="link"><code>Command</code></a> 随后用于提供输入并通过 `new Command({ resume: "用户输入" })` 恢复执行。查看[人机协同概念指南](/oss/javascript/langgraph/interrupts)了解更多信息。
 
 ## 图迁移
 
@@ -543,7 +543,7 @@ const nodeA = (
 };
 ```
 
-查看[此指南](/oss/langgraph/use-graph-api#add-runtime-configuration)以获取关于配置的完整解析。
+查看[此指南](/oss/javascript/langgraph/use-graph-api#add-runtime-configuration)以获取关于配置的完整解析。
 
 ```typescript
 graph.addNode("myNode", (state, runtime) => {
@@ -713,5 +713,5 @@ async function inspectMetadata(
 
 ## 可视化
 
-能够可视化图通常很有帮助，尤其是当它们变得更加复杂时。LangGraph 提供了几种内置的可视化图的方法。查看[此操作指南](/oss/langgraph/use-graph-api#visualize-your-graph)以获取更多信息。
+能够可视化图通常很有帮助，尤其是当它们变得更加复杂时。LangGraph 提供了几种内置的可视化图的方法。查看[此操作指南](/oss/javascript/langgraph/use-graph-api#visualize-your-graph)以获取更多信息。
 

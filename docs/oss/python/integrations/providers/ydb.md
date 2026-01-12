@@ -29,4 +29,4 @@ uv add langchain-ydb
 from langchain_ydb.vectorstores import YDB
 ```
 
-关于 YDB 向量存储的更详细指南，请参阅 [此笔记本](/oss/integrations/vectorstores/ydb)。
+关于 YDB 向量存储的更详细指南，请参阅 [此笔记本](/oss/python/integrations/vectorstores/ydb)。

@@ -1,32 +1,50 @@
 ---
-title: Minimax
+title: MiniMax
 ---
-`MinimaxEmbeddings` 类使用 Minimax API 为给定文本生成嵌入向量。
+[MiniMax](https://api.minimax.chat/document/guides/embeddings?id=6464722084cdc277dfaa966a) 提供了嵌入（embeddings）服务。
 
-# 设置
+本示例将介绍如何使用 LangChain 与 MiniMax Inference 进行文本嵌入交互。
 
-要使用 Minimax 模型，您需要拥有一个 Minimax 账户、一个 API 密钥以及一个 Group ID。
+```python
+import os
 
-# 用法
-
-```typescript
-import { MinimaxEmbeddings } from "@langchain/classic/embeddings/minimax";
-
-export const run = async () => {
-  /* 嵌入查询 */
-  const embeddings = new MinimaxEmbeddings();
-  const res = await embeddings.embedQuery("Hello world");
-  console.log(res);
-  /* 嵌入文档 */
-  const documentRes = await embeddings.embedDocuments([
-    "Hello world",
-    "Bye bye",
-  ]);
-  console.log({ documentRes });
-};
+os.environ["MINIMAX_GROUP_ID"] = "MINIMAX_GROUP_ID"
+os.environ["MINIMAX_API_KEY"] = "MINIMAX_API_KEY"
 ```
 
-## 相关链接
+```python
+from langchain_community.embeddings import MiniMaxEmbeddings
+```
 
-- 嵌入模型 [概念指南](/oss/integrations/text_embedding)
-- 嵌入模型 [操作指南](/oss/integrations/text_embedding)
+```python
+embeddings = MiniMaxEmbeddings()
+```
+
+```python
+query_text = "This is a test query."
+query_result = embeddings.embed_query(query_text)
+```
+
+```python
+document_text = "This is a test document."
+document_result = embeddings.embed_documents([document_text])
+```
+
+```python
+import numpy as np
+
+query_numpy = np.array(query_result)
+document_numpy = np.array(document_result[0])
+similarity = np.dot(query_numpy, document_numpy) / (
+    np.linalg.norm(query_numpy) * np.linalg.norm(document_numpy)
+)
+print(f"Cosine similarity between document and query: {similarity}")
+```
+
+```text
+Cosine similarity between document and query: 0.1573236279277012
+```
+
+```python
+
+```

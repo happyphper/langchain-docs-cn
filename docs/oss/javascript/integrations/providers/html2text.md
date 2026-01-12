@@ -21,7 +21,7 @@ uv add html2text
 
 ## 文档转换器
 
-查看[使用示例](/oss/integrations/document_transformers/html2text)。
+查看[使用示例](/oss/javascript/integrations/document_transformers/html2text)。
 
 ```python
 from langchain_community.document_loaders import Html2TextTransformer

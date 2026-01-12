@@ -13,7 +13,7 @@ Azure Cosmos DB for MongoDB vCore 为开发人员提供了一个完全托管的�
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/python/langchain/install)。
 
 </Tip>
 
@@ -124,5 +124,5 @@ await store.close();
 
 ## 相关链接
 
-- 向量存储[概念指南](/oss/integrations/vectorstores)
-- 向量存储[操作指南](/oss/integrations/vectorstores)
+- 向量存储[概念指南](/oss/python/integrations/vectorstores)
+- 向量存储[操作指南](/oss/python/integrations/vectorstores)

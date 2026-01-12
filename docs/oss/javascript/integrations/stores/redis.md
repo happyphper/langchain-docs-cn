@@ -1,7 +1,7 @@
 ---
 title: RedisStore
 ---
-这将帮助您开始使用 Redis [键值存储](/oss/integrations/stores)。有关 `RedisStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/storage/langchain_community.storage.redis.RedisStore.html)。
+这将帮助您开始使用 Redis [键值存储](/oss/javascript/integrations/stores)。有关 `RedisStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/storage/langchain_community.storage.redis.RedisStore.html)。
 
 ## 概述
 
@@ -15,7 +15,7 @@ title: RedisStore
 
 ## 设置
 
-要创建一个 Redis 字节存储，您需要设置一个 Redis 实例。您可以在本地或通过提供商进行设置 - 有关选项的概述，请参阅我们的 [Redis 指南](/oss/integrations/providers/redis)。
+要创建一个 Redis 字节存储，您需要设置一个 Redis 实例。您可以在本地或通过提供商进行设置 - 有关选项的概述，请参阅我们的 [Redis 指南](/oss/javascript/integrations/providers/redis)。
 
 ### 安装
 

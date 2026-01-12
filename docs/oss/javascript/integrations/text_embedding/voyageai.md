@@ -31,5 +31,5 @@ const embeddings = new VoyageEmbeddings({
 
 ## 相关链接
 
-- 嵌入模型 [概念指南](/oss/integrations/text_embedding)
-- 嵌入模型 [操作指南](/oss/integrations/text_embedding)
+- 嵌入模型 [概念指南](/oss/javascript/integrations/text_embedding)
+- 嵌入模型 [操作指南](/oss/javascript/integrations/text_embedding)

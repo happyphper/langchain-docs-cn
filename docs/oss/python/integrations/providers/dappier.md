@@ -29,7 +29,7 @@ export DAPPIER_API_KEY="your-api-key"
 
 ## 聊天模型
 
-查看 [使用示例](/oss/integrations/chat/dappier)。
+查看 [使用示例](/oss/python/integrations/chat/dappier)。
 
 ```python
 from langchain_community.chat_models import ChatDappierAI
@@ -37,7 +37,7 @@ from langchain_community.chat_models import ChatDappierAI
 
 ## 检索器
 
-查看 [使用示例](/oss/integrations/retrievers/dappier)。
+查看 [使用示例](/oss/python/integrations/retrievers/dappier)。
 
 ```python
 from langchain_dappier import DappierRetriever
@@ -45,7 +45,7 @@ from langchain_dappier import DappierRetriever
 
 ## 工具
 
-查看 [使用示例](/oss/integrations/tools/dappier)。
+查看 [使用示例](/oss/python/integrations/tools/dappier)。
 
 ```python
 from langchain_dappier import (

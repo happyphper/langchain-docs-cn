@@ -5,7 +5,7 @@ title: CogniSwitch
 
 ## 工具包
 
-请参阅[安装说明和使用示例](/oss/integrations/tools/cogniswitch)。
+请参阅[安装说明和使用示例](/oss/javascript/integrations/tools/cogniswitch)。
 
 ```python
 from langchain_community.agent_toolkits import CogniswitchToolkit

@@ -32,7 +32,7 @@ llm = Fireworks(api_key="<KEY>")
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/fireworks)。
+查看[使用示例](/oss/python/integrations/chat/fireworks)。
 
 ```python
 from langchain_fireworks import ChatFireworks
@@ -40,7 +40,7 @@ from langchain_fireworks import ChatFireworks
 
 ## 大语言模型
 
-查看[使用示例](/oss/integrations/llms/fireworks)。
+查看[使用示例](/oss/python/integrations/llms/fireworks)。
 
 ```python
 from langchain_fireworks import Fireworks
@@ -48,7 +48,7 @@ from langchain_fireworks import Fireworks
 
 ## 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/fireworks)。
+查看[使用示例](/oss/python/integrations/text_embedding/fireworks)。
 
 ```python
 from langchain_fireworks import FireworksEmbeddings

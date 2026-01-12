@@ -1,13 +1,13 @@
 ---
 title: 聊天模型
 ---
-[聊天模型](/oss/langchain/models) 是一种语言模型，它以一系列[消息](/oss/langchain/messages)作为输入，并返回消息作为输出 <Tooltip tip="较旧的模型不遵循聊天模型接口，而是使用一个以字符串为输入并返回字符串为输出的接口。这些模型通常在其名称中不包含前缀 'Chat' 或包含后缀 'LLM'。">（与纯文本相对）</Tooltip>。
+[聊天模型](/oss/javascript/langchain/models) 是一种语言模型，它以一系列[消息](/oss/javascript/langchain/messages)作为输入，并返回消息作为输出 <Tooltip tip="较旧的模型不遵循聊天模型接口，而是使用一个以字符串为输入并返回字符串为输出的接口。这些模型通常在其名称中不包含前缀 'Chat' 或包含后缀 'LLM'。">（与纯文本相对）</Tooltip>。
 
 ## 安装与使用
 
 <Tip>
 
-关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/langchain/install)。
+关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -303,26 +303,26 @@ await model.invoke("Hello, world!")
 
 </Info>
 
-| 模型 | 流式传输 | [工具调用](/oss/langchain/tools/) | [`withStructuredOutput()`](/oss/langchain/structured-output#the-.withstructuredoutput-method) | [多模态](/oss/langchain/messages#multimodal) |
+| 模型 | 流式传输 | [工具调用](/oss/javascript/langchain/tools/) | [`withStructuredOutput()`](/oss/javascript/langchain/structured-output#the-.withstructuredoutput-method) | [多模态](/oss/javascript/langchain/messages#multimodal) |
 |-|-|-|-|-|
-| [`ChatOpenAI`](/oss/integrations/chat/openai/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatAnthropic`](/oss/integrations/chat/anthropic/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatGoogleGenerativeAI`](/oss/integrations/chat/google_generative_ai/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatVertexAI`](/oss/integrations/chat/google_vertex_ai/) | ✅ | ✅ | ✅ | ✅ |
-| [`BedrockChat`](/oss/integrations/chat/bedrock/) | ✅ | 🟡 (仅限 Bedrock Anthropic) | 🟡 (仅限 Bedrock Anthropic) | 🟡 (仅限 Bedrock Anthropic) |
-| [`ChatBedrockConverse`](/oss/integrations/chat/bedrock_converse/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatCloudflareWorkersAI`](/oss/integrations/chat/cloudflare_workersai/) | ✅ | ❌ | ❌ | ❌ |
-| [`ChatCohere`](/oss/integrations/chat/cohere/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatFireworks`](/oss/integrations/chat/fireworks/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatGroq`](/oss/integrations/chat/groq/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatMistralAI`](/oss/integrations/chat/mistral/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatOllama`](/oss/integrations/chat/ollama/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatTogetherAI`](/oss/integrations/chat/togetherai/) | ✅ | ✅ | ✅ | ✅ |
-| [`ChatXAI`](/oss/integrations/chat/xai/) | ✅ | ✅ | ✅ | ❌ |
+| [`ChatOpenAI`](/oss/javascript/integrations/chat/openai/) | ✅ | ✅ | ✅ | ✅ |
+| [`ChatAnthropic`](/oss/javascript/integrations/chat/anthropic/) | ✅ | ✅ | ✅ | ✅ |
+| [`ChatGoogleGenerativeAI`](/oss/javascript/integrations/chat/google_generative_ai/) | ✅ | ✅ | ✅ | ✅ |
+| [`ChatVertexAI`](/oss/javascript/integrations/chat/google_vertex_ai/) | ✅ | ✅ | ✅ | ✅ |
+| [`BedrockChat`](/oss/javascript/integrations/chat/bedrock/) | ✅ | 🟡 (仅限 Bedrock Anthropic) | 🟡 (仅限 Bedrock Anthropic) | 🟡 (仅限 Bedrock Anthropic) |
+| [`ChatBedrockConverse`](/oss/javascript/integrations/chat/bedrock_converse/) | ✅ | ✅ | ✅ | ✅ |
+| [`ChatCloudflareWorkersAI`](/oss/javascript/integrations/chat/cloudflare_workersai/) | ✅ | ❌ | ❌ | ❌ |
+| [`ChatCohere`](/oss/javascript/integrations/chat/cohere/) | ✅ | ✅ | ✅ | ✅ |
+| [`ChatFireworks`](/oss/javascript/integrations/chat/fireworks/) | ✅ | ✅ | ✅ | ✅ |
+| [`ChatGroq`](/oss/javascript/integrations/chat/groq/) | ✅ | ✅ | ✅ | ✅ |
+| [`ChatMistralAI`](/oss/javascript/integrations/chat/mistral/) | ✅ | ✅ | ✅ | ✅ |
+| [`ChatOllama`](/oss/javascript/integrations/chat/ollama/) | ✅ | ✅ | ✅ | ✅ |
+| [`ChatTogetherAI`](/oss/javascript/integrations/chat/togetherai/) | ✅ | ✅ | ✅ | ✅ |
+| [`ChatXAI`](/oss/javascript/integrations/chat/xai/) | ✅ | ✅ | ✅ | ❌ |
 
 ## 聊天补全 API
 
-某些模型提供商提供与 OpenAI（旧版）[聊天补全 API](https://platform.openai.com/docs/guides/completions) 兼容的端点。在这种情况下，你可以使用带有自定义 `base_url` 的 [`ChatOpenAI`](/oss/integrations/chat/openai) 来连接到这些端点。请注意，基于聊天补全 API 构建的功能可能不被 `ChatOpenAI` 完全支持；在这种情况下，请考虑使用特定于提供商的类（如果可用）。
+某些模型提供商提供与 OpenAI（旧版）[聊天补全 API](https://platform.openai.com/docs/guides/completions) 兼容的端点。在这种情况下，你可以使用带有自定义 `base_url` 的 [`ChatOpenAI`](/oss/javascript/integrations/chat/openai) 来连接到这些端点。请注意，基于聊天补全 API 构建的功能可能不被 `ChatOpenAI` 完全支持；在这种情况下，请考虑使用特定于提供商的类（如果可用）。
 
 :::: details 示例：OpenRouter
 

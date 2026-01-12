@@ -33,7 +33,7 @@ uv add tensorflow-dataset
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/tensorflow_datasets)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/tensorflow_datasets)。
 
 ```python
 from langchain_community.document_loaders import TensorflowDatasetLoader

@@ -1,86 +1,86 @@
 ---
 title: OllamaEmbeddings
 ---
-本文将帮助您开始使用 LangChain 结合 Ollama [嵌入模型](/oss/integrations/text_embedding)。关于 `OllamaEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_ollama.OllamaEmbeddings.html)。
+本文将帮助您开始使用 LangChain 与 Ollama 嵌入模型。有关 `OllamaEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/ollama/embeddings/langchain_ollama.embeddings.OllamaEmbeddings.html)。
 
 ## 概述
 
 ### 集成详情
 
-| 类 | 包 | 本地 | [Python 支持](https://python.langchain.com/docs/integrations/text_embedding/ollama/) | 下载量 | 版本 |
-| :--- | :--- | :---: | :---: |  :---: | :---: |
-| [`OllamaEmbeddings`](https://api.js.langchain.com/classes/langchain_ollama.OllamaEmbeddings.html) | [`@langchain/ollama`](https://npmjs.com/@langchain/ollama) | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/ollama?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/ollama?style=flat-square&label=%20&) |
+<ItemTable category="text_embedding" item="Ollama" />
 
 ## 设置
 
-要访问 Ollama 嵌入模型，您需要按照 [这些说明](https://github.com/jmorganca/ollama) 安装 Ollama，并安装 `@langchain/ollama` 集成包。
+首先，请按照 [这些说明](https://github.com/ollama/ollama?tab=readme-ov-file#ollama) 来设置并运行一个本地的 Ollama 实例：
 
-### 凭证
+*   [下载](https://ollama.ai/download) 并将 Ollama 安装到可用的受支持平台（包括 Windows Subsystem for Linux 即 WSL、macOS 和 Linux）
+    *   macOS 用户可以通过 Homebrew 使用 `brew install ollama` 安装，并使用 `brew services start ollama` 启动
+*   通过 `ollama pull <模型名称>` 获取可用的 LLM 模型
+    *   通过 [模型库](https://ollama.ai/library) 查看可用模型列表
+    *   例如：`ollama pull llama3`
+*   这将下载模型的默认标记版本。通常，默认指向最新、参数规模最小的模型。
 
-如果您希望自动追踪模型调用，还可以通过取消注释以下内容来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+> 在 Mac 上，模型将下载到 `~/.ollama/models`
+>
+> 在 Linux（或 WSL）上，模型将存储在 `/usr/share/ollama/.ollama/models`
 
-```bash
-# export LANGSMITH_TRACING="true"
-# export LANGSMITH_API_KEY="your-api-key"
+*   指定感兴趣模型的确切版本，例如 `ollama pull vicuna:13b-v1.5-16k-q4_0`（在此示例中查看 [`Vicuna`](https://ollama.ai/library/vicuna/tags) 模型的各种标签）
+*   要查看所有已拉取的模型，请使用 `ollama list`
+*   要从命令行直接与模型对话，请使用 `ollama run <模型名称>`
+*   查看 [Ollama 文档](https://github.com/ollama/ollama/tree/main/docs) 以获取更多命令。您可以在终端中运行 `ollama help` 来查看可用命令。
+
+要启用模型调用的自动追踪，请设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
 ```
 
 ### 安装
 
-LangChain OllamaEmbeddings 集成位于 `@langchain/ollama` 包中：
+LangChain Ollama 集成位于 `langchain-ollama` 包中：
 
-::: code-group
-
-```bash [npm]
-npm install @langchain/ollama @langchain/core
+```python
+pip install -qU langchain-ollama
 ```
-
-```bash [yarn]
-yarn add @langchain/ollama @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @langchain/ollama @langchain/core
-```
-
-:::
 
 ## 实例化
 
-现在我们可以实例化模型对象并嵌入文本：
+现在我们可以实例化我们的模型对象并生成嵌入向量：
 
-```typescript
-import { OllamaEmbeddings } from "@langchain/ollama";
+```python
+from langchain_ollama import OllamaEmbeddings
 
-const embeddings = new OllamaEmbeddings({
-  model: "mxbai-embed-large", // 默认值
-  baseUrl: "http://localhost:11434", // 默认值
-});
+embeddings = OllamaEmbeddings(
+    model="llama3",
+)
 ```
 
 ## 索引与检索
 
-嵌入模型通常用于检索增强生成 (RAG) 流程中，既用于索引数据，也用于后续检索。更详细的说明，请参阅 [**学习** 标签页](/oss/learn/) 下的 RAG 教程。
+嵌入模型通常用于检索增强生成（RAG）流程中，既作为索引数据的一部分，也用于后续检索。更详细的说明，请参阅我们的 [RAG 教程](/oss/python/langchain/rag/)。
 
-下面，我们将展示如何使用上面初始化的 `embeddings` 对象来索引和检索数据。在此示例中，我们将使用演示用的 [`MemoryVectorStore`](/oss/integrations/vectorstores/memory) 来索引和检索一个示例文档。
+下面，我们将展示如何使用上面初始化的 `embeddings` 对象来索引和检索数据。在此示例中，我们将在 `InMemoryVectorStore` 中索引和检索一个示例文档。
 
-```typescript
-// 使用示例文本创建向量存储
-import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
+```python
+# 使用示例文本创建向量存储
+from langchain_core.vectorstores import InMemoryVectorStore
 
-const text = "LangChain is the framework for building context-aware reasoning applications";
+text = "LangChain is the framework for building context-aware reasoning applications"
 
-const vectorstore = await MemoryVectorStore.fromDocuments(
-  [{ pageContent: text, metadata: {} }],
-  embeddings,
-);
+vectorstore = InMemoryVectorStore.from_texts(
+    [text],
+    embedding=embeddings,
+)
 
-// 将向量存储用作返回单个文档的检索器
-const retriever = vectorstore.asRetriever(1);
+# 将向量存储用作检索器
+retriever = vectorstore.as_retriever()
 
-// 检索最相似的文本
-const retrievedDocuments = await retriever.invoke("What is LangChain?");
+# 检索最相似的文本
+retrieved_documents = retriever.invoke("What is LangChain?")
 
-retrievedDocuments[0].pageContent;
+# 显示检索到的文档内容
+print(retrieved_documents[0].page_content)
 ```
 
 ```text
@@ -89,126 +89,43 @@ LangChain is the framework for building context-aware reasoning applications
 
 ## 直接使用
 
-在底层，向量存储和检索器的实现分别调用 `embeddings.embedDocument(...)` 和 `embeddings.embedQuery(...)` 来为 `fromDocuments` 中使用的文本和检索器的 `invoke` 操作创建嵌入向量。
+在底层，向量存储和检索器的实现分别调用 `embeddings.embed_documents(...)` 和 `embeddings.embed_query(...)` 来为 `from_texts` 中使用的文本和检索 `invoke` 操作创建嵌入向量。
 
 您可以直接调用这些方法来获取嵌入向量，以满足您自己的用例。
 
 ### 嵌入单个文本
 
-您可以使用 `embedQuery` 嵌入查询以进行搜索。这会生成特定于查询的向量表示：
+您可以使用 `embed_query` 嵌入单个文本或文档：
 
-```typescript
-const singleVector = await embeddings.embedQuery(text);
-
-console.log(singleVector.slice(0, 100));
+```python
+single_vector = embeddings.embed_query(text)
+print(str(single_vector)[:100])  # 显示向量的前 100 个字符
 ```
 
 ```text
-[
-   0.026051683,   0.029081265,  -0.040726297,  -0.015116953, -0.010691089,
-   0.030181013, -0.0065084146,   -0.02079503,   0.013575795,   0.03452527,
-   0.009578291,   0.007026421,  -0.030110886,   0.013489622,  -0.04294787,
-   0.011141899,  -0.043768786,   -0.00362867, -0.0081198225,  -0.03426076,
-   0.010075142,   0.027787417,   -0.09052663,   -0.06039698, -0.009462592,
-    0.06232288,   0.051121354,   0.011977532,   0.089046724,  0.059000008,
-   0.031860664,  -0.034242127,   0.020339863,   0.011483523,  -0.05429335,
-   -0.04963588,    0.03263794,   -0.05581542,   0.013908403, -0.012356067,
-  -0.007802118,  -0.010027855,    0.00281217,  -0.101886116, -0.079341754,
-   0.011269771,  0.0035983133,  -0.027667878,   0.032092705, -0.052843474,
-  -0.045283325,     0.0382421,     0.0193055,   0.011050924,  0.021132186,
-  -0.037696265,  0.0006107435,  0.0043520257,  -0.028798066,  0.049155913,
-    0.03590549, -0.0040995986,   0.019772101,  -0.076119535, 0.0031298609,
-    0.03368174,   0.039398745,  -0.011813277,  -0.019313531, -0.013108803,
-  -0.044905286,  -0.022326004,   -0.01656178,   -0.06658457,  0.016789088,
-   0.049952697,   0.006615693,   -0.01694402,  -0.018105473, 0.0049101883,
-  -0.004966945,   0.049762275,   -0.03556957,  -0.015986584,  -0.03190983,
-   -0.05336687, -0.0020468342, -0.0016106658,  -0.035291273, -0.029783724,
-  -0.010153295,   0.052100364,    0.05528949,    0.01379487, -0.024542747,
-   0.028773975,   0.010087022,   0.030448131,  -0.042391222,  0.016596776
-]
+[-0.0039849705, 0.023019705, -0.001768838, -0.0058736936, 0.00040999008, 0.017861595, -0.011274585,
 ```
 
 ### 嵌入多个文本
 
-您可以使用 `embedDocuments` 嵌入多个文本以进行索引。此方法内部使用的机制可能（但不一定）与嵌入查询不同：
+您可以使用 `embed_documents` 嵌入多个文本：
 
-```typescript
-const text2 = "LangGraph is a library for building stateful, multi-actor applications with LLMs";
-
-const vectors = await embeddings.embedDocuments([text, text2]);
-
-console.log(vectors[0].slice(0, 100));
-console.log(vectors[1].slice(0, 100));
+```python
+text2 = (
+    "LangGraph is a library for building stateful, multi-actor applications with LLMs"
+)
+two_vectors = embeddings.embed_documents([text, text2])
+for vector in two_vectors:
+    print(str(vector)[:100])  # 显示向量的前 100 个字符
 ```
 
 ```text
-[
-   0.026051683,   0.029081265,  -0.040726297,  -0.015116953, -0.010691089,
-   0.030181013, -0.0065084146,   -0.02079503,   0.013575795,   0.03452527,
-   0.009578291,   0.007026421,  -0.030110886,   0.013489622,  -0.04294787,
-   0.011141899,  -0.043768786,   -0.00362867, -0.0081198225,  -0.03426076,
-   0.010075142,   0.027787417,   -0.09052663,   -0.06039698, -0.009462592,
-    0.06232288,   0.051121354,   0.011977532,   0.089046724,  0.059000008,
-   0.031860664,  -0.034242127,   0.020339863,   0.011483523,  -0.05429335,
-   -0.04963588,    0.03263794,   -0.05581542,   0.013908403, -0.012356067,
-  -0.007802118,  -0.010027855,    0.00281217,  -0.101886116, -0.079341754,
-   0.011269771,  0.0035983133,  -0.027667878,   0.032092705, -0.052843474,
-  -0.045283325,     0.0382421,     0.0193055,   0.011050924,  0.021132186,
-  -0.037696265,  0.0006107435,  0.0043520257,  -0.028798066,  0.049155913,
-    0.03590549, -0.0040995986,   0.019772101,  -0.076119535, 0.0031298609,
-    0.03368174,   0.039398745,  -0.011813277,  -0.019313531, -0.013108803,
-  -0.044905286,  -0.022326004,   -0.01656178,   -0.06658457,  0.016789088,
-   0.049952697,   0.006615693,   -0.01694402,  -0.018105473, 0.0049101883,
-  -0.004966945,   0.049762275,   -0.03556957,  -0.015986584,  -0.03190983,
-   -0.05336687, -0.0020468342, -0.0016106658,  -0.035291273, -0.029783724,
-  -0.010153295,   0.052100364,    0.05528949,    0.01379487, -0.024542747,
-   0.028773975,   0.010087022,   0.030448131,  -0.042391222,  0.016596776
-]
-[
-      0.0558515,   0.028698817,  -0.037476595,  0.0048659276,  -0.019229038,
-    -0.04713716,  -0.020947812,  -0.017550547,    0.01205507,   0.027693441,
-   -0.011791304,   0.009862203,   0.019662278,  -0.037511427,  -0.022662448,
-    0.036224432,  -0.051760387,  -0.030165697,  -0.008899774,  -0.024518963,
-    0.010077767,   0.032209765,    -0.0854303,  -0.038666975,  -0.036021013,
-    0.060899545,   0.045867186,   0.003365381,    0.09387081,   0.038216405,
-    0.011449426,  -0.016495887,   0.020602569,   -0.02368503,  -0.014733645,
-   -0.065408126, -0.0065152845,  -0.027103946, 0.00038956117,   -0.08648814,
-    0.029316466,  -0.054449145,   0.034129277,  -0.055225655,  -0.043182302,
-   0.0011148591,   0.044116337,  -0.046552557,   0.032423045,   -0.03269365,
-    -0.05062933,   0.021473562,  -0.011019348,  -0.019621233, -0.0003149565,
-  -0.0046085776,  0.0052610254, -0.0029293327,  -0.035793293,   0.034469575,
-    0.037724957,   0.009572597,   0.014198464,    -0.0878237,  0.0056973165,
-    0.023563445,   0.030928325,   0.025520306,    0.01836824,  -0.016456697,
-   -0.061934732,   0.009764942,  -0.035812028,   -0.04429064,   0.031323086,
-    0.056027107, -0.0019782048,  -0.015204176,  -0.008684945, -0.0010460864,
-    0.054642987,   0.044149086,  -0.032964867,  -0.012044753,  -0.019075096,
-   -0.027932597,   0.018542245,   -0.02602878,   -0.04645578,  -0.020976603,
-    0.018999187,   0.050663687,   0.016725155,  0.0076955976,   0.011448177,
-    0.053931057,   -0.03234989,   0.024429373,  -0.023123834,    0.02197912
-]
+[-0.0039849705, 0.023019705, -0.001768838, -0.0058736936, 0.00040999008, 0.017861595, -0.011274585,
+[-0.0066985516, 0.009878328, 0.008019467, -0.009384944, -0.029560851, 0.025744654, 0.004872892, -0.0
 ```
-
-也支持 Ollama [模型参数](https://github.com/jmorganca/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values)：
-
-```typescript
-import { OllamaEmbeddings } from "@langchain/ollama";
-
-const embeddingsCustomParams = new OllamaEmbeddings({
-  requestOptions: {
-    useMmap: true, // use_mmap 1
-    numThread: 6, // num_thread 6
-    numGpu: 1, // num_gpu 1
-  },
-});
-```
-
-## 相关
-
-- 嵌入模型 [概念指南](/oss/integrations/text_embedding)
-- 嵌入模型 [操作指南](/oss/integrations/text_embedding)
 
 ---
 
 ## API 参考
 
-关于 `OllamaEmbeddings` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_ollama.OllamaEmbeddings.html)
+有关 `OllamaEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/ollama/embeddings/langchain_ollama.embeddings.OllamaEmbeddings.html)。

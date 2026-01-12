@@ -3,7 +3,7 @@ title: SerpApi
 ---
 [SerpApi](https://serpapi.com/) 允许你将搜索引擎结果集成到你的 LLM 应用中。
 
-本指南提供了 SerpApi [工具](/oss/integrations/tools/) 的快速入门概览。有关 `SerpAPI` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_community.tools_serpapi.SerpAPI.html)。
+本指南提供了 SerpApi [工具](/oss/javascript/integrations/tools/) 的快速入门概览。有关 `SerpAPI` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_community.tools_serpapi.SerpAPI.html)。
 
 ## 概述
 
@@ -60,7 +60,7 @@ const tool = new SerpAPI();
 
 ## 调用
 
-### [直接使用参数调用](/oss/concepts/#invoke-with-just-the-arguments)
+### [直接使用参数调用](/oss/javascript/concepts/#invoke-with-just-the-arguments)
 
 你可以像这样直接调用工具：
 
@@ -74,7 +74,7 @@ await tool.invoke({
 {"type":"weather_result","temperature":"63","unit":"Fahrenheit","precipitation":"3%","humidity":"91%","wind":"5 mph","location":"San Francisco, CA","date":"Sunday 9:00 AM","weather":"Mostly cloudy"}
 ```
 
-### [使用 ToolCall 调用](/oss/concepts/#invoke-with-toolcall)
+### [使用 ToolCall 调用](/oss/javascript/concepts/#invoke-with-toolcall)
 
 我们也可以使用模型生成的 `ToolCall` 来调用工具，在这种情况下，将返回一个 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.ToolMessage.html" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>：
 
@@ -104,7 +104,7 @@ ToolMessage {
 
 ## 链式调用
 
-我们可以通过先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后在链中使用它：
+我们可以通过先将工具绑定到一个 [工具调用模型](/oss/javascript/langchain/tools/)，然后在链中使用它：
 
 ```typescript
 // @lc-docs-hide-cell

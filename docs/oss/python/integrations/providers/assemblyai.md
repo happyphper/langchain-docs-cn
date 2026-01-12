@@ -29,7 +29,7 @@ uv add assemblyai
 
 `AssemblyAIAudioTranscriptLoader` 使用 `AssemblyAI API` 转录音频文件，并将转录后的文本加载到文档中。
 
-查看 [使用示例](/oss/integrations/document_loaders/assemblyai)。
+查看 [使用示例](/oss/python/integrations/document_loaders/assemblyai)。
 
 ```python
 from langchain_community.document_loaders import AssemblyAIAudioTranscriptLoader

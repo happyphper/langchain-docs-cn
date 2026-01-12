@@ -3,7 +3,7 @@ title: Chroma
 ---
 [Chroma](https://docs.trychroma.com/getting-started) 是一个 AI 原生的开源向量数据库，专注于开发者的生产力和幸福感。Chroma 采用 Apache 2.0 许可证。
 
-本指南提供了使用 Chroma [`向量存储`](/oss/integrations/vectorstores) 的快速入门概览。有关 `Chroma` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_chroma.Chroma.html)。
+本指南提供了使用 Chroma [`向量存储`](/oss/javascript/integrations/vectorstores) 的快速入门概览。有关 `Chroma` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_chroma.Chroma.html)。
 
 <Info>
 
@@ -27,7 +27,7 @@ Chroma Cloud 提供无服务器向量和全文搜索功能。它极其快速、�
 
 要使用 Chroma 向量存储，你需要安装 `@langchain/community` 集成包以及作为对等依赖的 [Chroma JS SDK](https://www.npmjs.com/package/chromadb)。
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要选择使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+本指南还将使用 [OpenAI 嵌入](/oss/javascript/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要选择使用 [其他支持的嵌入模型](/oss/javascript/integrations/text_embedding)。
 
 ::: code-group
 
@@ -213,7 +213,7 @@ for (const [doc, score] of similaritySearchWithScoreResults) {
 
 ### 通过转换为检索器进行查询
 
-你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+你也可以将向量存储转换为 [检索器](/oss/javascript/langchain/retrieval)，以便在你的链中更轻松地使用。
 
 ```python
 const retriever = vectorStore.asRetriever({
@@ -228,9 +228,9 @@ await retriever.invoke("biology");
 
 有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [代理式 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/javascript/langchain/rag)。
+- [代理式 RAG](/oss/javascript/langgraph/agentic-rag)
+- [检索文档](/oss/javascript/langchain/retrieval)
 
 ---
 

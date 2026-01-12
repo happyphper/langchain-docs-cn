@@ -50,7 +50,7 @@ class TrubricsCallbackHandler(BaseCallbackHandler):
 
 ## 示例
 
-以下是两个关于如何在 LangChain [LLMs](/oss/langchain/models) 或 [聊天模型](/oss/langchain/models) 中使用 `TrubricsCallbackHandler` 的示例。我们将使用 OpenAI 模型，因此请在此处设置您的 `OPENAI_API_KEY`：
+以下是两个关于如何在 LangChain [LLMs](/oss/python/langchain/models) 或 [聊天模型](/oss/python/langchain/models) 中使用 `TrubricsCallbackHandler` 的示例。我们将使用 OpenAI 模型，因此请在此处设置您的 `OPENAI_API_KEY`：
 
 ```python
 os.environ["OPENAI_API_KEY"] = "sk-***"

@@ -3,7 +3,7 @@ title: Google Bigtable
 ---
 > [Bigtable](https://cloud.google.com/bigtable) 是一个键值对和宽列存储数据库，非常适合快速访问结构化、半结构化或非结构化数据。借助 Bigtable 的 LangChain 集成，您可以扩展数据库应用程序以构建由 AI 驱动的体验。
 
-本笔记本将介绍如何使用 [Bigtable](https://cloud.google.com/bigtable) 通过 `BigtableLoader` 和 `BigtableSaver` 来[保存、加载和删除 LangChain 文档](/oss/integrations/document_loaders)。
+本笔记本将介绍如何使用 [Bigtable](https://cloud.google.com/bigtable) 通过 `BigtableLoader` 和 `BigtableSaver` 来[保存、加载和删除 LangChain 文档](/oss/python/integrations/document_loaders)。
 
 在 [GitHub](https://github.com/googleapis/langchain-google-bigtable-python/) 上了解更多关于该包的信息。
 

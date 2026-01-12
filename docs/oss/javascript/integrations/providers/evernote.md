@@ -23,7 +23,7 @@ uv add html2text
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/evernote)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/evernote)。
 
 ```python
 from langchain_community.document_loaders import EverNoteLoader

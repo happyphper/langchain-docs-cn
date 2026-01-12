@@ -32,7 +32,7 @@ AgentQL 的文档加载器（DocumentLoader）使用 AgentQL 查询从任何网�
 ```python
 from langchain_agentql.document_loaders import AgentQLLoader
 ```
-查看我们的 [文档加载器文档和使用示例](/oss/integrations/document_loaders/agentql)。
+查看我们的 [文档加载器文档和使用示例](/oss/python/integrations/document_loaders/agentql)。
 
 ## 工具与工具包
 AgentQL 工具提供网页交互和结构化数据提取功能，可通过 AgentQL 查询或自然语言提示从任何网页获取数据。
@@ -41,4 +41,4 @@ AgentQL 工具提供网页交互和结构化数据提取功能，可通过 Agent
 from langchain_agentql.tools import ExtractWebDataTool, ExtractWebDataBrowserTool, GetWebElementBrowserTool
 from langchain_agentql import AgentQLBrowserToolkit
 ```
-查看我们的 [工具文档和使用示例](/oss/integrations/tools/agentql)。
+查看我们的 [工具文档和使用示例](/oss/python/integrations/tools/agentql)。

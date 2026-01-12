@@ -3,11 +3,11 @@ title: BedrockChat
 ---
 [Amazon Bedrock](https://aws.amazon.com/bedrock/) 是一项完全托管的服务，通过单一 API 提供来自 AI21 Labs、Anthropic、Cohere、Meta、Stability AI 和 Amazon 等领先 AI 公司的高性能基础模型（FMs）选择，并提供构建具有安全性、隐私性和负责任 AI 的生成式 AI 应用程序所需的一系列广泛功能。
 
-本文将帮助您开始使用 Amazon Bedrock [聊天模型](/oss/langchain/models)。有关 `BedrockChat` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_chat_models_bedrock.BedrockChat.html)。
+本文将帮助您开始使用 Amazon Bedrock [聊天模型](/oss/javascript/langchain/models)。有关 `BedrockChat` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_chat_models_bedrock.BedrockChat.html)。
 
 <Tip>
 
-新的 [`ChatBedrockConverse` 聊天模型现已通过专用的 `@langchain/aws`](/oss/integrations/chat/bedrock_converse) 集成包提供。使用此包可以通过更多模型进行 [工具调用](/oss/langchain/tools)。
+新的 [`ChatBedrockConverse` 聊天模型现已通过专用的 `@langchain/aws`](/oss/javascript/integrations/chat/bedrock_converse) 集成包提供。使用此包可以通过更多模型进行 [工具调用](/oss/javascript/langchain/tools)。
 
 </Tip>
 
@@ -23,7 +23,7 @@ title: BedrockChat
 
 有关如何使用特定功能的指南，请参阅下表标题中的链接。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [Logprobs](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
 
@@ -82,7 +82,7 @@ pnpm add @langchain/community @langchain/core @aws-crypto/sha256-js @smithy/prot
 
 ## 实例化
 
-目前，聊天模型集成仅支持 Anthropic、Cohere 和 Mistral 模型。对于来自 AI21 或 Amazon 的基础模型，请参阅 [文本生成 Bedrock 变体](/oss/integrations/llms/bedrock/)。
+目前，聊天模型集成仅支持 Anthropic、Cohere 和 Mistral 模型。对于来自 AI21 或 Amazon 的基础模型，请参阅 [文本生成 Bedrock 变体](/oss/javascript/integrations/llms/bedrock/)。
 
 有几种不同的方式可以通过 AWS 进行身份验证 - 以下示例依赖于在环境变量中设置的访问密钥、秘密访问密钥和区域：
 
@@ -148,7 +148,7 @@ J'adore la programmation.
 
 ## 工具调用
 
-使用 Bedrock 模型进行工具调用的方式与 [其他模型](/oss/langchain/tools) 类似，但请注意，并非所有 Bedrock 模型都支持工具调用。请参阅 [AWS 模型文档](https://docs.aws.amazon.com/bedrock/latest/APIReference/welcome.html) 了解更多信息。
+使用 Bedrock 模型进行工具调用的方式与 [其他模型](/oss/javascript/langchain/tools) 类似，但请注意，并非所有 Bedrock 模型都支持工具调用。请参阅 [AWS 模型文档](https://docs.aws.amazon.com/bedrock/latest/APIReference/welcome.html) 了解更多信息。
 
 ---
 

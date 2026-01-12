@@ -30,7 +30,7 @@ uv add dashvector
 from langchain_community.embeddings import DashScopeEmbeddings
 ```
 
-请参阅[使用示例](/oss/integrations/vectorstores/dashvector)。
+请参阅[使用示例](/oss/javascript/integrations/vectorstores/dashvector)。
 
 ## 向量存储
 
@@ -42,4 +42,4 @@ DashVector 的 Collection 被包装成一个熟悉的 VectorStore，以便在 La
 from langchain_community.vectorstores import DashVector
 ```
 
-关于 DashVector 包装器的详细说明，请参考[此笔记本](/oss/integrations/vectorstores/dashvector)。
+关于 DashVector 包装器的详细说明，请参考[此笔记本](/oss/javascript/integrations/vectorstores/dashvector)。

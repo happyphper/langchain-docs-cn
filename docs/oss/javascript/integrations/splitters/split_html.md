@@ -156,9 +156,9 @@ html_string = """
 
 ## 使用 HTMLHeaderTextSplitter
 
-[HTMLHeaderTextSplitter](https://python.langchain.com/api_reference/text_splitters/html/langchain_text_splitters.html.HTMLHeaderTextSplitter.html) 是一个“结构感知”的[文本分割器](/oss/integrations/splitters)，它在 HTML 元素级别分割文本，并为与任何给定块“相关”的每个标题添加元数据。它可以逐个元素返回块，也可以将具有相同元数据的元素组合在一起，其目标是 (a) 将相关文本（或多或少）按语义分组，以及 (b) 保留文档结构中编码的上下文丰富信息。它可以与其他文本分割器一起用作分块管道的一部分。
+[HTMLHeaderTextSplitter](https://python.langchain.com/api_reference/text_splitters/html/langchain_text_splitters.html.HTMLHeaderTextSplitter.html) 是一个“结构感知”的[文本分割器](/oss/javascript/integrations/splitters)，它在 HTML 元素级别分割文本，并为与任何给定块“相关”的每个标题添加元数据。它可以逐个元素返回块，也可以将具有相同元数据的元素组合在一起，其目标是 (a) 将相关文本（或多或少）按语义分组，以及 (b) 保留文档结构中编码的上下文丰富信息。它可以与其他文本分割器一起用作分块管道的一部分。
 
-它类似于用于 Markdown 文件的 [MarkdownHeaderTextSplitter](/oss/integrations/splitters/markdown_header_metadata_splitter)。
+它类似于用于 Markdown 文件的 [MarkdownHeaderTextSplitter](/oss/javascript/integrations/splitters/markdown_header_metadata_splitter)。
 
 要指定在哪些标题上进行分割，请在实例化 `HTMLHeaderTextSplitter` 时指定 `headers_to_split_on`，如下所示。
 
@@ -294,7 +294,7 @@ Because the jet stream is essentially a river of air that storms flow through, t
 ```
 ## 使用 HTMLSectionSplitter
 
-在概念上类似于 [HTMLHeaderTextSplitter](#using-htmlheadertextsplitter)，`HTMLSectionSplitter` 是一个“结构感知”的[文本分割器](/oss/integrations/splitters)，它在元素级别分割文本，并为与任何给定块“相关”的每个标题添加元数据。它允许您按部分分割 HTML。
+在概念上类似于 [HTMLHeaderTextSplitter](#using-htmlheadertextsplitter)，`HTMLSectionSplitter` 是一个“结构感知”的[文本分割器](/oss/javascript/integrations/splitters)，它在元素级别分割文本，并为与任何给定块“相关”的每个标题添加元数据。它允许您按部分分割 HTML。
 
 它可以逐个元素返回块，也可以将具有相同元数据的元素组合在一起，其目标是 (a) 将相关文本（或多或少）按语义分组，以及 (b) 保留文档结构中编码的上下文丰富信息。
 

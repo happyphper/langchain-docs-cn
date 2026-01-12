@@ -1,7 +1,7 @@
 ---
 title: InMemoryStore
 ---
-这将帮助你开始使用 [InMemoryStore](/oss/integrations/stores)。关于 InMemoryStore 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/langchain_core.stores.InMemoryStore.html)。
+这将帮助你开始使用 [InMemoryStore](/oss/javascript/integrations/stores)。关于 InMemoryStore 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/langchain_core.stores.InMemoryStore.html)。
 
 `InMemoryStore` 允许为存储中的值分配一个泛型类型。我们将分配 `BaseMessage` 类型作为值的类型，以符合聊天历史存储的主题。
 

@@ -40,4 +40,4 @@ from langchain_mariadb import MariaDBStore
 
 ### 用法
 
-有关 MariaDB 包装器的更详细演练，请参阅 [此笔记本](/oss/integrations/vectorstores/mariadb)
+有关 MariaDB 包装器的更详细演练，请参阅 [此笔记本](/oss/javascript/integrations/vectorstores/mariadb)

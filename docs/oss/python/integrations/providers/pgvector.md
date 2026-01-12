@@ -26,4 +26,4 @@ from langchain_community.vectorstores.pgvector import PGVector
 
 ### 使用
 
-有关 PGVector 封装器的更详细操作指南，请参阅 [此笔记本](/oss/integrations/vectorstores/pgvector)
+有关 PGVector 封装器的更详细操作指南，请参阅 [此笔记本](/oss/python/integrations/vectorstores/pgvector)

@@ -46,7 +46,7 @@ os.environ["RUNPOD_ENDPOINT_ID"] = input("Enter your RunPod Endpoint ID: ")
 
 用于与标准文本补全模型交互。
 
-详细用法请参阅 [RunPod LLM 集成指南](/oss/integrations/llms/runpod)
+详细用法请参阅 [RunPod LLM 集成指南](/oss/javascript/integrations/llms/runpod)
 
 ```python
 from langchain_runpod import RunPod
@@ -68,7 +68,7 @@ except Exception as e:
 
 用于与会话模型交互。
 
-详细用法和功能支持请参阅 [RunPod 聊天模型集成指南](/oss/integrations/chat/runpod)。
+详细用法和功能支持请参阅 [RunPod 聊天模型集成指南](/oss/javascript/integrations/chat/runpod)。
 
 ```python
 from langchain.messages import HumanMessage

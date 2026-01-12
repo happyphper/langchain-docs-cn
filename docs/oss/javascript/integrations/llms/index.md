@@ -4,13 +4,13 @@ title: 大语言模型
 
 <Warning>
 
-<strong>您当前正在查看文本补全模型的使用文档。许多最新且最受欢迎的模型是[聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查看文本补全模型的使用文档。许多最新且最受欢迎的模型是[聊天补全模型](/oss/javascript/langchain/models)。</strong>
 
-除非您明确需要使用更高级的提示技术，否则您可能正在寻找[这个页面](/oss/integrations/chat/)。
+除非您明确需要使用更高级的提示技术，否则您可能正在寻找[这个页面](/oss/javascript/integrations/chat/)。
 
 </Warning>
 
-[LLMs（大语言模型）](/oss/langchain/models) 是一种以字符串作为输入并返回字符串作为输出的语言模型。
+[LLMs（大语言模型）](/oss/javascript/langchain/models) 是一种以字符串作为输入并返回字符串作为输出的语言模型。
 
 ## 所有 LLM 模型
 

@@ -4,7 +4,7 @@ title: Groq
 
 <Warning>
 
-本页面提及 [Groq](https://console.groq.com/docs/overview)，这是一家 AI 硬件和软件公司。关于如何使用 Grok 模型（由 [xAI](https://docs.x.ai/docs/overview) 提供）的信息，请参阅 [xAI 供应商页面](/oss/integrations/providers/xai)。
+本页面提及 [Groq](https://console.groq.com/docs/overview)，这是一家 AI 硬件和软件公司。关于如何使用 Grok 模型（由 [xAI](https://docs.x.ai/docs/overview) 提供）的信息，请参阅 [xAI 供应商页面](/oss/javascript/integrations/providers/xai)。
 
 </Warning>
 

@@ -25,7 +25,7 @@ uv add elevenlabs
 
 ## 工具
 
-查看[使用示例](/oss/integrations/tools/eleven_labs_tts)。
+查看[使用示例](/oss/python/integrations/tools/eleven_labs_tts)。
 
 ```python
 from langchain_community.tools import ElevenLabsText2SpeechTool

@@ -2,7 +2,7 @@
 title: 贡献文档
 sidebarTitle: Documentation
 ---
-无障碍文档是 LangChain 的重要组成部分。我们欢迎新功能和[集成](/oss/contributing/publish-langchain#adding-documentation)的文档，也欢迎社区对现有文档的改进。
+无障碍文档是 LangChain 的重要组成部分。我们欢迎新功能和[集成](/oss/python/contributing/publish-langchain#adding-documentation)的文档，也欢迎社区对现有文档的改进。
 
 <Note>
 
@@ -252,7 +252,7 @@ API 和实现细节的技术描述。
 
 ### 操作指南
 
-操作指南是面向知道要完成什么任务的用户的任务导向说明。操作指南的示例位于 [LangChain](/oss/langchain/overview) 和 [LangGraph](/oss/langgraph/overview) 选项卡上。
+操作指南是面向知道要完成什么任务的用户的任务导向说明。操作指南的示例位于 [LangChain](/oss/python/langchain/overview) 和 [LangGraph](/oss/python/langgraph/overview) 选项卡上。
 
 :::: details 特点
 
@@ -273,9 +273,9 @@ API 和实现细节的技术描述。
 
 :::: details 示例
 
-- [消息](/oss/langchain/messages)
-- [工具](/oss/langchain/tools)
-- [流式处理](/oss/langgraph/streaming)
+- [消息](/oss/python/langchain/messages)
+- [工具](/oss/python/langchain/tools)
+- [流式处理](/oss/python/langgraph/streaming)
 
 ::::
 
@@ -304,10 +304,10 @@ API 和实现细节的技术描述。
 
 :::: details 示例
 
-- [记忆](/oss/concepts/memory)
-- [上下文](/oss/concepts/context)
-- [图 API](/oss/langgraph/graph-api)
-- [函数式 API](/oss/langgraph/functional-api)
+- [记忆](/oss/python/concepts/memory)
+- [上下文](/oss/python/concepts/context)
+- [图 API](/oss/python/langgraph/graph-api)
+- [函数式 API](/oss/python/langgraph/functional-api)
 
 ::::
 
@@ -378,8 +378,8 @@ API 和实现细节的技术描述。
 
 :::: details 示例
 
-- [语义搜索](/oss/langchain/knowledge-base)
-- [RAG 代理](/oss/langchain/rag)
+- [语义搜索](/oss/python/langchain/knowledge-base)
+- [RAG 代理](/oss/python/langchain/rag)
 
 ::::
 

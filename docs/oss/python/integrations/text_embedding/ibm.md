@@ -1,7 +1,7 @@
 ---
 title: IBM watsonx.ai
 ---
-本文将帮助您开始使用 LangChain 集成 IBM watsonx.ai 的[嵌入模型](/oss/integrations/text_embedding)。关于 `IBM watsonx.ai` 功能的详细文档和配置选项，请参阅 [API 参考](https://api.js.langchain.com/modules/_langchain_community.embeddings_ibm.html)。
+本文将帮助您开始使用 LangChain 集成 IBM watsonx.ai 的[嵌入模型](/oss/python/integrations/text_embedding)。关于 `IBM watsonx.ai` 功能的详细文档和配置选项，请参阅 [API 参考](https://api.js.langchain.com/modules/_langchain_community.embeddings_ibm.html)。
 
 ## 概述
 
@@ -156,9 +156,9 @@ const instance = new WatsonxEmbeddings({
 
 ## 索引与检索
 
-嵌入模型通常用于检索增强生成 (RAG) 流程中，既用于索引数据，也用于后续检索。更详细的说明，请参阅 [**学习** 标签页](/oss/learn/)下的 RAG 教程。
+嵌入模型通常用于检索增强生成 (RAG) 流程中，既用于索引数据，也用于后续检索。更详细的说明，请参阅 [**学习** 标签页](/oss/python/learn/)下的 RAG 教程。
 
-下面，我们将展示如何使用上面初始化的 `embeddings` 对象来索引和检索数据。在此示例中，我们将使用演示用的 [`MemoryVectorStore`](/oss/integrations/vectorstores/memory) 来索引和检索一个示例文档。
+下面，我们将展示如何使用上面初始化的 `embeddings` 对象来索引和检索数据。在此示例中，我们将使用演示用的 [`MemoryVectorStore`](/oss/python/integrations/vectorstores/memory) 来索引和检索一个示例文档。
 
 ```javascript
 // 使用示例文本创建向量存储

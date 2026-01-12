@@ -21,7 +21,7 @@ uv add langchain-milvus
 
 ## 向量存储
 
-查看[使用示例](/oss/integrations/vectorstores/milvus)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/milvus)。
 
 导入此向量存储：
 

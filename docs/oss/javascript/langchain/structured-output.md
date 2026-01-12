@@ -40,7 +40,7 @@ const agent = createAgent({
 
 <Tip>
 
-如果使用 `langchain>=1.1`，对原生结构化输出功能的支持会从模型的[配置文件数据](/oss/langchain/models#model-profiles)中动态读取。如果数据不可用，请使用其他条件或手动指定：
+如果使用 `langchain>=1.1`，对原生结构化输出功能的支持会从模型的[配置文件数据](/oss/javascript/langchain/models#model-profiles)中动态读取。如果数据不可用，请使用其他条件或手动指定：
 ```typescript
 const customProfile: ModelProfile = {
     structuredOutput: true,

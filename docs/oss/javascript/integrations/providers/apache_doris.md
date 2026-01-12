@@ -23,7 +23,7 @@ uv add pymysql
 
 ## 向量存储
 
-查看 [使用示例](/oss/integrations/vectorstores/apache_doris)。
+查看 [使用示例](/oss/javascript/integrations/vectorstores/apache_doris)。
 
 ```python
 from langchain_community.vectorstores import ApacheDoris

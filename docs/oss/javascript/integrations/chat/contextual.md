@@ -1,7 +1,7 @@
 ---
 title: 聊天上下文
 ---
-这将帮助您开始使用 Contextual AI 的 Grounded Language Model [聊天模型](/oss/langchain/models/)。
+这将帮助您开始使用 Contextual AI 的 Grounded Language Model [聊天模型](/oss/javascript/langchain/models/)。
 
 要了解更多关于 Contextual AI 的信息，请访问我们的[文档](https://docs.contextual.ai/)。
 
@@ -19,7 +19,7 @@ title: 聊天上下文
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 

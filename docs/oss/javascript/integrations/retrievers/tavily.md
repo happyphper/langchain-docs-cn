@@ -5,7 +5,7 @@ title: TavilySearchAPI检索器
 
 ## 概述
 
-本文将帮助您开始使用 Tavily 搜索 API [检索器](/oss/langchain/retrieval)。有关 `TavilySearchAPIRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_retrievers_tavily_search_api.TavilySearchAPIRetriever.html)。
+本文将帮助您开始使用 Tavily 搜索 API [检索器](/oss/javascript/langchain/retrieval)。有关 `TavilySearchAPIRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_retrievers_tavily_search_api.TavilySearchAPIRetriever.html)。
 
 ### 集成详情
 

@@ -11,7 +11,7 @@ pip install pyzotero
 
 ## 检索器
 
-查看 [使用示例](/oss/integrations/retrievers/zotero)。
+查看 [使用示例](/oss/python/integrations/retrievers/zotero)。
 
 ```python
 from langchain_zotero_retriever.retrievers import ZoteroRetriever

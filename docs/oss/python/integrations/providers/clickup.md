@@ -17,4 +17,4 @@ from langchain_community.agent_toolkits.clickup.toolkit import ClickupToolkit
 from langchain_community.utilities.clickup import ClickupAPIWrapper
 ```
 
-查看 [使用示例](/oss/integrations/tools/clickup)。
+查看 [使用示例](/oss/python/integrations/tools/clickup)。

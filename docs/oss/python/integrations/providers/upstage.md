@@ -11,10 +11,10 @@ title: Upstage
 
 | API | 描述 | 导入 | 示例用法 |
 | --- | --- | --- | --- |
-| Chat | 使用 Solar Chat 构建助手 | `from langchain_upstage import ChatUpstage` | [前往](/oss/integrations/chat/upstage) |
-| Text Embedding | 将字符串嵌入为向量 | `from langchain_upstage import UpstageEmbeddings` | [前往](/oss/integrations/text_embedding/upstage) |
-| Groundedness Check | 验证助手响应的真实性 | `from langchain_upstage import UpstageGroundednessCheck` | [前往](/oss/integrations/tools/upstage_groundedness_check) |
-| Document Parse | 序列化包含表格和图形的文档 | `from langchain_upstage import UpstageDocumentParseLoader` | [前往](/oss/integrations/document_loaders/upstage) |
+| Chat | 使用 Solar Chat 构建助手 | `from langchain_upstage import ChatUpstage` | [前往](/oss/python/integrations/chat/upstage) |
+| Text Embedding | 将字符串嵌入为向量 | `from langchain_upstage import UpstageEmbeddings` | [前往](/oss/python/integrations/text_embedding/upstage) |
+| Groundedness Check | 验证助手响应的真实性 | `from langchain_upstage import UpstageGroundednessCheck` | [前往](/oss/python/integrations/tools/upstage_groundedness_check) |
+| Document Parse | 序列化包含表格和图形的文档 | `from langchain_upstage import UpstageDocumentParseLoader` | [前往](/oss/python/integrations/document_loaders/upstage) |
 
 有关模型和功能的更多详细信息，请参阅[文档](https://console.upstage.ai/docs/getting-started/overview)。
 
@@ -38,7 +38,7 @@ os.environ["UPSTAGE_API_KEY"] = "YOUR_API_KEY"
 
 ### Solar LLM
 
-查看[使用示例](/oss/integrations/chat/upstage)。
+查看[使用示例](/oss/python/integrations/chat/upstage)。
 
 ```python
 from langchain_upstage import ChatUpstage
@@ -50,7 +50,7 @@ print(response)
 
 ## 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/upstage)。
+查看[使用示例](/oss/python/integrations/text_embedding/upstage)。
 
 ```python
 from langchain_upstage import UpstageEmbeddings
@@ -69,7 +69,7 @@ print(query_result)
 
 ### Document Parse
 
-查看[使用示例](/oss/integrations/document_loaders/upstage)。
+查看[使用示例](/oss/python/integrations/document_loaders/upstage)。
 
 ```python
 from langchain_upstage import UpstageDocumentParseLoader
@@ -88,7 +88,7 @@ for doc in docs[:3]:
 
 ### Groundedness Check
 
-查看[使用示例](/oss/integrations/tools/upstage_groundedness_check)。
+查看[使用示例](/oss/python/integrations/tools/upstage_groundedness_check)。
 
 ```python
 from langchain_upstage import UpstageGroundednessCheck

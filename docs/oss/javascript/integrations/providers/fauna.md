@@ -26,7 +26,7 @@ uv add fauna
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/fauna)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/fauna)。
 
 ```python
 from langchain_community.document_loaders.fauna import FaunaLoader

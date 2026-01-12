@@ -6,7 +6,7 @@ title: ChatBaiduWenxin
 
 <strong>此类已被弃用。</strong>
 
-请改用 [`@langchain/baidu-qianfan`](/oss/integrations/chat/baidu_qianfan/) 包。
+请改用 [`@langchain/baidu-qianfan`](/oss/javascript/integrations/chat/baidu_qianfan/) 包。
 
 </Warning>
 
@@ -14,7 +14,7 @@ LangChain.js 支持百度的文心一言（ERNIE-bot）系列模型。以下是�
 
 <Tip>
 
-关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/langchain/install)。
+关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -71,5 +71,5 @@ AIChatMessage {
 
 ## 相关链接
 
-- 聊天模型[概念指南](/oss/langchain/models)
-- 聊天模型[操作指南](/oss/langchain/models)
+- 聊天模型[概念指南](/oss/javascript/langchain/models)
+- 聊天模型[操作指南](/oss/javascript/langchain/models)

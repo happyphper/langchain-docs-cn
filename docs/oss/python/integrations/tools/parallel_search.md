@@ -231,7 +231,7 @@ if "search_metadata" in result:
 
 ## 链式调用
 
-我们可以通过首先将工具绑定到一个[工具调用模型](/oss/langchain/tools/)，然后在链中使用它：
+我们可以通过首先将工具绑定到一个[工具调用模型](/oss/python/langchain/tools/)，然后在链中使用它：
 
 <ChatModelTabs customVarName="llm" />
 

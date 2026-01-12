@@ -25,7 +25,7 @@ uv add langchain-voyageai
 
 ## 文本嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/voyageai)
+查看[使用示例](/oss/javascript/integrations/text_embedding/voyageai)
 
 ```python
 from langchain_voyageai import VoyageAIEmbeddings
@@ -33,7 +33,7 @@ from langchain_voyageai import VoyageAIEmbeddings
 
 ## 重排序
 
-查看[使用示例](/oss/integrations/document_transformers/voyageai-reranker)
+查看[使用示例](/oss/javascript/integrations/document_transformers/voyageai-reranker)
 
 ```python
 from langchain_voyageai import VoyageAIRerank

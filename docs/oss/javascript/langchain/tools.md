@@ -2,13 +2,13 @@
 title: 工具 (Tools)
 ---
 
-工具扩展了[智能体 (agents)](/oss/langchain/agents)的能力——让它们能够获取实时数据、执行代码、查询外部数据库，并在现实世界中采取行动。
+工具扩展了[智能体 (agents)](/oss/javascript/langchain/agents)的能力——让它们能够获取实时数据、执行代码、查询外部数据库，并在现实世界中采取行动。
 
-在底层，工具是具有明确定义输入和输出的可调用函数，它们会被传递给[聊天模型 (chat model)](/oss/langchain/models)。模型根据对话上下文决定何时调用工具，以及提供哪些输入参数。
+在底层，工具是具有明确定义输入和输出的可调用函数，它们会被传递给[聊天模型 (chat model)](/oss/javascript/langchain/models)。模型根据对话上下文决定何时调用工具，以及提供哪些输入参数。
 
 <Tip>
 
-有关模型如何处理工具调用的详细信息，请参阅[工具调用 (Tool calling)](/oss/langchain/models#tool-calling)。
+有关模型如何处理工具调用的详细信息，请参阅[工具调用 (Tool calling)](/oss/javascript/langchain/models#tool-calling)。
 
 </Tip>
 
@@ -39,7 +39,7 @@ const searchDatabase = tool(
 
 <strong>服务端工具使用 (Server-side tool use)</strong>
 
-一些聊天模型（例如 [OpenAI](/oss/integrations/chat/openai)、[Anthropic](/oss/integrations/chat/anthropic) 和 [Gemini](/oss/integrations/chat/google_generative_ai)）具有[内置工具 (built-in tools)](/oss/langchain/models#server-side-tool-use)，这些工具在服务端执行，例如网络搜索和代码解释器。请参阅[提供商概览 (provider overview)](/oss/integrations/providers/overview)以了解如何通过你特定的聊天模型访问这些工具。
+一些聊天模型（例如 [OpenAI](/oss/javascript/integrations/chat/openai)、[Anthropic](/oss/javascript/integrations/chat/anthropic) 和 [Gemini](/oss/javascript/integrations/chat/google_generative_ai)）具有[内置工具 (built-in tools)](/oss/javascript/langchain/models#server-side-tool-use)，这些工具在服务端执行，例如网络搜索和代码解释器。请参阅[提供商概览 (provider overview)](/oss/javascript/integrations/providers/overview)以了解如何通过你特定的聊天模型访问这些工具。
 
 </Note>
 

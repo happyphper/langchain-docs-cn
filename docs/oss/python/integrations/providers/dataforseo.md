@@ -24,7 +24,7 @@ os.environ["DATAFORSEO_PASSWORD"] = "your_password"
 from langchain_community.utilities.dataforseo_api_search import DataForSeoAPIWrapper
 ```
 
-关于此包装器的详细使用说明，请参阅 [此笔记本](/oss/integrations/tools/dataforseo)。
+关于此包装器的详细使用说明，请参阅 [此笔记本](/oss/python/integrations/tools/dataforseo)。
 
 ## 工具
 

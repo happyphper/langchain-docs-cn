@@ -25,7 +25,7 @@ uv add usearch
 
 ## 向量存储
 
-查看[使用示例](/oss/integrations/vectorstores/usearch)。
+查看[使用示例](/oss/python/integrations/vectorstores/usearch)。
 
 ```python
 from langchain_community.vectorstores import USearch

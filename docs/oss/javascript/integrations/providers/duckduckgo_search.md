@@ -21,7 +21,7 @@ uv add duckduckgo-search
 
 ## 工具
 
-查看[使用示例](/oss/integrations/tools/ddg)。
+查看[使用示例](/oss/javascript/integrations/tools/ddg)。
 
 目前有两个可用的工具：
 

@@ -55,4 +55,4 @@ llm = CTransformers(model='marella/gpt-2-ggml', config=config)
 
 有关可用参数的列表，请参阅[文档](https://github.com/marella/ctransformers#config)。
 
-更详细的步骤说明，请参见[此笔记本](/oss/integrations/llms/ctransformers)。
+更详细的步骤说明，请参见[此笔记本](/oss/javascript/integrations/llms/ctransformers)。

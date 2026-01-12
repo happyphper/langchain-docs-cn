@@ -1,66 +1,38 @@
 ---
-title: ChatMoonshot
+title: MoonshotChat
 ---
-LangChain.js 支持月之暗面（Moonshot AI）系列模型。
+[Moonshot](https://platform.moonshot.cn/) 是一家中国初创公司，为企业和个人提供大语言模型（LLM）服务。
 
-https://platform.moonshot.cn/docs/intro
+本示例将介绍如何使用 LangChain 与 Moonshot Inference 进行对话交互。
 
-## 设置
+```python
+import os
 
-你需要注册一个 Moonshot API 密钥，并将其设置为名为 `MOONSHOT_API_KEY` 的环境变量。
-
-https://platform.moonshot.cn/console
-
-你还需要安装以下依赖项：
-
-<Tip>
-
-关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/community @langchain/core
+# 从以下地址生成您的 API 密钥：https://platform.moonshot.cn/console/api-keys
+os.environ["MOONSHOT_API_KEY"] = "MOONSHOT_API_KEY"
 ```
 
-## 用法
-
-以下是一个示例：
-
-```typescript
-import { ChatMoonshot } from "@langchain/community/chat_models/moonshot";
-import { HumanMessage } from "@langchain/core/messages";
-
-// 默认模型是 moonshot-v1-8k
-const moonshotV18K = new ChatMoonshot({
-  apiKey: "YOUR-API-KEY", // 在 Node.js 中默认为 process.env.MOONSHOT_API_KEY
-});
-
-// 使用 moonshot-v1-128k
-const moonshotV1128k = new ChatMoonshot({
-  apiKey: "YOUR-API-KEY", // 在 Node.js 中默认为 process.env.MOONSHOT_API_KEY
-  model: "moonshot-v1-128k", // 可用模型：moonshot-v1-8k, moonshot-v1-32k, moonshot-v1-128k
-  temperature: 0.3,
-});
-
-const messages = [new HumanMessage("Hello")];
-
-const res = await moonshotV18K.invoke(messages);
-/*
-AIMessage {
-  content: "Hello! How can I help you today? Is there something you would like to talk about or ask about? I'm here to assist you with any questions you may have.",
-}
-*/
-
-const res2 = await moonshotV1128k.invoke(messages);
-/*
-AIMessage {
-  text: "Hello! How can I help you today? Is there something you would like to talk about or ask about? I'm here to assist you with any questions you may have.",
-}
-*/
+```python
+from langchain_community.chat_models.moonshot import MoonshotChat
+from langchain.messages import HumanMessage, SystemMessage
 ```
 
-## 相关链接
+```python
+chat = MoonshotChat()
+# 或者使用特定模型
+# 可用模型列表：https://platform.moonshot.cn/docs
+# chat = MoonshotChat(model="moonshot-v1-128k")
+```
 
-- 聊天模型[概念指南](/oss/langchain/models)
-- 聊天模型[操作指南](/oss/langchain/models)
+```python
+messages = [
+    SystemMessage(
+        content="You are a helpful assistant that translates English to French."
+    ),
+    HumanMessage(
+        content="Translate this sentence from English to French. I love programming."
+    ),
+]
+
+chat.invoke(messages)
+```

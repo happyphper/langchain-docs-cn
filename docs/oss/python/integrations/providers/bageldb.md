@@ -20,7 +20,7 @@ uv add betabageldb
 
 ## VectorStore
 
-查看[使用示例](/oss/integrations/vectorstores/bageldb)。
+查看[使用示例](/oss/python/integrations/vectorstores/bageldb)。
 
 ```python
 from langchain_community.vectorstores import Bagel

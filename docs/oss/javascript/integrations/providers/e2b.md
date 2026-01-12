@@ -21,7 +21,7 @@ uv add e2b_code_interpreter
 
 ## 工具
 
-查看[使用示例](/oss/integrations/tools/e2b_data_analysis)。
+查看[使用示例](/oss/javascript/integrations/tools/e2b_data_analysis)。
 
 ```python
 from langchain_community.tools import E2BDataAnalysisTool

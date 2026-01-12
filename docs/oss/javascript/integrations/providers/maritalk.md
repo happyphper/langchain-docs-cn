@@ -23,7 +23,7 @@ uv add httpx
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/maritalk)。
+查看[使用示例](/oss/javascript/integrations/chat/maritalk)。
 
 ```python
 from langchain_community.chat_models import ChatMaritalk

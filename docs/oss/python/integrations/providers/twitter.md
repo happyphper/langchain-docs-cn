@@ -21,7 +21,7 @@ uv add tweepy
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/twitter)。
+查看[使用示例](/oss/python/integrations/document_loaders/twitter)。
 
 ```python
 from langchain_community.document_loaders import TwitterTweetLoader
@@ -29,4 +29,4 @@ from langchain_community.document_loaders import TwitterTweetLoader
 
 ## 聊天加载器
 
-查看[使用示例](/oss/integrations/chat_loaders/twitter)。
+查看[使用示例](/oss/python/integrations/chat_loaders/twitter)。

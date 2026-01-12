@@ -19,4 +19,4 @@ Privy 提供的钱包基础设施消除了区块链交互的复杂性：
 
 ## 安装与设置
 
-请查看 [工具文档](/oss/integrations/tools/privy) 了解如何设置和安装 Privy。
+请查看 [工具文档](/oss/python/integrations/tools/privy) 了解如何设置和安装 Privy。

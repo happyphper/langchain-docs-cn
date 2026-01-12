@@ -1,7 +1,7 @@
 ---
 title: Requests 工具包
 ---
-我们可以使用 Requests [工具包](/oss/langchain/tools#toolkits) 来构建能够生成 HTTP 请求的智能体（agent）。
+我们可以使用 Requests [工具包](/oss/javascript/langchain/tools#toolkits) 来构建能够生成 HTTP 请求的智能体（agent）。
 
 关于所有 API 工具包功能和配置的详细文档，请参阅 [RequestsToolkit](https://python.langchain.com/api_reference/community/agent_toolkits/langchain_community.agent_toolkits.openapi.toolkit.RequestsToolkit.html) 的 API 参考。
 

@@ -1,7 +1,7 @@
 ---
 title: OpenAI 适配器
 ---
-**请确保 OpenAI 库的版本为 1.0.0 或更高；否则，请参考旧版文档 [OpenAI Adapter(Old)](/oss/integrations/adapters/openai-old/)。**
+**请确保 OpenAI 库的版本为 1.0.0 或更高；否则，请参考旧版文档 [OpenAI Adapter(Old)](/oss/javascript/integrations/adapters/openai-old/)。**
 
 许多用户从 OpenAI 开始，但希望探索其他模型。LangChain 与众多模型提供商的集成使得这一点变得非常容易。虽然 LangChain 拥有自己的消息和模型 API，但我们也通过公开一个适配器，将 LangChain 模型适配到 OpenAI API，尽可能简化了探索其他模型的过程。
 

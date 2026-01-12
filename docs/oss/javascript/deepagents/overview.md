@@ -15,7 +15,7 @@ description: 构建能够规划任务、使用子代理并利用文件系统处�
 - **将工作委派**给专门的子智能体以实现上下文隔离
 - **在对话和线程之间持久化记忆**
 
-对于更简单的用例，请考虑使用 LangChain 的 [`createAgent`](/oss/langchain/agents) 或构建自定义的 [LangGraph](/oss/langgraph/overview) 工作流。
+对于更简单的用例，请考虑使用 LangChain 的 [`createAgent`](/oss/javascript/langchain/agents) 或构建自定义的 [LangGraph](/oss/javascript/langgraph/overview) 工作流。
 
 ## 核心能力
 
@@ -46,8 +46,8 @@ description: 构建能够规划任务、使用子代理并利用文件系统处�
 ## 与 LangChain 生态系统的关系
 
 深度智能体构建于以下基础之上：
-- [LangGraph](/oss/langgraph/overview) - 提供底层的图执行和状态管理
-- [LangChain](/oss/langchain/overview) - 工具和模型集成与深度智能体无缝协作
+- [LangGraph](/oss/javascript/langgraph/overview) - 提供底层的图执行和状态管理
+- [LangChain](/oss/javascript/langchain/overview) - 工具和模型集成与深度智能体无缝协作
 - [LangSmith](/langsmith/home) - 可观测性、评估和部署
 
 深度智能体应用程序可以通过 [LangSmith Deployment](/langsmith/deployments) 进行部署，并使用 [LangSmith Observability](/langsmith/observability) 进行监控。

@@ -85,4 +85,4 @@ arxiv_tool = SearxSearchResults(name="Arxiv", wrapper=wrapper,
                                 })
 ```
 
-有关工具的更多信息，请参阅[此页面](/oss/integrations/tools)。
+有关工具的更多信息，请参阅[此页面](/oss/python/integrations/tools)。

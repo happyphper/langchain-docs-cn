@@ -51,5 +51,5 @@ console.log(JSON.stringify(respA, null, 3));
 
 ## 相关链接
 
-- 聊天模型 [概念指南](/oss/langchain/models)
-- 聊天模型 [操作指南](/oss/langchain/models)
+- 聊天模型 [概念指南](/oss/javascript/langchain/models)
+- 聊天模型 [操作指南](/oss/javascript/langchain/models)

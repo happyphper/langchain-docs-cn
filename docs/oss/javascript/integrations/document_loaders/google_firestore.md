@@ -3,7 +3,7 @@ title: Google Firestore（原生模式）
 ---
 > [Firestore](https://cloud.google.com/firestore) 是一个无服务器的面向文档的数据库，可根据需求灵活扩展。利用 Firestore 的 LangChain 集成，扩展您的数据库应用程序以构建由 AI 驱动的体验。
 
-本笔记本介绍了如何使用 [Firestore](https://cloud.google.com/firestore) 通过 `FirestoreLoader` 和 `FirestoreSaver` 来[保存、加载和删除 langchain 文档](/oss/integrations/document_loaders)。
+本笔记本介绍了如何使用 [Firestore](https://cloud.google.com/firestore) 通过 `FirestoreLoader` 和 `FirestoreSaver` 来[保存、加载和删除 langchain 文档](/oss/javascript/integrations/document_loaders)。
 
 在 [GitHub](https://github.com/googleapis/langchain-google-firestore-python/) 上了解更多关于该包的信息。
 

@@ -8,7 +8,7 @@ description: 通过 Composio 的统一 API 平台，为 AI 智能体接入 500 �
 
 ### 集成详情
 
-| 类别 | 包 | 可序列化 | [Python 支持](/oss/integrations/tools/composio) | 版本 |
+| 类别 | 包 | 可序列化 | [Python 支持](/oss/javascript/integrations/tools/composio) | 版本 |
 |:---|:---|:---:|:---:|:---:|
 | Composio | [@composio/langchain](https://www.npmjs.com/package/@composio/langchain) | ❌ | ✅ | ![npm version](https://img.shields.io/npm/v/@composio/langchain?style=flat-square&label=%20) |
 

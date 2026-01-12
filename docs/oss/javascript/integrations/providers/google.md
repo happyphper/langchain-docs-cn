@@ -7,11 +7,11 @@ title: 概述
 
 ### Gemini 模型
 
-通过 [`ChatGoogleGenerativeAI`](/oss/integrations/chat/google_generative_ai) 类访问 Gemini 模型，例如 `gemini-2.5-pro` 和 `gemini-2.0-flex`。如果使用 VertexAI，则通过 [`ChatVertexAI`](/oss/integrations/chat/google_vertex_ai) 类访问。
+通过 [`ChatGoogleGenerativeAI`](/oss/javascript/integrations/chat/google_generative_ai) 类访问 Gemini 模型，例如 `gemini-2.5-pro` 和 `gemini-2.0-flex`。如果使用 VertexAI，则通过 [`ChatVertexAI`](/oss/javascript/integrations/chat/google_vertex_ai) 类访问。
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -73,7 +73,7 @@ const res = await visionModel.invoke(input2);
 
 <Tip>
 
-<strong>点击[此处](/oss/integrations/chat/google_generative_ai)查看 `@langchain/google-genai` 特定的集成文档</strong>
+<strong>点击[此处](/oss/javascript/integrations/chat/google_generative_ai)查看 `@langchain/google-genai` 特定的集成文档</strong>
 
 </Tip>
 
@@ -142,7 +142,7 @@ const res = await visionModel.invoke(input2);
 
 <Tip>
 
-点击[此处](/oss/integrations/chat/google_vertex_ai)查看 `@langchain/google-vertexai` 特定的集成文档
+点击[此处](/oss/javascript/integrations/chat/google_vertex_ai)查看 `@langchain/google-vertexai` 特定的集成文档
 
 </Tip>
 
@@ -155,11 +155,11 @@ const res = await visionModel.invoke(input2);
 ### Gemma
 
 通过 AI Studio 使用 `ChatGoogle` 类访问 `gemma-3-27b-it` 模型。
-（此类是 [`ChatVertexAI`](/oss/integrations/chat/google_vertex_ai) 类的超类，可与 Vertex AI 和 AI Studio API 一起使用。）
+（此类是 [`ChatVertexAI`](/oss/javascript/integrations/chat/google_vertex_ai) 类的超类，可与 Vertex AI 和 AI Studio API 一起使用。）
 
 <Tip>
 
-<strong>由于 Gemma 是一个开源模型，它也可能在其他平台上可用</strong>，包括 [Ollama](/oss/integrations/chat/ollama/)。
+<strong>由于 Gemma 是一个开源模型，它也可能在其他平台上可用</strong>，包括 [Ollama](/oss/javascript/integrations/chat/ollama/)。
 
 </Tip>
 
@@ -192,7 +192,7 @@ const res = await model.invoke([
 
 有关通过 Vertex AI 设置身份验证以使用这些模型的信息，请参阅上文。
 
-[Anthropic](/oss/integrations/chat/anthropic) 的 Claude 模型也可以通过 [Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-claude) 平台使用。有关启用模型访问权限和要使用的模型名称的更多信息，请参阅[此处](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-claude)。
+[Anthropic](/oss/javascript/integrations/chat/anthropic) 的 Claude 模型也可以通过 [Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-claude) 平台使用。有关启用模型访问权限和要使用的模型名称的更多信息，请参阅[此处](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-claude)。
 
 PaLM 模型不再受支持。
 
@@ -208,7 +208,7 @@ import { MatchingEngine } from "@langchain/community/vectorstores/googlevertexai
 
 ### Postgres 向量存储
 
-[`@langchain/google-cloud-sql-pg`](https://www.npmjs.com/package/@langchain/google-cloud-sql-pg) 包中的 [PostgresVectorStore](/oss/integrations/vectorstores/google_cloudsql_pg) 模块提供了一种使用 CloudSQL for PostgreSQL 通过该类存储向量嵌入的方法。
+[`@langchain/google-cloud-sql-pg`](https://www.npmjs.com/package/@langchain/google-cloud-sql-pg) 包中的 [PostgresVectorStore](/oss/javascript/integrations/vectorstores/google_cloudsql_pg) 模块提供了一种使用 CloudSQL for PostgreSQL 通过该类存储向量嵌入的方法。
 
 ```bash
 $ yarn add @langchain/google-cloud-sql-pg

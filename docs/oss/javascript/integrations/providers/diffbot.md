@@ -13,7 +13,7 @@ Diffbot 的 [Extract API](https://docs.diffbot.com/reference/extract-introductio
 
 与传统的网络爬虫工具不同，`Diffbot Extract` 不需要任何规则来读取页面内容。它使用计算机视觉模型将页面分类为 20 种可能的类型之一，然后将原始 HTML 标记转换为 JSON。生成的结构化 JSON 遵循一致的 [基于类型的本体论](https://docs.diffbot.com/docs/ontology)，这使得使用相同的模式从多个不同的网络源提取数据变得容易。
 
-查看 [使用示例](/oss/integrations/document_loaders/diffbot)。
+查看 [使用示例](/oss/javascript/integrations/document_loaders/diffbot)。
 
 ```python
 from langchain_community.document_loaders import DiffbotLoader
@@ -23,7 +23,7 @@ from langchain_community.document_loaders import DiffbotLoader
 
 Diffbot 的 [自然语言处理 API](https://www.diffbot.com/products/natural-language/) 允许从非结构化文本数据中提取实体、关系和语义含义。
 
-查看 [使用示例](/oss/integrations/graphs/diffbot)。
+查看 [使用示例](/oss/javascript/integrations/graphs/diffbot)。
 
 ```python
 from langchain_experimental.graph_transformers.diffbot import DiffbotGraphTransformer

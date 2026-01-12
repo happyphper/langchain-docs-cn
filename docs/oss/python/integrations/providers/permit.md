@@ -30,8 +30,8 @@ export PERMIT_PDP_URL="http://localhost:7766"   # 或您真实的 PDP 端点
 
 ## 工具
 
-有关可用工具的详细信息，请参见[此处](/oss/integrations/tools/permit)。
+有关可用工具的详细信息，请参见[此处](/oss/python/integrations/tools/permit)。
 
 ## 检索器
 
-有关可用检索器的详细信息，请参见[此处](/oss/integrations/retrievers/permit)。
+有关可用检索器的详细信息，请参见[此处](/oss/python/integrations/retrievers/permit)。

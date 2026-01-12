@@ -2,17 +2,17 @@
 title: 子图
 sidebarTitle: Subgraphs
 ---
-本指南解释了使用子图（subgraph）的机制。子图是一个[图](/oss/langgraph/graph-api#graphs)，在另一个图中用作[节点](/oss/langgraph/graph-api#nodes)。
+本指南解释了使用子图（subgraph）的机制。子图是一个[图](/oss/javascript/langgraph/graph-api#graphs)，在另一个图中用作[节点](/oss/javascript/langgraph/graph-api#nodes)。
 
 子图适用于：
-- 构建[多智能体系统](/oss/langchain/multi-agent)
+- 构建[多智能体系统](/oss/javascript/langchain/multi-agent)
 - 在多个图中复用一组节点
 - 分布式开发：当希望不同团队独立处理图的不同部分时，可以将每个部分定义为一个子图。只要子图接口（输入和输出模式）得到遵守，父图就可以在不知道子图任何细节的情况下构建
 
 添加子图时，需要定义父图和子图之间的通信方式：
 
 * [从节点调用图](#invoke-a-graph-from-a-node) —— 子图从父图的节点内部调用
-* [将图添加为节点](#add-a-graph-as-a-node) —— 子图直接作为节点添加到父图中，并与父图**共享[状态键（state keys）](/oss/langgraph/graph-api#state)**
+* [将图添加为节点](#add-a-graph-as-a-node) —— 子图直接作为节点添加到父图中，并与父图**共享[状态键（state keys）](/oss/javascript/langgraph/graph-api#state)**
 
 ## 环境设置
 
@@ -29,7 +29,7 @@ npm install @langchain/langgraph
 
 ## 从节点调用图
 
-实现子图的一种简单方法是从另一个图的节点内部调用一个图。在这种情况下，子图可以拥有与父图**完全不同的模式**（没有共享的键）。例如，你可能希望在[多智能体](/oss/langchain/multi-agent)系统中为每个智能体保留私有的消息历史记录。
+实现子图的一种简单方法是从另一个图的节点内部调用一个图。在这种情况下，子图可以拥有与父图**完全不同的模式**（没有共享的键）。例如，你可能希望在[多智能体](/oss/javascript/langchain/multi-agent)系统中为每个智能体保留私有的消息历史记录。
 
 如果你的应用属于这种情况，你需要定义一个**调用子图的节点函数**。该函数需要在调用子图之前将输入（父）状态转换为子图状态，并在从节点返回状态更新之前将结果转换回父状态。
 
@@ -221,7 +221,7 @@ for await (const chunk of await parentGraph.stream(
 
 ## 将图添加为节点
 
-当父图和子图可以通过[模式](/oss/langgraph/graph-api#state)中的共享状态键（通道）进行通信时，你可以将一个图作为[节点](/oss/langgraph/graph-api#nodes)添加到另一个图中。例如，在[多智能体](/oss/langchain/multi-agent)系统中，智能体通常通过共享的[消息](/oss/langgraph/graph-api#why-use-messages)键进行通信。
+当父图和子图可以通过[模式](/oss/javascript/langgraph/graph-api#state)中的共享状态键（通道）进行通信时，你可以将一个图作为[节点](/oss/javascript/langgraph/graph-api#nodes)添加到另一个图中。例如，在[多智能体](/oss/javascript/langchain/multi-agent)系统中，智能体通常通过共享的[消息](/oss/javascript/langgraph/graph-api#why-use-messages)键进行通信。
 
 <img src="/oss/images/subgraph.png" alt="SQL agent graph" />
 

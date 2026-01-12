@@ -1,221 +1,101 @@
 ---
-title: 概述
+title: OpenAI
 ---
-所有与 OpenAI 相关的功能
+本页面涵盖了 LangChain 与 [OpenAI](https://en.wikipedia.org/wiki/OpenAI) 的所有集成。
 
-> [OpenAI](https://en.wikipedia.org/wiki/OpenAI) 是一家美国人工智能（AI）研究实验室，由非营利组织 `OpenAI Incorporated` 及其营利性子公司 `OpenAI Limited Partnership` 组成。OpenAI 进行 AI 研究，其公开宣称的意图是促进和发展友好的人工智能。OpenAI 系统运行在 `Microsoft` 基于 `Azure` 的超级计算平台上。
+## 模型接口
 
-> [OpenAI API](https://platform.openai.com/docs/models) 由一系列具有不同能力和价格点的多样化模型提供支持。
->
-> [ChatGPT](https://chat.openai.com) 是由 `OpenAI` 开发的人工智能（AI）聊天机器人。
+<Columns :cols="2">
 
-## 安装与设置
+<Card title="ChatOpenAI" href="/oss/integrations/chat/openai" cta="开始使用" icon="message" arrow>
 
-- 获取一个 OpenAI API 密钥，并将其设置为环境变量 (`OPENAI_API_KEY`)
+OpenAI 聊天模型。
 
-## 聊天模型
+</Card>
 
-查看[使用示例](/oss/integrations/chat/openai)。
+<Card title="AzureChatOpenAI" href="/oss/integrations/chat/azure_chat_openai" cta="开始使用" icon="microsoft" arrow>
 
-```typescript
-import { ChatOpenAI } from "@langchain/openai";
-```
+托管在 Azure 上的 OpenAI 聊天模型的封装器。
 
-## 大语言模型
+</Card>
 
-查看[使用示例](/oss/integrations/llms/openai)。
+<Card title="OpenAIEmbeddings" href="/oss/integrations/text_embedding/openai" cta="开始使用" icon="layer-group" arrow>
 
-<Tip>
+OpenAI 嵌入模型。
 
-关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+</Card>
 
-</Tip>
+<Card title="AzureOpenAIEmbeddings" href="/oss/integrations/text_embedding/azure_openai" cta="开始使用" icon="microsoft" arrow>
 
-```bash [npm]
-npm install @langchain/openai @langchain/core
-```
+托管在 Azure 上的 OpenAI 嵌入模型的封装器。
 
-```typescript
-import { OpenAI } from "@langchain/openai";
-```
+</Card>
 
-## 文本嵌入模型
+</Columns>
 
-查看[使用示例](/oss/integrations/text_embedding/openai)
+## 工具与工具包
 
-```typescript
-import { OpenAIEmbeddings } from "@langchain/openai";
-```
+<Columns :cols="2">
 
-## 链
+<Card title="Dall-E 图像生成器" href="/oss/integrations/tools/dalle_image_generator" cta="开始使用" icon="image" arrow>
 
-```typescript
-import { OpenAIModerationChain } from "@langchain/classic/chains";
-```
+使用 OpenAI 的 Dall-E 模型进行文生图。
 
-## 中间件
+</Card>
 
-专为 OpenAI 模型设计的中间件。了解更多关于[中间件](/oss/langchain/middleware/overview)的信息。
+</Columns>
 
-| 中间件 | 描述 |
-|------------|-------------|
-| [内容审核](#内容审核) | 使用 OpenAI 的审核端点来审核智能体流量 |
+## 检索器
 
-### 内容审核
+<Columns :cols="2">
 
-使用 OpenAI 的审核端点来审核智能体流量（用户输入、模型输出和工具结果），以检测和处理不安全内容。内容审核适用于以下场景：
+<Card title="ChatGPTPluginRetriever" href="/oss/integrations/retrievers/chatgpt-plugin" cta="开始使用" icon="download" arrow>
 
-- 需要内容安全和合规性的应用程序
-- 过滤有害、仇恨或不适当的内容
-- 需要安全防护措施的面向客户的智能体
-- 满足平台审核要求
+检索实时信息；例如，体育比分、股票价格、最新新闻等。
 
-<Info>
+</Card>
 
-了解更多关于 [OpenAI 的审核模型](https://platform.openai.com/docs/guides/moderation) 和类别。
+</Columns>
 
-</Info>
+## 文档加载器
 
-**API 参考：** @[`openAIModerationMiddleware`]
+<Columns :cols="2">
 
-```typescript
-import { createAgent, openAIModerationMiddleware } from "langchain";
+<Card title="ChatGPTLoader" href="/oss/integrations/document_loaders/chatgpt_loader" cta="开始使用" icon="file" arrow>
 
-const agent = createAgent({
-  model: "openai:gpt-4o",
-  tools: [searchTool, databaseTool],
-  middleware: [
-    openAIModerationMiddleware({
-      model: "openai:gpt-4o",
-      moderationModel: "omni-moderation-latest",
-      checkInput: true,
-      checkOutput: true,
-      exitBehavior: "end",
-    }),
-  ],
-});
-```
+从您的 ChatGPT 数据导出文件夹加载 `conversations.json` 文件。
 
-:::: details 配置选项
+</Card>
 
-<ParamField body="model" type="string | BaseChatModel" required>
+</Columns>
 
-用于审核的 OpenAI 模型。可以是模型名称字符串（例如，`"openai:gpt-4o"`）或 `BaseChatModel` 实例。中间件将使用此模型的客户端来访问审核端点。
+## 其他
 
-</ParamField>
+<Columns :cols="2">
 
-<ParamField body="moderationModel" type="ModerationModel" default="omni-moderation-latest">
+<Card title="OpenAI" href="/oss/integrations/llms/openai" cta="开始使用" icon="i-cursor" arrow>
 
-要使用的 OpenAI 审核模型。选项：`'omni-moderation-latest'`, `'omni-moderation-2024-09-26'`, `'text-moderation-latest'`, `'text-moderation-stable'`
+（旧版）OpenAI 文本补全模型。
 
-</ParamField>
+</Card>
 
-<ParamField body="checkInput" type="boolean" default="true">
+<Card title="AzureOpenAI" href="/oss/integrations/llms/azure_openai" cta="开始使用" icon="microsoft" arrow>
 
-是否在调用模型之前检查用户输入消息
+托管在 Azure 上的（旧版）OpenAI 文本补全模型的封装器。
 
-</ParamField>
+</Card>
 
-<ParamField body="checkOutput" type="boolean" default="true">
+<Card title="适配器" href="/oss/integrations/adapters/openai" cta="开始使用" icon="arrows-left-right" arrow>
 
-是否在调用模型之后检查模型输出消息
+将 LangChain 模型适配到 OpenAI API。
 
-</ParamField>
+</Card>
 
-<ParamField body="checkToolResults" type="boolean" default="false">
+<Card title="OpenAIModerationChain" href="https://python.langchain.com/v0.1/docs/guides/productionization/safety/moderation" cta="开始使用" icon="link" arrow>
 
-是否在调用模型之前检查工具结果消息
+检测可能包含仇恨、暴力等内容的文本。
 
-</ParamField>
+</Card>
 
-<ParamField body="exitBehavior" type="'error' | 'end' | 'replace'" default="'end'">
-
-当内容被标记时如何处理违规。选项：
-
-- `'end'` - 立即结束智能体执行并返回违规消息
-- `'error'` - 抛出 `OpenAIModerationError` 异常
-- `'replace'` - 用违规消息替换被标记的内容并继续执行
-
-</ParamField>
-
-<ParamField body="violationMessage" type="string | undefined">
-
-违规消息的自定义模板。支持模板变量：
-
-- `{categories}` - 被标记类别的逗号分隔列表
-- `{category_scores}` - 类别分数的 JSON 字符串
-- `{original_content}` - 原始的被标记内容
-
-默认值：`"抱歉，我无法满足该请求。它因 {categories} 被标记。"`
-
-</ParamField>
-
-::::
-
-:::: details 完整示例
-
-该中间件集成了 OpenAI 的审核端点，以在不同阶段检查内容：
-
-<strong>审核阶段：</strong>
-- `checkInput` - 模型调用前的用户消息
-- `checkOutput` - 模型调用后的 AI 消息
-- `checkToolResults` - 模型调用前的工具输出
-
-<strong>退出行为：</strong>
-- `'end'` (默认) - 停止执行并返回违规消息
-- `'error'` - 抛出异常供应用程序处理
-- `'replace'` - 替换被标记的内容并继续执行
-
-```typescript
-import { createAgent, openAIModerationMiddleware } from "langchain";
-
-// 基础审核
-const agent = createAgent({
-  model: "openai:gpt-4o",
-  tools: [searchTool, customerDataTool],
-  middleware: [
-    openAIModerationMiddleware({
-      model: "openai:gpt-4o",
-      moderationModel: "omni-moderation-latest",
-      checkInput: true,
-      checkOutput: true,
-    }),
-  ],
-});
-
-// 严格审核并自定义消息
-const agentStrict = createAgent({
-  model: "openai:gpt-4o",
-  tools: [searchTool, customerDataTool],
-  middleware: [
-    openAIModerationMiddleware({
-      model: "openai:gpt-4o",
-      moderationModel: "omni-moderation-latest",
-      checkInput: true,
-      checkOutput: true,
-      checkToolResults: true,
-      exitBehavior: "error",
-      violationMessage:
-        "检测到内容策略违规：{categories}。 " +
-        "请重新表述您的请求。",
-    }),
-  ],
-});
-
-// 使用替换行为的审核
-const agentReplace = createAgent({
-  model: "openai:gpt-4o",
-  tools: [searchTool],
-  middleware: [
-    openAIModerationMiddleware({
-      model: "openai:gpt-4o",
-      checkInput: true,
-      exitBehavior: "replace",
-      violationMessage: "[内容因安全策略已被移除]",
-    }),
-  ],
-});
-```
-
-::::
+</Columns>
 

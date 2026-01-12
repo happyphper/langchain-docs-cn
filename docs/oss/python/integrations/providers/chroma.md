@@ -25,7 +25,7 @@ Chroma 向量数据库提供了一个包装器（wrapper），允许你将其用
 from langchain_chroma import Chroma
 ```
 
-关于 Chroma 包装器的更详细教程，请参阅 [此笔记本](/oss/integrations/vectorstores/chroma)。
+关于 Chroma 包装器的更详细教程，请参阅 [此笔记本](/oss/python/integrations/vectorstores/chroma)。
 
 ## Retriever
 

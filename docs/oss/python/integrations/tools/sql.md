@@ -1,7 +1,7 @@
 ---
 title: SqlToolkit
 ---
-这将帮助你开始使用 [SqlToolkit](/oss/langchain/tools#toolkits)。关于 SqlToolkit 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain.agents_toolkits_sql.SqlToolkit.html)。你也可以在此处找到 Python 等效版本的文档。
+这将帮助你开始使用 [SqlToolkit](/oss/python/langchain/tools#toolkits)。关于 SqlToolkit 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain.agents_toolkits_sql.SqlToolkit.html)。你也可以在此处找到 Python 等效版本的文档。
 
 此工具包包含以下工具：
 

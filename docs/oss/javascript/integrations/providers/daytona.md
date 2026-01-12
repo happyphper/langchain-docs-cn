@@ -6,7 +6,7 @@ title: Daytona
 
 ## 安装与设置
 
-安装 `langchain-daytona-data-analysis` 包。详细的安装说明，请参阅 [工具使用指南](/oss/integrations/tools/daytona_data_analysis)。
+安装 `langchain-daytona-data-analysis` 包。详细的安装说明，请参阅 [工具使用指南](/oss/javascript/integrations/tools/daytona_data_analysis)。
 
 ## 先决条件
 

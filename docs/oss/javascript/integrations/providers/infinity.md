@@ -10,4 +10,4 @@ title: Infinity
 ```python
 from langchain_community.embeddings import InfinityEmbeddings
 ```
-关于此功能的更详细操作指南，请参阅 [此笔记本](/oss/integrations/text_embedding/infinity)
+关于此功能的更详细操作指南，请参阅 [此笔记本](/oss/javascript/integrations/text_embedding/infinity)

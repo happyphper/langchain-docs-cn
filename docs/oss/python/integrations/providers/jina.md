@@ -18,7 +18,7 @@ title: Jina AI
 from langchain_community.chat_models import JinaChat
 ```
 
-查看[使用示例](/oss/integrations/chat/jinachat)。
+查看[使用示例](/oss/python/integrations/chat/jinachat)。
 
 ## 嵌入模型
 
@@ -28,7 +28,7 @@ from langchain_community.chat_models import JinaChat
 from langchain_community.embeddings import JinaEmbeddings
 ```
 
-查看[使用示例](/oss/integrations/text_embedding/jina)。
+查看[使用示例](/oss/python/integrations/text_embedding/jina)。
 
 ## 文档转换器
 
@@ -38,4 +38,4 @@ from langchain_community.embeddings import JinaEmbeddings
 from langchain_community.document_compressors import JinaRerank
 ```
 
-查看[使用示例](/oss/integrations/document_transformers/jina_rerank)。
+查看[使用示例](/oss/python/integrations/document_transformers/jina_rerank)。

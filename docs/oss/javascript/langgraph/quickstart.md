@@ -7,7 +7,7 @@ title: 快速入门 (Quickstart)
 - 如果您倾向于将智能体定义为节点和边的图，请[使用 Graph API](#use-the-graph-api)。
 - 如果您倾向于将智能体定义为单个函数，请[使用 Functional API](#use-the-functional-api)。
 
-有关概念性信息，请参阅 [Graph API 概述](/oss/langgraph/graph-api) 和 [Functional API 概述](/oss/langgraph/functional-api)。
+有关概念性信息，请参阅 [Graph API 概述](/oss/javascript/langgraph/graph-api) 和 [Functional API 概述](/oss/javascript/langgraph/functional-api)。
 
 <Info>
 

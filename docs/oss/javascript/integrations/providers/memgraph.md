@@ -17,7 +17,7 @@ from langchain_memgraph.chains.graph_qa import MemgraphQAChain
 from langchain_memgraph.graphs.memgraph import MemgraphLangChain
 ```
 
-查看 [使用示例](/oss/integrations/graphs/memgraph)
+查看 [使用示例](/oss/javascript/integrations/graphs/memgraph)
 
 ## 从非结构化数据构建知识图谱
 
@@ -28,12 +28,12 @@ from langchain_memgraph.graphs.memgraph import MemgraphLangChain
 from langchain_experimental.graph_transformers import LLMGraphTransformer
 ```
 
-查看 [使用示例](/oss/integrations/graphs/memgraph)
+查看 [使用示例](/oss/javascript/integrations/graphs/memgraph)
 
 ## Memgraph 工具与工具包
 
 Memgraph 还提供了一个工具包，允许您与 Memgraph 数据库进行交互。
-查看 [使用示例](/oss/integrations/tools/memgraph)。
+查看 [使用示例](/oss/javascript/integrations/tools/memgraph)。
 
 ```python
 from langchain_memgraph import MemgraphToolkit

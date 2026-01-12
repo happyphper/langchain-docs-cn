@@ -19,7 +19,7 @@ sidebarTitle: Context engineering
 
 <Tip>
 
-不熟悉上下文工程？请从 [概念概述](/oss/concepts/context) 开始，了解不同类型的上下文及其使用时机。
+不熟悉上下文工程？请从 [概念概述](/oss/python/concepts/context) 开始，了解不同类型的上下文及其使用时机。
 
 </Tip>
 
@@ -72,7 +72,7 @@ LLM 在单次调用中看到的内容。您可以修改消息、工具或提示�
 
 ### 工作原理
 
-LangChain 的 [中间件](/oss/langchain/middleware) 是底层机制，使得使用 LangChain 的开发者能够实际进行上下文工程。
+LangChain 的 [中间件](/oss/python/langchain/middleware) 是底层机制，使得使用 LangChain 的开发者能够实际进行上下文工程。
 
 中间件允许您钩入智能体生命周期的任何步骤，并：
 
@@ -423,7 +423,7 @@ Reference these files when answering questions."""
 
 上面的示例使用 `wrap_model_call` 进行 <strong>瞬态</strong> 更新——修改单次调用中发送给模型的消息，而不更改保存在状态中的内容。
 
-对于修改状态的 <strong>持久</strong> 更新（如 [生命周期上下文](#summarization) 中的摘要示例），请使用 `before_model` 或 `after_model` 等生命周期钩子来永久更新对话历史。更多详情请参阅 [中间件文档](/oss/langchain/middleware)。
+对于修改状态的 <strong>持久</strong> 更新（如 [生命周期上下文](#summarization) 中的摘要示例），请使用 `before_model` 或 `after_model` 等生命周期钩子来永久更新对话历史。更多详情请参阅 [中间件文档](/oss/python/langchain/middleware)。
 
 </Note>
 
@@ -599,7 +599,7 @@ agent = create_agent(
 
 </Tabs>
 
-更多示例请参见 [动态选择工具](/oss/langchain/middleware#dynamically-selecting-tools)。
+更多示例请参见 [动态选择工具](/oss/python/langchain/middleware#dynamically-selecting-tools)。
 
 ### 模型
 
@@ -764,7 +764,7 @@ agent = create_agent(
 
 </Tabs>
 
-更多示例请参见 [动态模型](/oss/langchain/agents#dynamic-model)。
+更多示例请参见 [动态模型](/oss/python/langchain/agents#dynamic-model)。
 
 ### 响应格式
 
@@ -1187,13 +1187,13 @@ agent = create_agent(
 
 </Tabs>
 
-有关在工具中访问状态、存储和运行时上下文的全面示例，请参见 [工具](/oss/langchain/tools)。
+有关在工具中访问状态、存储和运行时上下文的全面示例，请参见 [工具](/oss/python/langchain/tools)。
 
 ## 生命周期上下文
 
 控制 **核心智能体步骤之间** 发生的事情——拦截数据流以实现横切关注点，如摘要、护栏和日志记录。
 
-正如您在 [模型上下文](#model-context) 和 [工具上下文](#tool-context) 中所见，[中间件](/oss/langchain/middleware) 是使上下文工程变得可行的机制。中间件允许您钩入智能体生命周期的任何步骤，并：
+正如您在 [模型上下文](#model-context) 和 [工具上下文](#tool-context) 中所见，[中间件](/oss/python/langchain/middleware) 是使上下文工程变得可行的机制。中间件允许您钩入智能体生命周期的任何步骤，并：
 
 1.  **更新上下文** - 修改状态和存储以持久化更改、更新对话历史或保存见解
 2.  **在生命周期中跳转** - 根据上下文移动到智能体循环中的不同步骤（例如，如果满足条件则跳过工具执行，使用修改后的上下文重复模型调用）
@@ -1232,7 +1232,7 @@ agent = create_agent(
 
 <Note>
 
-有关内置中间件的完整列表、可用钩子以及如何创建自定义中间件，请参阅 [中间件文档](/oss/langchain/middleware)。
+有关内置中间件的完整列表、可用钩子以及如何创建自定义中间件，请参阅 [中间件文档](/oss/python/langchain/middleware)。
 
 </Note>
 
@@ -1241,15 +1241,15 @@ agent = create_agent(
 1. **从简单开始** - 先使用静态提示词和工具，仅在必要时添加动态元素
 2. **逐步测试** - 每次只添加一个上下文工程功能
 3. **监控性能** - 跟踪模型调用、令牌使用情况和延迟
-4. **使用内置中间件** - 利用 [`SummarizationMiddleware`](/oss/langchain/middleware#summarization)、[`LLMToolSelectorMiddleware`](/oss/langchain/middleware#llm-tool-selector) 等
+4. **使用内置中间件** - 利用 [`SummarizationMiddleware`](/oss/python/langchain/middleware#summarization)、[`LLMToolSelectorMiddleware`](/oss/python/langchain/middleware#llm-tool-selector) 等
 5. **记录上下文策略** - 明确说明传递了哪些上下文及其原因
 6. **理解临时性与持久性**：模型上下文更改是临时的（每次调用），而生命周期上下文更改会持久保存到状态中
 
 ## 相关资源
 
-- [上下文概念概述](/oss/concepts/context) - 了解上下文类型及其使用时机
-- [中间件](/oss/langchain/middleware) - 完整的中间件指南
-- [工具](/oss/langchain/tools) - 工具创建和上下文访问
-- [记忆](/oss/concepts/memory) - 短期和长期记忆模式
-- [智能体](/oss/langchain/agents) - 核心智能体概念
+- [上下文概念概述](/oss/python/concepts/context) - 了解上下文类型及其使用时机
+- [中间件](/oss/python/langchain/middleware) - 完整的中间件指南
+- [工具](/oss/python/langchain/tools) - 工具创建和上下文访问
+- [记忆](/oss/python/concepts/memory) - 短期和长期记忆模式
+- [智能体](/oss/python/langchain/agents) - 核心智能体概念
 

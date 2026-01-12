@@ -28,7 +28,7 @@ title: 获取帮助
 
 帮助我们为所有人改进 LangChain。无论是修复错误、添加功能还是改进文档，我们都欢迎您的贡献。
 
-- **[贡献指南](/oss/contributing/overview)**: 关于为 LangChain 做出贡献所需了解的一切
+- **[贡献指南](/oss/python/contributing/overview)**: 关于为 LangChain 做出贡献所需了解的一切
 
 ## 保持联系
 

@@ -45,4 +45,4 @@ URL 是 Vespa 应用程序的端点。
 
 ## 相关链接
 
-- [检索指南](/oss/langchain/retrieval)
+- [检索指南](/oss/python/langchain/retrieval)

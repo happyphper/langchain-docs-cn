@@ -123,7 +123,7 @@ for item in response:
 
 ## 链式调用
 
-我们在此展示如何将其用作[智能体](/oss/langchain/agents)的一部分。我们使用 OpenAI Functions Agent，因此需要为此设置和安装所需的依赖项。我们还将使用 [LangSmith Hub](https://smith.langchain.com/hub) 来拉取提示词，因此也需要安装它。
+我们在此展示如何将其用作[智能体](/oss/javascript/langchain/agents)的一部分。我们使用 OpenAI Functions Agent，因此需要为此设置和安装所需的依赖项。我们还将使用 [LangSmith Hub](https://smith.langchain.com/hub) 来拉取提示词，因此也需要安装它。
 
 ```python
 # you need a model to use in the chain

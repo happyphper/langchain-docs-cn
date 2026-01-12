@@ -40,7 +40,7 @@ uv add langchain-naver
 
 ### ChatClovaX
 
-查看[使用示例](/oss/integrations/chat/naver)。
+查看[使用示例](/oss/javascript/integrations/chat/naver)。
 
 ```python
 from langchain_naver import ChatClovaX
@@ -50,7 +50,7 @@ from langchain_naver import ChatClovaX
 
 ### ClovaXEmbeddings
 
-查看[使用示例](/oss/integrations/text_embedding/naver)。
+查看[使用示例](/oss/javascript/integrations/text_embedding/naver)。
 
 ```python
 from langchain_naver import ClovaXEmbeddings
@@ -80,7 +80,7 @@ search = NaverSearchAPIWrapper()
 tool = NaverSearchResults(api_wrapper=search)
 ```
 
-更多详情，请查看[使用示例](/oss/integrations/tools/naver_search)。
+更多详情，请查看[使用示例](/oss/javascript/integrations/tools/naver_search)。
 
 ### 专用搜索工具
 

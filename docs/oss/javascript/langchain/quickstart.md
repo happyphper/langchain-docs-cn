@@ -16,11 +16,11 @@ title: 快速入门 (Quickstart)
 
 要运行这些示例，您需要：
 
-* [安装 (Install)](/oss/langchain/install) LangChain 包
+* [安装 (Install)](/oss/javascript/langchain/install) LangChain 包
 * 设置 [Claude (Anthropic)](https://www.anthropic.com/) 账户并获取 API 密钥
 * 在您的终端中设置 `ANTHROPIC_API_KEY` 环境变量
 
-虽然这些示例使用 Claude，但您也可以通过更改代码中的模型名称并设置相应的 API 密钥来使用[任何支持的模型](/oss/integrations/providers/overview)。
+虽然这些示例使用 Claude，但您也可以通过更改代码中的模型名称并设置相应的 API 密钥来使用[任何支持的模型](/oss/javascript/integrations/providers/overview)。
 
 ## 构建基础智能体 (Build a basic agent)
 
@@ -93,7 +93,7 @@ If a user asks you for the weather, make sure you know the location. If you can 
 
 <Step title="创建工具 (Create tools)">
 
-[工具 (Tools)](/oss/langchain/tools) 是您的智能体可以调用的函数。通常，工具会希望连接到外部系统，并依赖运行时配置来实现。请注意这里的 `getUserLocation` 工具正是这样做的：
+[工具 (Tools)](/oss/javascript/langchain/tools) 是您的智能体可以调用的函数。通常，工具会希望连接到外部系统，并依赖运行时配置来实现。请注意这里的 `getUserLocation` 工具正是这样做的：
 
 ```ts
 import { tool, type ToolRuntime } from "langchain";
@@ -160,7 +160,7 @@ const getWeather = tool(
 
 <Step title="配置模型 (Configure your model)">
 
-根据您的用例，使用正确的参数设置您的[语言模型 (language model)](/oss/langchain/models)：
+根据您的用例，使用正确的参数设置您的[语言模型 (language model)](/oss/javascript/langchain/models)：
 
 ```ts
 import { initChatModel } from "langchain";
@@ -190,7 +190,7 @@ const responseFormat = z.object({
 
 <Step title="添加记忆 (Add memory)">
 
-为您的智能体添加[记忆 (memory)](/oss/langchain/short-term-memory)，以在多次交互之间保持状态。这允许智能体记住之前的对话和上下文。
+为您的智能体添加[记忆 (memory)](/oss/javascript/langchain/short-term-memory)，以在多次交互之间保持状态。这允许智能体记住之前的对话和上下文。
 
 ```ts
 import { MemorySaver } from "@langchain/langgraph";
@@ -200,7 +200,7 @@ const checkpointer = new MemorySaver();
 
 <Info>
 
-在生产环境中，请使用将数据保存到数据库的持久化检查点加载器。详见[添加和管理记忆](/oss/langgraph/add-memory#manage-short-term-memory)。
+在生产环境中，请使用将数据保存到数据库的持久化检查点加载器。详见[添加和管理记忆](/oss/javascript/langgraph/add-memory#manage-short-term-memory)。
 
 </Info>
 

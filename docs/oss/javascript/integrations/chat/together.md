@@ -1,7 +1,7 @@
 ---
 title: 一起聊天
 ---
-本页面将帮助您开始使用 Together AI 的[聊天模型](/oss/langchain/models)。有关 ChatTogether 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/together/chat_models/langchain_together.chat_models.ChatTogether.html)。
+本页面将帮助您开始使用 Together AI 的[聊天模型](/oss/javascript/langchain/models)。有关 ChatTogether 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/together/chat_models/langchain_together.chat_models.ChatTogether.html)。
 
 [Together AI](https://www.together.ai/) 提供了一个 API 来查询 [50 多个领先的开源模型](https://docs.together.ai/docs/chat-models)。
 
@@ -15,7 +15,7 @@ title: 一起聊天
 
 ### 模型功能
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming#llm-tokens) | 原生异步 | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/javascript/langchain/streaming#llm-tokens) | 原生异步 | [Token 使用量](/oss/javascript/langchain/models#token-usage) | [Logprobs](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
 

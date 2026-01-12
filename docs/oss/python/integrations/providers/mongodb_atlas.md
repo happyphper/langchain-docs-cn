@@ -5,7 +5,7 @@ title: MongoDB Atlas
 
 ## 安装与设置
 
-请参阅[详细配置说明](/oss/integrations/vectorstores/mongodb_atlas)。
+请参阅[详细配置说明](/oss/python/integrations/vectorstores/mongodb_atlas)。
 
 我们需要安装 `langchain-mongodb` Python 包。
 
@@ -23,7 +23,7 @@ uv add langchain-mongodb
 
 ## 向量存储
 
-请参阅[使用示例](/oss/integrations/vectorstores/mongodb_atlas)。
+请参阅[使用示例](/oss/python/integrations/vectorstores/mongodb_atlas)。
 
 ```python
 from langchain_mongodb import MongoDBAtlasVectorSearch
@@ -81,7 +81,7 @@ set_llm_cache(MongoDBCache(
 ### MongoDBAtlasSemanticCache
 
 语义缓存允许用户根据用户输入与先前缓存结果之间的语义相似性来检索缓存的提示。在底层，它将 MongoDBAtlas 同时用作缓存和向量存储。
-MongoDBAtlasSemanticCache 继承自 `MongoDBAtlasVectorSearch`，并且需要定义一个 Atlas 向量搜索索引才能工作。请查看[使用示例](/oss/integrations/vectorstores/mongodb_atlas)了解如何设置索引。
+MongoDBAtlasSemanticCache 继承自 `MongoDBAtlasVectorSearch`，并且需要定义一个 Atlas 向量搜索索引才能工作。请查看[使用示例](/oss/python/integrations/vectorstores/mongodb_atlas)了解如何设置索引。
 
 导入此缓存：
 

@@ -23,7 +23,7 @@ uv add rank_bm25
 
 ## 检索器
 
-查看[使用示例](/oss/integrations/retrievers/bm25)。
+查看[使用示例](/oss/python/integrations/retrievers/bm25)。
 
 ```python
 from langchain_community.retrievers import BM25Retriever

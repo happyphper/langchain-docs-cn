@@ -4,9 +4,9 @@ title: Azure OpenAI
 
 <Warning>
 
-<strong>您当前正在查阅的是 Azure OpenAI 文本补全模型的使用文档。最新且最受欢迎的 Azure OpenAI 模型是 [聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查阅的是 Azure OpenAI 文本补全模型的使用文档。最新且最受欢迎的 Azure OpenAI 模型是 [聊天补全模型](/oss/python/langchain/models)。</strong>
 
-除非您明确在使用 `gpt-3.5-turbo-instruct`，否则您可能正在寻找 [此页面](/oss/integrations/chat/azure/)。
+除非您明确在使用 `gpt-3.5-turbo-instruct`，否则您可能正在寻找 [此页面](/oss/python/integrations/chat/azure/)。
 
 </Warning>
 

@@ -1,7 +1,7 @@
 ---
 title: 中断
 ---
-中断机制允许您在特定节点暂停图执行，并在继续前等待外部输入。这实现了人机协同模式，即需要外部输入才能继续执行。当中断触发时，LangGraph 会使用其[持久化](/oss/langgraph/persistence)层保存图状态，并无限期等待，直到您恢复执行。
+中断机制允许您在特定节点暂停图执行，并在继续前等待外部输入。这实现了人机协同模式，即需要外部输入才能继续执行。当中断触发时，LangGraph 会使用其[持久化](/oss/python/langgraph/persistence)层保存图状态，并无限期等待，直到您恢复执行。
 
 中断通过在图的节点中任意位置调用 `interrupt()` 函数实现。该函数接受任何可 JSON 序列化的值，该值会返回给调用者。当您准备好继续时，通过使用 `Command` 重新调用图来恢复执行，该值随后会成为节点内部 `interrupt()` 调用的返回值。
 
@@ -790,5 +790,5 @@ graph.invoke(None, config=config)  # [!code highlight]
 
 您可以使用 [LangGraph Studio](/langsmith/studio) 在运行图之前在 UI 中设置静态中断。您还可以使用 UI 在执行过程中的任何点检查图的状态。
 
-![image](/oss/images/static-interrupt.png)
+![image](/oss/python/images/static-interrupt.png)
 

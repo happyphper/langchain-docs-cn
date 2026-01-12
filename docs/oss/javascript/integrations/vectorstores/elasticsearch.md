@@ -11,7 +11,7 @@ title: Elasticsearch
 [Elasticsearch](https://github.com/elastic/elasticsearch) 是一个分布式的、RESTful 风格的搜索引擎，针对生产规模工作负载的速度和相关性进行了优化。它还支持使用 [k-最近邻](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm) (kNN) 算法进行向量搜索，以及[用于自然语言处理的自定义模型](https://www.elastic.co/blog/how-to-deploy-nlp-text-embeddings-and-vector-search) (NLP)。
 你可以在此处[阅读更多关于 Elasticsearch 向量搜索支持的信息](https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html)。
 
-本指南提供了 Elasticsearch [向量存储](/oss/integrations/vectorstores) 的快速入门概述。有关 `ElasticVectorSearch` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_elasticsearch.ElasticVectorSearch.html)。
+本指南提供了 Elasticsearch [向量存储](/oss/javascript/integrations/vectorstores) 的快速入门概述。有关 `ElasticVectorSearch` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_elasticsearch.ElasticVectorSearch.html)。
 
 ## 概述
 
@@ -27,7 +27,7 @@ title: Elasticsearch
 
 LangChain.js 接受 [`@elastic/elasticsearch`](https://github.com/elastic/elasticsearch-js) 作为 Elasticsearch 向量存储的客户端。你需要将其作为对等依赖项安装。
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。如果你愿意，也可以使用[其他支持的嵌入模型](/oss/integrations/text_embedding)。
+本指南还将使用 [OpenAI 嵌入](/oss/javascript/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。如果你愿意，也可以使用[其他支持的嵌入模型](/oss/javascript/integrations/text_embedding)。
 
 ::: code-group
 
@@ -244,7 +244,7 @@ for (const [doc, score] of similaritySearchWithScoreResults) {
 
 ### 转换为检索器进行查询
 
-你也可以将向量存储转换为[检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+你也可以将向量存储转换为[检索器](/oss/javascript/langchain/retrieval)，以便在你的链中更轻松地使用。
 
 ```typescript
 const retriever = vectorStore.asRetriever({
@@ -274,9 +274,9 @@ await retriever.invoke("biology");
 
 有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [智能体 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/javascript/langchain/rag)。
+- [智能体 RAG](/oss/javascript/langgraph/agentic-rag)
+- [检索文档](/oss/javascript/langchain/retrieval)
 
 ---
 

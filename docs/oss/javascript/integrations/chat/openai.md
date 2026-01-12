@@ -3,13 +3,13 @@ title: ChatOpenAI
 ---
 [OpenAI](https://en.wikipedia.org/wiki/OpenAI) 是一个人工智能（AI）研究实验室。
 
-本指南将帮助您开始使用 ChatOpenAI [聊天模型](/oss/langchain/models)。有关 ChatOpenAI 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_openai.ChatOpenAI.html)。
+本指南将帮助您开始使用 ChatOpenAI [聊天模型](/oss/javascript/langchain/models)。有关 ChatOpenAI 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_openai.ChatOpenAI.html)。
 
 <Note>
 
 <strong>Chat Completions API 兼容性</strong>
 
-`ChatOpenAI` 与 OpenAI 的（旧版）[Chat Completions API](https://platform.openai.com/docs/guides/completions) 完全兼容。如果您希望连接到支持 Chat Completions API 的其他模型提供商，也可以实现——请参阅[说明](/oss/integrations/chat#chat-completions-api)。
+`ChatOpenAI` 与 OpenAI 的（旧版）[Chat Completions API](https://platform.openai.com/docs/guides/completions) 完全兼容。如果您希望连接到支持 Chat Completions API 的其他模型提供商，也可以实现——请参阅[说明](/oss/javascript/integrations/chat#chat-completions-api)。
 
 </Note>
 
@@ -33,7 +33,7 @@ title: ChatOpenAI
 
 有关如何使用特定功能的指南，请参阅下表标题中的链接。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [Logprobs](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
 
@@ -158,7 +158,7 @@ await llmWithCustomURL.invoke("Hi there!");
 
 `configuration` 字段也接受官方 SDK 支持的其他 `ClientOptions` 参数。
 
-如果您托管在 Azure OpenAI 上，请参阅[专用页面](/oss/integrations/chat/azure)。
+如果您托管在 Azure OpenAI 上，请参阅[专用页面](/oss/javascript/integrations/chat/azure)。
 
 ## 自定义请求头
 
@@ -525,13 +525,13 @@ await structuredLlm.invoke([{
 
 </Warning>
 
-OpenAI 支持一个 [Responses](https://platform.openai.com/docs/guides/responses-vs-chat-completions) API，该 API 面向构建[智能体](/oss/langchain/agents)应用程序。它包括一套[内置工具](https://platform.openai.com/docs/guides/tools?api-mode=responses)，包括网络和文件搜索。它还支持[对话状态](https://platform.openai.com/docs/guides/conversation-state?api-mode=responses)管理，允许您继续对话线程而无需显式传入先前的消息。
+OpenAI 支持一个 [Responses](https://platform.openai.com/docs/guides/responses-vs-chat-completions) API，该 API 面向构建[智能体](/oss/javascript/langchain/agents)应用程序。它包括一套[内置工具](https://platform.openai.com/docs/guides/tools?api-mode=responses)，包括网络和文件搜索。它还支持[对话状态](https://platform.openai.com/docs/guides/conversation-state?api-mode=responses)管理，允许您继续对话线程而无需显式传入先前的消息。
 
 如果使用了这些功能之一，`ChatOpenAI` 将路由到 Responses API。您也可以在实例化 `ChatOpenAI` 时指定 `useResponsesApi: true`。
 
 ### 内置工具
 
-为 <a href="https://reference.langchain.com/javascript/classes/_langchain_openai.ChatOpenAI.html" target="_blank" rel="noreferrer" class="link"><code>ChatOpenAI</code></a> 配备内置工具将使其响应基于外部信息，例如通过文件中的上下文或网络。[AIMessage](/oss/langchain/messages/#aimessage) 将包含有关内置工具调用的信息。
+为 <a href="https://reference.langchain.com/javascript/classes/_langchain_openai.ChatOpenAI.html" target="_blank" rel="noreferrer" class="link"><code>ChatOpenAI</code></a> 配备内置工具将使其响应基于外部信息，例如通过文件中的上下文或网络。[AIMessage](/oss/javascript/langchain/messages/#aimessage) 将包含有关内置工具调用的信息。
 
 #### 网络搜索
 
@@ -557,7 +557,7 @@ const llm = new ChatOpenAI({ model: "gpt-4o-mini" }).bindTools([
 await llm.invoke("What was a positive news story from today?");
 ```
 
-请注意，响应包含结构化的[内容块](/oss/langchain/messages/#message-content)，其中既包含响应的文本，也包含 OpenAI 的[注释](https://platform.openai.com/docs/guides/tools-web-search?api-mode=responses#output-and-citations)，引用了其来源。输出消息还将包含来自任何工具调用的信息。
+请注意，响应包含结构化的[内容块](/oss/javascript/langchain/messages/#message-content)，其中既包含响应的文本，也包含 OpenAI 的[注释](https://platform.openai.com/docs/guides/tools-web-search?api-mode=responses#output-and-citations)，引用了其来源。输出消息还将包含来自任何工具调用的信息。
 
 #### 文件搜索
 

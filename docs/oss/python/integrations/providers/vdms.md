@@ -45,4 +45,4 @@ from langchain_vdms.vectorstores import VDMS
 from langchain_vdms.vectorstores import VDMS_Client
 ```
 
-有关 VDMS 包装器的更详细指南，请参阅[此指南](/oss/integrations/vectorstores/vdms)。
+有关 VDMS 包装器的更详细指南，请参阅[此指南](/oss/python/integrations/vectorstores/vdms)。

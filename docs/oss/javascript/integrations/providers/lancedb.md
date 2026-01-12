@@ -20,4 +20,4 @@ LanceDB 数据库提供了一个封装器，允许你将其用作向量存储，
 from langchain_community.vectorstores import LanceDB
 ```
 
-有关 LanceDB 封装器的更详细操作指南，请参阅 [此笔记本](/oss/integrations/vectorstores/lancedb)
+有关 LanceDB 封装器的更详细操作指南，请参阅 [此笔记本](/oss/javascript/integrations/vectorstores/lancedb)

@@ -1,7 +1,7 @@
 ---
 title: 子代理
 ---
-在**子智能体**架构中，一个中央主[智能体](/oss/langchain/agents)（通常称为**监督者**）通过将子智能体作为[工具](/oss/langchain/tools)调用来协调它们。主智能体决定调用哪个子智能体、提供什么输入以及如何组合结果。子智能体是无状态的——它们不记得过去的交互，所有对话记忆都由主智能体维护。这提供了[上下文](/oss/langchain/context-engineering)隔离：每个子智能体调用都在一个干净的上下文窗口中工作，防止主对话中的上下文膨胀。
+在**子智能体**架构中，一个中央主[智能体](/oss/javascript/langchain/agents)（通常称为**监督者**）通过将子智能体作为[工具](/oss/javascript/langchain/tools)调用来协调它们。主智能体决定调用哪个子智能体、提供什么输入以及如何组合结果。子智能体是无状态的——它们不记得过去的交互，所有对话记忆都由主智能体维护。这提供了[上下文](/oss/javascript/langchain/context-engineering)隔离：每个子智能体调用都在一个干净的上下文窗口中工作，防止主对话中的上下文膨胀。
 
 ```mermaid
 graph LR
@@ -18,23 +18,23 @@ graph LR
 ## 关键特性
 
 * 集中控制：所有路由都通过主智能体
-* 无直接用户交互：子智能体将结果返回给主智能体，而不是用户（尽管你可以在子智能体内部使用[中断](/oss/langgraph/human-in-the-loop#interrupt)来允许用户交互）
+* 无直接用户交互：子智能体将结果返回给主智能体，而不是用户（尽管你可以在子智能体内部使用[中断](/oss/javascript/langgraph/human-in-the-loop#interrupt)来允许用户交互）
 * 通过工具调用子智能体：子智能体通过工具调用
 * 并行执行：主智能体可以在单次轮次中调用多个子智能体
 
 <Note>
 
-<strong>监督者 vs. 路由器</strong>：监督者智能体（此模式）不同于[路由器](/oss/langchain/multi-agent/router)。监督者是一个完整的智能体，它维护对话上下文并动态决定在多个轮次中调用哪些子智能体。路由器通常是一个单一的分类步骤，它将任务分派给智能体，而不维护持续的对话状态。
+<strong>监督者 vs. 路由器</strong>：监督者智能体（此模式）不同于[路由器](/oss/javascript/langchain/multi-agent/router)。监督者是一个完整的智能体，它维护对话上下文并动态决定在多个轮次中调用哪些子智能体。路由器通常是一个单一的分类步骤，它将任务分派给智能体，而不维护持续的对话状态。
 
 </Note>
 
 ## 何时使用
 
-当你拥有多个不同的领域（例如，日历、电子邮件、CRM、数据库）、子智能体不需要直接与用户对话，或者你想要集中式工作流控制时，请使用子智能体模式。对于只有少数[工具](/oss/langchain/tools)的简单情况，请使用[单一智能体](/oss/langchain/agents)。
+当你拥有多个不同的领域（例如，日历、电子邮件、CRM、数据库）、子智能体不需要直接与用户对话，或者你想要集中式工作流控制时，请使用子智能体模式。对于只有少数[工具](/oss/javascript/langchain/tools)的简单情况，请使用[单一智能体](/oss/javascript/langchain/agents)。
 
 <Tip>
 
-<strong>需要在子智能体内部进行用户交互？</strong> 虽然子智能体通常将结果返回给主智能体，而不是直接与用户对话，但你可以在子智能体内部使用[中断](/oss/langgraph/human-in-the-loop#interrupt)来暂停执行并收集用户输入。当子智能体在继续之前需要澄清或批准时，这很有用。主智能体仍然是协调者，但子智能体可以在任务中途从用户那里收集信息。
+<strong>需要在子智能体内部进行用户交互？</strong> 虽然子智能体通常将结果返回给主智能体，而不是直接与用户对话，但你可以在子智能体内部使用[中断](/oss/javascript/langgraph/human-in-the-loop#interrupt)来暂停执行并收集用户输入。当子智能体在继续之前需要澄清或批准时，这很有用。主智能体仍然是协调者，但子智能体可以在任务中途从用户那里收集信息。
 
 </Tip>
 
@@ -258,7 +258,7 @@ graph LR
 * 单一任务工具：一个参数化的工具，可以通过名称调用任何已注册的子智能体
 * 基于约定的调用：通过名称选择智能体，任务作为人类消息传递，最终消息作为工具结果返回
 * 团队分布：不同的团队可以独立开发和部署智能体
-* 智能体发现：子智能体可以通过系统提示（列出可用智能体）或通过[渐进式披露](/oss/langchain/multi-agent/skills-sql-assistant)（通过工具按需加载智能体信息）来发现
+* 智能体发现：子智能体可以通过系统提示（列出可用智能体）或通过[渐进式披露](/oss/javascript/langchain/multi-agent/skills-sql-assistant)（通过工具按需加载智能体信息）来发现
 
 <Tip>
 
@@ -342,7 +342,7 @@ const mainAgent = createAgent({
 | [**子智能体输入**](#subagent-inputs) | 确保子智能体能够在优化的上下文中良好执行 | 子智能体性能 |
 | [**子智能体输出**](#subagent-outputs) | 确保监督者能够根据子智能体结果采取行动 | 主智能体性能 |
 
-另请参阅我们关于智能体[上下文工程](/oss/langchain/context-engineering)的全面指南。
+另请参阅我们关于智能体[上下文工程](/oss/javascript/langchain/context-engineering)的全面指南。
 
 ### 子智能体规范
 

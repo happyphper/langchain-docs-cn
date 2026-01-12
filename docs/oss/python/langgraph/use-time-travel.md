@@ -8,19 +8,19 @@ sidebarTitle: Time travel
 2. <Icon icon="bug" :size="16" /> **调试错误**：识别错误发生的位置和原因。
 3. <Icon icon="magnifying-glass" :size="16" /> **探索替代方案**：测试不同的路径以发现更好的解决方案。
 
-LangGraph 提供了[时间旅行](/oss/langgraph/use-time-travel)功能来支持这些用例。具体来说，您可以从先前的检查点恢复执行——既可以重放相同的状态，也可以修改它以探索替代方案。在所有情况下，恢复过去的执行都会在历史记录中创建一个新的分支。
+LangGraph 提供了[时间旅行](/oss/python/langgraph/use-time-travel)功能来支持这些用例。具体来说，您可以从先前的检查点恢复执行——既可以重放相同的状态，也可以修改它以探索替代方案。在所有情况下，恢复过去的执行都会在历史记录中创建一个新的分支。
 
-要在 LangGraph 中使用[时间旅行](/oss/langgraph/use-time-travel)：
+要在 LangGraph 中使用[时间旅行](/oss/python/langgraph/use-time-travel)：
 
 1.  [运行图](#1-run-the-graph)：使用 <a href="https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.invoke" target="_blank" rel="noreferrer" class="link"><code>invoke</code></a> 或 <a href="https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.stream" target="_blank" rel="noreferrer" class="link"><code>stream</code></a> 方法，结合初始输入运行图。
 2.  [识别现有线程中的检查点](#2-identify-a-checkpoint)：使用 <a href="https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.get_state_history" target="_blank" rel="noreferrer" class="link"><code>get_state_history</code></a> 方法检索特定 `thread_id` 的执行历史，并定位所需的 `checkpoint_id`。
-或者，在您希望执行暂停的节点之前设置一个[中断](/oss/langgraph/interrupts)。然后，您可以找到该中断之前记录的最新检查点。
+或者，在您希望执行暂停的节点之前设置一个[中断](/oss/python/langgraph/interrupts)。然后，您可以找到该中断之前记录的最新检查点。
 3.  [更新图状态（可选）](#3-update-the-state-optional)：使用 <a href="https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.CompiledStateGraph.update_state" target="_blank" rel="noreferrer" class="link"><code>update_state</code></a> 方法在检查点处修改图的状态，并从替代状态恢复执行。
 4.  [从检查点恢复执行](#4-resume-execution-from-the-checkpoint)：使用 `invoke` 或 `stream` 方法，输入为 `None`，配置中包含适当的 `thread_id` 和 `checkpoint_id`。
 
 <Tip>
 
-有关时间旅行的概念性概述，请参阅[时间旅行](/oss/langgraph/use-time-travel)。
+有关时间旅行的概念性概述，请参阅[时间旅行](/oss/python/langgraph/use-time-travel)。
 
 </Tip>
 

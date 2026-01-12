@@ -1,13 +1,193 @@
 ---
-title: 所有集成
-sidebarTitle: 所有提供商
+title: 所有集成提供商
+sidebarTitle: All providers
+mode: wide
 ---
+浏览适用于 Python 的完整集成集合。LangChain Python 提供了最广泛的生态系统，拥有 1000 多个集成，涵盖 LLM、聊天模型、检索器、向量存储、文档加载器等。
 
-浏览适用于 JavaScript/TypeScript 的完整集成集合。LangChain.js 提供了涵盖提供商、工具、向量存储、文档加载器等领域的数百个集成。
-
-## 主要提供商 (Top providers)
+## 提供商
 
 <Columns :cols="3">
+
+<Card
+title="Abso"
+href="/oss/integrations/providers/abso"
+icon="link"
+>
+
+面向企业工作流的自定义 AI 集成平台。
+
+</Card>
+
+<Card
+title="Acreom"
+href="/oss/integrations/providers/acreom"
+icon="link"
+>
+
+具备 AI 驱动组织的知识管理平台。
+
+</Card>
+
+<Card
+title="ActiveLoop DeepLake"
+href="/oss/integrations/providers/activeloop_deeplake"
+icon="link"
+>
+
+专注于深度学习的 AI 应用向量数据库。
+
+</Card>
+
+<Card
+title="Ads4GPTs"
+href="/oss/integrations/providers/ads4gpts"
+icon="link"
+>
+
+面向 GPT 应用和 AI 服务的广告平台。
+
+</Card>
+
+<Card
+title="AG-UI Protocol"
+href="https://docs.ag-ui.com/getting-started/quickstart-langgraph-python"
+icon="link"
+>
+
+用于将 LangGraph 智能体连接到任何前端的开放式基于事件的协议。
+
+</Card>
+
+<Card
+title="AgentQL"
+href="/oss/integrations/providers/agentql"
+icon="link"
+>
+
+使用自然语言查询进行网络爬取。
+
+</Card>
+
+<Card
+title="AI21"
+href="/oss/integrations/providers/ai21"
+icon="link"
+>
+
+AI21 Labs 用于文本生成的 Jurassic 模型。
+
+</Card>
+
+<Card
+title="AIM Tracking"
+href="/oss/integrations/providers/aim_tracking"
+icon="link"
+>
+
+实验跟踪与管理平台。
+
+</Card>
+
+<Card
+title="AI/ML API"
+href="/oss/integrations/providers/aimlapi"
+icon="link"
+>
+
+面向多个 AI 和 ML 服务的统一 API。
+
+</Card>
+
+<Card
+title="AI Network"
+href="/oss/integrations/providers/ainetwork"
+icon="link"
+>
+
+去中心化 AI 计算网络平台。
+
+</Card>
+
+<Card
+title="Airbyte"
+href="/oss/integrations/providers/airbyte"
+icon="link"
+>
+
+用于 ETL 和 ELT 管道的数据集成平台。
+
+</Card>
+
+<Card
+title="Airtable"
+href="/oss/integrations/providers/airtable"
+icon="link"
+>
+
+基于云端的电子表格和数据库平台。
+
+</Card>
+
+<Card
+title="Alchemy"
+href="/oss/integrations/providers/alchemy"
+icon="link"
+>
+
+区块链开发平台和 API。
+
+</Card>
+
+<Card
+title="Aleph Alpha"
+href="/oss/integrations/providers/aleph_alpha"
+icon="link"
+>
+
+欧洲 AI 公司的多语言模型。
+
+</Card>
+
+<Card
+title="Alibaba Cloud"
+href="/oss/integrations/providers/alibaba_cloud"
+icon="link"
+>
+
+阿里巴巴的云计算和 AI 服务。
+
+</Card>
+
+<Card
+title="AnalyticDB"
+href="/oss/integrations/providers/analyticdb"
+icon="link"
+>
+
+阿里云实时分析数据库。
+
+</Card>
+
+<Card
+title="Anchor Browser"
+href="/oss/integrations/providers/anchor_browser"
+icon="link"
+>
+
+浏览器自动化和网络爬取工具。
+
+</Card>
+
+<Card
+title="Annoy"
+href="/oss/integrations/providers/annoy"
+icon="link"
+>
+
+近似最近邻搜索库。
+
+</Card>
 
 <Card
 title="Anthropic"
@@ -15,7 +195,197 @@ href="/oss/integrations/providers/anthropic"
 icon="anthropic"
 >
 
-集成 Anthropic 的 Claude 模型，用于高级推理和对话。
+用于高级推理和对话的 Claude 模型。
+
+</Card>
+
+<Card
+title="Anyscale"
+href="/oss/integrations/providers/anyscale"
+icon="link"
+>
+
+面向 ML 工作负载的分布式计算平台。
+
+</Card>
+
+<Card
+title="Apache Doris"
+href="/oss/integrations/providers/apache_doris"
+icon="link"
+>
+
+实时分析数据库管理系统。
+
+</Card>
+
+<Card
+title="Apache"
+href="/oss/integrations/providers/apache"
+icon="link"
+>
+
+Apache 软件基金会工具和库。
+
+</Card>
+
+<Card
+title="Apify"
+href="/oss/integrations/providers/apify"
+icon="link"
+>
+
+网络爬取和自动化平台。
+
+</Card>
+
+<Card
+title="Apple"
+href="/oss/integrations/providers/apple"
+icon="link"
+>
+
+苹果的机器学习和 AI 框架。
+
+</Card>
+
+<Card
+title="ArangoDB"
+href="/oss/integrations/providers/arangodb"
+icon="link"
+>
+
+具备图功能的多模型数据库。
+
+</Card>
+
+<Card
+title="Arcee"
+href="/oss/integrations/providers/arcee"
+icon="link"
+>
+
+领域特定语言模型训练平台。
+
+</Card>
+
+<Card
+title="ArcGIS"
+href="/oss/integrations/providers/arcgis"
+icon="link"
+>
+
+地理信息系统平台。
+
+</Card>
+
+<Card
+title="Argilla"
+href="/oss/integrations/providers/argilla"
+icon="link"
+>
+
+面向 NLP 的数据标注和注释平台。
+
+</Card>
+
+<Card
+title="Arize"
+href="/oss/integrations/providers/arize"
+icon="link"
+>
+
+ML 可观测性和性能监控。
+
+</Card>
+
+<Card
+title="Arthur Tracking"
+href="/oss/integrations/providers/arthur_tracking"
+icon="link"
+>
+
+AI 模型监控与治理平台。
+
+</Card>
+
+<Card
+title="arXiv"
+href="/oss/integrations/providers/arxiv"
+icon="link"
+>
+
+学术论文存储库和搜索平台。
+
+</Card>
+
+<Card
+title="Ascend"
+href="/oss/integrations/providers/ascend"
+icon="link"
+>
+
+数据工程和管道自动化平台。
+
+</Card>
+
+<Card
+title="Ask News"
+href="/oss/integrations/providers/asknews"
+icon="link"
+>
+
+实时新闻搜索与分析 API。
+
+</Card>
+
+<Card
+title="AssemblyAI"
+href="/oss/integrations/providers/assemblyai"
+icon="link"
+>
+
+语音转文本和音频智能 API。
+
+</Card>
+
+<Card
+title="assistant-ui"
+icon="file-code"
+href="https://www.assistant-ui.com/docs/runtimes/langgraph"
+>
+
+用于构建 AI 聊天界面的 React 框架，支持流式处理和 LangGraph 集成。
+
+</Card>
+
+<Card
+title="AstraDB"
+href="/oss/integrations/providers/astradb"
+icon="link"
+>
+
+DataStax Astra DB 向量数据库平台。
+
+</Card>
+
+<Card
+title="Atlas"
+href="/oss/integrations/providers/atlas"
+icon="link"
+>
+
+数据可视化和探索平台。
+
+</Card>
+
+<Card
+title="AwaDB"
+href="/oss/integrations/providers/awadb"
+icon="link"
+>
+
+面向 AI 和 ML 应用的向量数据库。
 
 </Card>
 
@@ -25,7 +395,1117 @@ href="/oss/integrations/providers/aws"
 icon="aws"
 >
 
-通过全面的集成访问 AWS 服务和基础模型。
+亚马逊云服务云平台和 AI 服务。
+
+</Card>
+
+<Card
+title="AZLyrics"
+href="/oss/integrations/providers/azlyrics"
+icon="link"
+>
+
+歌词数据库和搜索平台。
+
+</Card>
+
+<Card
+title="Azure AI"
+href="/oss/integrations/providers/azure_ai"
+icon="microsoft"
+>
+
+微软 Azure AI 和认知服务。
+
+</Card>
+
+<Card
+title="BAAI"
+href="/oss/integrations/providers/baai"
+icon="link"
+>
+
+北京智源人工智能研究院的研究和模型。
+
+</Card>
+
+<Card
+title="Bagel"
+href="/oss/integrations/providers/bagel"
+icon="link"
+>
+
+向量数据库和语义搜索平台。
+
+</Card>
+
+<Card
+title="BagelDB"
+href="/oss/integrations/providers/bageldb"
+icon="link"
+>
+
+多模态 AI 数据库和存储系统。
+
+</Card>
+
+<Card
+title="Baichuan"
+href="/oss/integrations/providers/baichuan"
+icon="link"
+>
+
+百川智能的中文语言模型。
+
+</Card>
+
+<Card
+title="Baidu"
+href="/oss/integrations/providers/baidu"
+icon="link"
+>
+
+百度的 AI 服务和语言模型。
+
+</Card>
+
+<Card
+title="BananaDev"
+href="/oss/integrations/providers/bananadev"
+icon="link"
+>
+
+面向 ML 模型的无服务器 GPU 基础设施。
+
+</Card>
+
+<Card
+title="Baseten"
+href="/oss/integrations/providers/baseten"
+icon="link"
+>
+
+ML 模型部署和服务平台。
+
+</Card>
+
+<Card
+title="Beam"
+href="/oss/integrations/providers/beam"
+icon="link"
+>
+
+无服务器 GPU 计算平台。
+
+</Card>
+
+<Card
+title="Beautiful Soup"
+href="/oss/integrations/providers/beautiful_soup"
+icon="link"
+>
+
+用于网络爬取的 HTML 和 XML 解析库。
+
+</Card>
+
+<Card
+title="BibTeX"
+href="/oss/integrations/providers/bibtex"
+icon="link"
+>
+
+参考文献管理和引用格式。
+
+</Card>
+
+<Card
+title="Bilibili"
+href="/oss/integrations/providers/bilibili"
+icon="link"
+>
+
+中国视频分享平台集成。
+
+</Card>
+
+<Card
+title="Bittensor"
+href="/oss/integrations/providers/bittensor"
+icon="link"
+>
+
+去中心化 AI 网络和激励协议。
+
+</Card>
+
+<Card
+title="Blackboard"
+href="/oss/integrations/providers/blackboard"
+icon="link"
+>
+
+教育技术和学习管理。
+
+</Card>
+
+<Card
+title="Bodo DataFrames"
+href="/oss/integrations/providers/bodo"
+icon="link"
+>
+
+高性能分析和数据处理。
+
+</Card>
+
+<Card
+title="BookendAI"
+href="/oss/integrations/providers/bookendai"
+icon="link"
+>
+
+AI 驱动的阅读和研究助手。
+
+</Card>
+
+<Card
+title="Box"
+href="/oss/integrations/providers/box"
+icon="link"
+>
+
+云端内容管理和协作。
+
+</Card>
+
+<Card
+title="Brave Search"
+href="/oss/integrations/providers/brave_search"
+icon="link"
+>
+
+注重隐私的搜索引擎 API。
+
+</Card>
+
+<Card
+title="Breebs"
+href="/oss/integrations/providers/breebs"
+icon="link"
+>
+
+AI 知识管理和检索平台。
+
+</Card>
+
+<Card
+title="Brightdata"
+href="/oss/integrations/providers/brightdata"
+icon="link"
+>
+
+网络数据平台和代理服务。
+
+</Card>
+
+<Card
+title="Browserbase"
+href="/oss/integrations/providers/browserbase"
+icon="link"
+>
+
+无头浏览器自动化平台。
+
+</Card>
+
+<Card
+title="Browserless"
+href="/oss/integrations/providers/browserless"
+icon="link"
+>
+
+无服务器浏览器自动化服务。
+
+</Card>
+
+<Card
+title="ByteDance"
+href="/oss/integrations/providers/byte_dance"
+icon="link"
+>
+
+字节跳动的 AI 模型和服务。
+
+</Card>
+
+<Card
+title="Cassandra"
+href="/oss/integrations/providers/cassandra"
+icon="link"
+>
+
+分布式 NoSQL 数据库管理系统。
+
+</Card>
+
+<Card
+title="Cerebras"
+href="/oss/integrations/providers/cerebras"
+icon="link"
+>
+
+配备专用处理器的 AI 计算平台。
+
+</Card>
+
+<Card
+title="CerebriumAI"
+href="/oss/integrations/providers/cerebriumai"
+icon="link"
+>
+
+面向 AI 应用的无服务器 GPU 平台。
+
+</Card>
+
+<Card
+title="Chaindesk"
+href="/oss/integrations/providers/chaindesk"
+icon="link"
+>
+
+无代码 AI 聊天机器人和自动化平台。
+
+</Card>
+
+<Card
+title="Chroma"
+href="/oss/integrations/providers/chroma"
+icon="link"
+>
+
+面向 AI 应用的开源嵌入数据库。
+
+</Card>
+
+<Card
+title="Clarifai"
+href="/oss/integrations/providers/clarifai"
+icon="link"
+>
+
+计算机视觉和 AI 模型平台。
+
+</Card>
+
+<Card
+title="ClearML Tracking"
+href="/oss/integrations/providers/clearml_tracking"
+icon="link"
+>
+
+ML 实验跟踪和自动化。
+
+</Card>
+
+<Card
+title="CopilotKit"
+href="https://docs.copilotkit.ai/langgraph/"
+icon="link"
+>
+
+具备预构建 UI 组件的 React 框架，用于 AI 副驾驶。
+
+</Card>
+
+<Card
+title="ClickHouse"
+href="/oss/integrations/providers/clickhouse"
+icon="link"
+>
+
+用于分析的快速列式数据库。
+
+</Card>
+
+<Card
+title="ClickUp"
+href="/oss/integrations/providers/clickup"
+icon="link"
+>
+
+项目管理和生产力平台。
+
+</Card>
+
+<Card
+title="Cloudflare"
+href="/oss/integrations/providers/cloudflare"
+icon="link"
+>
+
+网络基础设施和安全服务。
+
+</Card>
+
+<Card
+title="Clova"
+href="/oss/integrations/providers/clova"
+icon="link"
+>
+
+Naver 的 AI 助手和 NLP 平台。
+
+</Card>
+
+<Card
+title="CnosDB"
+href="/oss/integrations/providers/cnosdb"
+icon="link"
+>
+
+面向物联网和分析的时间序列数据库。
+
+</Card>
+
+<Card
+title="Cognee"
+href="/oss/integrations/providers/cognee"
+icon="link"
+>
+
+面向 AI 应用和智能体的记忆层。
+
+</Card>
+
+<Card
+title="CogniSwitch"
+href="/oss/integrations/providers/cogniswitch"
+icon="link"
+>
+
+AI 知识管理和检索系统。
+
+</Card>
+
+<Card
+title="Cohere"
+href="/oss/integrations/providers/cohere"
+icon="link"
+>
+
+面向企业应用的语言 AI 平台。
+
+</Card>
+
+<Card
+title="College Confidential"
+href="/oss/integrations/providers/college_confidential"
+icon="link"
+>
+
+大学招生和教育平台。
+
+</Card>
+
+<Card
+title="Comet Tracking"
+href="/oss/integrations/providers/comet_tracking"
+icon="link"
+>
+
+ML 实验跟踪和模型管理。
+
+</Card>
+
+<Card
+title="Confident"
+href="/oss/integrations/providers/confident"
+icon="link"
+>
+
+AI 可观测性与监控平台。
+
+</Card>
+
+<Card
+title="Confluence"
+href="/oss/integrations/providers/confluence"
+icon="link"
+>
+
+团队协作与文档平台。
+
+</Card>
+
+<Card
+title="Connery"
+href="/oss/integrations/providers/connery"
+icon="link"
+>
+
+面向 AI 智能体和应用的插件系统。
+
+</Card>
+
+<Card
+title="Context"
+href="/oss/integrations/providers/context"
+icon="link"
+>
+
+面向 AI 应用的上下文管理。
+
+</Card>
+
+<Card
+title="Contextual"
+href="/oss/integrations/providers/contextual"
+icon="link"
+>
+
+上下文 AI 与语言理解。
+
+</Card>
+
+<Card
+title="Couchbase"
+href="/oss/integrations/providers/couchbase"
+icon="link"
+>
+
+NoSQL 云数据库平台。
+
+</Card>
+
+<Card
+title="Coze"
+href="/oss/integrations/providers/coze"
+icon="link"
+>
+
+对话式 AI 平台与聊天机器人构建器。
+
+</Card>
+
+<Card
+title="CrateDB"
+href="/oss/integrations/providers/cratedb"
+icon="link"
+>
+
+面向机器数据的分布式 SQL 数据库。
+
+</Card>
+
+<Card
+title="CTransformers"
+href="/oss/integrations/providers/ctransformers"
+icon="link"
+>
+
+用于 C/C++ 中 Transformer 模型的 Python 绑定。
+
+</Card>
+
+<Card
+title="CTranslate2"
+href="/oss/integrations/providers/ctranslate2"
+icon="link"
+>
+
+用于 Transformer 模型的快速推理引擎。
+
+</Card>
+
+<Card
+title="Cube"
+href="/oss/integrations/providers/cube"
+icon="link"
+>
+
+用于构建数据应用的语义层。
+
+</Card>
+
+<Card
+title="Dappier"
+href="/oss/integrations/providers/dappier"
+icon="link"
+>
+
+实时 AI 数据平台与 API。
+
+</Card>
+
+<Card
+title="DashVector"
+href="/oss/integrations/providers/dashvector"
+icon="link"
+>
+
+阿里云向量数据库服务。
+
+</Card>
+
+<Card
+title="Databricks"
+href="/oss/integrations/providers/databricks"
+icon="link"
+>
+
+面向大数据与机器学习的统一分析平台。
+
+</Card>
+
+<Card
+title="Datadog"
+href="/oss/integrations/providers/datadog"
+icon="link"
+>
+
+面向应用的监控与分析平台。
+
+</Card>
+
+<Card
+title="Datadog Logs"
+href="/oss/integrations/providers/datadog_logs"
+icon="link"
+>
+
+日志管理与分析平台。
+
+</Card>
+
+<Card
+title="DataForSEO"
+href="/oss/integrations/providers/dataforseo"
+icon="link"
+>
+
+SEO 与 SERP 数据 API 平台。
+
+</Card>
+
+<Card
+title="DataHerald"
+href="/oss/integrations/providers/dataherald"
+icon="link"
+>
+
+自然语言转 SQL 查询平台。
+
+</Card>
+
+<Card
+title="Daytona"
+href="/oss/integrations/providers/daytona"
+icon="link"
+>
+
+用于运行 AI 生成代码的安全弹性基础设施。
+
+</Card>
+
+<Card
+title="Dedoc"
+href="/oss/integrations/providers/dedoc"
+icon="link"
+>
+
+文档分析与结构检测。
+
+</Card>
+
+<Card
+title="DeepInfra"
+href="/oss/integrations/providers/deepinfra"
+icon="link"
+>
+
+深度学习模型的无服务器推理。
+
+</Card>
+
+<Card
+title="DeepLake"
+href="/oss/integrations/providers/deeplake"
+icon="link"
+>
+
+面向深度学习应用的向量数据库。
+
+</Card>
+
+<Card
+title="DeepSeek"
+href="/oss/integrations/providers/deepseek"
+icon="link"
+>
+
+高级推理与编码 AI 模型。
+
+</Card>
+
+<Card
+title="DeepSparse"
+href="/oss/integrations/providers/deepsparse"
+icon="link"
+>
+
+稀疏神经网络的推理运行时。
+
+</Card>
+
+<Card
+title="Dell"
+href="/oss/integrations/providers/dell"
+icon="link"
+>
+
+戴尔科技 AI 与计算解决方案。
+
+</Card>
+
+<Card
+title="Diffbot"
+href="/oss/integrations/providers/diffbot"
+icon="link"
+>
+
+网络数据提取与知识图谱。
+
+</Card>
+
+<Card
+title="Dingo"
+href="/oss/integrations/providers/dingo"
+icon="link"
+>
+
+分布式向量数据库系统。
+
+</Card>
+
+<Card
+title="Discord"
+href="/oss/integrations/providers/discord"
+icon="link"
+>
+
+通信平台集成与机器人。
+
+</Card>
+
+<Card
+title="Discord Shikenso"
+href="/oss/integrations/providers/discord-shikenso"
+icon="link"
+>
+
+Discord 分析与审核工具。
+
+</Card>
+
+<Card
+title="DocArray"
+href="/oss/integrations/providers/docarray"
+icon="link"
+>
+
+面向多模态 AI 应用的数据结构。
+
+</Card>
+
+<Card
+title="Docling"
+href="/oss/integrations/providers/docling"
+icon="link"
+>
+
+文档处理与 AI 集成。
+
+</Card>
+
+<Card
+title="Doctran"
+href="/oss/integrations/providers/doctran"
+icon="link"
+>
+
+文档转换与处理。
+
+</Card>
+
+<Card
+title="Docugami"
+href="/oss/integrations/providers/docugami"
+icon="link"
+>
+
+文档 AI 与语义处理。
+
+</Card>
+
+<Card
+title="Docusaurus"
+href="/oss/integrations/providers/docusaurus"
+icon="link"
+>
+
+文档网站生成器与平台。
+
+</Card>
+
+<Card
+title="Dria"
+href="/oss/integrations/providers/dria"
+icon="link"
+>
+
+去中心化知识检索网络。
+
+</Card>
+
+<Card
+title="Dropbox"
+href="/oss/integrations/providers/dropbox"
+icon="link"
+>
+
+云存储与文件共享平台。
+
+</Card>
+
+<Card
+title="DuckDB"
+href="/oss/integrations/providers/duckdb"
+icon="link"
+>
+
+进程内 SQL OLAP 数据库管理系统。
+
+</Card>
+
+<Card
+title="DuckDuckGo Search"
+href="/oss/integrations/providers/duckduckgo_search"
+icon="link"
+>
+
+注重隐私的搜索引擎集成。
+
+</Card>
+
+<Card
+title="E2B"
+href="/oss/integrations/providers/e2b"
+icon="link"
+>
+
+云开发环境平台。
+
+</Card>
+
+<Card
+title="EdenAI"
+href="/oss/integrations/providers/edenai"
+icon="link"
+>
+
+统一的多 AI 服务 API。
+
+</Card>
+
+<Card
+title="Elasticsearch"
+href="/oss/integrations/providers/elasticsearch"
+icon="link"
+>
+
+分布式搜索与分析引擎。
+
+</Card>
+
+<Card
+title="ElevenLabs"
+href="/oss/integrations/providers/elevenlabs"
+icon="link"
+>
+
+AI 语音合成与语音平台。
+
+</Card>
+
+<Card
+title="EmbedChain"
+href="/oss/integrations/providers/embedchain"
+icon="link"
+>
+
+用于创建 RAG 应用的框架。
+
+</Card>
+
+<Card
+title="Epsilla"
+href="/oss/integrations/providers/epsilla"
+icon="link"
+>
+
+面向 AI 与 ML 应用的向量数据库。
+
+</Card>
+
+<Card
+title="Etherscan"
+href="/oss/integrations/providers/etherscan"
+icon="link"
+>
+
+以太坊区块链浏览器与分析。
+
+</Card>
+
+<Card
+title="EverlyAI"
+href="/oss/integrations/providers/everlyai"
+icon="link"
+>
+
+无服务器 AI 推理平台。
+
+</Card>
+
+<Card
+title="Evernote"
+href="/oss/integrations/providers/evernote"
+icon="link"
+>
+
+笔记记录与组织平台。
+
+</Card>
+
+<Card
+title="Exa Search"
+href="/oss/integrations/providers/exa_search"
+icon="link"
+>
+
+面向开发者的 AI 驱动搜索引擎。
+
+</Card>
+
+<Card
+title="Facebook"
+href="/oss/integrations/providers/facebook"
+icon="link"
+>
+
+Meta 社交平台集成与 API。
+
+</Card>
+
+<Card
+title="FalkorDB"
+href="/oss/integrations/providers/falkordb"
+icon="link"
+>
+
+超低延迟图数据库。
+
+</Card>
+
+<Card
+title="Fauna"
+href="/oss/integrations/providers/fauna"
+icon="link"
+>
+
+无服务器、全球分布式数据库。
+
+</Card>
+
+<Card
+title="Featherless AI"
+href="/oss/integrations/providers/featherless-ai"
+icon="link"
+>
+
+快速高效的 AI 模型服务。
+
+</Card>
+
+<Card
+title="Fiddler"
+href="/oss/integrations/providers/fiddler"
+icon="link"
+>
+
+AI 可观测性与监控平台。
+
+</Card>
+
+<Card
+title="Figma"
+href="/oss/integrations/providers/figma"
+icon="link"
+>
+
+设计协作与原型制作平台。
+
+</Card>
+
+<Card
+title="FireCrawl"
+href="/oss/integrations/providers/firecrawl"
+icon="link"
+>
+
+网络爬取与抓取 API 服务。
+
+</Card>
+
+<Card
+title="Fireworks"
+href="/oss/integrations/providers/fireworks"
+icon="link"
+>
+
+开源模型的快速推理平台。
+
+</Card>
+
+<Card
+title="Flyte"
+href="/oss/integrations/providers/flyte"
+icon="link"
+>
+
+面向 ML 与数据处理的流程编排。
+
+</Card>
+
+<Card
+title="FMP Data"
+href="/oss/integrations/providers/fmp-data"
+icon="link"
+>
+
+金融市场数据与分析 API。
+
+</Card>
+
+<Card
+title="ForefrontAI"
+href="/oss/integrations/providers/forefrontai"
+icon="link"
+>
+
+语言模型微调平台。
+
+</Card>
+
+<Card
+title="Friendli"
+href="/oss/integrations/providers/friendli"
+icon="link"
+>
+
+AI 模型优化服务引擎。
+
+</Card>
+
+<Card
+title="Galaxia"
+href="/oss/integrations/providers/galaxia"
+icon="link"
+>
+
+提示驱动的工程助手。
+
+</Card>
+
+<Card
+title="Gel"
+href="/oss/integrations/providers/gel"
+icon="link"
+>
+
+知识提取与 NLP 平台。
+
+</Card>
+
+<Card
+title="GeoPandas"
+href="/oss/integrations/providers/geopandas"
+icon="link"
+>
+
+使用 Python 进行地理数据分析。
+
+</Card>
+
+<Card
+title="Git"
+href="/oss/integrations/providers/git"
+icon="link"
+>
+
+版本控制系统集成。
+
+</Card>
+
+<Card
+title="GitBook"
+href="/oss/integrations/providers/gitbook"
+icon="link"
+>
+
+文档平台与知识库。
+
+</Card>
+
+<Card
+title="GitHub"
+href="/oss/integrations/providers/github"
+icon="link"
+>
+
+代码托管与协作平台。
+
+</Card>
+
+<Card
+title="GitLab"
+href="/oss/integrations/providers/gitlab"
+icon="link"
+>
+
+DevOps 平台与代码仓库。
+
+</Card>
+
+<Card
+title="GOAT"
+href="/oss/integrations/providers/goat"
+icon="link"
+>
+
+AI 智能体的工具使用框架。
+
+</Card>
+
+<Card
+title="Golden"
+href="/oss/integrations/providers/golden"
+icon="link"
+>
+
+知识图谱与数据平台。
 
 </Card>
 
@@ -35,7 +1515,677 @@ href="/oss/integrations/providers/google"
 icon="google"
 >
 
-集成 Google 的 AI 服务，包括 Gemini 和 Vertex AI。
+谷歌 AI 服务与云平台。
+
+</Card>
+
+<Card
+title="Google Serper"
+href="/oss/integrations/providers/google_serper"
+icon="google"
+>
+
+谷歌搜索 API 服务。
+
+</Card>
+
+<Card
+title="GooseAI"
+href="/oss/integrations/providers/gooseai"
+icon="link"
+>
+
+全托管 NLP 即服务平台。
+
+</Card>
+
+<Card
+title="GPT4All"
+href="/oss/integrations/providers/gpt4all"
+icon="link"
+>
+
+面向本地部署的开源 LLM 生态系统。
+
+</Card>
+
+<Card
+title="Gradient"
+href="/oss/integrations/providers/gradient"
+icon="link"
+>
+
+AI 模型训练与部署平台。
+
+</Card>
+
+<Card
+title="DigitalOcean Gradient AI Platform"
+href="/oss/integrations/providers/gradientai"
+icon="link"
+>
+
+通过无服务器推理连接多个 LLM 的单一端点。
+
+</Card>
+
+<Card
+title="Graph RAG"
+href="/oss/integrations/providers/graph_rag"
+icon="link"
+>
+
+基于图的检索增强生成。
+
+</Card>
+
+<Card
+title="GraphSignal"
+href="/oss/integrations/providers/graphsignal"
+icon="link"
+>
+
+AI 可观测性与监控平台。
+
+</Card>
+
+<Card
+title="GreenNode"
+href="/oss/integrations/providers/greennode"
+icon="link"
+>
+
+可持续 AI 计算平台。
+
+</Card>
+
+<Card
+title="GROBID"
+href="/oss/integrations/providers/grobid"
+icon="link"
+>
+
+面向书目数据的机器学习库。
+
+</Card>
+
+<Card
+title="Groq"
+href="/oss/integrations/providers/groq"
+icon="link"
+>
+
+基于专用硬件的超快速推理。
+
+</Card>
+
+<Card
+title="Gutenberg"
+href="/oss/integrations/providers/gutenberg"
+icon="link"
+>
+
+古登堡数字图书馆访问。
+
+</Card>
+
+<Card
+title="Hacker News"
+href="/oss/integrations/providers/hacker_news"
+icon="link"
+>
+
+科技新闻与讨论平台。
+
+</Card>
+
+<Card
+title="Hazy Research"
+href="/oss/integrations/providers/hazy_research"
+icon="link"
+>
+
+机器学习研究与工具。
+
+</Card>
+
+<Card
+title="Helicone"
+href="/oss/integrations/providers/helicone"
+icon="link"
+>
+
+LLM 可观测性与监控平台。
+
+</Card>
+
+<Card
+title="Hologres"
+href="/oss/integrations/providers/hologres"
+icon="link"
+>
+
+实时交互式分析服务。
+
+</Card>
+
+<Card
+title="HTML2Text"
+href="/oss/integrations/providers/html2text"
+icon="link"
+>
+
+HTML 转纯文本转换工具。
+
+</Card>
+
+<Card
+title="Huawei"
+href="/oss/integrations/providers/huawei"
+icon="link"
+>
+
+华为云 AI 服务和模型。
+
+</Card>
+
+<Card
+title="Hugging Face"
+href="/oss/integrations/providers/huggingface"
+icon="link"
+>
+
+机器学习模型和数据集开放平台。
+
+</Card>
+
+<Card
+title="HyperBrowser"
+href="/oss/integrations/providers/hyperbrowser"
+icon="link"
+>
+
+网络自动化和抓取平台。
+
+</Card>
+
+<Card
+title="IBM"
+href="/oss/integrations/providers/ibm"
+icon="link"
+>
+
+IBM Watson AI 和企业解决方案。
+
+</Card>
+
+<Card
+title="IEIT Systems"
+href="/oss/integrations/providers/ieit_systems"
+icon="link"
+>
+
+企业 AI 和系统集成。
+
+</Card>
+
+<Card
+title="iFixit"
+href="/oss/integrations/providers/ifixit"
+icon="link"
+>
+
+维修指南和技术文档。
+
+</Card>
+
+<Card
+title="iFlytek"
+href="/oss/integrations/providers/iflytek"
+icon="link"
+>
+
+中文语音和语言 AI 平台。
+
+</Card>
+
+<Card
+title="IMSDb"
+href="/oss/integrations/providers/imsdb"
+icon="link"
+>
+
+互联网电影剧本数据库访问。
+
+</Card>
+
+<Card
+title="InfinispanVS"
+href="/oss/integrations/providers/infinispanvs"
+icon="link"
+>
+
+分布式缓存和数据网格平台。
+
+</Card>
+
+<Card
+title="Infinity"
+href="/oss/integrations/providers/infinity"
+icon="link"
+>
+
+高性能嵌入推理服务器。
+
+</Card>
+
+<Card
+title="Infino"
+href="/oss/integrations/providers/infino"
+icon="link"
+>
+
+可观测性和监控平台。
+
+</Card>
+
+<Card
+title="Intel"
+href="/oss/integrations/providers/intel"
+icon="link"
+>
+
+英特尔 AI 优化工具和库。
+
+</Card>
+
+<Card
+title="Isaacus"
+href="/oss/integrations/providers/isaacus"
+icon="link"
+>
+
+法律 AI 模型、应用和数据。
+
+</Card>
+
+<Card
+title="IUGU"
+href="/oss/integrations/providers/iugu"
+icon="link"
+>
+
+巴西支付处理平台。
+
+</Card>
+
+<Card
+title="Jaguar"
+href="/oss/integrations/providers/jaguar"
+icon="link"
+>
+
+向量数据库和搜索平台。
+
+</Card>
+
+<Card
+title="Javelin AI Gateway"
+href="/oss/integrations/providers/javelin_ai_gateway"
+icon="link"
+>
+
+AI 模型网关和管理平台。
+
+</Card>
+
+<Card
+title="Jenkins"
+href="/oss/integrations/providers/jenkins"
+icon="link"
+>
+
+自动化服务器和 CI/CD 平台。
+
+</Card>
+
+<Card
+title="Jina"
+href="/oss/integrations/providers/jina"
+icon="link"
+>
+
+神经搜索框架和云平台。
+
+</Card>
+
+<Card
+title="John Snow Labs"
+href="/oss/integrations/providers/johnsnowlabs"
+icon="link"
+>
+
+企业 NLP 和医疗保健 AI 平台。
+
+</Card>
+
+<Card
+title="Joplin"
+href="/oss/integrations/providers/joplin"
+icon="link"
+>
+
+开源笔记记录和组织工具。
+
+</Card>
+
+<Card
+title="KDB.AI"
+href="/oss/integrations/providers/kdbai"
+icon="link"
+>
+
+时序向量数据库平台。
+
+</Card>
+
+<Card
+title="Kinetica"
+href="/oss/integrations/providers/kinetica"
+icon="link"
+>
+
+实时分析和数据库平台。
+
+</Card>
+
+<Card
+title="KoboldAI"
+href="/oss/integrations/providers/koboldai"
+icon="link"
+>
+
+基于浏览器的 AI 写作助手。
+
+</Card>
+
+<Card
+title="Konko"
+href="/oss/integrations/providers/konko"
+icon="link"
+>
+
+生成式 AI 平台和模型托管。
+
+</Card>
+
+<Card
+title="KoNLPy"
+href="/oss/integrations/providers/konlpy"
+icon="link"
+>
+
+韩语自然语言处理工具包。
+
+</Card>
+
+<Card
+title="Kuzu"
+href="/oss/integrations/providers/kuzu"
+icon="link"
+>
+
+嵌入式图数据库管理系统。
+
+</Card>
+
+<Card
+title="Label Studio"
+href="/oss/integrations/providers/labelstudio"
+icon="link"
+>
+
+数据标注和注释平台。
+
+</Card>
+
+<Card
+title="LakeFS"
+href="/oss/integrations/providers/lakefs"
+icon="link"
+>
+
+面向数据湖的类 Git 版本控制。
+
+</Card>
+
+<Card
+title="LanceDB"
+href="/oss/integrations/providers/lancedb"
+icon="link"
+>
+
+开发者友好的嵌入式向量数据库。
+
+</Card>
+
+<Card
+title="LangChain Decorators"
+href="/oss/integrations/providers/langchain_decorators"
+icon="link"
+>
+
+用于 LangChain 的语法糖和实用工具。
+
+</Card>
+
+<Card
+title="LangFair"
+href="/oss/integrations/providers/langfair"
+icon="link"
+>
+
+语言模型偏见测试框架。
+
+</Card>
+
+<Card
+title="LangFuse"
+href="/oss/integrations/providers/langfuse"
+icon="link"
+>
+
+LLM 工程平台和可观测性。
+
+</Card>
+
+<Card
+title="Lantern"
+href="/oss/integrations/providers/lantern"
+icon="link"
+>
+
+PostgreSQL 向量数据库扩展。
+
+</Card>
+
+<Card
+title="Lindorm"
+href="/oss/integrations/providers/lindorm"
+icon="link"
+>
+
+阿里云多模型数据库服务。
+
+</Card>
+
+<Card
+title="LinkUp"
+href="/oss/integrations/providers/linkup"
+icon="link"
+>
+
+实时就业市场数据和搜索。
+
+</Card>
+
+<Card
+title="LiteLLM"
+href="/oss/integrations/providers/litellm"
+icon="link"
+>
+
+100+ LLM API 的统一接口。
+
+</Card>
+
+<Card
+title="LlamaIndex"
+href="/oss/integrations/providers/llama_index"
+icon="link"
+>
+
+用于 LLM 应用的数据框架。
+
+</Card>
+
+<Card
+title="LlamaCPP"
+href="/oss/integrations/providers/llamacpp"
+icon="link"
+>
+
+Meta LLaMA 模型的 C/C++ 移植版本。
+
+</Card>
+
+<Card
+title="LlamaEdge"
+href="/oss/integrations/providers/llamaedge"
+icon="link"
+>
+
+用于 LLaMA 模型的边缘计算平台。
+
+</Card>
+
+<Card
+title="LlamaFile"
+href="/oss/integrations/providers/llamafile"
+icon="link"
+>
+
+运行 LLM 的单文件可执行程序。
+
+</Card>
+
+<Card
+title="LLMonitor"
+href="/oss/integrations/providers/llmonitor"
+icon="link"
+>
+
+LLM 应用可观测性平台。
+
+</Card>
+
+<Card
+title="LocalAI"
+href="/oss/integrations/providers/localai"
+icon="link"
+>
+
+自托管的 OpenAI 兼容 API 服务器。
+
+</Card>
+
+<Card
+title="Log10"
+href="/oss/integrations/providers/log10"
+icon="link"
+>
+
+LLM 数据管理和可观测性。
+
+</Card>
+
+<Card
+title="MariaDB"
+href="/oss/integrations/providers/mariadb"
+icon="link"
+>
+
+开源关系型数据库管理。
+
+</Card>
+
+<Card
+title="MaritALK"
+href="/oss/integrations/providers/maritalk"
+icon="link"
+>
+
+巴西葡萄牙语语言模型。
+
+</Card>
+
+<Card
+title="Marqo"
+href="/oss/integrations/providers/marqo"
+icon="link"
+>
+
+端到端向量搜索引擎。
+
+</Card>
+
+<Card
+title="MediaWiki Dump"
+href="/oss/integrations/providers/mediawikidump"
+icon="link"
+>
+
+Wikipedia 和 MediaWiki 数据处理。
+
+</Card>
+
+<Card
+title="Meilisearch"
+href="/oss/integrations/providers/meilisearch"
+icon="link"
+>
+
+极速搜索引擎平台。
+
+</Card>
+
+<Card
+title="Memcached"
+href="/oss/integrations/providers/memcached"
+icon="link"
+>
+
+分布式内存缓存系统。
+
+</Card>
+
+<Card
+title="Memgraph"
+href="/oss/integrations/providers/memgraph"
+icon="link"
+>
+
+实时图数据库平台。
+
+</Card>
+
+<Card
+title="Metal"
+href="/oss/integrations/providers/metal"
+icon="link"
+>
+
+托管式向量搜索和检索。
 
 </Card>
 
@@ -45,7 +2195,327 @@ href="/oss/integrations/providers/microsoft"
 icon="microsoft"
 >
 
-连接到 Microsoft Azure 服务和 AI 平台。
+微软 Azure AI 和企业服务。
+
+</Card>
+
+<Card
+title="Milvus"
+href="/oss/integrations/providers/milvus"
+icon="link"
+>
+
+面向 AI 应用的开源向量数据库。
+
+</Card>
+
+<Card
+title="MindsDB"
+href="/oss/integrations/providers/mindsdb"
+icon="link"
+>
+
+面向数据库和数据平台的 AI 层。
+
+</Card>
+
+<Card
+title="Minimax"
+href="/oss/integrations/providers/minimax"
+icon="link"
+>
+
+中国 AI 公司的语言模型。
+
+</Card>
+
+<Card
+title="MistralAI"
+href="/oss/integrations/providers/mistralai"
+icon="link"
+>
+
+高效的开源语言模型。
+
+</Card>
+
+<Card
+title="MLflow"
+href="/oss/integrations/providers/mlflow"
+icon="link"
+>
+
+ML 生命周期管理平台。
+
+</Card>
+
+<Card
+title="MLflow Tracking"
+href="/oss/integrations/providers/mlflow_tracking"
+icon="link"
+>
+
+实验跟踪和模型注册表。
+
+</Card>
+
+<Card
+title="MLX"
+href="/oss/integrations/providers/mlx"
+icon="link"
+>
+
+苹果机器学习框架。
+
+</Card>
+
+<Card
+title="Modal"
+href="/oss/integrations/providers/modal"
+icon="link"
+>
+
+面向数据科学的无服务器云计算。
+
+</Card>
+
+<Card
+title="ModelScope"
+href="/oss/integrations/providers/modelscope"
+icon="link"
+>
+
+阿里巴巴开源模型中心。
+
+</Card>
+
+<Card
+title="Modern Treasury"
+href="/oss/integrations/providers/modern_treasury"
+icon="link"
+>
+
+支付运营和资金管理。
+
+</Card>
+
+<Card
+title="Momento"
+href="/oss/integrations/providers/momento"
+icon="link"
+>
+
+无服务器缓存和向量索引。
+
+</Card>
+
+<Card
+title="MongoDB"
+href="/oss/integrations/providers/mongodb"
+icon="link"
+>
+
+基于文档的 NoSQL 数据库平台。
+
+</Card>
+
+<Card
+title="MongoDB Atlas"
+href="/oss/integrations/providers/mongodb_atlas"
+icon="link"
+>
+
+支持向量搜索的云托管 MongoDB。
+
+</Card>
+
+<Card
+title="MotherDuck"
+href="/oss/integrations/providers/motherduck"
+icon="link"
+>
+
+云端基于 DuckDB 的无服务器分析。
+
+</Card>
+
+<Card
+title="Motorhead"
+href="/oss/integrations/providers/motorhead"
+icon="link"
+>
+
+AI 对话的长期记忆。
+
+</Card>
+
+<Card
+title="MyScale"
+href="/oss/integrations/providers/myscale"
+icon="link"
+>
+
+SQL 兼容的向量数据库平台。
+
+</Card>
+
+<Card
+title="Naver"
+href="/oss/integrations/providers/naver"
+icon="link"
+>
+
+Naver 的 AI 服务和语言模型。
+
+</Card>
+
+<Card
+title="Nebius"
+href="/oss/integrations/providers/nebius"
+icon="link"
+>
+
+AI 云平台和基础设施。
+
+</Card>
+
+<Card
+title="Neo4j"
+href="/oss/integrations/providers/neo4j"
+icon="link"
+>
+
+原生图数据库和分析平台。
+
+</Card>
+
+<Card
+title="NetMind"
+href="/oss/integrations/providers/netmind"
+icon="link"
+>
+
+去中心化 AI 计算网络。
+
+</Card>
+
+<Card
+title="Nimble"
+href="/oss/integrations/providers/nimble"
+icon="link"
+>
+
+网络情报和数据提取。
+
+</Card>
+
+<Card
+title="NLP Cloud"
+href="/oss/integrations/providers/nlpcloud"
+icon="link"
+>
+
+生产就绪的 NLP API 平台。
+
+</Card>
+
+<Card
+title="Nomic"
+href="/oss/integrations/providers/nomic"
+icon="link"
+>
+
+开源嵌入模型和工具。
+
+</Card>
+
+<Card
+title="Notion"
+href="/oss/integrations/providers/notion"
+icon="link"
+>
+
+一体化工作区和协作平台。
+
+</Card>
+
+<Card
+title="Nuclia"
+href="/oss/integrations/providers/nuclia"
+icon="link"
+>
+
+AI 驱动的搜索和理解平台。
+
+</Card>
+
+<Card
+title="NVIDIA"
+href="/oss/integrations/providers/nvidia"
+icon="link"
+>
+
+英伟达 AI 计算平台和模型。
+
+</Card>
+
+<Card
+title="Obsidian"
+href="/oss/integrations/providers/obsidian"
+icon="link"
+>
+
+互联笔记和知识管理。
+
+</Card>
+
+<Card
+title="OceanBase"
+href="/oss/integrations/providers/oceanbase"
+icon="link"
+>
+
+分布式关系型数据库系统。
+
+</Card>
+
+<Card
+title="OCI"
+href="/oss/integrations/providers/oci"
+icon="link"
+>
+
+甲骨文云基础设施 AI 服务。
+
+</Card>
+
+<Card
+title="OctoAI"
+href="/oss/integrations/providers/octoai"
+icon="link"
+>
+
+高效的 AI 计算和模型服务。
+
+</Card>
+
+<Card
+title="Ollama"
+href="/oss/integrations/providers/ollama"
+icon="link"
+>
+
+本地运行大型语言模型。
+
+</Card>
+
+<Card
+title="Ontotext GraphDB"
+href="/oss/integrations/providers/ontotext_graphdb"
+icon="link"
+>
+
+RDF 数据库和语义图平台。
 
 </Card>
 
@@ -55,2204 +2525,544 @@ href="/oss/integrations/providers/openai"
 icon="openai"
 >
 
-使用 GPT 模型和 OpenAI 的综合 AI 平台进行构建。
+GPT 模型与综合性 AI 平台。
 
 </Card>
 
-</Columns>
-
-## LangGraph 集成 (LangGraph integrations)
-
-将 LangGraph 智能体连接到前端。更多详情请参阅 [LangGraph 集成](/oss/langgraph/integrations) 页面。
-
-<Columns :cols="3">
-
 <Card
-title="AG-UI Protocol"
-href="https://docs.ag-ui.com/getting-started/quickstart-langgraph-js"
+title="OpenDataLoader PDF"
+href="/oss/integrations/providers/opendataloader_pdf"
 icon="link"
 >
 
-用于将 LangGraph 智能体连接到任何前端的开放式基于事件的协议。
+安全、开放、高性能 — 面向 AI 的 PDF 处理。
 
 </Card>
 
 <Card
-title="CopilotKit"
-href="https://docs.copilotkit.ai/coagents/quickstart/langgraph-js"
-icon="react"
+title="OpenGradient"
+href="/oss/integrations/providers/opengradient"
+icon="link"
 >
 
-用于 AI 副驾驶的、带有预构建 UI 组件的 React 框架。
+AI 模型训练与微调平台。
 
 </Card>
 
-</Columns>
-
-## 聊天模型 (Chat models)
-
-<Columns :cols="3">
-
-<Card
-title="Alibaba Tongyi"
-href="/oss/integrations/chat/alibaba_tongyi"
->
-
-阿里巴巴的通义语言模型，适用于中文和多语言应用。
-
-</Card>
-
-<Card
-title="Anthropic"
-href="/oss/integrations/chat/anthropic"
-icon="anthropic"
->
-
-用于高级对话式 AI 和推理的 Claude 模型。
-
-</Card>
-
-<Card
-title="Arcjet"
-href="/oss/integrations/chat/arcjet"
->
-
-注重安全的 AI 聊天集成，内置保护功能。
-
-</Card>
-
-<Card
-title="Azure OpenAI"
-href="/oss/integrations/chat/azure"
-icon="microsoft"
->
-
-通过 Microsoft Azure 企业平台使用 OpenAI 模型。
-
-</Card>
-
-<Card
-title="Baidu Qianfan"
-href="/oss/integrations/chat/baidu_qianfan"
->
-
-百度的千帆平台，提供中文语言 AI 模型。
-
-</Card>
-
-<Card
-title="Baidu Wenxin"
-href="/oss/integrations/chat/baidu_wenxin"
->
-
-百度的文心 (ERNIE) 模型，用于自然语言处理。
-
-</Card>
-
-<Card
-title="Amazon Bedrock"
-href="/oss/integrations/chat/bedrock"
-icon="aws"
->
-
-通过 Amazon Bedrock 的托管服务访问基础模型。
-
-</Card>
-
-<Card
-title="Bedrock Converse"
-href="/oss/integrations/chat/bedrock_converse"
-icon="aws"
->
-
-用于多个基础模型的统一 Bedrock Converse API。
-
-</Card>
-
-<Card
-title="Cerebras"
-href="/oss/integrations/chat/cerebras"
->
-
-利用 Cerebras Systems 的 AI 处理器实现超快速推理。
-
-</Card>
-
-<Card
-title="Cloudflare Workers AI"
-href="/oss/integrations/chat/cloudflare_workersai"
->
-
-在 Cloudflare 的边缘计算平台上运行 AI 模型。
-
-</Card>
-
-<Card
-title="Cohere"
-href="/oss/integrations/chat/cohere"
-icon="cohere"
->
-
-Cohere 的文本生成和理解语言模型。
-
-</Card>
-
-<Card
-title="Deep Infra"
-href="/oss/integrations/chat/deep_infra"
->
-
-通过 Deep Infra 的云平台访问开源模型。
-
-</Card>
-
-<Card
-title="DeepSeek"
-href="/oss/integrations/chat/deepseek"
->
-
-DeepSeek 的高级推理和编码模型。
-
-</Card>
-
-<Card
-title="Fake LLM"
-href="/oss/integrations/chat/fake"
->
-
-用于测试和开发目的的模拟聊天模型。
-
-</Card>
-
-<Card
-title="Fireworks"
-href="/oss/integrations/chat/fireworks"
-icon="fireworks"
->
-
-开源模型的高性能推理。
-
-</Card>
-
-<Card
-title="Friendli"
-href="/oss/integrations/chat/friendli"
->
-
-用于高效模型服务的优化推理引擎。
-
-</Card>
-
-<Card
-title="Google Generative AI"
-href="/oss/integrations/chat/google_generative_ai"
-icon="google"
->
-
-Google 的 Gemini 模型和生成式 AI 能力。
-
-</Card>
-
-<Card
-title="Google Vertex AI"
-href="/oss/integrations/chat/google_vertex_ai"
-icon="google"
->
-
-企业级 AI 平台，包含 Google Cloud 的 Vertex AI。
-
-</Card>
-
-<Card
-title="Groq"
-href="/oss/integrations/chat/groq"
-icon="groq"
->
-
-利用 Groq 的专用硬件实现超快速推理。
-
-</Card>
-
-<Card
-title="IBM"
-href="/oss/integrations/chat/ibm"
->
-
-IBM Watson AI 模型和企业解决方案。
-
-</Card>
-
-<Card
-title="Llama.cpp"
-href="/oss/integrations/chat/llama_cpp"
->
-
-使用 llama.cpp 后端运行本地 Llama 模型。
-
-</Card>
-
-<Card
-title="Minimax"
-href="/oss/integrations/chat/minimax"
->
-
-Minimax 的对话式 AI 模型和服务。
-
-</Card>
-
-<Card
-title="Mistral"
-href="/oss/integrations/chat/mistral"
-icon="mistral"
->
-
-Mistral 的高效且强大的语言模型。
-
-</Card>
-
-<Card
-title="Moonshot"
-href="/oss/integrations/chat/moonshot"
->
-
-Moonshot 的 AI 模型，适用于各种语言任务。
-
-</Card>
-
-<Card
-title="Neural Internet Bittensor"
-href="/oss/integrations/chat/ni_bittensor"
->
-
-通过 Bittensor 协议实现的去中心化 AI 网络。
-
-</Card>
-
-<Card
-title="Novita"
-href="/oss/integrations/chat/novita"
->
-
-Novita 的 AI 模型和云计算平台。
-
-</Card>
-
-<Card
-title="Ollama"
-href="/oss/integrations/chat/ollama"
-icon="ollama"
->
-
-使用 Ollama 的轻量级推理引擎运行本地模型。
-
-</Card>
-
-<Card
-title="Ollama Functions"
-href="/oss/integrations/chat/ollama_functions"
-icon="ollama"
->
-
-使用 Ollama 模型实现函数调用能力。
-
-</Card>
-
-<Card
-title="OpenAI"
-href="/oss/integrations/chat/openai"
-icon="openai"
->
-
-GPT 模型和 OpenAI 的综合聊天能力。
-
-</Card>
-
-<Card
-title="Perplexity"
-href="/oss/integrations/chat/perplexity"
->
-
-Perplexity 的搜索增强语言模型。
-
-</Card>
-
-<Card
-title="PremAI"
-href="/oss/integrations/chat/premai"
->
-
-PremAI 的 AI 模型部署和管理平台。
-
-</Card>
-
-<Card
-title="PromptLayer OpenAI"
-href="/oss/integrations/chat/prompt_layer_openai"
->
-
-集成 PromptLayer 可观测性功能的 OpenAI 集成。
-
-</Card>
-
-<Card
-title="Tencent Hunyuan"
-href="/oss/integrations/chat/tencent_hunyuan"
->
-
-腾讯的混元模型，用于中文语言处理。
-
-</Card>
-
-<Card
-title="Together AI"
-href="/oss/integrations/chat/togetherai"
-icon="together"
->
-
-通过 Together AI 的云平台使用开源模型。
-
-</Card>
-
-<Card
-title="WebLLM"
-href="/oss/integrations/chat/web_llm"
->
-
-直接在 Web 浏览器中运行语言模型。
-
-</Card>
-
-<Card
-title="xAI"
-href="/oss/integrations/chat/xai"
->
-
-xAI 的 Grok 模型，用于对话式 AI。
-
-</Card>
-
-<Card
-title="Yandex"
-href="/oss/integrations/chat/yandex"
->
-
-Yandex 的 AI 模型和语言处理服务。
-
-</Card>
-
-<Card
-title="ZhipuAI"
-href="/oss/integrations/chat/zhipuai"
->
-
-智谱 AI 的 ChatGLM 及其他中文语言模型。
-
-</Card>
-
-</Columns>
-
-## 大语言模型 (LLMs)
-
-<Columns :cols="3">
-
-<Card
-title="AI21"
-href="/oss/integrations/llms/ai21"
->
-
-AI21 Labs 的 Jurassic 模型，用于文本生成。
-
-</Card>
-
-<Card
-title="Aleph Alpha"
-href="/oss/integrations/llms/aleph_alpha"
->
-
-欧洲 AI 公司的多语言语言模型。
-
-</Card>
-
-<Card
-title="Arcjet"
-href="/oss/integrations/llms/arcjet"
->
-
-注重安全的大语言模型集成，内置保护功能。
-
-</Card>
-
-<Card
-title="AWS SageMaker"
-href="/oss/integrations/llms/aws_sagemaker"
-icon="aws"
->
-
-在 Amazon SageMaker 的 ML 平台上部署模型。
-
-</Card>
-
-<Card
-title="Azure OpenAI"
-href="/oss/integrations/llms/azure"
-icon="microsoft"
->
-
-通过 Microsoft Azure 企业平台使用 OpenAI 模型。
-
-</Card>
-
-<Card
-title="Amazon Bedrock"
-href="/oss/integrations/llms/bedrock"
-icon="aws"
->
-
-通过 Amazon Bedrock 服务使用基础模型。
-
-</Card>
-
-<Card
-title="Chrome AI"
-href="/oss/integrations/llms/chrome_ai"
->
-
-使用 Chrome 内置能力的浏览器端 AI。
-
-</Card>
-
-<Card
-title="Cloudflare Workers AI"
-href="/oss/integrations/llms/cloudflare_workersai"
->
-
-在 Cloudflare 的边缘计算平台上运行 AI 模型。
-
-</Card>
-
-<Card
-title="Cohere"
-href="/oss/integrations/llms/cohere"
-icon="cohere"
->
-
-Cohere 的语言模型，适用于各种 NLP 任务。
-
-</Card>
-
-<Card
-title="Deep Infra"
-href="/oss/integrations/llms/deep_infra"
->
-
-通过 Deep Infra 的基础设施使用开源模型。
-
-</Card>
-
-<Card
-title="Fireworks"
-href="/oss/integrations/llms/fireworks"
-icon="fireworks"
->
-
-开源语言模型的快速推理。
-
-</Card>
-
-<Card
-title="Friendli"
-href="/oss/integrations/llms/friendli"
->
-
-用于高效模型推理的优化服务。
-
-</Card>
-
-<Card
-title="Google Vertex AI"
-href="/oss/integrations/llms/google_vertex_ai"
-icon="google"
->
-
-Google Cloud 的企业级 AI 和 ML 平台。
-
-</Card>
-
-<Card
-title="Gradient AI"
-href="/oss/integrations/llms/gradient_ai"
->
-
-私有 AI 模型训练和部署平台。
-
-</Card>
-
-<Card
-title="Hugging Face"
-href="/oss/integrations/llms/huggingface_inference"
->
-
-通过 Hugging Face Inference API 访问数千个模型。
-
-</Card>
-
-<Card
-title="IBM"
-href="/oss/integrations/llms/ibm"
->
-
-IBM Watson AI 和语言模型服务。
-
-</Card>
-
-<Card
-title="JigsawStack"
-href="/oss/integrations/llms/jigsawstack"
->
-
-JigsawStack 的 AI 基础设施和模型服务。
-
-</Card>
-
-<Card
-title="LayerUp Security"
-href="/oss/integrations/llms/layerup_security"
->
-
-增强安全性的大语言模型集成，带有监控功能。
-
-</Card>
-
-<Card
-title="Llama.cpp"
-href="/oss/integrations/llms/llama_cpp"
->
-
-使用 C++ 实现本地运行 Llama 模型。
-
-</Card>
-
-<Card
-title="Mistral"
-href="/oss/integrations/llms/mistral"
-icon="mistral"
->
-
-Mistral 的开源及商业语言模型。
-
-</Card>
-
-<Card
-title="Neural Internet Bittensor"
-href="/oss/integrations/llms/ni_bittensor"
->
-
-通过 Bittensor 的点对点网络实现去中心化 AI。
-
-</Card>
-
-<Card
-title="Ollama"
-href="/oss/integrations/llms/ollama"
-icon="ollama"
->
-
-使用 Ollama 的简单接口进行本地模型服务。
-
-</Card>
-
-<Card
-title="OpenAI"
-href="/oss/integrations/llms/openai"
-icon="openai"
->
-
-GPT 模型和 OpenAI 的语言模型 API。
-
-</Card>
-
-<Card
-title="PromptLayer OpenAI"
-href="/oss/integrations/llms/prompt_layer_openai"
->
-
-集成 PromptLayer 日志记录和可观测性的 OpenAI。
-
-</Card>
-
-<Card
-title="Raycast"
-href="/oss/integrations/llms/raycast"
->
-
-Raycast 生产力工具的 AI 集成。
-
-</Card>
-
-<Card
-title="Replicate"
-href="/oss/integrations/llms/replicate"
->
-
-通过 Replicate 的云平台运行开源模型。
-
-</Card>
-
-<Card
-title="Together AI"
-href="/oss/integrations/llms/together"
-icon="together"
->
-
-在 Together 的平台上为开源模型提供快速推理。
-
-</Card>
-
-<Card
-title="WRITER"
-href="/oss/integrations/llms/writer"
->
-
-用于构建、激活和监督 AI 智能体的企业模型及工具。
-
-</Card>
-
-<Card
-title="Yandex"
-href="/oss/integrations/llms/yandex"
->
-
-Yandex 的语言模型和 AI 服务。
-
-</Card>
-
-</Columns>
-
-## 文本嵌入模型 (Text embedding models)
-
-<Columns :cols="3">
-
-<Card
-title="Alibaba Tongyi"
-href="/oss/integrations/text_embedding/alibaba_tongyi"
->
-
-阿里巴巴的嵌入模型，用于多语言文本表示。
-
-</Card>
-
-<Card
-title="Azure OpenAI"
-href="/oss/integrations/text_embedding/azure_openai"
-icon="microsoft"
->
-
-通过 Microsoft Azure 平台使用 OpenAI 嵌入。
-
-</Card>
-
-<Card
-title="Baidu Qianfan"
-href="/oss/integrations/text_embedding/baidu_qianfan"
->
-
-百度的文本嵌入模型，适用于中文内容。
-
-</Card>
-
-<Card
-title="Amazon Bedrock"
-href="/oss/integrations/text_embedding/bedrock"
-icon="aws"
->
-
-通过 Amazon Bedrock 使用基础模型嵌入。
-
-</Card>
-
-<Card
-title="ByteDance Doubao"
-href="/oss/integrations/text_embedding/bytedance_doubao"
->
-
-字节跳动的嵌入模型，用于内容理解。
-
-</Card>
-
-<Card
-title="Cloudflare AI"
-href="/oss/integrations/text_embedding/cloudflare_ai"
->
-
-在 Cloudflare 的边缘 AI 平台上进行文本嵌入。
-
-</Card>
-
-<Card
-title="Cohere"
-href="/oss/integrations/text_embedding/cohere"
-icon="cohere"
->
-
-Cohere 的多语言嵌入模型。
-
-</Card>
-
-<Card
-title="DeepInfra"
-href="/oss/integrations/text_embedding/deepinfra"
->
-
-通过 DeepInfra 使用开源嵌入模型。
-
-</Card>
-
-<Card
-title="Fireworks"
-href="/oss/integrations/text_embedding/fireworks"
-icon="fireworks"
->
-
-通过 Fireworks 平台进行快速嵌入推理。
-
-</Card>
-
-<Card
-title="Google Generative AI"
-href="/oss/integrations/text_embedding/google_generative_ai"
-icon="google"
->
-
-Google 的文本表示嵌入模型。
-
-</Card>
-
-<Card
-title="Google Vertex AI"
-href="/oss/integrations/text_embedding/google_vertex_ai"
-icon="google"
->
-
-通过 Vertex AI 使用企业级嵌入模型。
-
-</Card>
-
-<Card
-title="Gradient AI"
-href="/oss/integrations/text_embedding/gradient_ai"
->
-
-使用 Gradient AI 平台的私有嵌入模型。
-
-</Card>
-
-<Card
-title="Hugging Face"
-href="/oss/integrations/text_embedding/hugging_face_inference"
->
-
-通过 Hugging Face 使用数千个嵌入模型。
-
-</Card>
-
-<Card
-title="IBM"
-href="/oss/integrations/text_embedding/ibm"
->
-
-IBM Watson 嵌入模型和 AI 服务。
-
-</Card>
-
-<Card
-title="Jina"
-href="/oss/integrations/text_embedding/jina"
->
-
-Jina 的神经搜索及嵌入模型。
-
-</Card>
-
-<Card
-title="Llama.cpp"
-href="/oss/integrations/text_embedding/llama_cpp"
->
-
-使用 llama.cpp 在本地生成嵌入。
-
-</Card>
-
-<Card
-title="Minimax"
-href="/oss/integrations/text_embedding/minimax"
->
-
-Minimax 的文本嵌入及表示模型。
-
-</Card>
-
-<Card
-title="Mistral"
-href="/oss/integrations/text_embedding/mistralai"
-icon="mistral"
->
-
-Mistral 的高效嵌入模型。
-
-</Card>
-
-<Card
-title="MixedBread AI"
-href="/oss/integrations/text_embedding/mixedbread_ai"
->
-
-高质量的多语言嵌入模型。
-
-</Card>
-
-<Card
-title="Nomic"
-href="/oss/integrations/text_embedding/nomic"
->
-
-Nomic 的开源嵌入模型。
-
-</Card>
-
-<Card
-title="Ollama"
-href="/oss/integrations/text_embedding/ollama"
-icon="ollama"
->
-
-通过 Ollama 使用本地嵌入模型。
-
-</Card>
-
-<Card
-title="OpenAI"
-href="/oss/integrations/text_embedding/openai"
-icon="openai"
->
-
-OpenAI 用于语义搜索的文本嵌入模型。
-
-</Card>
-
-<Card
-title="Pinecone"
-href="/oss/integrations/text_embedding/pinecone"
->
-
-Pinecone 的嵌入模型和向量数据库。
-
-</Card>
-
-<Card
-title="PremAI"
-href="/oss/integrations/text_embedding/premai"
->
-
-PremAI 的嵌入模型和 AI 平台。
-
-</Card>
-
-<Card
-title="Tencent Hunyuan"
-href="/oss/integrations/text_embedding/tencent_hunyuan"
->
-
-腾讯用于中文文本的嵌入模型。
-
-</Card>
-
-<Card
-title="TensorFlow"
-href="/oss/integrations/text_embedding/tensorflow"
->
-
-基于 TensorFlow 的嵌入模型及推理。
-
-</Card>
-
-<Card
-title="Together AI"
-href="/oss/integrations/text_embedding/togetherai"
-icon="together"
->
-
-Together 平台上的开源嵌入模型。
-
-</Card>
-
-<Card
-title="Transformers"
-href="/oss/integrations/text_embedding/transformers"
->
-
-基于 Transformer 的本地嵌入模型。
-
-</Card>
-
-<Card
-title="Voyage AI"
-href="/oss/integrations/text_embedding/voyageai"
->
-
-Voyage AI 的领域特定嵌入模型。
-
-</Card>
-
-<Card
-title="ZhipuAI"
-href="/oss/integrations/text_embedding/zhipuai"
->
-
-智谱 AI 的中文语言嵌入模型。
-
-</Card>
-
-</Columns>
-
-## 向量存储 (Vector stores)
-
-<Columns :cols="3">
-
-<Card
-title="AnalyticDB"
-href="/oss/integrations/vectorstores/analyticdb"
->
-
-阿里云的 AnalyticDB，用于向量存储和搜索。
-
-</Card>
-
-<Card
-title="AstraDB"
-href="/oss/integrations/vectorstores/astradb"
->
-
-DataStax Astra DB 向量数据库，用于可扩展存储。
-
-</Card>
-
-<Card
-title="Azion EdgeSQL"
-href="/oss/integrations/vectorstores/azion-edgesql"
->
-
-基于边缘的向量存储，使用 Azion 的 EdgeSQL。
-
-</Card>
-
-<Card
-title="Azure AI Search"
-href="/oss/integrations/vectorstores/azure_aisearch"
-icon="microsoft"
->
-
-微软 Azure 的 AI 驱动搜索和向量存储。
-
-</Card>
-
-<Card
-title="Azure Cosmos DB MongoDB"
-href="/oss/integrations/vectorstores/azure_cosmosdb_mongodb"
-icon="microsoft"
->
-
-使用 MongoDB API 在 Azure Cosmos DB 中进行向量搜索。
-
-</Card>
-
-<Card
-title="Azure Cosmos DB NoSQL"
-href="/oss/integrations/vectorstores/azure_cosmosdb_nosql"
-icon="microsoft"
->
-
-在 Azure Cosmos DB NoSQL API 中进行向量存储。
-
-</Card>
-
-<Card
-title="Cassandra"
-href="/oss/integrations/vectorstores/cassandra"
->
-
-Apache Cassandra 向量搜索能力。
-
-</Card>
-
-<Card
-title="Chroma"
-href="/oss/integrations/vectorstores/chroma"
->
-
-用于 AI 应用的开源嵌入数据库。
-
-</Card>
-
-<Card
-title="ClickHouse"
-href="/oss/integrations/vectorstores/clickhouse"
->
-
-支持向量搜索的快速列式数据库。
-
-</Card>
-
-<Card
-title="CloseVector"
-href="/oss/integrations/vectorstores/closevector"
->
-
-用于相似性搜索的高性能向量数据库。
-
-</Card>
-
-<Card
-title="Cloudflare Vectorize"
-href="/oss/integrations/vectorstores/cloudflare_vectorize"
->
-
-Cloudflare 边缘上的无服务器向量数据库。
-
-</Card>
-
-<Card
-title="Convex"
-href="/oss/integrations/vectorstores/convex"
->
-
-具有集成向量存储的全栈平台。
-
-</Card>
-
-<Card
-title="Couchbase Query"
-href="/oss/integrations/vectorstores/couchbase_query"
->
-
-通过查询服务在 Couchbase NoSQL 数据库中推荐的向量搜索方法。
-
-</Card>
-
-<Card
-title="Couchbase Search"
-href="/oss/integrations/vectorstores/couchbase_search"
->
-
-通过搜索服务在 Couchbase NoSQL 数据库中的替代向量搜索方法。
-
-</Card>
-
-<Card
-title="Elasticsearch"
-href="/oss/integrations/vectorstores/elasticsearch"
->
-
-支持向量搜索的分布式搜索引擎。
-
-</Card>
-
-<Card
-title="Faiss"
-href="/oss/integrations/vectorstores/faiss"
->
-
-Facebook 的高效相似性搜索库。
-
-</Card>
-
-<Card
-title="Google Cloud SQL PostgreSQL"
-href="/oss/integrations/vectorstores/google_cloudsql_pg"
-icon="google"
->
-
-Google Cloud 上带有向量扩展的 PostgreSQL。
-
-</Card>
-
-<Card
-title="Google Vertex AI"
-href="/oss/integrations/vectorstores/googlevertexai"
-icon="google"
->
-
-通过 Google Vertex AI 平台进行向量搜索。
-
-</Card>
-
-<Card
-title="SAP HANA Vector"
-href="/oss/integrations/vectorstores/hanavector"
->
-
-使用 SAP HANA 的企业向量数据库。
-
-</Card>
-
-<Card
-title="Hnswlib"
-href="/oss/integrations/vectorstores/hnswlib"
->
-
-快速的近似最近邻搜索库。
-
-</Card>
-
-<Card
-title="LanceDB"
-href="/oss/integrations/vectorstores/lancedb"
->
-
-对开发者友好的嵌入式向量数据库。
-
-</Card>
-
-<Card
-title="LibSQL"
-href="/oss/integrations/vectorstores/libsql"
->
-
-具有向量扩展的 SQLite 兼容数据库。
-
-</Card>
-
-<Card
-title="MariaDB"
-href="/oss/integrations/vectorstores/mariadb"
->
-
-具有向量搜索能力的开源数据库。
-
-</Card>
-
-<Card
-title="Memory Vector Store"
-href="/oss/integrations/vectorstores/memory"
->
-
-用于开发和测试的内存向量存储。
-
-</Card>
-
-<Card
-title="Milvus"
-href="/oss/integrations/vectorstores/milvus"
->
-
-用于 AI 应用的开源向量数据库。
-
-</Card>
-
-<Card
-title="Momento Vector Index"
-href="/oss/integrations/vectorstores/momento_vector_index"
->
-
-使用 Momento 平台的无服务器向量索引。
-
-</Card>
-
-<Card
-title="MongoDB Atlas"
-href="/oss/integrations/vectorstores/mongodb_atlas"
->
-
-MongoDB Atlas 云数据库中的向量搜索。
-
-</Card>
-
-<Card
-title="MyScale"
-href="/oss/integrations/vectorstores/myscale"
->
-
-用于分析的 SQL 兼容向量数据库。
-
-</Card>
-
-<Card
-title="Neo4j Vector"
-href="/oss/integrations/vectorstores/neo4jvector"
->
-
-具有集成向量搜索能力的图数据库。
-
-</Card>
-
 <Card
-title="Neon"
-href="/oss/integrations/vectorstores/neon"
+title="OpenLLM"
+href="/oss/integrations/providers/openllm"
+icon="link"
 >
 
-支持向量扩展的无服务器 PostgreSQL。
+在生产环境中运行大型语言模型。
 
 </Card>
 
 <Card
 title="OpenSearch"
-href="/oss/integrations/vectorstores/opensearch"
+href="/oss/integrations/providers/opensearch"
+icon="link"
 >
 
-具有向量能力的开源搜索引擎。
+分布式搜索与分析套件。
 
 </Card>
 
 <Card
-title="PGVector"
-href="/oss/integrations/vectorstores/pgvector"
+title="OpenWeatherMap"
+href="/oss/integrations/providers/openweathermap"
+icon="link"
 >
 
-用于向量相似性搜索的 PostgreSQL 扩展。
+天气数据与预报 API。
+
+</Card>
+
+<Card
+title="Open Agent Spec"
+href="/oss/integrations/providers/open_agent_spec"
+icon="link"
+>
+
+用于可移植智能体定义、与框架无关的语言。
+
+</Card>
+
+<Card
+title="Oracle AI"
+href="/oss/integrations/providers/oracleai"
+icon="link"
+>
+
+Oracle 的 AI 与机器学习服务。
+
+</Card>
+
+<Card
+title="Outline"
+href="/oss/integrations/providers/outline"
+icon="link"
+>
+
+团队知识库与维基平台。
+
+</Card>
+
+<Card
+title="Outlines"
+href="/oss/integrations/providers/outlines"
+icon="link"
+>
+
+语言模型的结构化生成。
+
+</Card>
+
+<Card
+title="Oxylabs"
+href="/oss/integrations/providers/oxylabs"
+icon="link"
+>
+
+网络爬取与代理服务。
+
+</Card>
+
+<Card
+title="Pandas"
+href="/oss/integrations/providers/pandas"
+icon="link"
+>
+
+数据分析与操作库。
+
+</Card>
+
+<Card
+title="Parallel"
+href="/oss/integrations/providers/parallel"
+icon="link"
+>
+
+面向 LLM 的 AI 驱动网络搜索与内容提取。
+
+</Card>
+
+<Card
+title="Perigon"
+href="/oss/integrations/providers/perigon"
+icon="link"
+>
+
+实时新闻与媒体监控。
+
+</Card>
+
+<Card
+title="Permit"
+href="/oss/integrations/providers/permit"
+icon="link"
+>
+
+授权与访问控制平台。
+
+</Card>
+
+<Card
+title="Perplexity"
+href="/oss/integrations/providers/perplexity"
+icon="link"
+>
+
+AI 驱动的搜索与推理引擎。
+
+</Card>
+
+<Card
+title="Petals"
+href="/oss/integrations/providers/petals"
+icon="link"
+>
+
+大型语言模型的分布式推理。
+
+</Card>
+
+<Card
+title="PlainId"
+href="/oss/integrations/providers/plainid"
+icon="link"
+>
+
+授权与访问控制平台。
+
+</Card>
+
+<Card
+title="PG Embedding"
+href="/oss/integrations/providers/pg_embedding"
+icon="link"
+>
+
+PostgreSQL 向量嵌入扩展。
+
+</Card>
+
+<Card
+title="pgvector"
+href="/oss/integrations/providers/pgvector"
+icon="link"
+>
+
+PostgreSQL 的向量相似性搜索。
 
 </Card>
 
 <Card
 title="Pinecone"
-href="/oss/integrations/vectorstores/pinecone"
+href="/oss/integrations/providers/pinecone"
+icon="link"
 >
 
-用于机器学习应用的托管向量数据库。
+面向 ML 应用的托管向量数据库。
 
 </Card>
 
 <Card
-title="Prisma"
-href="/oss/integrations/vectorstores/prisma"
+title="PipelineAI"
+href="/oss/integrations/providers/pipelineai"
+icon="link"
 >
 
-支持向量数据库的类型安全数据库客户端。
+ML 流水线与模型部署平台。
+
+</Card>
+
+<Card
+title="Pipeshift"
+href="/oss/integrations/providers/pipeshift"
+icon="link"
+>
+
+AI 驱动的内容审核平台。
+
+</Card>
+
+<Card
+title="PolarisAIDataInsight"
+href="/oss/integrations/providers/polaris_ai_datainsight"
+icon="link"
+>
+
+面向多种文件格式的文档加载器。
+
+</Card>
+
+<Card
+title="Portkey"
+href="/oss/integrations/providers/portkey/logging_tracing_portkey"
+icon="link"
+>
+
+AI 网关与可观测性平台。
+
+</Card>
+
+<Card
+title="Predibase"
+href="/oss/integrations/providers/predibase"
+icon="link"
+>
+
+大型语言模型微调平台。
+
+</Card>
+
+<Card
+title="PredictionGuard"
+href="/oss/integrations/providers/predictionguard"
+icon="link"
+>
+
+AI 模型安全与合规平台。
+
+</Card>
+
+<Card
+title="PreMAI"
+href="/oss/integrations/providers/premai"
+icon="link"
+>
+
+用于模型部署与管理的 AI 平台。
+
+</Card>
+
+<Card
+title="Privy"
+href="/oss/integrations/providers/privy"
+icon="link"
+>
+
+面向 AI 智能体的钱包与支付。
+
+</Card>
+
+<Card
+title="Prolog"
+href="/oss/integrations/providers/prolog"
+icon="link"
+>
+
+逻辑编程语言集成。
+
+</Card>
+
+<Card
+title="PromptLayer"
+href="/oss/integrations/providers/promptlayer"
+icon="link"
+>
+
+提示工程与可观测性平台。
+
+</Card>
+
+<Card
+title="Psychic"
+href="/oss/integrations/providers/psychic"
+icon="link"
+>
+
+用于 SaaS 集成的通用 API。
+
+</Card>
+
+<Card
+title="PubMed"
+href="/oss/integrations/providers/pubmed"
+icon="link"
+>
+
+生物医学文献数据库访问。
+
+</Card>
+
+<Card
+title="PygmalionAI"
+href="/oss/integrations/providers/pygmalionai"
+icon="link"
+>
+
+对话式 AI 模型平台。
+
+</Card>
+
+<Card
+title="PyMuPDF4LLM"
+href="/oss/integrations/providers/pymupdf4llm"
+icon="link"
+>
+
+针对 LLM 数据摄取优化的 PDF 处理。
 
 </Card>
 
 <Card
 title="Qdrant"
-href="/oss/integrations/vectorstores/qdrant"
+href="/oss/integrations/providers/qdrant"
+icon="link"
 >
 
-开源的向量相似性搜索引擎。
+向量相似性搜索引擎。
+
+</Card>
+
+<Card
+title="Ragatouille"
+href="/oss/integrations/providers/ragatouille"
+icon="link"
+>
+
+包含 ColBERT 索引的 RAG 工具包。
+
+</Card>
+
+<Card
+title="Rank BM25"
+href="/oss/integrations/providers/rank_bm25"
+icon="link"
+>
+
+BM25 排序算法实现。
+
+</Card>
+
+<Card
+title="Ray Serve"
+href="/oss/integrations/providers/ray_serve"
+icon="link"
+>
+
+可扩展的模型服务框架。
+
+</Card>
+
+<Card
+title="Rebuff"
+href="/oss/integrations/providers/rebuff"
+icon="link"
+>
+
+提示注入检测与防护。
+
+</Card>
+
+<Card
+title="Reddit"
+href="/oss/integrations/providers/reddit"
+icon="link"
+>
+
+社交媒体平台集成与 API。
 
 </Card>
 
 <Card
 title="Redis"
-href="/oss/integrations/vectorstores/redis"
+href="/oss/integrations/providers/redis"
+icon="link"
 >
 
-具有向量搜索能力的内存数据库。
+内存数据结构存储与缓存。
+
+</Card>
+
+<Card
+title="Remembrall"
+href="/oss/integrations/providers/remembrall"
+icon="link"
+>
+
+AI 记忆与上下文管理。
+
+</Card>
+
+<Card
+title="Replicate"
+href="/oss/integrations/providers/replicate"
+icon="link"
+>
+
+运行 ML 模型的云平台。
+
+</Card>
+
+<Card
+title="Roam"
+href="/oss/integrations/providers/roam"
+icon="link"
+>
+
+研究与笔记平台。
+
+</Card>
+
+<Card
+title="Robocorp"
+href="/oss/integrations/providers/robocorp"
+icon="link"
+>
+
+Python 自动化与 RPA 平台。
 
 </Card>
 
 <Card
 title="Rockset"
-href="/oss/integrations/vectorstores/rockset"
+href="/oss/integrations/providers/rockset"
+icon="link"
 >
 
-具有向量搜索能力的实时分析数据库。
+实时分析数据库平台。
 
 </Card>
 
 <Card
-title="SingleStore"
-href="/oss/integrations/vectorstores/singlestore"
+title="RunPod"
+href="/oss/integrations/providers/runpod"
+icon="link"
 >
 
-具有内置向量函数的分布式数据库。
+面向 AI 工作负载的 GPU 云平台。
 
 </Card>
 
 <Card
-title="Supabase"
-href="/oss/integrations/vectorstores/supabase"
+title="Salesforce"
+href="/oss/integrations/providers/salesforce"
+icon="link"
 >
 
-具有向量支持的开源 Firebase 替代方案。
+CRM 平台与业务自动化。
 
 </Card>
 
 <Card
-title="Tigris"
-href="/oss/integrations/vectorstores/tigris"
+title="SambaNova"
+href="/oss/integrations/providers/sambanova"
+icon="link"
 >
 
-以开发者为中心、具有向量搜索能力的数据库。
+配备专用硬件的 AI 平台。
 
 </Card>
 
 <Card
-title="Turbopuffer"
-href="/oss/integrations/vectorstores/turbopuffer"
+title="SAP"
+href="/oss/integrations/providers/sap"
+icon="link"
 >
 
-用于嵌入的高性能向量数据库。
+企业软件与 AI 解决方案。
 
 </Card>
 
 <Card
-title="TypeORM"
-href="/oss/integrations/vectorstores/typeorm"
+title="ScrapeGraph"
+href="/oss/integrations/providers/scrapegraph"
+icon="link"
 >
 
-支持向量数据库的 TypeScript ORM。
+AI 驱动的网络爬取框架。
 
 </Card>
 
 <Card
-title="Typesense"
-href="/oss/integrations/vectorstores/typesense"
+title="Scrapeless"
+href="/oss/integrations/providers/scrapeless"
+icon="link"
 >
 
-具有向量能力的开源搜索引擎。
-
-</Card>
-
-<Card
-title="Upstash Vector"
-href="/oss/integrations/vectorstores/upstash"
->
-
-具有 Redis 兼容性的无服务器向量数据库。
-
-</Card>
-
-<Card
-title="USearch"
-href="/oss/integrations/vectorstores/usearch"
->
-
-更小、更快的单文件向量搜索引擎。
-
-</Card>
-
-<Card
-title="Vectara"
-href="/oss/integrations/vectorstores/vectara"
->
-
-具有内置理解能力的神经搜索引擎。
-
-</Card>
-
-<Card
-title="Vercel Postgres"
-href="/oss/integrations/vectorstores/vercel_postgres"
->
-
-Vercel 上支持向量扩展的 PostgreSQL 数据库。
-
-</Card>
-
-<Card
-title="Voy"
-href="/oss/integrations/vectorstores/voy"
->
-
-用于浏览器的基于 WebAssembly 的向量数据库。
-
-</Card>
-
-<Card
-title="Weaviate"
-href="/oss/integrations/vectorstores/weaviate"
->
-
-具有 GraphQL API 的开源向量数据库。
-
-</Card>
-
-<Card
-title="Xata"
-href="/oss/integrations/vectorstores/xata"
->
-
-具有内置向量搜索的无服务器数据库。
-
-</Card>
-
-<Card
-title="Zep Cloud"
-href="/oss/integrations/vectorstores/zep_cloud"
->
-
-用于云端 AI 助手的长期记忆。
-
-</Card>
-
-<Card
-title="Zep"
-href="/oss/integrations/vectorstores/zep"
->
-
-用于 AI 助手和智能体的长期记忆。
-
-</Card>
-
-</Columns>
-
-## 文档加载器 (Document loaders)
-
-### 文件加载器 (File loaders)
-
-<Columns :cols="3">
-
-<Card
-title="ChatGPT"
-href="/oss/integrations/document_loaders/file_loaders/chatgpt"
->
-
-加载和解析 ChatGPT 对话导出文件。
-
-</Card>
-
-<Card
-title="CSV"
-href="/oss/integrations/document_loaders/file_loaders/csv"
->
-
-从 CSV 文件加载数据，支持可定制的解析。
-
-</Card>
-
-<Card
-title="Directory"
-href="/oss/integrations/document_loaders/file_loaders/directory"
->
-
-从文件系统目录递归加载文档。
-
-</Card>
-
-<Card
-title="DOCX"
-href="/oss/integrations/document_loaders/file_loaders/docx"
->
-
-从 Microsoft Word 文档提取文本和元数据。
-
-</Card>
-
-<Card
-title="EPUB"
-href="/oss/integrations/document_loaders/file_loaders/epub"
->
-
-加载和解析 EPUB 电子书文件。
-
-</Card>
-
-<Card
-title="JSON"
-href="/oss/integrations/document_loaders/file_loaders/json"
->
-
-加载和解析 JSON 文件，支持灵活的结构处理。
-
-</Card>
-
-<Card
-title="JSON Lines"
-href="/oss/integrations/document_loaders/file_loaders/jsonlines"
->
-
-加载换行符分隔的 JSON 文件。
-
-</Card>
-
-<Card
-title="Multi-File"
-href="/oss/integrations/document_loaders/file_loaders/multi_file"
->
-
-同时加载多种不同类型的文件。
-
-</Card>
-
-<Card
-title="Notion Markdown"
-href="/oss/integrations/document_loaders/file_loaders/notion_markdown"
->
-
-加载导出为 Markdown 的 Notion 页面。
-
-</Card>
-
-<Card
-title="OpenAI Whisper Audio"
-href="/oss/integrations/document_loaders/file_loaders/openai_whisper_audio"
->
-
-使用 OpenAI 的 Whisper 模型转录音频文件。
-
-</Card>
-
-<Card
-title="PDF"
-href="/oss/integrations/document_loaders/file_loaders/pdf"
->
-
-从 PDF 文档提取文本。
-
-</Card>
-
-<Card
-title="PPTX"
-href="/oss/integrations/document_loaders/file_loaders/pptx"
->
-
-加载 Microsoft PowerPoint 演示文稿。
-
-</Card>
-
-<Card
-title="Subtitles"
-href="/oss/integrations/document_loaders/file_loaders/subtitles"
->
-
-加载字幕文件 (SRT、VTT 格式)。
-
-</Card>
-
-<Card
-title="Text"
-href="/oss/integrations/document_loaders/file_loaders/text"
->
-
-加载纯文本文件，支持编码检测。
-
-</Card>
-
-<Card
-title="Unstructured"
-href="/oss/integrations/document_loaders/file_loaders/unstructured"
->
-
-使用 Unstructured.io 加载各种文件格式。
-
-</Card>
-
-</Columns>
-
-### 网络加载器 (Web loaders)
-
-<Columns :cols="3">
-
-<Card
-title="Airtable"
-href="/oss/integrations/document_loaders/web_loaders/airtable"
->
-
-从 Airtable 基础库加载记录。
-
-</Card>
-
-<Card
-title="Apify Dataset"
-href="/oss/integrations/document_loaders/web_loaders/apify_dataset"
->
-
-从 Apify 网络抓取数据集加载数据。
-
-</Card>
-
-<Card
-title="AssemblyAI Audio"
-href="/oss/integrations/document_loaders/web_loaders/assemblyai_audio_transcription"
->
-
-使用 AssemblyAI 的 API 转录音频。
-
-</Card>
-
-<Card
-title="Azure Blob Storage Container"
-href="/oss/integrations/document_loaders/web_loaders/azure_blob_storage_container"
-icon="microsoft"
->
-
-从 Azure Blob 存储容器加载文件。
-
-</Card>
-
-<Card
-title="Azure Blob Storage File"
-href="/oss/integrations/document_loaders/web_loaders/azure_blob_storage_file"
-icon="microsoft"
->
-
-从 Azure Blob 存储加载单个文件。
-
-</Card>
-
-<Card
-title="Browserbase"
-href="/oss/integrations/document_loaders/web_loaders/browserbase"
->
-
-使用 Browserbase 的云浏览器加载网页内容。
-
-</Card>
-
-<Card
-title="College Confidential"
-href="/oss/integrations/document_loaders/web_loaders/college_confidential"
->
-
-抓取 College Confidential 论坛内容。
-
-</Card>
-
-<Card
-title="Confluence"
-href="/oss/integrations/document_loaders/web_loaders/confluence"
->
-
-从 Atlassian Confluence 加载页面。
-
-</Card>
-
-<Card
-title="Couchbase"
-href="/oss/integrations/document_loaders/web_loaders/couchbase"
->
-
-从 Couchbase 数据库加载文档。
-
-</Card>
-
-<Card
-title="Figma"
-href="/oss/integrations/document_loaders/web_loaders/figma"
->
-
-加载 Figma 设计文件和评论。
-
-</Card>
-
-<Card
-title="Firecrawl"
-href="/oss/integrations/document_loaders/web_loaders/firecrawl"
->
-
-使用 Firecrawl 的网络抓取 API 爬取网站。
-
-</Card>
-
-<Card
-title="GitBook"
-href="/oss/integrations/document_loaders/web_loaders/gitbook"
->
-
-从 GitBook 文档站点加载内容。
-
-</Card>
-
-<Card
-title="GitHub"
-href="/oss/integrations/document_loaders/web_loaders/github"
->
-
-从 GitHub 加载文件和仓库。
-
-</Card>
-
-<Card
-title="Google Cloud Storage"
-href="/oss/integrations/document_loaders/web_loaders/google_cloud_storage"
-icon="google"
->
-
-从 Google Cloud Storage 存储桶加载文件。
-
-</Card>
-
-<Card
-title="Google Cloud SQL PostgreSQL"
-href="/oss/integrations/document_loaders/web_loaders/google_cloudsql_pg"
-icon="google"
->
-
-从 Google Cloud SQL PostgreSQL 数据库加载数据。
-
-</Card>
-
-<Card
-title="Hacker News"
-href="/oss/integrations/document_loaders/web_loaders/hn"
->
-
-从 Hacker News 加载帖子和评论。
-
-</Card>
-
-<Card
-title="IMSDb"
-href="/oss/integrations/document_loaders/web_loaders/imsdb"
->
-
-从互联网电影剧本数据库加载电影剧本。
-
-</Card>
-
-<Card
-title="Jira"
-href="/oss/integrations/document_loaders/web_loaders/jira"
->
-
-从 Atlassian Jira 加载问题和项目。
-
-</Card>
-
-<Card
-title="LangSmith"
-href="/oss/integrations/document_loaders/web_loaders/langsmith"
->
-
-从 LangSmith 加载运行记录和数据集。
-
-</Card>
-
-<Card
-title="Notion API"
-href="/oss/integrations/document_loaders/web_loaders/notionapi"
->
-
-从 Notion 加载页面和数据库。
-
-</Card>
-
-<Card
-title="PDF (Web)"
-href="/oss/integrations/document_loaders/web_loaders/pdf"
->
-
-从网页 URL 加载 PDF 文件。
-
-</Card>
-
-<Card
-title="Recursive URL"
-href="/oss/integrations/document_loaders/web_loaders/recursive_url_loader"
->
-
-递归爬取并加载网页。
-
-</Card>
-
-<Card
-title="S3"
-href="/oss/integrations/document_loaders/web_loaders/s3"
-icon="aws"
->
-
-从 Amazon S3 存储桶加载文件。
+网络爬取 API 与代理服务。
 
 </Card>
 
 <Card
 title="SearchAPI"
-href="/oss/integrations/document_loaders/web_loaders/searchapi"
+href="/oss/integrations/providers/searchapi"
+icon="link"
 >
 
-使用 SearchAPI 加载搜索结果。
+实时搜索引擎结果 API。
 
 </Card>
 
 <Card
-title="SerpApi"
-href="/oss/integrations/document_loaders/web_loaders/serpapi"
->
-
-使用 SerpApi 加载搜索结果。
-
-</Card>
-
-<Card
-title="Sitemap"
-href="/oss/integrations/document_loaders/web_loaders/sitemap"
->
-
-从网站站点地图加载 URL。
-
-</Card>
-
-<Card
-title="Sonix Audio"
-href="/oss/integrations/document_loaders/web_loaders/sonix_audio_transcription"
->
-
-使用 Sonix 的转录 API 转录音频。
-
-</Card>
-
-<Card
-title="Sort.xyz Blockchain"
-href="/oss/integrations/document_loaders/web_loaders/sort_xyz_blockchain"
->
-
-从 Sort.xyz 加载区块链数据。
-
-</Card>
-
-<Card
-title="Spider"
-href="/oss/integrations/document_loaders/web_loaders/spider"
->
-
-使用 Spider API 进行快速网络爬取。
-
-</Card>
-
-<Card
-title="Taskade"
-href="/oss/integrations/document_loaders/web_loaders/taskade"
->
-
-从 Taskade 加载项目和任务。
-
-</Card>
-
-<Card
-title="Web Cheerio"
-href="/oss/integrations/document_loaders/web_loaders/web_cheerio"
->
-
-使用 Cheerio 进行服务器端解析以抓取网页。
-
-</Card>
-
-<Card
-title="Web Playwright"
-href="/oss/integrations/document_loaders/web_loaders/web_playwright"
->
-
-使用 Playwright 浏览器自动化加载动态网页内容。
-
-</Card>
-
-<Card
-title="Web Puppeteer"
-href="/oss/integrations/document_loaders/web_loaders/web_puppeteer"
->
-
-使用 Puppeteer 抓取 JavaScript 密集型网站。
-
-</Card>
-
-<Card
-title="YouTube"
-href="/oss/integrations/document_loaders/web_loaders/youtube"
->
-
-加载 YouTube 视频字幕和元数据。
-
-</Card>
-
-</Columns>
-
-## 文档转换器 (Document transformers)
-
-<Columns :cols="3">
-
-<Card
-title="HTML to Text"
-href="/oss/integrations/document_transformers/html-to-text"
->
-
-将 HTML 内容转换为干净、可读的文本。
-
-</Card>
-
-<Card
-title="Mozilla Readability"
-href="/oss/integrations/document_transformers/mozilla_readability"
->
-
-使用 Mozilla 的 Readability 从网页提取主要内容。
-
-</Card>
-
-<Card
-title="OpenAI Metadata Tagger"
-href="/oss/integrations/document_transformers/openai_metadata_tagger"
-icon="openai"
->
-
-使用 OpenAI 为文档生成元数据标签。
-
-</Card>
-
-</Columns>
-
-## 文档压缩器 (Document compressors)
-
-<Columns :cols="3">
-
-<Card
-title="Cohere Rerank"
-href="/oss/integrations/document_compressors/cohere_rerank"
-icon="cohere"
->
-
-使用 Cohere 的重排序模型对文档进行重排序。
-
-</Card>
-
-<Card
-title="IBM"
-href="/oss/integrations/document_compressors/ibm"
->
-
-使用 IBM Watson AI 服务进行文档压缩。
-
-</Card>
-
-<Card
-title="MixedBread AI"
-href="/oss/integrations/document_compressors/mixedbread_ai"
->
-
-使用 MixedBread AI 对文档进行重排序和压缩。
-
-</Card>
-
-</Columns>
-
-## 工具 (Tools)
-
-<Columns :cols="3">
-
-<Card
-title="AI Plugin Tool"
-href="/oss/integrations/tools/aiplugin-tool"
->
-
-将 OpenAI ChatGPT 插件作为工具执行。
-
-</Card>
-
-<Card
-title="Azure Dynamic Sessions"
-href="/oss/integrations/tools/azure_dynamic_sessions"
-icon="microsoft"
->
-
-在 Azure 动态会话中安全执行代码。
-
-</Card>
-
-<Card
-title="Connery"
-href="/oss/integrations/tools/connery"
->
-
-使用 Connery 的模块化 AI 操作和集成。
-
-</Card>
-
-<Card
-title="Connery Toolkit"
-href="/oss/integrations/tools/connery_toolkit"
->
-
-访问 Connery 的预构建操作工具集。
-
-</Card>
-
-<Card
-title="DALL-E"
-href="/oss/integrations/tools/dalle"
-icon="openai"
->
-
-使用 OpenAI 的 DALL-E 模型生成图像。
-
-</Card>
-
-<Card
-title="Decodo"
-href="/oss/integrations/tools/decodo"
->
-
-使用 Decodo 进行代码执行和分析。
-
-</Card>
-
-<Card
-title="Discord"
-href="/oss/integrations/tools/discord_tool"
->
-
-与 Discord 服务器和频道进行交互。
-
-</Card>
-
-<Card
-title="DuckDuckGo Search"
-href="/oss/integrations/tools/duckduckgo_search"
->
-
-使用 DuckDuckGo 进行注重隐私的网络搜索。
-
-</Card>
-
-<Card
-title="Exa Search"
-href="/oss/integrations/tools/exa_search"
->
-
-用于获得更好结果的 AI 驱动搜索引擎。
-
-</Card>
-
-<Card
-title="Gmail"
-href="/oss/integrations/tools/google_gmail"
-icon="google"
->
-
-通过 Gmail API 读取和发送电子邮件。
-
-</Card>
-
-<Card
-title="Goat"
-href="/oss/integrations/tools/goat"
->
-
-简单的工具执行框架。
-
-</Card>
-
-<Card
-title="Google Calendar"
-href="/oss/integrations/tools/google_calendar"
-icon="google"
->
-
-管理 Google 日历中的事件和日程。
-
-</Card>
-
-<Card
-title="Google Places"
-href="/oss/integrations/tools/google_places"
-icon="google"
->
-
-使用 Google Places API 搜索地点。
-
-</Card>
-
-<Card
-title="Google Routes"
-href="/oss/integrations/tools/google_routes"
-icon="google"
->
-
-获取路线规划和导航信息。
-
-</Card>
-
-<Card
-title="Google Scholar"
-href="/oss/integrations/tools/google_scholar"
-icon="google"
->
-
-搜索学术论文和引用。
-
-</Card>
-
-<Card
-title="Google Trends"
-href="/oss/integrations/tools/google_trends"
-icon="google"
->
-
-分析搜索趋势和流行度数据。
-
-</Card>
-
-<Card
-title="IBM"
-href="/oss/integrations/tools/ibm"
->
-
-访问 IBM Watson AI 工具和服务。
-
-</Card>
-
-<Card
-title="JigsawStack"
-href="/oss/integrations/tools/jigsawstack"
->
-
-来自 JigsawStack 的 AI 基础设施工具。
-
-</Card>
-
-<Card
-title="JSON Tool"
-href="/oss/integrations/tools/json"
->
-
-解析和操作 JSON 数据结构。
-
-</Card>
-
-<Card
-title="Lambda Agent"
-href="/oss/integrations/tools/lambda_agent"
-icon="aws"
->
-
-在 AWS Lambda 函数中执行代码。
-
-</Card>
-
-<Card
-title="MCP Toolbox"
-href="/oss/integrations/tools/mcp_toolbox"
->
-
-模型上下文协议 (Model Context Protocol) 工具和公用程序。
-
-</Card>
-
-<Card
-title="OpenAPI"
-href="/oss/integrations/tools/openapi"
->
-
-从 OpenAPI 规范生成工具。
-
-</Card>
-
-<Card
-title="Python Interpreter"
-href="/oss/integrations/tools/pyinterpreter"
->
-
-在沙箱环境中执行 Python 代码。
-
-</Card>
-
-<Card
-title="SearchAPI"
-href="/oss/integrations/tools/searchapi"
->
-
-通过 SearchAPI 获取网络搜索能力。
-
-</Card>
-
-<Card
-title="SearXNG"
-href="/oss/integrations/tools/searxng"
+title="SearX"
+href="/oss/integrations/providers/searx"
+icon="link"
 >
 
 尊重隐私的元搜索引擎。
@@ -2260,279 +3070,569 @@ href="/oss/integrations/tools/searxng"
 </Card>
 
 <Card
+title="SemaDB"
+href="/oss/integrations/providers/semadb"
+icon="link"
+>
+
+用于语义搜索的向量数据库。
+
+</Card>
+
+<Card
 title="SerpApi"
-href="/oss/integrations/tools/serpapi"
+href="/oss/integrations/providers/serpapi"
+icon="link"
 >
 
-通过 SerpApi 获取 Google 搜索结果。
+Google 搜索结果爬取 API。
 
 </Card>
 
 <Card
-title="Step Functions Agent"
-href="/oss/integrations/tools/sfn_agent"
-icon="aws"
+title="Shale Protocol"
+href="/oss/integrations/providers/shaleprotocol"
+icon="link"
 >
 
-执行 AWS Step Functions 工作流。
+去中心化 AI 推理协议。
 
 </Card>
 
 <Card
-title="SQL"
-href="/oss/integrations/tools/sql"
+title="SingleStore"
+href="/oss/integrations/providers/singlestore"
+icon="link"
 >
 
-使用自然语言查询数据库。
+具备向量功能的分布式数据库。
+
+</Card>
+
+<Card
+title="scikit-learn"
+href="/oss/integrations/providers/sklearn"
+icon="link"
+>
+
+面向 Python 的机器学习库。
+
+</Card>
+
+<Card
+title="Slack"
+href="/oss/integrations/providers/slack"
+icon="link"
+>
+
+企业通信与协作。
+
+</Card>
+
+<Card
+title="Snowflake"
+href="/oss/integrations/providers/snowflake"
+icon="link"
+>
+
+云数据平台与分析。
+
+</Card>
+
+<Card
+title="spaCy"
+href="/oss/integrations/providers/spacy"
+icon="link"
+>
+
+工业级 NLP 库。
+
+</Card>
+
+<Card
+title="Spark"
+href="/oss/integrations/providers/spark"
+icon="link"
+>
+
+面向大数据的统一分析引擎。
+
+</Card>
+
+<Card
+title="SparkLLM"
+href="/oss/integrations/providers/sparkllm"
+icon="link"
+>
+
+科大讯飞的多语言大模型。
+
+</Card>
+
+<Card
+title="Spreedly"
+href="/oss/integrations/providers/spreedly"
+icon="link"
+>
+
+支付编排平台。
+
+</Card>
+
+<Card
+title="SQLite"
+href="/oss/integrations/providers/sqlite"
+icon="link"
+>
+
+嵌入式关系数据库引擎。
 
 </Card>
 
 <Card
 title="StackExchange"
-href="/oss/integrations/tools/stackexchange"
+href="/oss/integrations/providers/stackexchange"
+icon="link"
 >
 
-搜索 Stack Overflow 和其他 SE 站点。
+问答平台网络集成。
 
 </Card>
 
 <Card
-title="Stagehand"
-href="/oss/integrations/tools/stagehand"
+title="StarRocks"
+href="/oss/integrations/providers/starrocks"
+icon="link"
 >
 
-用于网页交互的浏览器自动化。
+高性能分析型数据库。
 
 </Card>
 
 <Card
-title="Tavily Crawl"
-href="/oss/integrations/tools/tavily_crawl"
+title="StochasticAI"
+href="/oss/integrations/providers/stochasticai"
+icon="link"
 >
 
-使用 Tavily 获取网页爬取能力。
+面向 ML 加速的 GPU 云平台。
 
 </Card>
 
 <Card
-title="Tavily Extract"
-href="/oss/integrations/tools/tavily_extract"
+title="Streamlit"
+href="/oss/integrations/providers/streamlit"
+icon="link"
 >
 
-从网页中提取结构化数据。
+面向数据科学的 Web 应用框架。
 
 </Card>
 
 <Card
-title="Tavily Map"
-href="/oss/integrations/tools/tavily_map"
+title="Stripe"
+href="/oss/integrations/providers/stripe"
+icon="link"
 >
 
-映射并可视化网页爬取结果。
+在线支付处理平台。
 
 </Card>
 
 <Card
-title="Tavily Search"
-href="/oss/integrations/tools/tavily_search"
+title="Supabase"
+href="/oss/integrations/providers/supabase"
+icon="link"
 >
 
-针对检索应用优化的 AI 搜索。
+开源的 Firebase 替代方案。
 
 </Card>
 
 <Card
-title="Tavily Search Community"
-href="/oss/integrations/tools/tavily_search_community"
+title="SurrealDB"
+href="/oss/integrations/providers/surrealdb"
+icon="link"
 >
 
-通过 Tavily 获取由社区支持的搜索结果。
+面向现代应用的多模型数据库。
 
 </Card>
 
 <Card
-title="Vector Store"
-href="/oss/integrations/tools/vectorstore"
+title="Symbl.ai Nebula"
+href="/oss/integrations/providers/symblai_nebula"
+icon="link"
 >
 
-将向量数据库作为工具进行查询。
+对话智能平台。
 
 </Card>
 
 <Card
-title="Web Browser"
-href="/oss/integrations/tools/webbrowser"
+title="Tableau"
+href="/oss/integrations/providers/tableau"
+icon="link"
 >
 
-自动化网页浏览和交互。
+数据可视化与商业智能。
 
 </Card>
 
 <Card
-title="Wikipedia"
-href="/oss/integrations/tools/wikipedia"
+title="Taiga"
+href="/oss/integrations/providers/taiga"
+icon="link"
 >
 
-搜索并检索维基百科文章。
+面向敏捷团队的项目管理平台。
 
 </Card>
 
 <Card
-title="Wolfram Alpha"
-href="/oss/integrations/tools/wolframalpha"
+title="Tair"
+href="/oss/integrations/providers/tair"
+icon="link"
 >
 
-通过 Wolfram Alpha 获取计算性知识。
-
-</Card>
-
-<Card
-title="Zapier Agent"
-href="/oss/integrations/tools/zapier_agent"
->
-
-使用 Zapier 集成自动化工作流。
-
-</Card>
-
-</Columns>
-
-## 检索器 (Retrievers)
-
-<Columns :cols="3">
-
-<Card
-title="ArXiv"
-href="/oss/integrations/retrievers/arxiv-retriever"
->
-
-从 ArXiv 检索学术论文信息。
-
-</Card>
-
-<Card
-title="Azion EdgeSQL"
-href="/oss/integrations/retrievers/azion-edgesql"
->
-
-使用 Azion 进行基于边缘的文档检索。
-
-</Card>
-
-<Card
-title="Bedrock Knowledge Bases"
-href="/oss/integrations/retrievers/bedrock-knowledge-bases"
-icon="aws"
->
-
-从 Amazon Bedrock 知识库中检索内容。
-
-</Card>
-
-<Card
-title="BM25"
-href="/oss/integrations/retrievers/bm25"
->
-
-用于基于关键词检索的 BM25 算法。
-
-</Card>
-
-<Card
-title="Chaindesk"
-href="/oss/integrations/retrievers/chaindesk-retriever"
->
-
-使用 Chaindesk 平台进行文档检索。
-
-</Card>
-
-<Card
-title="ChatGPT Retriever Plugin"
-href="/oss/integrations/retrievers/chatgpt-retriever-plugin"
-icon="openai"
->
-
-官方 ChatGPT 检索器插件集成。
-
-</Card>
-
-<Card
-title="Dria"
-href="/oss/integrations/retrievers/dria"
->
-
-使用 Dria 进行去中心化知识检索。
-
-</Card>
-
-<Card
-title="Exa"
-href="/oss/integrations/retrievers/exa"
->
-
-AI 驱动的网络搜索和检索。
-
-</Card>
-
-<Card
-title="HyDE"
-href="/oss/integrations/retrievers/hyde"
->
-
-通过假设性文档嵌入 (Hypothetical Document Embeddings) 实现更好的检索。
-
-</Card>
-
-<Card
-title="Kendra"
-href="/oss/integrations/retrievers/kendra-retriever"
-icon="aws"
->
-
-使用 Amazon Kendra 进行企业级搜索。
-
-</Card>
-
-<Card
-title="Metal"
-href="/oss/integrations/retrievers/metal-retriever"
->
-
-使用 Metal 进行托管式向量搜索。
-
-</Card>
-
-<Card
-title="Supabase Hybrid"
-href="/oss/integrations/retrievers/supabase-hybrid"
->
-
-结合向量和关键词搜索的混合搜索。
+阿里云内存数据库。
 
 </Card>
 
 <Card
 title="Tavily"
-href="/oss/integrations/retrievers/tavily"
+href="/oss/integrations/providers/tavily"
+icon="link"
 >
 
-针对 RAG 应用优化的 AI 搜索。
+面向应用的 AI 优化搜索 API。
 
 </Card>
 
 <Card
-title="Time-Weighted"
-href="/oss/integrations/retrievers/time-weighted-retriever"
+title="Telegram"
+href="/oss/integrations/providers/telegram"
+icon="link"
 >
 
-时间加权文档检索和排序。
+消息平台与机器人集成。
+
+</Card>
+
+<Card
+title="Tencent"
+href="/oss/integrations/providers/tencent"
+icon="link"
+>
+
+腾讯云 AI 服务与模型。
+
+</Card>
+
+<Card
+title="TensorFlow Datasets"
+href="/oss/integrations/providers/tensorflow_datasets"
+icon="link"
+>
+
+即用型数据集集合。
+
+</Card>
+
+<Card
+title="TensorLake"
+href="/oss/integrations/providers/tensorlake"
+icon="link"
+>
+
+面向 ML 应用的数据基础设施。
+
+</Card>
+
+<Card
+title="Teradata"
+href="/oss/integrations/providers/teradata"
+icon="link"
+>
+
+具备集成向量搜索的自主 AI 平台。
+
+</Card>
+
+<Card
+title="TiDB"
+href="/oss/integrations/providers/tidb"
+icon="link"
+>
+
+分布式 SQL 数据库平台。
+
+</Card>
+
+<Card
+title="TigerGraph"
+href="/oss/integrations/providers/tigergraph"
+icon="link"
+>
+
+可扩展的图数据库与分析平台。
+
+</Card>
+
+<Card
+title="Tigris"
+href="/oss/integrations/providers/tigris"
+icon="link"
+>
+
+全球分布式数据库平台。
+
+</Card>
+
+<Card
+title="Tilores"
+href="/oss/integrations/providers/tilores"
+icon="link"
+>
+
+实体解析与数据匹配。
+
+</Card>
+
+<Card
+title="Timbr"
+href="/oss/integrations/providers/timbr"
+icon="link"
+>
+
+用于数据集成与查询的语义层。
+
+</Card>
+
+<Card
+title="Together"
+href="/oss/integrations/providers/together"
+icon="link"
+>
+
+开源模型的快速推理。
+
+</Card>
+
+<Card
+title="ToMarkdown"
+href="/oss/integrations/providers/tomarkdown"
+icon="link"
+>
+
+HTML 转 Markdown 转换工具。
+
+</Card>
+
+<Card
+title="Toolbox LangChain"
+href="/oss/integrations/providers/toolbox"
+icon="link"
+>
+
+用于 LangChain 应用的扩展工具包。
+
+</Card>
+
+<Card
+title="Transwarp"
+href="/oss/integrations/providers/transwarp"
+icon="link"
+>
+
+大数据平台与分析套件。
+
+</Card>
+
+<Card
+title="Trello"
+href="/oss/integrations/providers/trello"
+icon="link"
+>
+
+可视化项目管理与协作。
+
+</Card>
+
+<Card
+title="Trubrics"
+href="/oss/integrations/providers/trubrics"
+icon="link"
+>
+
+LLM 评估与分析平台。
+
+</Card>
+
+<Card
+title="TrueFoundry"
+href="/oss/integrations/providers/truefoundry"
+icon="link"
+>
+
+用于模型部署的 ML 平台。
+
+</Card>
+
+<Card
+title="TrueLens"
+href="/oss/integrations/providers/trulens"
+icon="link"
+>
+
+LLM 应用评估框架。
+
+</Card>
+
+<Card
+title="Twitter"
+href="/oss/integrations/providers/twitter"
+icon="link"
+>
+
+社交媒体平台集成。
+
+</Card>
+
+<Card
+title="Typesense"
+href="/oss/integrations/providers/typesense"
+icon="link"
+>
+
+快速且容错的搜索引擎。
+
+</Card>
+
+<Card
+title="UnDatasIO"
+href="/oss/integrations/providers/undatasio"
+icon="link"
+>
+
+数据提取与处理平台。
+
+</Card>
+
+<Card
+title="Unstructured"
+href="/oss/integrations/providers/unstructured"
+icon="link"
+>
+
+文档处理与数据提取。
+
+</Card>
+
+<Card
+title="Upstage"
+href="/oss/integrations/providers/upstage"
+icon="link"
+>
+
+文档 AI 与 OCR 平台。
+
+</Card>
+
+<Card
+title="Upstash"
+href="/oss/integrations/providers/upstash"
+icon="link"
+>
+
+用于 Redis 和 Kafka 的无服务器数据平台。
+
+</Card>
+
+<Card
+title="UpTrain"
+href="/oss/integrations/providers/uptrain"
+icon="link"
+>
+
+ML 可观测性与评估平台。
+
+</Card>
+
+<Card
+title="USearch"
+href="/oss/integrations/providers/usearch"
+icon="link"
+>
+
+单文件向量搜索引擎。
+
+</Card>
+
+<Card
+title="Valthera"
+href="/oss/integrations/providers/valthera"
+icon="link"
+>
+
+用于医疗保健应用的 AI 平台。
+
+</Card>
+
+<Card
+title="Valyu"
+href="/oss/integrations/providers/valyu"
+icon="link"
+>
+
+AI 驱动的数据分析平台。
+
+</Card>
+
+<Card
+title="VDMS"
+href="/oss/integrations/providers/vdms"
+icon="link"
+>
+
+可视化数据管理系统。
+
+</Card>
+
+<Card
+title="Vearch"
+href="/oss/integrations/providers/vearch"
+icon="link"
+>
+
+分布式向量搜索引擎。
+
+</Card>
+
+<Card
+title="Vectara"
+href="/oss/integrations/providers/vectara"
+icon="link"
+>
+
+具备内置理解能力的神经搜索平台。
+
+</Card>
+
+<Card
+title="Vectorize"
+href="/oss/integrations/providers/vectorize"
+icon="link"
+>
+
+向量数据库与语义搜索。
 
 </Card>
 
 <Card
 title="Vespa"
-href="/oss/integrations/retrievers/vespa-retriever"
+href="/oss/integrations/providers/vespa"
+icon="link"
 >
 
 用于向量搜索的大数据服务引擎。
@@ -2540,120 +3640,282 @@ href="/oss/integrations/retrievers/vespa-retriever"
 </Card>
 
 <Card
-title="Zep Cloud"
-href="/oss/integrations/retrievers/zep-cloud-retriever"
+title="VLite"
+href="/oss/integrations/providers/vlite"
+icon="link"
 >
 
-基于云的长期记忆检索。
+用于嵌入的简单向量数据库。
+
+</Card>
+
+<Card
+title="VoyageAI"
+href="/oss/integrations/providers/voyageai"
+icon="link"
+>
+
+嵌入模型与语义搜索。
+
+</Card>
+
+<Card
+title="Weights & Biases"
+href="/oss/integrations/providers/wandb"
+icon="link"
+>
+
+ML 实验跟踪与协作。
+
+</Card>
+
+<Card
+title="Weights & Biases Tracking"
+href="/oss/integrations/providers/wandb_tracking"
+icon="link"
+>
+
+实验跟踪与模型管理。
+
+</Card>
+
+<Card
+title="Weights & Biases Tracing"
+href="/oss/integrations/providers/wandb_tracing"
+icon="link"
+>
+
+LLM 追踪与可观测性。
+
+</Card>
+
+<Card
+title="Weather"
+href="/oss/integrations/providers/weather"
+icon="link"
+>
+
+天气数据与预报服务。
+
+</Card>
+
+<Card
+title="Weaviate"
+href="/oss/integrations/providers/weaviate"
+icon="link"
+>
+
+支持 GraphQL 的开源向量数据库。
+
+</Card>
+
+<Card
+title="WhatsApp"
+href="/oss/integrations/providers/whatsapp"
+icon="link"
+>
+
+消息平台集成与自动化。
+
+</Card>
+
+<Card
+title="WhyLabs Profiling"
+href="/oss/integrations/providers/whylabs_profiling"
+icon="link"
+>
+
+AI 可观测性与数据监控。
+
+</Card>
+
+<Card
+title="Wikipedia"
+href="/oss/integrations/providers/wikipedia"
+icon="link"
+>
+
+Wikipedia 内容访问与搜索。
+
+</Card>
+
+<Card
+title="Wolfram Alpha"
+href="/oss/integrations/providers/wolfram_alpha"
+icon="link"
+>
+
+计算知识引擎。
+
+</Card>
+
+<Card
+title="WRITER"
+href="/oss/integrations/providers/writer"
+icon="link"
+>
+
+用于构建、激活和监督 AI 智能体的企业模型与工具。
+
+</Card>
+
+<Card
+title="XAI"
+href="/oss/integrations/providers/xai"
+icon="link"
+>
+
+xAI 的 Grok 模型，用于对话式 AI。
+
+</Card>
+
+<Card
+title="Xata"
+href="/oss/integrations/providers/xata"
+icon="link"
+>
+
+具备向量搜索功能的无服务器数据库。
+
+</Card>
+
+<Card
+title="Xinference"
+href="/oss/integrations/providers/xinference"
+icon="link"
+>
+
+用于 LLM 的分布式推理框架。
+
+</Card>
+
+<Card
+title="Yahoo"
+href="/oss/integrations/providers/yahoo"
+icon="link"
+>
+
+Yahoo 服务与数据集成。
+
+</Card>
+
+<Card
+title="Yandex"
+href="/oss/integrations/providers/yandex"
+icon="link"
+>
+
+Yandex AI 服务与语言模型。
+
+</Card>
+
+<Card
+title="YDB"
+href="/oss/integrations/providers/ydb"
+icon="link"
+>
+
+Yandex 数据库分布式存储系统。
+
+</Card>
+
+<Card
+title="YeagerAI"
+href="/oss/integrations/providers/yeagerai"
+icon="link"
+>
+
+AI 智能体框架与开发平台。
+
+</Card>
+
+<Card
+title="Yellowbrick"
+href="/oss/integrations/providers/yellowbrick"
+icon="link"
+>
+
+数据仓库与分析平台。
+
+</Card>
+
+<Card
+title="Yi"
+href="/oss/integrations/providers/yi"
+icon="link"
+>
+
+01.AI 的双语语言模型。
+
+</Card>
+
+<Card
+title="You"
+href="/oss/integrations/providers/you"
+icon="link"
+>
+
+You.com 搜索引擎与 AI 平台。
+
+</Card>
+
+<Card
+title="YouTube"
+href="/oss/integrations/providers/youtube"
+icon="link"
+>
+
+视频平台集成与内容访问。
 
 </Card>
 
 <Card
 title="Zep"
-href="/oss/integrations/retrievers/zep-retriever"
+href="/oss/integrations/providers/zep"
+icon="link"
 >
 
-长期记忆和上下文检索。
-
-</Card>
-
-</Columns>
-
-## 存储 (Stores)
-
-<Columns :cols="3">
-
-<Card
-title="Cassandra Storage"
-href="/oss/integrations/stores/cassandra_storage"
->
-
-使用 Cassandra 的分布式键值存储。
+AI 助手的长期记忆。
 
 </Card>
 
 <Card
-title="File System"
-href="/oss/integrations/stores/file_system"
+title="ZeusDB"
+href="/oss/integrations/providers/zeusdb"
+icon="link"
 >
 
-用于开发的本地文件系统存储。
+高性能向量数据库。
 
 </Card>
 
 <Card
-title="In-Memory"
-href="/oss/integrations/stores/in_memory"
+title="ZhipuAI"
+href="/oss/integrations/providers/zhipuai"
+icon="link"
 >
 
-用于临时数据的快速内存存储。
+ChatGLM 及其他中文语言模型。
 
 </Card>
 
 <Card
-title="IoRedis Storage"
-href="/oss/integrations/stores/ioredis_storage"
+title="Zilliz"
+href="/oss/integrations/providers/zilliz"
+icon="link"
 >
 
-使用 IoRedis 客户端的基于 Redis 的存储。
+托管的 Milvus 向量数据库服务。
 
 </Card>
 
 <Card
-title="Upstash Redis Storage"
-href="/oss/integrations/stores/upstash_redis_storage"
+title="Zotero"
+href="/oss/integrations/providers/zotero"
+icon="link"
 >
 
-使用 Upstash 的无服务器 Redis 存储。
-
-</Card>
-
-<Card
-title="Vercel KV Storage"
-href="/oss/integrations/stores/vercel_kv_storage"
->
-
-Vercel 边缘网络上的键值存储。
-
-</Card>
-
-</Columns>
-
-## LLM 缓存 (LLM caching)
-
-<Columns :cols="3">
-
-<Card
-title="Azure Cosmos DB NoSQL"
-href="/oss/integrations/llm_caching/azure_cosmosdb_nosql"
-icon="microsoft"
->
-
-在 Azure Cosmos DB 中缓存 LLM 响应。
-
-</Card>
-
-</Columns>
-
-## 回调 (Callbacks)
-
-<Columns :cols="3">
-
-<Card
-title="Datadog Tracer"
-href="/oss/integrations/callbacks/datadog_tracer"
->
-
-使用 Datadog 监控并追踪 LangChain 应用。
-
-</Card>
-
-<Card
-title="Upstash Rate Limit"
-href="/oss/integrations/callbacks/upstash_ratelimit_callback"
->
-
-使用 Upstash 对 AI 应用进行速率限制。
+参考文献管理与研究工具。
 
 </Card>
 

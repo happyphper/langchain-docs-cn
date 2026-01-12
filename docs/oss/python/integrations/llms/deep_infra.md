@@ -6,7 +6,7 @@ LangChain 通过 `DeepInfra` 包装器支持由 [Deep Infra](https://deepinfra.c
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/python/langchain/install)。
 
 </Tip>
 
@@ -39,4 +39,4 @@ console.log({ res });
 
 ## 相关链接
 
-- [模型指南](/oss/langchain/models)
+- [模型指南](/oss/python/langchain/models)

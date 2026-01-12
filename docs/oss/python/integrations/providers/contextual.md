@@ -35,7 +35,7 @@ GLM 可作为 RAG 流水线中通用 LLM 的直接替代品，显著提高关键
 
 ## 在 LangChain 中使用 Contextual AI
 
-详情请见[此处](/oss/integrations/chat/contextual)。
+详情请见[此处](/oss/python/integrations/chat/contextual)。
 
 此集成使您可以轻松地将 Contextual AI 的 GLM 和指令遵循重排序器纳入您的 LangChain 工作流。GLM 确保您的应用提供严格基于事实的响应，而重排序器则通过智能地优先处理最相关的文档来显著提高检索质量。
 

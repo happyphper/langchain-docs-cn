@@ -1,7 +1,7 @@
 ---
 title: Nebius 聊天模型
 ---
-本页面将帮助您开始使用 Nebius AI Studio 的[聊天模型](/oss/langchain/models)。有关 ChatNebius 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/nebius/chat_models/langchain_nebius.chat_models.ChatNebius.html)。
+本页面将帮助您开始使用 Nebius AI Studio 的[聊天模型](/oss/python/langchain/models)。有关 ChatNebius 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/nebius/chat_models/langchain_nebius.chat_models.ChatNebius.html)。
 
 [Nebius AI Studio](https://studio.nebius.ai/) 为各种用例提供了访问多种先进大语言模型和嵌入模型的 API。
 
@@ -15,7 +15,7 @@ title: Nebius 聊天模型
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming#llm-tokens) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/python/langchain/streaming#llm-tokens) | 原生异步 | [令牌使用量](/oss/python/langchain/models#token-usage) | [对数概率](/oss/python/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
 

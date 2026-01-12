@@ -11,7 +11,7 @@ title: SambaNovaEmbeddings
 
 | 提供商 | 包 |
 |:--------:|:-------:|
-| [SambaNova](/oss/integrations/providers/sambanova/) | [langchain-sambanova](/oss/integrations/providers/sambanova/) |
+| [SambaNova](/oss/python/integrations/providers/sambanova/) | [langchain-sambanova](/oss/python/integrations/providers/sambanova/) |
 
 ## 设置
 
@@ -62,7 +62,7 @@ embeddings = SambaNovaEmbeddings(
 
 ## 索引与检索
 
-嵌入模型通常用于检索增强生成（RAG）流程中，既用于索引数据，也用于后续检索。更详细的说明，请参阅我们的 [RAG 教程](/oss/langchain/rag)。
+嵌入模型通常用于检索增强生成（RAG）流程中，既用于索引数据，也用于后续检索。更详细的说明，请参阅我们的 [RAG 教程](/oss/python/langchain/rag)。
 
 下面展示了如何使用上面初始化的 `embeddings` 对象来索引和检索数据。在本例中，我们将在 `InMemoryVectorStore` 中索引和检索一个示例文档。
 

@@ -20,7 +20,7 @@ pip install browserbase
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/browserbase)。
+查看[使用示例](/oss/python/integrations/document_loaders/browserbase)。
 
 ```python
 from langchain_community.document_loaders import BrowserbaseLoader
@@ -28,7 +28,7 @@ from langchain_community.document_loaders import BrowserbaseLoader
 
 ## 多模态
 
-查看[使用示例](/oss/integrations/document_loaders/browserbase)。
+查看[使用示例](/oss/python/integrations/document_loaders/browserbase)。
 
 ```python
 from browserbase.helpers.gpt4 import GPT4VImage, GPT4VImageDetail

@@ -246,7 +246,7 @@ for await (const [streamMode, chunk] of await agent.stream(
 
 在某些应用程序中，您可能需要为给定模型禁用单个令牌的流式传输。这在以下情况下很有用：
 
-- 使用[多智能体](/oss/langchain/multi-agent)系统来控制哪些智能体流式传输其输出
+- 使用[多智能体](/oss/javascript/langchain/multi-agent)系统来控制哪些智能体流式传输其输出
 - 混合支持流式传输的模型与不支持流式传输的模型
 - 部署到 [LangSmith](/langsmith/home) 并希望防止某些模型输出被流式传输到客户端
 
@@ -273,11 +273,11 @@ const model = new ChatOpenAI({
 
 </Note>
 
-更多详细信息，请参阅 [LangGraph 流式传输指南](/oss/langgraph/streaming#disable-streaming-for-specific-chat-models)。
+更多详细信息，请参阅 [LangGraph 流式传输指南](/oss/javascript/langgraph/streaming#disable-streaming-for-specific-chat-models)。
 
 ## 相关链接
 
-- [使用聊天模型进行流式传输](/oss/langchain/models#stream) — 直接从聊天模型流式传输令牌，无需使用智能体或图
-- [人机交互流式传输](/oss/langchain/human-in-the-loop#streaming-with-hil) — 在处理人工审核中断的同时流式传输智能体进度
-- [LangGraph 流式传输](/oss/langgraph/streaming) — 高级流式传输选项，包括 `values`、`debug` 模式和子图流式传输
+- [使用聊天模型进行流式传输](/oss/javascript/langchain/models#stream) — 直接从聊天模型流式传输令牌，无需使用智能体或图
+- [人机交互流式传输](/oss/javascript/langchain/human-in-the-loop#streaming-with-hil) — 在处理人工审核中断的同时流式传输智能体进度
+- [LangGraph 流式传输](/oss/javascript/langgraph/streaming) — 高级流式传输选项，包括 `values`、`debug` 模式和子图流式传输
 

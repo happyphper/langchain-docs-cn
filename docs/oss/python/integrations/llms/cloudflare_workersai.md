@@ -1,84 +1,55 @@
 ---
 title: Cloudflare Workers AI
 ---
-本文将帮助您开始使用 LangChain 结合 Cloudflare Workers AI 的文本补全模型（LLMs）。有关 `CloudflareWorkersAI` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_cloudflare.CloudflareWorkersAI.html)。
+[Cloudflare AI 文档](https://developers.cloudflare.com/workers-ai/models/)列出了所有可用的生成式文本模型。
 
-## 概述
+需要 Cloudflare 账户 ID 和 API 令牌。请参阅[此文档](https://developers.cloudflare.com/workers-ai/get-started/rest-api/)了解如何获取它们。
 
-### 集成详情
+```python
+from langchain_classic.chains import LLMChain
+from langchain_community.llms.cloudflare_workersai import CloudflareWorkersAI
+from langchain_core.prompts import PromptTemplate
 
-| 类 | 包 | 本地 | 可序列化 | Python 支持 | 下载量 | 版本 |
-| :--- | :--- | :---: | :---: |  :---: | :---: | :---: |
-| [`CloudflareWorkersAI`](https://api.js.langchain.com/classes/langchain_cloudflare.CloudflareWorkersAI.html) | [`@langchain/cloudflare`](https://npmjs.com/@langchain/cloudflare) | ❌ | ✅ | ❌ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/cloudflare?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/cloudflare?style=flat-square&label=%20&) |
+template = """Human: {question}
 
-## 设置
+AI Assistant: """
 
-要访问 Cloudflare Workers AI 模型，您需要创建一个 Cloudflare 账户，获取一个 API 密钥，并安装 `@langchain/cloudflare` 集成包。
-
-### 凭证
-
-请前往[此页面](https://developers.cloudflare.com/workers-ai/)注册 Cloudflare 并生成 API 密钥。完成后，请记下您的 `CLOUDFLARE_ACCOUNT_ID` 和 `CLOUDFLARE_API_TOKEN`。
-
-### 安装
-
-LangChain Cloudflare 集成位于 `@langchain/cloudflare` 包中：
-
-::: code-group
-
-```bash [npm]
-npm install @langchain/cloudflare @langchain/core
+prompt = PromptTemplate.from_template(template)
 ```
 
-```bash [yarn]
-yarn add @langchain/cloudflare @langchain/core
+运行 LLM 前需要先进行身份验证。
+
+```python
+import getpass
+
+my_account_id = getpass.getpass("Enter your Cloudflare account ID:\n\n")
+my_api_token = getpass.getpass("Enter your Cloudflare API token:\n\n")
+llm = CloudflareWorkersAI(account_id=my_account_id, api_token=my_api_token)
 ```
 
-```bash [pnpm]
-pnpm add @langchain/cloudflare @langchain/core
-```
+```python
+llm_chain = LLMChain(prompt=prompt, llm=llm)
 
-:::
-
-## 实例化
-
-现在我们可以实例化我们的模型对象并生成聊天补全：
-
-```typescript
-// @lc-docs-hide-cell
-
-// @ts-expect-error Deno is not recognized
-const CLOUDFLARE_ACCOUNT_ID = Deno.env.get("CLOUDFLARE_ACCOUNT_ID");
-// @ts-expect-error Deno is not recognized
-const CLOUDFLARE_API_TOKEN = Deno.env.get("CLOUDFLARE_API_TOKEN");
-```
-
-```typescript
-import { CloudflareWorkersAI } from "@langchain/cloudflare";
-
-const llm = new CloudflareWorkersAI({
-  model: "@cf/meta/llama-3.1-8b-instruct", // 默认值
-  cloudflareAccountId: CLOUDFLARE_ACCOUNT_ID,
-  cloudflareApiToken: CLOUDFLARE_API_TOKEN,
-  // 传递自定义基础 URL 以使用 Cloudflare AI Gateway
-  // baseUrl: `https://gateway.ai.cloudflare.com/v1/{YOUR_ACCOUNT_ID}/{GATEWAY_NAME}/workers-ai/`,
-});
-```
-
-## 调用
-
-```typescript
-const inputText = "Cloudflare is an AI company that "
-
-const completion = await llm.invoke(inputText);
-completion
+question = "Why are roses red?"
+llm_chain.run(question)
 ```
 
 ```text
-"Cloudflare is not an AI company, but rather a content delivery network (CDN) and security company. T"... 876 more characters
+"AI Assistant: Ah, a fascinating question! The answer to why roses are red is a bit complex, but I'll do my best to explain it in a simple and polite manner.\nRoses are red due to the presence of a pigment called anthocyanin. Anthocyanin is a type of flavonoid, a class of plant compounds that are responsible for the red, purple, and blue colors found in many fruits and vegetables.\nNow, you might be wondering why roses specifically have this pigment. The answer lies in the evolutionary history of roses. You see, roses have been around for millions of years, and their red color has likely played a crucial role in attracting pollinators like bees and butterflies. These pollinators are drawn to the bright colors of roses, which helps the plants reproduce and spread their seeds.\nSo, to summarize, the reason roses are red is because of the anthocyanin pigment, which is a result of millions of years of evolutionary pressures shaping the plant's coloration to attract pollinators. I hope that helps clarify things for"
 ```
 
----
+```python
+# 使用流式输出
+for chunk in llm.stream("Why is sky blue?"):
+    print(chunk, end=" | ", flush=True)
+```
 
-## API 参考
+```text
+Ah | , |  a |  most |  excellent |  question | , |  my |  dear |  human | ! |  * | ad | just | s |  glass | es | * |  The |  sky |  appears |  blue |  due |  to |  a |  phenomen | on |  known |  as |  Ray | le | igh |  scatter | ing | . |  When |  sun | light |  enters |  Earth | ' | s |  atmosphere | , |  it |  enc | oun | ters |  tiny |  mole | cules |  of |  g | ases |  such |  as |  nit | ro | gen |  and |  o | xygen | . |  These |  mole | cules |  scatter |  the |  light |  in |  all |  directions | , |  but |  they |  scatter |  shorter |  ( | blue | ) |  w | avel | ength | s |  more |  than |  longer |  ( | red | ) |  w | avel | ength | s | . |  This |  is |  known |  as |  Ray | le | igh |  scatter | ing | . |
+ | As |  a |  result | , |  the |  blue |  light |  is |  dispers | ed |  throughout |  the |  atmosphere | , |  giving |  the |  sky |  its |  characteristic |  blue |  h | ue | . |  The |  blue |  light |  appears |  more |  prominent |  during |  sun | r | ise |  and |  sun | set |  due |  to |  the |  scatter | ing |  of |  light |  by |  the |  Earth | ' | s |  atmosphere |  at |  these |  times | . |
+ | I |  hope |  this |  explanation |  has |  been |  helpful | , |  my |  dear |  human | ! |  Is |  there |  anything |  else |  you |  would |  like |  to |  know | ? |  * | sm | iles | * | * |  |
+```
 
-有关 `CloudflareWorkersAI` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_cloudflare.CloudflareWorkersAI.html)。
+```python
+
+```

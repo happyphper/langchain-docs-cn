@@ -21,7 +21,7 @@ uv add docugami-langchain
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/docugami)。
+查看[使用示例](/oss/python/integrations/document_loaders/docugami)。
 
 ```python
 from docugami_langchain.document_loaders import DocugamiLoader

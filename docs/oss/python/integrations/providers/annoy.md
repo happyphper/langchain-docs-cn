@@ -20,7 +20,7 @@ uv add annoy
 
 ## 向量存储
 
-查看[使用示例](/oss/integrations/vectorstores/annoy)。
+查看[使用示例](/oss/python/integrations/vectorstores/annoy)。
 
 ```python
 from langchain_community.vectorstores import Annoy

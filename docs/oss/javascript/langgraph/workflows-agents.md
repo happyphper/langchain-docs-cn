@@ -7,13 +7,13 @@ sidebarTitle: Workflows + agents
 - 工作流具有预定的代码路径，设计为按特定顺序运行。
 - 智能体是动态的，能够定义自己的流程和工具使用方式。
 
-![智能体工作流](/oss/images/agent_workflow.png)
+![智能体工作流](/oss/javascript/images/agent_workflow.png)
 
-LangGraph 在构建智能体和工作流时提供了多项优势，包括[持久化](/oss/langgraph/persistence)、[流式处理](/oss/langgraph/streaming)、调试支持以及[部署](/oss/langgraph/deploy)。
+LangGraph 在构建智能体和工作流时提供了多项优势，包括[持久化](/oss/javascript/langgraph/persistence)、[流式处理](/oss/javascript/langgraph/streaming)、调试支持以及[部署](/oss/javascript/langgraph/deploy)。
 
 ## 设置
 
-要构建工作流或智能体，您可以使用任何支持结构化输出和工具调用的[聊天模型](/oss/integrations/chat)。以下示例使用 Anthropic：
+要构建工作流或智能体，您可以使用任何支持结构化输出和工具调用的[聊天模型](/oss/javascript/integrations/chat)。以下示例使用 Anthropic：
 
 1. 安装依赖项
 
@@ -50,9 +50,9 @@ const llm = new ChatAnthropic({
 
 ## LLM 与增强功能
 
-工作流和智能体系统基于 LLM 以及您为其添加的各种增强功能。[工具调用](/oss/langchain/tools)、[结构化输出](/oss/langchain/structured-output) 和[短期记忆](/oss/langchain/short-term-memory) 是几种根据需求定制 LLM 的选项。
+工作流和智能体系统基于 LLM 以及您为其添加的各种增强功能。[工具调用](/oss/javascript/langchain/tools)、[结构化输出](/oss/javascript/langchain/structured-output) 和[短期记忆](/oss/javascript/langchain/short-term-memory) 是几种根据需求定制 LLM 的选项。
 
-![LLM 增强功能](/oss/images/augmented_llm.png)
+![LLM 增强功能](/oss/javascript/images/augmented_llm.png)
 
 ```typescript
 
@@ -107,7 +107,7 @@ console.log(msg.tool_calls);
 - 将文档翻译成不同语言
 - 验证生成内容的一致性
 
-![提示链](/oss/images/prompt_chain.png)
+![提示链](/oss/javascript/images/prompt_chain.png)
 
 ::: code-group
 
@@ -258,7 +258,7 @@ for await (const step of stream) {
 - 运行一个子任务处理文档中的关键词，同时运行第二个子任务检查格式错误
 - 多次运行一个任务，根据不同的标准（如引用数量、使用的来源数量以及来源质量）对文档的准确性进行评分
 
-![parallelization.png](/oss/images/parallelization.png)
+![parallelization.png](/oss/javascript/images/parallelization.png)
 
 ::: code-group
 
@@ -389,7 +389,7 @@ for await (const step of stream) {
 
 路由工作流处理输入，然后将它们定向到特定上下文的任务。这允许您为复杂任务定义专门的流程。例如，一个用于回答产品相关问题的工作流可能会先处理问题类型，然后将请求路由到针对定价、退款、退货等的特定流程。
 
-![routing.png](/oss/images/routing.png)
+![routing.png](/oss/javascript/images/routing.png)
 
 ::: code-group
 
@@ -609,7 +609,7 @@ for await (const step of stream) {
 - 将子任务委托给工作者
 - 将工作者的输出合成为最终结果
 
-![worker.png](/oss/images/worker.png)
+![worker.png](/oss/javascript/images/worker.png)
 
 协调器-工作者工作流提供了更大的灵活性，通常在子任务无法像[并行化](#parallelization)那样预定义时使用。这在需要编写代码或跨多个文件更新内容的工作流中很常见。例如，一个需要跨未知数量的文档更新多个 Python 库安装说明的工作流可能会使用这种模式。
 
@@ -801,11 +801,11 @@ console.log(state.finalReport);
 
 ## 评估器-优化器
 
-在评估器-优化器工作流中，一个 LLM 调用创建响应，另一个 LLM 调用评估该响应。如果评估器或[人工介入](/oss/langgraph/interrupts)确定响应需要改进，则会提供反馈并重新创建响应。此循环持续进行，直到生成可接受的响应。
+在评估器-优化器工作流中，一个 LLM 调用创建响应，另一个 LLM 调用评估该响应。如果评估器或[人工介入](/oss/javascript/langgraph/interrupts)确定响应需要改进，则会提供反馈并重新创建响应。此循环持续进行，直到生成可接受的响应。
 
 评估器-优化器工作流通常在任务有特定的成功标准，但需要迭代才能满足该标准时使用。例如，在两种语言之间翻译文本时，并不总是有完美的匹配。可能需要几次迭代才能生成在两种语言中含义相同的翻译。
 
-![evaluator_optimizer.png](/oss/images/evaluator_optimizer.png)
+![evaluator_optimizer.png](/oss/javascript/images/evaluator_optimizer.png)
 
 ::: code-group
 
@@ -957,13 +957,13 @@ for await (const step of stream) {
 
 ## 智能体
 
-智能体通常实现为使用[工具](/oss/langchain/tools)执行操作的 LLM。它们在连续的反馈循环中运行，用于问题和解决方案不可预测的情况。智能体比工作流具有更多的自主权，可以决定使用哪些工具以及如何解决问题。您仍然可以定义可用的工具集和智能体行为的指导原则。
+智能体通常实现为使用[工具](/oss/javascript/langchain/tools)执行操作的 LLM。它们在连续的反馈循环中运行，用于问题和解决方案不可预测的情况。智能体比工作流具有更多的自主权，可以决定使用哪些工具以及如何解决问题。您仍然可以定义可用的工具集和智能体行为的指导原则。
 
-![agent.png](/oss/images/agent.png)
+![agent.png](/oss/javascript/images/agent.png)
 
 <Note>
 
-要开始使用智能体，请参阅[快速入门](/oss/langchain/quickstart)或在 LangChain 中了解更多关于[它们的工作原理](/oss/langchain/agents)。
+要开始使用智能体，请参阅[快速入门](/oss/javascript/langchain/quickstart)或在 LangChain 中了解更多关于[它们的工作原理](/oss/javascript/langchain/agents)。
 
 </Note>
 

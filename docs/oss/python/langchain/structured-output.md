@@ -28,12 +28,12 @@ def create_agent(
 
 当直接提供模式类型时，LangChain 会自动选择：
 
-- 如果所选模型和提供商支持原生结构化输出（例如 [OpenAI](/oss/integrations/providers/openai)、[Anthropic (Claude)](/oss/integrations/providers/anthropic) 或 [xAI (Grok)](/oss/integrations/providers/xai)），则使用 `ProviderStrategy`。
+- 如果所选模型和提供商支持原生结构化输出（例如 [OpenAI](/oss/python/integrations/providers/openai)、[Anthropic (Claude)](/oss/python/integrations/providers/anthropic) 或 [xAI (Grok)](/oss/python/integrations/providers/xai)），则使用 `ProviderStrategy`。
 - 对于所有其他模型，使用 `ToolStrategy`。
 
 <Note>
 
-如果使用 `langchain>=1.1`，对原生结构化输出功能的支持会从模型的[配置文件数据](/oss/langchain/models#model-profiles)中动态读取。如果数据不可用，请使用其他条件或手动指定：
+如果使用 `langchain>=1.1`，对原生结构化输出功能的支持会从模型的[配置文件数据](/oss/python/langchain/models#model-profiles)中动态读取。如果数据不可用，请使用其他条件或手动指定：
 ```python
 custom_profile = {
     "structured_output": True,
@@ -77,7 +77,7 @@ class ProviderStrategy(Generic[SchemaT]):
 
 <ParamField path="strict">
 
-可选的布尔参数，用于启用严格的模式遵循。某些提供商支持此功能（例如，[OpenAI](/oss/integrations/chat/openai) 和 [xAI](/oss/integrations/chat/xai)）。默认为 `None`（禁用）。
+可选的布尔参数，用于启用严格的模式遵循。某些提供商支持此功能（例如，[OpenAI](/oss/python/integrations/chat/openai) 和 [xAI](/oss/python/integrations/chat/xai)）。默认为 `None`（禁用）。
 
 </ParamField>
 

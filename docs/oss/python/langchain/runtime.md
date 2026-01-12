@@ -8,7 +8,7 @@ LangChain 的 <a href="https://reference.langchain.com/python/langchain/agents/#
 LangGraph 暴露了一个 <a href="https://reference.langchain.com/python/langgraph/runtime/#langgraph.runtime.Runtime" target="_blank" rel="noreferrer" class="link"><code>Runtime</code></a> 对象，包含以下信息：
 
 1.  **上下文**：静态信息，例如用户 ID、数据库连接或代理调用所需的其他依赖项。
-2.  **存储**：一个 <a href="https://reference.langchain.com/python/langsmith/deployment/remote_graph/" target="_blank" rel="noreferrer" class="link">BaseStore</a> 实例，用于[长期记忆](/oss/langchain/long-term-memory)。
+2.  **存储**：一个 <a href="https://reference.langchain.com/python/langsmith/deployment/remote_graph/" target="_blank" rel="noreferrer" class="link">BaseStore</a> 实例，用于[长期记忆](/oss/python/langchain/long-term-memory)。
 3.  **流写入器**：一个用于通过 `"custom"` 流模式流式传输信息的对象。
 
 <Tip>
@@ -52,7 +52,7 @@ agent.invoke(
 
 *   访问上下文
 *   读取或写入长期记忆
-*   写入[自定义流](/oss/langchain/streaming#custom-updates)（例如，工具进度/更新）
+*   写入[自定义流](/oss/python/langchain/streaming#custom-updates)（例如，工具进度/更新）
 
 使用 `ToolRuntime` 参数在工具内部访问 <a href="https://reference.langchain.com/python/langgraph/runtime/#langgraph.runtime.Runtime" target="_blank" rel="noreferrer" class="link"><code>Runtime</code></a> 对象。
 

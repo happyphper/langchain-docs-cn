@@ -9,7 +9,7 @@ title: 黑客新闻
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/hacker_news)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/hacker_news)。
 
 ```python
 from langchain_community.document_loaders import HNLoader

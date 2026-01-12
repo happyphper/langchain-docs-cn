@@ -13,7 +13,7 @@ title: Azure Blob 存储容器
 
 要运行此加载器，您需要已经设置好 Unstructured 服务，并确保其在一个可访问的 URL 端点处就绪。也可以将其配置为在本地运行。
 
-关于如何设置的信息，请参阅[此文档](/oss/integrations/document_loaders/file_loaders/unstructured)。
+关于如何设置的信息，请参阅[此文档](/oss/python/integrations/document_loaders/file_loaders/unstructured)。
 
 您还需要安装官方的 Azure 存储 Blob 客户端库：
 

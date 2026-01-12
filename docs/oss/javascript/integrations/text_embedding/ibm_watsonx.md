@@ -115,7 +115,7 @@ watsonx_embedding = WatsonxEmbeddings(
 
 ## 索引与检索
 
-嵌入模型通常用于检索增强生成 (RAG) 流程中，既作为索引数据的一部分，也用于后续检索。更详细的说明，请参阅我们的 [RAG 教程](/oss/langchain/rag)。
+嵌入模型通常用于检索增强生成 (RAG) 流程中，既作为索引数据的一部分，也用于后续检索。更详细的说明，请参阅我们的 [RAG 教程](/oss/javascript/langchain/rag)。
 
 下面，看看如何使用我们上面初始化的 `embeddings` 对象来索引和检索数据。在此示例中，我们将在 `InMemoryVectorStore` 中索引和检索一个示例文档。
 

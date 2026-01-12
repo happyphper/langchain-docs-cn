@@ -40,7 +40,7 @@ from langchain_community.tools.nuclia import NucliaUnderstandingAPI
 nua = NucliaUnderstandingAPI(enable_ml=True)
 ```
 
-查看 [使用示例](/oss/integrations/document_transformers/nuclia_transformer)。
+查看 [使用示例](/oss/python/integrations/document_transformers/nuclia_transformer)。
 
 ```python
 from langchain_community.document_transformers.nuclia_text_transform import NucliaTextTransformer
@@ -50,7 +50,7 @@ from langchain_community.document_transformers.nuclia_text_transform import Nucl
 
 ### Nuclea 加载器
 
-查看 [使用示例](/oss/integrations/document_loaders/nuclia)。
+查看 [使用示例](/oss/python/integrations/document_loaders/nuclia)。
 
 ```python
 from langchain_community.document_loaders.nuclia import NucliaLoader
@@ -74,7 +74,7 @@ uv add nuclia
 
 :::
 
-查看 [使用示例](/oss/integrations/vectorstores/nucliadb)。
+查看 [使用示例](/oss/python/integrations/vectorstores/nucliadb)。
 
 ```python
 from langchain_community.vectorstores.nucliadb import NucliaDB
@@ -84,7 +84,7 @@ from langchain_community.vectorstores.nucliadb import NucliaDB
 
 ### Nuclia Understanding
 
-查看 [使用示例](/oss/integrations/tools/nuclia)。
+查看 [使用示例](/oss/python/integrations/tools/nuclia)。
 
 ```python
 from langchain_community.tools.nuclia import NucliaUnderstandingAPI

@@ -223,7 +223,7 @@ await app.invoke({ value: "a" });
 
 ## 高级 API (High-level API)
 
-LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (图 API)](/oss/langgraph/graph-api) 和 [函数式 API (Functional API)](/oss/langgraph/functional-api)。
+LangGraph 提供了两个用于创建 Pregel 应用程序的高级 API：[StateGraph (图 API)](/oss/javascript/langgraph/graph-api) 和 [函数式 API (Functional API)](/oss/javascript/langgraph/functional-api)。
 
 <Tabs>
 
@@ -313,7 +313,7 @@ console.log(graph.channels);
 
 <Tab title="函数式 API (Functional API)">
 
-在 [函数式 API (Functional API)](/oss/langgraph/functional-api) 中，您可以使用 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.entrypoint.html" target="_blank" rel="noreferrer" class="link">entrypoint</a> 来创建 Pregel 应用程序。`entrypoint` 装饰器允许您定义一个接收输入并返回输出的函数。
+在 [函数式 API (Functional API)](/oss/javascript/langgraph/functional-api) 中，您可以使用 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.entrypoint.html" target="_blank" rel="noreferrer" class="link">entrypoint</a> 来创建 Pregel 应用程序。`entrypoint` 装饰器允许您定义一个接收输入并返回输出的函数。
 
 ```typescript
 import { MemorySaver } from "@langchain/langgraph";

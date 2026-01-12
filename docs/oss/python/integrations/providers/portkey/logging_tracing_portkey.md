@@ -1,7 +1,7 @@
 ---
 title: 日志、追踪与监控
 ---
-在使用 LangChain 构建应用或智能体时，通常需要发起多个 API 调用来完成单个用户请求。然而，当您想要分析这些请求时，它们之间并没有关联。通过 [**Portkey**](/oss/integrations/providers/portkey/)，来自单个用户请求的所有嵌入、补全和其他请求都将被记录并追踪到一个共同的 ID，使您能够全面了解用户交互情况。
+在使用 LangChain 构建应用或智能体时，通常需要发起多个 API 调用来完成单个用户请求。然而，当您想要分析这些请求时，它们之间并没有关联。通过 [**Portkey**](/oss/python/integrations/providers/portkey/)，来自单个用户请求的所有嵌入、补全和其他请求都将被记录并追踪到一个共同的 ID，使您能够全面了解用户交互情况。
 
 本笔记本将作为分步指南，展示如何在您的 LangChain 应用中使用 `Portkey` 来记录、追踪和监控 LangChain 的 LLM 调用。
 

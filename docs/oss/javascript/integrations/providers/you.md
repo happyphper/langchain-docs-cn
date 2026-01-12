@@ -5,7 +5,7 @@ title: 您好！我是专业的 IT 技术文档翻译助手。请提供您需要
 
 ## 检索器
 
-查看[使用示例](/oss/integrations/retrievers/you-retriever)。
+查看[使用示例](/oss/javascript/integrations/retrievers/you-retriever)。
 
 ```python
 from langchain_community.retrievers.you import YouRetriever
@@ -13,7 +13,7 @@ from langchain_community.retrievers.you import YouRetriever
 
 ## 工具
 
-查看[使用示例](/oss/integrations/tools/you)。
+查看[使用示例](/oss/javascript/integrations/tools/you)。
 
 ```python
 from langchain_community.tools.you import YouSearchTool

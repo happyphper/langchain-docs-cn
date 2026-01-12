@@ -7,7 +7,7 @@ title: Google Vertex AI Search
 
 >`Vertex AI Search` 可通过 `Google Cloud Console` 和 API 用于企业工作流集成。
 
-本笔记本演示了如何配置 `Vertex AI Search` 并使用 Vertex AI Search [检索器](/oss/langchain/retrieval)。Vertex AI Search 检索器封装了 [Python 客户端库](https://cloud.google.com/generative-ai-app-builder/docs/libraries#client-libraries-install-python)，并使用它来访问 [Search Service API](https://cloud.google.com/python/docs/reference/discoveryengine/latest/google.cloud.discoveryengine_v1beta.services.search_service)。
+本笔记本演示了如何配置 `Vertex AI Search` 并使用 Vertex AI Search [检索器](/oss/javascript/langchain/retrieval)。Vertex AI Search 检索器封装了 [Python 客户端库](https://cloud.google.com/generative-ai-app-builder/docs/libraries#client-libraries-install-python)，并使用它来访问 [Search Service API](https://cloud.google.com/python/docs/reference/discoveryengine/latest/google.cloud.discoveryengine_v1beta.services.search_service)。
 
 有关 `VertexAISearchRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/google_community/vertex_ai_search/langchain_google_community.vertex_ai_search.VertexAISearchRetriever.html)。
 

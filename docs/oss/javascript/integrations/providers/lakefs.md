@@ -10,7 +10,7 @@ title: lakeFS
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/lakefs)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/lakefs)。
 
 ```python
 from langchain_community.document_loaders import LakeFSLoader

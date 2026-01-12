@@ -229,7 +229,7 @@ async with client.session("server_name") as session:  # [!code highlight]
 
 ### 工具
 
-[工具](https://modelcontextprotocol.io/docs/concepts/tools)允许 MCP 服务器公开可执行的函数，LLMs 可以调用这些函数来执行操作——例如查询数据库、调用 API 或与外部系统交互。LangChain 将 MCP 工具转换为 LangChain [工具](/oss/langchain/tools)，使它们可以直接在任何 LangChain 智能体或工作流中使用。
+[工具](https://modelcontextprotocol.io/docs/concepts/tools)允许 MCP 服务器公开可执行的函数，LLMs 可以调用这些函数来执行操作——例如查询数据库、调用 API 或与外部系统交互。LangChain 将 MCP 工具转换为 LangChain [工具](/oss/python/langchain/tools)，使它们可以直接在任何 LangChain 智能体或工作流中使用。
 
 #### 加载工具
 

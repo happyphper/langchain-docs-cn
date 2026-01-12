@@ -3,7 +3,7 @@ title: Cognee
 ---
 # CogneeRetriever
 
-本文将帮助您开始使用 Cognee [检索器](/oss/langchain/retrieval)。有关 CogneeRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.cognee.CogneeRetriever.html)。
+本文将帮助您开始使用 Cognee [检索器](/oss/javascript/langchain/retrieval)。有关 CogneeRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.cognee.CogneeRetriever.html)。
 
 ### 集成详情
 

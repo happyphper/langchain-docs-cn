@@ -5,9 +5,9 @@ description: 通过 LangGraph 掌控复杂任务，设计可靠运行的智能�
 ---
 受到塑造智能体未来的公司信任——包括 Klarna、Replit、Elastic 等——LangGraph 是一个用于构建、管理和部署长期运行、有状态智能体的底层编排框架和运行时。
 
-LangGraph 非常底层，完全专注于智能体**编排**。在使用 LangGraph 之前，我们建议您先熟悉一些用于构建智能体的组件，从[模型](/oss/langchain/models)和[工具](/oss/langchain/tools)开始。
+LangGraph 非常底层，完全专注于智能体**编排**。在使用 LangGraph 之前，我们建议您先熟悉一些用于构建智能体的组件，从[模型](/oss/python/langchain/models)和[工具](/oss/python/langchain/tools)开始。
 
-在整个文档中，我们通常会使用 [LangChain](/oss/langchain/overview) 组件来集成模型和工具，但您不需要使用 LangChain 来使用 LangGraph。如果您是智能体新手，或者想要一个更高层次的抽象，我们建议您使用 LangChain 的[智能体](/oss/langchain/agents)，它为常见的 LLM 和工具调用循环提供了预构建的架构。
+在整个文档中，我们通常会使用 [LangChain](/oss/python/langchain/overview) 组件来集成模型和工具，但您不需要使用 LangChain 来使用 LangGraph。如果您是智能体新手，或者想要一个更高层次的抽象，我们建议您使用 LangChain 的[智能体](/oss/python/langchain/agents)，它为常见的 LLM 和工具调用循环提供了预构建的架构。
 
 LangGraph 专注于对智能体编排至关重要的底层能力：持久化执行、流式处理、人在回路等。
 
@@ -46,9 +46,9 @@ graph.invoke({"messages": [{"role": "user", "content": "hi!"}]})
 
 LangGraph 为*任何*长期运行、有状态的工作流或智能体提供底层支持基础设施。LangGraph 不抽象提示词或架构，并提供以下核心优势：
 
-* [持久化执行](/oss/langgraph/durable-execution)：构建能够从故障中恢复、可以长时间运行、并能从中断处继续执行的智能体。
-* [人在回路](/oss/langgraph/interrupts)：通过在任何时间点检查和修改智能体状态，融入人工监督。
-* [全面的记忆](/oss/concepts/memory)：创建具有短期工作记忆（用于持续推理）和跨会话长期记忆的有状态智能体。
+* [持久化执行](/oss/python/langgraph/durable-execution)：构建能够从故障中恢复、可以长时间运行、并能从中断处继续执行的智能体。
+* [人在回路](/oss/python/langgraph/interrupts)：通过在任何时间点检查和修改智能体状态，融入人工监督。
+* [全面的记忆](/oss/python/concepts/memory)：创建具有短期工作记忆（用于持续推理）和跨会话长期记忆的有状态智能体。
 * [使用 LangSmith 调试](/langsmith/home)：通过可视化工具深入了解复杂的智能体行为，这些工具可以追踪执行路径、捕获状态转换并提供详细的运行时指标。
 * [生产就绪的部署](/langsmith/deployments)：使用专为处理有状态、长期运行工作流的独特挑战而设计的可扩展基础设施，自信地部署复杂的智能体系统。
 

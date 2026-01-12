@@ -3,18 +3,16 @@ title: 键值存储
 ---
 ## 概述
 
-LangChain 提供了一个键值存储接口，用于通过键存储和检索数据。LangChain 中的键值存储接口主要用于缓存[嵌入向量](/oss/integrations/text_embedding)。
+LangChain 提供了一个键值存储接口，用于通过键存储和检索数据。LangChain 中的键值存储接口主要用于缓存[嵌入向量](/oss/python/integrations/text_embedding)。
 
 ## 接口
 
-所有 [`BaseStores`](https://api.js.langchain.com/classes/langchain_core.stores.BaseStore.html) 都是**泛型**的，并支持以下接口，其中 `K` 代表键的类型，`V` 代表值的类型：
+所有 [`BaseStores`](https://python.langchain.com/api_reference/core/stores/langchain_core.stores.BaseStore.html) 都支持以下接口：
 
-- `mget(keys: K[]): Promise<(V | undefined)[]>`：获取多个键对应的值，如果键不存在则返回 `undefined`
-- `mset(keyValuePairs: [K, V][]): Promise<void>`：设置多个键的值
-- `mdelete(keys: K[]): Promise<void>`：删除多个键
-- `yieldKeys(prefix?: string): AsyncGenerator<K | string>`：异步生成存储中的所有键，可选择按前缀过滤
-
-该接口的泛型特性允许您为键和值使用不同的类型。例如，`BaseStore<string, BaseMessage>` 将使用字符串键存储消息，而 `BaseStore<string, number[]>` 将存储数字数组。
+- `mget(key: Sequence[str]) -> List[Optional[bytes]]`：获取多个键的内容，如果键不存在则返回 `None`
+- `mset(key_value_pairs: Sequence[Tuple[str, bytes]]) -> None`：设置多个键的内容
+- `mdelete(key: Sequence[str]) -> None`：删除多个键
+- `yield_keys(prefix: Optional[str] = None) -> Iterator[str]`：生成存储中的所有键，可以选择按前缀过滤
 
 <Note>
 
@@ -26,47 +24,24 @@ LangChain 提供了一个键值存储接口，用于通过键存储和检索数�
 
 <Columns :cols="2">
 
-<Card title="InMemoryStore" icon="link" href="/oss/integrations/stores/in_memory" arrow="true" cta="查看指南" />
+<Card title="InMemoryByteStore" icon="link" href="/oss/integrations/stores/in_memory" arrow="true" cta="查看指南" />
 <Card title="LocalFileStore" icon="link" href="/oss/integrations/stores/file_system" arrow="true" cta="查看指南" />
 
 </Columns>
 
 ## 自定义存储
 
-您也可以通过扩展 <a href="https://reference.langchain.com/python/langsmith/deployment/remote_graph/" target="_blank" rel="noreferrer" class="link"><code>BaseStore</code></a> 类来实现自己的自定义存储。更多详情请参阅[存储接口文档](https://api.js.langchain.com/classes/langchain_core.stores.BaseStore.html)。
+您也可以通过扩展 <a href="https://reference.langchain.com/python/langsmith/deployment/remote_graph/" target="_blank" rel="noreferrer" class="link"><code>BaseStore</code></a> 类来实现自己的自定义存储。更多详情请参阅[存储接口文档](https://python.langchain.com/api_reference/core/stores/langchain_core.stores.BaseStore.html)。
 
-## 所有集成
+## 所有键值存储
 
 <Columns :cols="3">
 
-<Card
-title="Cassandra KV"
-icon="link"
-href="/oss/integrations/stores/cassandra_storage"
-arrow="true"
-cta="查看指南"
-/>
-<Card
-title="IORedis"
-icon="link"
-href="/oss/integrations/stores/ioredis_storage"
-arrow="true"
-cta="查看指南"
-/>
-<Card
-title="Upstash Redis"
-icon="link"
-href="/oss/integrations/stores/upstash_redis_storage"
-arrow="true"
-cta="查看指南"
-/>
-<Card
-title="Vercel KV"
-icon="link"
-href="/oss/integrations/stores/vercel_kv_storage"
-arrow="true"
-cta="查看指南"
-/>
+<Card title="AstraDBByteStore" icon="link" href="/oss/integrations/stores/astradb" arrow="true" cta="查看指南" />
+<Card title="CassandraByteStore" icon="link" href="/oss/integrations/stores/cassandra" arrow="true" cta="查看指南" />
+<Card title="ElasticsearchEmbeddingsCache" icon="link" href="/oss/integrations/stores/elasticsearch" arrow="true" cta="查看指南" />
+<Card title="RedisStore" icon="link" href="/oss/integrations/stores/redis" arrow="true" cta="查看指南" />
+<Card title="UpstashRedisByteStore" icon="link" href="/oss/integrations/stores/upstash_redis" arrow="true" cta="查看指南" />
 
 </Columns>
 

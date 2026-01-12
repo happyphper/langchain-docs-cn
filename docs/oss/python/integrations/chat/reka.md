@@ -1,7 +1,7 @@
 ---
 title: ChatReka
 ---
-本指南提供了 Reka [聊天模型](/oss/langchain/models) 的快速入门概览。
+本指南提供了 Reka [聊天模型](/oss/python/langchain/models) 的快速入门概览。
 
 Reka 提供了多种聊天模型。您可以在 [Reka 文档](https://docs.reka.ai/available-models) 中找到关于其最新模型、成本、上下文窗口和支持的输入类型的信息。
 
@@ -15,7 +15,7 @@ Reka 提供了多种聊天模型。您可以在 [Reka 文档](https://docs.reka.
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/python/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/python/langchain/models#token-usage) | [Logprobs](/oss/python/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 

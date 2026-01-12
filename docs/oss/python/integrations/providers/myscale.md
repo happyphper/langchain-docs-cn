@@ -63,4 +63,4 @@ index.add_documents(...)
 from langchain_community.vectorstores import MyScale
 ```
 
-有关 MyScale 封装器的更详细演练，请参阅[此笔记本](/oss/integrations/vectorstores/myscale)
+有关 MyScale 封装器的更详细演练，请参阅[此笔记本](/oss/python/integrations/vectorstores/myscale)

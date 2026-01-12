@@ -23,7 +23,7 @@ NIM 按模型打包为容器镜像，并通过 NVIDIA NGC 目录作为 NGC 容�
 
 ### 模型特性
 
-| [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/python/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/python/langchain/models#token-usage) | [对数概率](/oss/python/langchain/models#log-probabilities) |
 | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
 
@@ -57,7 +57,7 @@ pip install -qU langchain-nvidia-ai-endpoints
 
 ## 实例化
 
-完整功能请参阅 [LLM](/oss/langchain/models)。
+完整功能请参阅 [LLM](/oss/python/langchain/models)。
 
 ```python
 from langchain_nvidia_ai_endpoints import NVIDIA

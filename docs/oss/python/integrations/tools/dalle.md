@@ -18,5 +18,5 @@ console.log(imageURL);
 
 ## 相关链接
 
-- 工具 [概念指南](/oss/langchain/tools)
-- 工具 [操作指南](/oss/langchain/tools)
+- 工具 [概念指南](/oss/python/langchain/tools)
+- 工具 [操作指南](/oss/python/langchain/tools)

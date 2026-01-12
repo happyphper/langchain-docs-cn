@@ -18,7 +18,7 @@ LangChain 提供了一个封装此 API 的 SerpAPI 实用工具。导入方式�
 from langchain_community.utilities import SerpAPIWrapper
 ```
 
-关于此包装器的详细使用指南，请参阅[此笔记本](/oss/integrations/tools/serpapi)。
+关于此包装器的详细使用指南，请参阅[此笔记本](/oss/python/integrations/tools/serpapi)。
 
 ### 工具
 
@@ -30,4 +30,4 @@ from langchain_community.agent_toolkits.load_tools import load_tools
 tools = load_tools(["serpapi"])
 ```
 
-更多相关信息，请查看[此页面](/oss/integrations/tools)
+更多相关信息，请查看[此页面](/oss/python/integrations/tools)

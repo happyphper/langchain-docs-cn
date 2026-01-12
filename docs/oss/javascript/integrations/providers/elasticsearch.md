@@ -61,7 +61,7 @@ uv add langchain-elasticsearch
 
 ## 嵌入模型
 
-查看 [使用示例](/oss/integrations/text_embedding/elasticsearch)。
+查看 [使用示例](/oss/javascript/integrations/text_embedding/elasticsearch)。
 
 ```python
 from langchain_elasticsearch import ElasticsearchEmbeddings
@@ -69,7 +69,7 @@ from langchain_elasticsearch import ElasticsearchEmbeddings
 
 ## 向量存储
 
-查看 [使用示例](/oss/integrations/vectorstores/elasticsearch)。
+查看 [使用示例](/oss/javascript/integrations/vectorstores/elasticsearch)。
 
 ```python
 from langchain_elasticsearch import ElasticsearchStore
@@ -89,7 +89,7 @@ from langchain_community.vectorstores.ecloud_vector_search import EcloudESVector
 
 `ElasticsearchRetriever` 通过 Query DSL 提供了对所有 Elasticsearch 功能的灵活访问。
 
-查看 [使用示例](/oss/integrations/retrievers/elasticsearch_retriever)。
+查看 [使用示例](/oss/javascript/integrations/retrievers/elasticsearch_retriever)。
 
 ```python
 from langchain_elasticsearch import ElasticsearchRetriever
@@ -97,7 +97,7 @@ from langchain_elasticsearch import ElasticsearchRetriever
 
 ### BM25
 
-查看 [使用示例](/oss/integrations/retrievers/elastic_search_bm25)。
+查看 [使用示例](/oss/javascript/integrations/retrievers/elastic_search_bm25)。
 
 ```python
 from langchain_community.retrievers import ElasticSearchBM25Retriever
@@ -111,7 +111,7 @@ from langchain_elasticsearch import ElasticsearchCache
 
 ## 字节存储
 
-查看 [使用示例](/oss/integrations/stores/elasticsearch)。
+查看 [使用示例](/oss/javascript/integrations/stores/elasticsearch)。
 
 ```python
 from langchain_elasticsearch import ElasticsearchEmbeddingsCache

@@ -21,7 +21,7 @@ uv add GitPython
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/git)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/git)。
 
 ```python
 from langchain_community.document_loaders import GitLoader

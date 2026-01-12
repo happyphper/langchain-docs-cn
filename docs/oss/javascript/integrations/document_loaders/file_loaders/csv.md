@@ -8,7 +8,7 @@ title: CSV
 
 </Tip>
 
-本笔记本提供了 `CSVLoader` [文档加载器](/oss/integrations/document_loaders) 的快速入门概述。有关 `CSVLoader` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_fs_csv.CSVLoader.html)。
+本笔记本提供了 `CSVLoader` [文档加载器](/oss/javascript/integrations/document_loaders) 的快速入门概述。有关 `CSVLoader` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_fs_csv.CSVLoader.html)。
 
 本示例将介绍如何从 CSV 文件加载数据。第二个参数是要从 CSV 文件中提取的 `column`（列）名。CSV 文件中的每一行都将创建一个文档。当未指定 `column` 时，每一行将被转换为键/值对，每个键/值对输出到文档 `pageContent` 的新行中。当指定 `column` 时，将为每一行创建一个文档，并使用指定列的值作为文档的 `pageContent`。
 

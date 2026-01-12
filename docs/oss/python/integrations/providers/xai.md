@@ -4,7 +4,7 @@ title: xAI
 
 <Warning>
 
-本页面提及的是由 [xAI](https://docs.x.ai/docs/overview) 提供的 Grok 模型——请勿与另一家独立的 AI 硬件和软件公司 [Groq](https://console.groq.com/docs/overview) 混淆。详情请参阅 [Groq 供应商页面](/oss/integrations/providers/groq)。
+本页面提及的是由 [xAI](https://docs.x.ai/docs/overview) 提供的 Grok 模型——请勿与另一家独立的 AI 硬件和软件公司 [Groq](https://console.groq.com/docs/overview) 混淆。详情请参阅 [Groq 供应商页面](/oss/python/integrations/providers/groq)。
 
 </Warning>
 
@@ -22,7 +22,7 @@ pip install -U langchain-xai
 
 ## 示例
 
-有关详细信息和受支持的功能，请参阅 [ChatXAI 文档](/oss/integrations/chat/xai)。
+有关详细信息和受支持的功能，请参阅 [ChatXAI 文档](/oss/python/integrations/chat/xai)。
 
 ```python
 # 使用 xAI 查询聊天模型

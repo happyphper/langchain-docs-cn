@@ -23,7 +23,7 @@ uv add ain-py
 
 ## 工具包
 
-查看 [使用示例](/oss/integrations/tools/ainetwork)。
+查看 [使用示例](/oss/javascript/integrations/tools/ainetwork)。
 
 ```python
 from langchain_community.agent_toolkits.ainetwork.toolkit import AINetworkToolkit

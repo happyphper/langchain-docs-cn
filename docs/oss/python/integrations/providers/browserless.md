@@ -9,7 +9,7 @@ title: Browserless
 
 ## 文档加载器
 
-查看 [使用示例](/oss/integrations/document_loaders/browserless)。
+查看 [使用示例](/oss/python/integrations/document_loaders/browserless)。
 
 ```python
 from langchain_community.document_loaders import BrowserlessLoader

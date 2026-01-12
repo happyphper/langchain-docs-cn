@@ -3,7 +3,7 @@ title: LinkupSearchTool
 ---
 > [Linkup](https://www.linkup.so/) 提供了一个 API，用于将 LLM 连接到网络以及 Linkup 高级合作伙伴数据源。
 
-本指南提供了快速入门 LinkupSearchTool [工具](/oss/langchain/tools) 的概览。有关 LinkupSearchTool 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/linkup/tools/linkup_langchain.search_tool.LinkupSearchTool.html)。
+本指南提供了快速入门 LinkupSearchTool [工具](/oss/python/langchain/tools) 的概览。有关 LinkupSearchTool 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/linkup/tools/linkup_langchain.search_tool.LinkupSearchTool.html)。
 
 ## 概述
 
@@ -91,7 +91,7 @@ ToolMessage(content='results=[LinkupSearchResult(name=\'US presidential election
 
 ## 链式调用
 
-我们可以通过先将工具绑定到一个[工具调用模型](/oss/langchain/tools/)，然后在链中使用它：
+我们可以通过先将工具绑定到一个[工具调用模型](/oss/python/langchain/tools/)，然后在链中使用它：
 
 <ChatModelTabs customVarName="llm" />
 

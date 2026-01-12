@@ -353,7 +353,7 @@ const embeddings = new OllamaEmbeddings({
 初始化 `CacheBackedEmbeddings` 的主要支持方式是 `fromBytesStore`。它接受以下参数：
 
 - **underlyingEmbeddings**：用于嵌入的底层嵌入器。
-- **documentEmbeddingStore**：用于缓存文档嵌入的任何 [`BaseStore`](/oss/integrations/stores/)。
+- **documentEmbeddingStore**：用于缓存文档嵌入的任何 [`BaseStore`](/oss/javascript/integrations/stores/)。
 - **options.namespace**：（可选，默认为 `""`）用于文档缓存的命名空间。有助于避免冲突（例如，将其设置为嵌入模型名称）。
 
 <Important>
@@ -390,7 +390,7 @@ const documentEmbedding = cacheBackedEmbeddings.embedDocuments(["Hello, world!"]
 console.log(`Cached creation time: ${Date.now() - tic}ms`);
 ```
 
-在生产环境中，您通常会使用更健壮的持久化存储，例如数据库或云存储。请参阅[存储集成](/oss/integrations/stores/)了解相关选项。
+在生产环境中，您通常会使用更健壮的持久化存储，例如数据库或云存储。请参阅[存储集成](/oss/javascript/integrations/stores/)了解相关选项。
 
 ## 所有集成
 

@@ -1,114 +1,220 @@
 ---
 title: ClickHouse
 ---
+> [ClickHouse](https://clickhouse.com/) 是最快且资源效率最高的开源数据库，适用于实时应用和分析，它提供完整的 SQL 支持以及丰富的函数集，帮助用户编写分析查询。最近新增的数据结构和距离搜索函数（如 `L2Distance`）以及[近似最近邻搜索索引](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/annindexes)，使得 ClickHouse 能够作为高性能、可扩展的向量数据库，使用 SQL 来存储和搜索向量。
 
-<Tip>
+本笔记本展示了如何使用与 `ClickHouse` 向量存储相关的功能。
 
-<strong>兼容性说明</strong>
+## 设置
 
-仅适用于 Node.js 环境。
+首先使用 Docker 设置一个本地 ClickHouse 服务器：
 
-</Tip>
-
-[ClickHouse](https://clickhouse.com/) 是一个强大且开源的列式数据库，用于处理分析查询和高效存储。ClickHouse 旨在提供向量搜索与分析功能的强大组合。
-
-## 安装设置
-
-1. 启动一个 ClickHouse 集群。详情请参考 [ClickHouse 安装指南](https://clickhouse.com/docs/en/getting-started/install/)。
-2. 启动 ClickHouse 集群后，从集群的 `Actions` 菜单中获取 `Connection Details`。您将需要主机、端口、用户名和密码。
-3. 在您的工作空间中安装 ClickHouse 所需的 Node.js 对等依赖项。
-
-您需要安装以下对等依赖项：
-
-```bash [npm]
-npm install -S @clickhouse/client mysql2
+```python
+! docker run -d -p 8123:8123 -p 9000:9000 --name langchain-clickhouse-server --ulimit nofile=262144:262144 -e CLICKHOUSE_SKIP_USER_SETUP=1 clickhouse/clickhouse-server:25.7
 ```
 
-<Tip>
+您需要安装 `langchain-community` 和 `clickhouse-connect` 来使用此集成。
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/openai @langchain/community @langchain/core
+```python
+pip install -qU langchain-community clickhouse-connect
 ```
 
-## 索引和查询文档
+### 凭证
 
-```typescript
-import { ClickHouseStore } from "@langchain/community/vectorstores/clickhouse";
-import { OpenAIEmbeddings } from "@langchain/openai";
+本笔记本无需凭证，只需确保已按上述说明安装软件包。
 
-// 从文本初始化 ClickHouse 存储
-const vectorStore = await ClickHouseStore.fromTexts(
-  ["Hello world", "Bye bye", "hello nice world"],
-  [
-    { id: 2, name: "2" },
-    { id: 1, name: "1" },
-    { id: 3, name: "3" },
-  ],
-  new OpenAIEmbeddings(),
-  {
-    host: process.env.CLICKHOUSE_HOST || "localhost",
-    port: process.env.CLICKHOUSE_PORT || 8443,
-    username: process.env.CLICKHOUSE_USER || "username",
-    password: process.env.CLICKHOUSE_PASSWORD || "password",
-    database: process.env.CLICKHOUSE_DATABASE || "default",
-    table: process.env.CLICKHOUSE_TABLE || "vector_table",
-  }
-);
+如果您希望获得最佳的模型调用自动追踪功能，也可以通过取消注释以下代码来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
 
-// 等待 1 秒，确保搜索发生在数据成功插入之后。
-// eslint-disable-next-line no-promise-executor-return
-await new Promise((resolve) => setTimeout(resolve, 1000));
-
-// 执行无过滤的相似性搜索
-const results = await vectorStore.similaritySearch("hello world", 1);
-console.log(results);
-
-// 执行带过滤的相似性搜索
-const filteredResults = await vectorStore.similaritySearch("hello world", 1, {
-  whereStr: "metadata.name = '1'",
-});
-console.log(filteredResults);
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
 ```
 
-## 从现有集合查询文档
+## 实例化
 
-```typescript
-import { ClickHouseStore } from "@langchain/community/vectorstores/clickhouse";
-import { OpenAIEmbeddings } from "@langchain/openai";
+<EmbeddingTabs/>
 
-// 初始化 ClickHouse 存储
-const vectorStore = await ClickHouseStore.fromExistingIndex(
-  new OpenAIEmbeddings(),
-  {
-    host: process.env.CLICKHOUSE_HOST || "localhost",
-    port: process.env.CLICKHOUSE_PORT || 8443,
-    username: process.env.CLICKHOUSE_USER || "username",
-    password: process.env.CLICKHOUSE_PASSWORD || "password",
-    database: process.env.CLICKHOUSE_DATABASE || "default",
-    table: process.env.CLICKHOUSE_TABLE || "vector_table",
-  }
-);
+```python
+# | output: false
+# | echo: false
+from langchain_openai import OpenAIEmbeddings
 
-// 等待 1 秒，确保搜索发生在数据成功插入之后。
-// eslint-disable-next-line no-promise-executor-return
-await new Promise((resolve) => setTimeout(resolve, 1000));
-
-// 执行无过滤的相似性搜索
-const results = await vectorStore.similaritySearch("hello world", 1);
-console.log(results);
-
-// 执行带过滤的相似性搜索
-const filteredResults = await vectorStore.similaritySearch("hello world", 1, {
-  whereStr: "metadata.name = '1'",
-});
-console.log(filteredResults);
+embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
 ```
 
-## 相关链接
+```python
+from langchain_community.vectorstores import Clickhouse, ClickhouseSettings
 
-- 向量存储 [概念指南](/oss/integrations/vectorstores)
-- 向量存储 [操作指南](/oss/integrations/vectorstores)
+settings = ClickhouseSettings(table="clickhouse_example")
+vector_store = Clickhouse(embeddings, config=settings)
+```
+
+## 管理向量存储
+
+创建向量存储后，我们可以通过添加和删除不同项目与之交互。
+
+### 向向量存储添加项目
+
+我们可以使用 `add_documents` 函数向向量存储添加项目。
+
+```python
+from uuid import uuid4
+
+from langchain_core.documents import Document
+
+document_1 = Document(
+    page_content="I had chocolate chip pancakes and scrambled eggs for breakfast this morning.",
+    metadata={"source": "tweet"},
+)
+
+document_2 = Document(
+    page_content="The weather forecast for tomorrow is cloudy and overcast, with a high of 62 degrees.",
+    metadata={"source": "news"},
+)
+
+document_3 = Document(
+    page_content="Building an exciting new project with LangChain - come check it out!",
+    metadata={"source": "tweet"},
+)
+
+document_4 = Document(
+    page_content="Robbers broke into the city bank and stole $1 million in cash.",
+    metadata={"source": "news"},
+)
+
+document_5 = Document(
+    page_content="Wow! That was an amazing movie. I can't wait to see it again.",
+    metadata={"source": "tweet"},
+)
+
+document_6 = Document(
+    page_content="Is the new iPhone worth the price? Read this review to find out.",
+    metadata={"source": "website"},
+)
+
+document_7 = Document(
+    page_content="The top 10 soccer players in the world right now.",
+    metadata={"source": "website"},
+)
+
+document_8 = Document(
+    page_content="LangGraph is the best framework for building stateful, agentic applications!",
+    metadata={"source": "tweet"},
+)
+
+document_9 = Document(
+    page_content="The stock market is down 500 points today due to fears of a recession.",
+    metadata={"source": "news"},
+)
+
+document_10 = Document(
+    page_content="I have a bad feeling I am going to get deleted :(",
+    metadata={"source": "tweet"},
+)
+
+documents = [
+    document_1,
+    document_2,
+    document_3,
+    document_4,
+    document_5,
+    document_6,
+    document_7,
+    document_8,
+    document_9,
+    document_10,
+]
+uuids = [str(uuid4()) for _ in range(len(documents))]
+
+vector_store.add_documents(documents=documents, ids=uuids)
+```
+
+### 从向量存储删除项目
+
+我们可以使用 `delete` 函数按 ID 从向量存储中删除项目。
+
+```python
+vector_store.delete(ids=uuids[-1])
+```
+
+## 查询向量存储
+
+创建向量存储并添加相关文档后，您很可能希望在运行链或代理时查询它。
+
+### 直接查询
+
+#### 相似性搜索
+
+执行简单的相似性搜索可以按如下方式进行：
+
+```python
+results = vector_store.similarity_search(
+    "LangChain provides abstractions to make working with LLMs easy", k=2
+)
+for res in results:
+    page_content, metadata = res
+    print(f"* {page_content} [{metadata}]")
+```
+
+#### 带分数的相似性搜索
+
+您也可以进行带分数的搜索：
+
+```python
+results = vector_store.similarity_search_with_score("Will it be hot tomorrow?", k=1)
+for res, score in results:
+    print(f"* [SIM={score:3f}] {res.page_content} [{res.metadata}]")
+```
+
+## 过滤
+
+您可以直接访问 ClickHouse SQL 的 where 语句。您可以按照标准 SQL 编写 `WHERE` 子句。
+
+**注意**：请注意 SQL 注入风险，此接口不得由最终用户直接调用。
+
+如果您在设置中自定义了 `column_map`，可以像这样使用过滤器进行搜索：
+
+```python
+meta = vector_store.metadata_column
+results = vector_store.similarity_search_with_relevance_scores(
+    "What did I eat for breakfast?",
+    k=4,
+    where_str=f"{meta}.source = 'tweet'",
+)
+for res in results:
+    print(f"* {res.page_content} [{res.metadata}]")
+```
+
+#### 其他搜索方法
+
+本笔记本未涵盖多种其他搜索方法，例如 MMR 搜索或按向量搜索。有关 `Clickhouse` 向量存储可用的完整搜索功能列表，请查看 [API 参考](https://python.langchain.com/api_reference/community/vectorstores/langchain_community.vectorstores.clickhouse.Clickhouse.html)。
+
+### 转换为检索器进行查询
+
+您还可以将向量存储转换为检索器，以便在链中更轻松地使用。
+
+以下是如何将向量存储转换为检索器，然后使用简单查询和过滤器调用该检索器。
+
+```python
+retriever = vector_store.as_retriever(
+    search_type="similarity_score_threshold",
+    search_kwargs={"k": 1, "score_threshold": 0.5},
+)
+retriever.invoke("Stealing from the bank is a crime", filter={"source": "news"})
+```
+
+## 用于检索增强生成
+
+有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
+
+- [教程](/oss/python/langchain/rag)
+- [操作指南：使用 RAG 进行问答](https://python.langchain.com/docs/how_to/#qa-with-rag)
+- [检索概念文档](https://python.langchain.com/docs/concepts/retrieval)
+
+更多信息，请查看使用 Astra DB 的完整 RAG 模板[此处](https://github.com/langchain-ai/langchain/tree/master/templates/rag-astradb)。
+
+---
+
+## API 参考
+
+有关所有 `Clickhouse` 功能和配置的详细文档，请前往 [API 参考](https://python.langchain.com/api_reference/community/vectorstores/langchain_community.vectorstores.clickhouse.Clickhouse.html)。

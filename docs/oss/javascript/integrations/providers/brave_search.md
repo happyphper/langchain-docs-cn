@@ -11,7 +11,7 @@ title: Brave 搜索
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/brave_search)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/brave_search)。
 
 ```python
 from langchain_community.document_loaders import BraveSearchLoader
@@ -19,7 +19,7 @@ from langchain_community.document_loaders import BraveSearchLoader
 
 ## 工具
 
-查看[使用示例](/oss/integrations/tools/brave_search)。
+查看[使用示例](/oss/javascript/integrations/tools/brave_search)。
 
 ```python
 from langchain.tools import BraveSearch

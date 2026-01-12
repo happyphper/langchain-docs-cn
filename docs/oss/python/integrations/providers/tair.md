@@ -27,4 +27,4 @@ uv add tair
 from langchain_community.vectorstores import Tair
 ```
 
-查看[使用示例](/oss/integrations/vectorstores/tair)。
+查看[使用示例](/oss/python/integrations/vectorstores/tair)。

@@ -354,9 +354,9 @@ Documents after deletion:  0
 
 * [使用 VDMS 进行多模态 RAG](https://github.com/langchain-ai/langchain/blob/v0.3/cookbook/multi_modal_RAG_vdms.ipynb)
 * [使用 VDMS 进行视觉 RAG](https://github.com/langchain-ai/langchain/blob/v0.3/cookbook/visual_RAG_vdms.ipynb)
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)
-- [代理式 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/python/langchain/rag)
+- [代理式 RAG](/oss/python/langgraph/agentic-rag)
+- [检索文档](/oss/python/langchain/retrieval)
 
 ## 使用其他引擎进行相似性搜索
 

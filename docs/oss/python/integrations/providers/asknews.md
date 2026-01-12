@@ -23,7 +23,7 @@ uv add asknews
 
 ## 检索器
 
-查看 [使用示例](/oss/integrations/retrievers/asknews)。
+查看 [使用示例](/oss/python/integrations/retrievers/asknews)。
 
 ```python
 from langchain_community.retrievers import AskNewsRetriever
@@ -31,7 +31,7 @@ from langchain_community.retrievers import AskNewsRetriever
 
 ## 工具
 
-查看 [使用示例](/oss/integrations/tools/asknews)。
+查看 [使用示例](/oss/python/integrations/tools/asknews)。
 
 ```python
 from langchain_community.tools.asknews import AskNewsSearch

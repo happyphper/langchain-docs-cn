@@ -1,7 +1,7 @@
 ---
 title: WRITER 工具
 ---
-本指南概述了如何开始使用 WRITER [工具](/oss/langchain/tools)。有关所有 WRITER 功能和配置的详细文档，请参阅 [WRITER 文档](https://dev.writer.com/home)。
+本指南概述了如何开始使用 WRITER [工具](/oss/javascript/langchain/tools)。有关所有 WRITER 功能和配置的详细文档，请参阅 [WRITER 文档](https://dev.writer.com/home)。
 
 ## 概述
 

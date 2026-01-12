@@ -1,154 +1,213 @@
 ---
 title: Vectara
 ---
-Vectara 是一个用于构建 GenAI 应用程序的平台。它提供了一个易于使用的 API，用于文档索引和查询，该 API 由 Vectara 管理，并针对性能和准确性进行了优化。
+[Vectara](https://vectara.com/) 是一个值得信赖的 AI 助手和智能体平台，专注于为关键任务应用提供企业级就绪能力。
+Vectara 的无服务器 RAG 即服务通过一个易于使用的 API 提供了 RAG 的所有组件，包括：
 
-您可以将 Vectara 与 LangChain.js 一起用作向量存储。
+1.  从文件（PDF、PPT、DOCX 等）中提取文本的方法。
+2.  基于机器学习的分块技术，提供最先进的性能。
+3.  [Boomerang](https://vectara.com/how-boomerang-takes-retrieval-augmented-generation-to-the-next-level-via-grounded-generation/) 嵌入模型。
+4.  其内部的向量数据库，用于存储文本块和嵌入向量。
+5.  查询服务，可自动将查询编码为嵌入向量，并检索最相关的文本片段，支持[混合搜索](https://docs.vectara.com/docs/api-reference/search-apis/lexical-matching)以及多种重排序选项，例如[多语言相关性重排序器](https://www.vectara.com/blog/deep-dive-into-vectara-multilingual-reranker-v1-state-of-the-art-reranker-across-100-languages)、[MMR](https://vectara.com/get-diverse-results-and-comprehensive-summaries-with-vectaras-mmr-reranker/)、[UDF 重排序器](https://www.vectara.com/blog/rag-with-user-defined-functions-based-reranking)。
+6.  一个 LLM，用于基于检索到的文档（上下文）创建[生成式摘要](https://docs.vectara.com/docs/learn/grounded-generation/grounded-generation-overview)，包括引用。
 
-## 👉 包含嵌入
+更多信息：
 
-Vectara 在底层使用其自身的嵌入模型，因此您无需自行提供任何嵌入，也无需调用其他服务来获取嵌入。
+-   [文档](https://docs.vectara.com/docs/)
+-   [API 演练场](https://docs.vectara.com/docs/rest-api/)
+-   [快速入门](https://docs.vectara.com/docs/quickstart)
 
-这也意味着，如果您提供自己的嵌入，它们将不会产生任何效果。
-
-```typescript
-const store = await VectaraStore.fromTexts(
-  ["hello world", "hi there"],
-  [{ foo: "bar" }, { foo: "baz" }],
-  // 这不会产生效果。为了清晰起见，请提供一个 FakeEmbeddings 实例。
-  new OpenAIEmbeddings(),
-  args
-);
-```
+本笔记本展示了在仅将 Vectara 用作向量存储（不进行摘要生成）时，如何使用其基本检索功能，包括：`similarity_search` 和 `similarity_search_with_score`，以及使用 LangChain 的 `as_retriever` 功能。
 
 ## 设置
 
-您需要：
+要使用 `VectaraVectorStore`，首先需要安装合作伙伴包。
 
-- 创建一个 [免费的 Vectara 账户](https://vectara.com/integrations/langchain)。
-- 创建一个 [语料库](https://docs.vectara.com/docs/console-ui/creating-a-corpus) 来存储您的数据。
-- 创建一个具有 QueryService 和 IndexService 访问权限的 [API 密钥](https://docs.vectara.com/docs/common-use-cases/app-authn-authz/api-keys)，以便您可以访问此语料库。
-
-配置您的 `.env` 文件或提供参数，以将 LangChain 连接到您的 Vectara 语料库：
-
-```
-VECTARA_CUSTOMER_ID=your_customer_id
-VECTARA_CORPUS_ID=your_corpus_id
-VECTARA_API_KEY=your-vectara-api-key
+```python
+!uv pip install -U pip && uv pip install -qU langchain-vectara
 ```
 
-请注意，您可以提供多个以逗号分隔的语料库 ID，以便同时查询多个语料库。例如：`VECTARA_CORPUS_ID=3,8,9,43`。
-要为多个语料库建立索引，您需要为每个语料库创建一个单独的 VectaraStore 实例。
+# 开始使用
 
-## 用法
+要开始使用，请遵循以下步骤：
 
-```typescript
-import { VectaraStore } from "@langchain/community/vectorstores/vectara";
-import { VectaraSummaryRetriever } from "@langchain/community/retrievers/vectara_summary";
-import { Document } from "@langchain/core/documents";
+1.  如果您还没有 Vectara 账户，请[注册](https://www.vectara.com/integrations/langchain)免费试用。
+2.  在您的账户内，您可以创建一个或多个语料库。每个语料库代表一个区域，用于存储从输入文档摄取后的文本数据。要创建语料库，请使用 **"创建语料库"** 按钮。然后为您的语料库提供名称和描述。您可以选择定义过滤属性并应用一些高级选项。如果点击您创建的语料库，您可以在顶部看到其名称和语料库 ID。
+3.  接下来，您需要创建 API 密钥来访问语料库。在语料库视图中点击 **"访问控制"** 选项卡，然后点击 **"创建 API 密钥"** 按钮。为您的密钥命名，并选择您希望密钥是仅查询还是查询+索引。点击 "创建"，您现在就有了一个有效的 API 密钥。请妥善保管此密钥。
 
-// 创建 Vectara 存储。
-const store = new VectaraStore({
-  customerId: Number(process.env.VECTARA_CUSTOMER_ID),
-  corpusId: Number(process.env.VECTARA_CORPUS_ID),
-  apiKey: String(process.env.VECTARA_API_KEY),
-  verbose: true,
-});
+要将 LangChain 与 Vectara 结合使用，您需要这两个值：`corpus_key` 和 `api_key`。
+您可以通过两种方式向 LangChain 提供 `VECTARA_API_KEY`：
 
-// 添加两个带有元数据的文档。
-const doc_ids = await store.addDocuments([
-  new Document({
-    pageContent: "Do I dare to eat a peach?",
-    metadata: {
-      foo: "baz",
-    },
-  }),
-  new Document({
-    pageContent: "In the room the women come and go talking of Michelangelo",
-    metadata: {
-      foo: "bar",
-    },
-  }),
-]);
+1.  在您的环境中包含这两个变量：`VECTARA_API_KEY`。
 
-// 执行相似性搜索。
-const resultsWithScore = await store.similaritySearchWithScore(
-  "What were the women talking about?",
-  1,
-  {
-    lambda: 0.025,
-  }
-);
+例如，您可以使用 os.environ 和 getpass 设置这些变量，如下所示：
 
-// 打印结果。
-console.log(JSON.stringify(resultsWithScore, null, 2));
-/*
-[
-  [
-    {
-      "pageContent": "In the room the women come and go talking of Michelangelo",
-      "metadata": {
-        "lang": "eng",
-        "offset": "0",
-        "len": "57",
-        "foo": "bar"
-      }
-    },
-    0.4678752
-  ]
-]
-*/
+```python
+import os
+import getpass
 
-const retriever = new VectaraSummaryRetriever({ vectara: store, topK: 3 });
-const documents = await retriever.invoke("What were the women talking about?");
-
-console.log(JSON.stringify(documents, null, 2));
-/*
-[
-  {
-    "pageContent": "<b>In the room the women come and go talking of Michelangelo</b>",
-    "metadata": {
-      "lang": "eng",
-      "offset": "0",
-      "len": "57",
-      "foo": "bar"
-    }
-  },
-  {
-    "pageContent": "<b>In the room the women come and go talking of Michelangelo</b>",
-    "metadata": {
-      "lang": "eng",
-      "offset": "0",
-      "len": "57",
-      "foo": "bar"
-    }
-  },
-  {
-    "pageContent": "<b>In the room the women come and go talking of Michelangelo</b>",
-    "metadata": {
-      "lang": "eng",
-      "offset": "0",
-      "len": "57",
-      "foo": "bar"
-    }
-  }
-]
-*/
-
-// 删除文档。
-await store.deleteDocuments(doc_ids);
+os.environ["VECTARA_API_KEY"] = getpass.getpass("Vectara API Key:")
 ```
 
-请注意，`lambda` 是一个与 Vectara 混合搜索能力相关的参数，它在神经搜索和布尔/精确匹配之间提供权衡，如 [此处](https://docs.vectara.com/docs/api-reference/search-apis/lexical-matching) 所述。我们建议默认值为 0.025，同时为高级用户提供了一种在需要时自定义此值的方法。
+2.  将它们添加到 `Vectara` 向量存储构造函数中：
 
-## API
+```python
+vectara = Vectara(
+    vectara_api_key=vectara_api_key
+)
+```
 
-Vectara 的 LangChain 向量存储使用 Vectara 的核心 API：
+在本笔记本中，我们假设它们已在环境中提供。
 
-- [索引 API](https://docs.vectara.com/docs/indexing-apis/indexing) 用于将文档存储在 Vectara 语料库中。
-- [搜索 API](https://docs.vectara.com/docs/search-apis/search) 用于查询此数据。此 API 支持混合搜索。
+```python
+import os
 
-## 相关链接
+os.environ["VECTARA_API_KEY"] = "<VECTARA_API_KEY>"
+os.environ["VECTARA_CORPUS_KEY"] = "VECTARA_CORPUS_KEY"
 
-- 向量存储 [概念指南](/oss/integrations/vectorstores)
-- 向量存储 [操作指南](/oss/integrations/vectorstores)
+from langchain_vectara import Vectara
+from langchain_vectara.vectorstores import (
+    ChainReranker,
+    CorpusConfig,
+    CustomerSpecificReranker,
+    File,
+    GenerationConfig,
+    MmrReranker,
+    SearchConfig,
+    VectaraQueryConfig,
+)
+
+vectara = Vectara(vectara_api_key=os.getenv("VECTARA_API_KEY"))
+```
+
+首先，我们将国情咨文文本加载到 Vectara 中。
+
+请注意，我们使用的是 `add_files` 接口，它不需要任何本地处理或分块——Vectara 接收文件内容，并执行所有必要的预处理、分块和将文件嵌入到其知识存储中。
+
+在本例中，它使用 .txt 文件，但同样适用于许多其他[文件类型](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload-filetypes)。
+
+```python
+corpus_key = os.getenv("VECTARA_CORPUS_KEY")
+file_obj = File(
+    file_path="../document_loaders/example_data/state_of_the_union.txt",
+    metadata={"source": "text_file"},
+)
+vectara.add_files([file_obj], corpus_key)
+```
+
+```python
+['state_of_the_union.txt']
+```
+
+## Vectara RAG（检索增强生成）
+
+我们现在创建一个 `VectaraQueryConfig` 对象来控制检索和摘要生成选项：
+- 我们启用摘要生成，指定我们希望 LLM 选取前 7 个匹配的块并用英语进行响应。
+
+使用此配置，让我们创建一个 LangChain `Runnable` 对象，该对象使用 `as_rag` 方法封装完整的 Vectara RAG 流程：
+
+```python
+generation_config = GenerationConfig(
+    max_used_search_results=7,
+    response_language="eng",
+    generation_preset_name="vectara-summary-ext-24-05-med-omni",
+    enable_factual_consistency_score=True,
+)
+search_config = SearchConfig(
+    corpora=[CorpusConfig(corpus_key=corpus_key)],
+    limit=25,
+    reranker=ChainReranker(
+        rerankers=[
+            CustomerSpecificReranker(reranker_id="rnk_272725719", limit=100),
+            MmrReranker(diversity_bias=0.2, limit=100),
+        ]
+    ),
+)
+
+config = VectaraQueryConfig(
+    search=search_config,
+    generation=generation_config,
+)
+
+query_str = "what did Biden say?"
+
+rag = vectara.as_rag(config)
+rag.invoke(query_str)["answer"]
+```
+
+```text
+"President Biden discussed several key issues in his recent statements. He emphasized the importance of keeping schools open and noted that with a high vaccination rate and reduced hospitalizations, most Americans can safely return to normal activities without masks [1]. He addressed the need to hold social media platforms accountable for their impact on children and called for stronger privacy protections and mental health services [2]. Biden also announced measures against Russian oligarchs, including closing American airspace to Russian flights and targeting their assets, as part of efforts to weaken Russia's economy [3], [7]. Additionally, he reaffirmed the need to protect women's rights, particularly the right to choose as affirmed in Roe v. Wade [5]."
+```
+
+我们也可以像这样使用流式接口：
+
+```python
+output = {}
+curr_key = None
+for chunk in rag.stream(query_str):
+    for key in chunk:
+        if key not in output:
+            output[key] = chunk[key]
+        else:
+            output[key] += chunk[key]
+        if key == "answer":
+            print(chunk[key], end="", flush=True)
+        curr_key = key
+```
+
+```text
+President Biden discussed several key issues in his recent statements. He emphasized the importance of keeping schools open and noted that with a high vaccination rate and reduced hospitalizations, most Americans can safely return to normal activities without masks [1]. He addressed the need to hold social media platforms accountable for their impact on children and called for stronger privacy protections and mental health services [2]. Biden also announced measures against Russia, including preventing its central bank from defending the Ruble and targeting Russian oligarchs' assets, as part of efforts to weaken Russia's economy and military [3]. Additionally, he reaffirmed the commitment to protect women's rights, particularly the right to choose as affirmed in Roe v. Wade [5]. Lastly, he advocated for funding the police with necessary resources and training to ensure community safety [6].
+```
+
+## 幻觉检测和事实一致性分数
+
+Vectara 创建了 [HHEM](https://huggingface.co/vectara/hallucination_evaluation_model)——一个开源模型，可用于评估 RAG 响应的事实一致性。
+
+作为 Vectara RAG 的一部分，"事实一致性分数"（Factual Consistency Score，简称 FCS）——这是开源 HHEM 的改进版本——通过 API 提供。它会自动包含在 RAG 流程的输出中。
+
+```python
+resp = rag.invoke(query_str)
+print(resp["answer"])
+print(f"Vectara FCS = {resp['fcs']}")
+```
+
+```text
+President Biden discussed several key topics in his recent statements. He emphasized the importance of keeping schools open and noted that with a high vaccination rate and reduced hospitalizations, most Americans can safely return to normal activities without masks [1]. He addressed the need to hold social media platforms accountable for their impact on children and called for stronger privacy protections and mental health services [2]. Biden also announced measures against Russian oligarchs, including closing American airspace to Russian flights and targeting their assets, as part of efforts to weaken Russia's economy [3], [7]. Additionally, he reaffirmed the need to protect women's rights, particularly the right to choose as affirmed in Roe v. Wade [5].
+Vectara FCS = 0.61621094
+```
+
+## Vectara 作为 LangChain 检索器
+
+Vectara 组件也可以仅用作检索器。
+
+在这种情况下，它的行为就像任何其他 LangChain 检索器一样。此模式的主要用途是进行语义搜索，在这种情况下，我们禁用摘要生成：
+
+```python
+config.generation = None
+config.search.limit = 5
+retriever = vectara.as_retriever(config=config)
+retriever.invoke(query_str)
+```
+
+```text
+[Document(metadata={'X-TIKA:Parsed-By': 'org.apache.tika.parser.csv.TextAndCSVParser', 'Content-Encoding': 'UTF-8', 'X-TIKA:detectedEncoding': 'UTF-8', 'X-TIKA:encodingDetector': 'UniversalEncodingDetector', 'Content-Type': 'text/plain; charset=UTF-8', 'source': 'text_file', 'framework': 'langchain'}, page_content='The U.S. Department of Justice is assembling a dedicated task force to go after the crimes of Russian oligarchs. We are joining with our European allies to find and seize your yachts your luxury apartments your private jets. We are coming for your ill-begotten gains. And tonight I am announcing that we will join our allies in closing off American air space to all Russian flights – further isolating Russia – and adding an additional squeeze –on their economy. The Ruble has lost 30% of its value.'),
+ Document(metadata={'X-TIKA:Parsed-By': 'org.apache.tika.parser.csv.TextAndCSVParser', 'Content-Encoding': 'UTF-8', 'X-TIKA:detectedEncoding': 'UTF-8', 'X-TIKA:encodingDetector': 'UniversalEncodingDetector', 'Content-Type': 'text/plain; charset=UTF-8', 'source': 'text_file', 'framework': 'langchain'}, page_content='When they came home, many of the world’s fittest and best trained warriors were never the same. Dizziness. \n\nA cancer that would put them in a flag-draped coffin. I know. \n\nOne of those soldiers was my son Major Beau Biden. We don’t know for sure if a burn pit was the cause of his brain cancer, or the diseases of so many of our troops. But I’m committed to finding out everything we can.'),
+ Document(metadata={'X-TIKA:Parsed-By': 'org.apache.tika.parser.csv.TextAndCSVParser', 'Content-Encoding': 'UTF-8', 'X-TIKA:detectedEncoding': 'UTF-8', 'X-TIKA:encodingDetector': 'UniversalEncodingDetector', 'Content-Type': 'text/plain; charset=UTF-8', 'source': 'text_file', 'framework': 'langchain'}, page_content='He rejected repeated efforts at diplomacy. He thought the West and NATO wouldn’t respond. And he thought he could divide us at home. We were ready.  Here is what we did. We prepared extensively and carefully.'),
+ Document(metadata={'X-TIKA:Parsed-By': 'org.apache.tika.parser.csv.TextAndCSVParser', 'Content-Encoding': 'UTF-8', 'X-TIKA:detectedEncoding': 'UTF-8', 'X-TIKA:encodingDetector': 'UniversalEncodingDetector', 'Content-Type': 'text/plain; charset=UTF-8', 'source': 'text_file', 'framework': 'langchain'}, page_content='And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections. Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service. One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court. And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson.'),
+ Document(metadata={'X-TIKA:Parsed-By': 'org.apache.tika.parser.csv.TextAndCSVParser', 'Content-Encoding': 'UTF-8', 'X-TIKA:detectedEncoding': 'UTF-8', 'X-TIKA:encodingDetector': 'UniversalEncodingDetector', 'Content-Type': 'text/plain; charset=UTF-8', 'source': 'text_file', 'framework': 'langchain'}, page_content='Putin’s latest attack on Ukraine was premeditated and unprovoked. He rejected repeated efforts at diplomacy. He thought the West and NATO wouldn’t respond. And he thought he could divide us at home. We were ready.  Here is what we did.')]
+```
+
+为了向后兼容，您也可以在检索器中启用摘要生成，在这种情况下，摘要会作为一个额外的 Document 对象添加：
+
+```python
+config.generation = GenerationConfig()
+config.search.limit = 10
+retriever = vectara.as_retriever(config=config)
+retriever.invoke(query_str)
+```
+
+```text
+[Document(metadata={'X-TIKA:Parsed-By': 'org.apache.tika.parser.csv.TextAndCSVParser', 'Content-Encoding': 'UTF-8', 'X-TIKA:detectedEncoding': 'UTF-8', 'X-TIKA:encodingDetector': 'UniversalEncodingDetector', 'Content-Type': 'text/plain; charset=UTF-8', 'source': 'text_file', 'framework': 'langchain'}, page_content='We won’t be able to compete for the jobs of the 21st Century if we don’t fix that. That’s why it was so important to pass the Bipartisan Infrastructure Law—the most sweeping investment to rebuild America in history. This was a bipartisan effort, and I want to thank the members of both parties who worked to make it happen. We’re done talking about infrastructure weeks. We’re going to have an infrastructure decade.'),
+ Document(metadata={'X-TIKA:Parsed-By': 'org.apache.tika.parser.csv.TextAndCSVParser', 'Content-Encoding': 'UTF-8', 'X-TIKA:detectedEncoding': 'UTF-8', 'X-TIKA:encodingDetector': 'UniversalEncodingDetector', 'Content-Type': 'text/plain; charset=UTF-8', 'source': 'text_file', 'framework': 'langchain'}, page_content='The U.S. Department of Justice is assembling a dedicated task force to go after the crimes of Russian oligarchs. We are joining with our European allies to find and seize your yachts your luxury apartments your private jets. We are coming for your ill-begotten gains. And tonight I am announcing that we will join our allies in closing off American air space to all Russian flights – further isolating Russia – and adding an additional squeeze –on their economy. The Ruble has lost 30% of its value.'),
+ Document(metadata={'X-TIKA:Parsed-By': 'org.apache.tika.parser.csv.TextAndCSVParser', 'Content-Encoding': 'UTF-8', 'X-TIKA:detectedEncoding': 'UTF-8', 'X-TIKA:encodingDetector': 'UniversalEncodingDetector', 'Content-Type': 'text/plain; charset=UTF-8', 'source': 'text_file', 'framework': 'langchain'}, page_content='When they came home, many of the world’s fittest and best trained warriors were never the same. Dizziness. \n\nA cancer that would put them in a flag-draped coffin. I know. \n\nOne of those soldiers was my son Major Beau Biden. We don’t know for sure if a burn pit was the cause of his brain cancer, or the diseases of so many of our troops. But I’m committed to finding out everything we can.'),
+ Document(metadata={'X-TIKA:Parsed-By': 'org.apache.tika.parser.csv.TextAndCSVParser', 'Content-Encoding': 'UTF-8', 'X-TIKA:detectedEncoding': 'UTF-8', 'X-TIKA:encodingDetector': 'UniversalEncodingDetector', 'Content-Type': 'text/plain; charset=UTF-8', 'source': 'text_file', 'framework': 'langchain'}, page_content='Preventing Russia’s central bank from defending the Russian Ruble making Putin’s $630 Billion “war fund” worthless. We are choking off Russia’s access to technology that will sap its economic strength and weaken its military for years to come. Tonight I say to the Russian oligarchs and corrupt leaders who have bil

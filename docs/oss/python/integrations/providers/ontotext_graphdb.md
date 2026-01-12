@@ -23,7 +23,7 @@ uv add "rdflib==7.0.0"
 
 将您的 GraphDB 数据库与聊天模型连接，以获取对数据的洞察。
 
-请参阅此处的笔记本示例：[这里](/oss/integrations/graphs/ontotext)。
+请参阅此处的笔记本示例：[这里](/oss/python/integrations/graphs/ontotext)。
 
 ```python
 from langchain_community.graphs import OntotextGraphDBGraph

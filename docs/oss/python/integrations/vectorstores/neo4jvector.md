@@ -1,270 +1,454 @@
 ---
 title: Neo4j 向量索引
 ---
-Neo4j 是一个开源的图数据库，集成了对向量相似性搜索的支持。
+>[Neo4j](https://neo4j.com/) 是一个开源的图数据库，集成了对向量相似性搜索的支持。
+
 它支持：
 
 - 近似最近邻搜索
 - 欧几里得相似度和余弦相似度
-- 结合向量搜索和关键词搜索的混合搜索
+- 结合向量和关键词搜索的混合搜索
 
-## 设置
+本笔记本展示了如何使用 Neo4j 向量索引 (`Neo4jVector`)。
 
-要使用 Neo4j 向量索引，你需要安装 `neo4j-driver` 包：
+请参阅 [安装说明](https://neo4j.com/docs/operations-manual/current/installation/)。
 
-```bash [npm]
-npm install neo4j-driver
+```python
+# Pip install necessary package
+pip install -qU  neo4j
+pip install -qU  langchain-openai langchain-neo4j
+pip install -qU  tiktoken
 ```
 
-<Tip>
+我们想使用 `OpenAIEmbeddings`，因此需要获取 OpenAI API 密钥。
 
-关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+```python
+import getpass
+import os
 
-</Tip>
-
-```bash [npm]
-npm install @langchain/openai @langchain/community @langchain/core
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("OpenAI API Key:")
 ```
 
-### 使用 `docker-compose` 设置一个 `Neo4j` 自托管实例
-
-`Neo4j` 提供了一个预构建的 Docker 镜像，可用于快速设置自托管的 Neo4j 数据库实例。
-创建一个名为 `docker-compose.yml` 的文件：
-
-```yml [docker-compose.yml]
-services:
-  database:
-    image: neo4j
-    ports:
-      - 7687:7687
-      - 7474:7474
-    environment:
-      - NEO4J_AUTH=neo4j/pleaseletmein
+```text
+OpenAI API Key: ········
 ```
 
-然后在同一目录下，运行 `docker compose up` 来启动容器。
-
-你可以在 Neo4j 的[网站](https://neo4j.com/docs/operations-manual/current/installation/)上找到更多关于如何设置 `Neo4j` 的信息。
-
-## 用法
-
-```typescript
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { Neo4jVectorStore } from "@langchain/community/vectorstores/neo4j_vector";
-
-// Neo4j 连接和其他相关设置的配置对象
-const config = {
-  url: "bolt://localhost:7687", // Neo4j 实例的 URL
-  username: "neo4j", // Neo4j 认证的用户名
-  password: "pleaseletmein", // Neo4j 认证的密码
-  indexName: "vector", // 向量索引的名称
-  keywordIndexName: "keyword", // 如果使用混合搜索，关键词索引的名称
-  searchType: "vector" as const, // 搜索类型（例如，vector, hybrid）
-  nodeLabel: "Chunk", // 图中节点的标签
-  textNodeProperty: "text", // 包含文本的节点属性
-  embeddingNodeProperty: "embedding", // 包含嵌入向量的节点属性
-};
-
-const documents = [
-  { pageContent: "what's this", metadata: { a: 2 } },
-  { pageContent: "Cat drinks milk", metadata: { a: 1 } },
-];
-
-const neo4jVectorIndex = await Neo4jVectorStore.fromDocuments(
-  documents,
-  new OpenAIEmbeddings(),
-  config
-);
-
-const results = await neo4jVectorIndex.similaritySearch("water", 1);
-
-console.log(results);
-
-/*
-  [ Document { pageContent: 'Cat drinks milk', metadata: { a: 1 } } ]
-*/
-
-await neo4jVectorIndex.close();
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_core.documents import Document
+from langchain_neo4j import Neo4jVector
+from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import CharacterTextSplitter
 ```
 
-### 使用 retrievalQuery 参数自定义响应
+```python
+loader = TextLoader("../../how_to/state_of_the_union.txt")
 
-```typescript
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { Neo4jVectorStore } from "@langchain/community/vectorstores/neo4j_vector";
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
 
-/*
- * retrievalQuery 是一个可自定义的 Cypher 查询片段，在 Neo4jVectorStore 类中用于定义如何从 Neo4j 数据库中检索和呈现搜索结果。
- * 它允许开发者指定相似性搜索后返回数据的格式和结构。
- * `retrievalQuery` 的必需列：
- *
- * 1. text:
- *    - 描述：表示节点的文本内容。
- *    - 类型：字符串
- *
- * 2. score:
- *    - 描述：表示节点相对于搜索查询的相似性分数。分数越高表示匹配度越高。
- *    - 类型：浮点数（范围在 0 到 1 之间，1 表示完全匹配）
- *
- * 3. metadata:
- *    - 描述：包含节点的附加属性和信息。可以包括节点任何其他可能与应用程序相关的属性。
- *    - 类型：对象（键值对）
- *    - 示例：{ "id": "12345", "category": "Books", "author": "John Doe" }
- *
- * 注意：虽然你可以自定义 `retrievalQuery` 来获取额外的列或执行转换，但绝不能省略必需列。
- * 这些列的名称（`text`、`score` 和 `metadata`）应保持一致。重命名它们可能导致错误或意外行为。
- */
-
-// Neo4j 连接和其他相关设置的配置对象
-const config = {
-  url: "bolt://localhost:7687", // Neo4j 实例的 URL
-  username: "neo4j", // Neo4j 认证的用户名
-  password: "pleaseletmein", // Neo4j 认证的密码
-  retrievalQuery: `
-    RETURN node.text AS text, score, {a: node.a * 2} AS metadata
-  `,
-};
-
-const documents = [
-  { pageContent: "what's this", metadata: { a: 2 } },
-  { pageContent: "Cat drinks milk", metadata: { a: 1 } },
-];
-
-const neo4jVectorIndex = await Neo4jVectorStore.fromDocuments(
-  documents,
-  new OpenAIEmbeddings(),
-  config
-);
-
-const results = await neo4jVectorIndex.similaritySearch("water", 1);
-
-console.log(results);
-
-/*
-  [ Document { pageContent: 'Cat drinks milk', metadata: { a: 2 } } ]
-*/
-
-await neo4jVectorIndex.close();
+embeddings = OpenAIEmbeddings()
 ```
 
-### 从现有图实例化 Neo4jVectorStore
+```python
+# Neo4jVector 需要 Neo4j 数据库的凭据
 
-```typescript
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { Neo4jVectorStore } from "@langchain/community/vectorstores/neo4j_vector";
+url = "bolt://localhost:7687"
+username = "neo4j"
+password = "password"
 
-/**
- * `fromExistingGraph` 方法：
- *
- * 描述：
- * 此方法使用 Neo4j 数据库中现有的图来初始化一个 `Neo4jVectorStore` 实例。
- * 它设计用于处理已经具有文本属性但可能没有嵌入向量的节点。
- * 该方法将为缺少嵌入向量的节点计算并存储嵌入向量。
- *
- * 注意：
- * 当你有一个包含文本数据的预存图，并且希望在不改变原始数据结构的情况下，通过向量嵌入来增强其相似性搜索能力时，此方法特别有用。
- */
+# 你也可以使用环境变量，而不是直接传递命名参数
+# os.environ["NEO4J_URI"] = "bolt://localhost:7687"
+# os.environ["NEO4J_USERNAME"] = "neo4j"
+# os.environ["NEO4J_PASSWORD"] = "pleaseletmein"
+```
 
-// Neo4j 连接和其他相关设置的配置对象
-const config = {
-  url: "bolt://localhost:7687", // Neo4j 实例的 URL
-  username: "neo4j", // Neo4j 认证的用户名
-  password: "pleaseletmein", // Neo4j 认证的密码
-  indexName: "wikipedia",
-  nodeLabel: "Wikipedia",
-  textNodeProperties: ["title", "description"],
-  embeddingNodeProperty: "embedding",
-  searchType: "hybrid" as const,
-};
+## 使用余弦距离进行相似性搜索（默认）
 
-// 使用此方法前，你应该有一个已填充数据的 Neo4j 数据库
-const neo4jVectorIndex = await Neo4jVectorStore.fromExistingGraph(
-  new OpenAIEmbeddings(),
-  config
-);
+```python
+# Neo4jVector 模块将连接到 Neo4j，并在需要时创建向量索引。
 
-await neo4jVectorIndex.close();
+db = Neo4jVector.from_documents(
+    docs, OpenAIEmbeddings(), url=url, username=username, password=password
+)
+```
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+docs_with_score = db.similarity_search_with_score(query, k=2)
+```
+
+```python
+for doc, score in docs_with_score:
+    print("-" * 80)
+    print("Score: ", score)
+    print(doc.page_content)
+    print("-" * 80)
+```
+
+```text
+--------------------------------------------------------------------------------
+Score:  0.9076391458511353
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
+
+Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
+
+One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
+
+And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Score:  0.8912242650985718
+A former top litigator in private practice. A former federal public defender. And from a family of public school educators and police officers. A consensus builder. Since she’s been nominated, she’s received a broad range of support—from the Fraternal Order of Police to former judges appointed by Democrats and Republicans.
+
+And if we are to advance liberty and justice, we need to secure the Border and fix the immigration system.
+
+We can do both. At our border, we’ve installed new technology like cutting-edge scanners to better detect drug smuggling.
+
+We’ve set up joint patrols with Mexico and Guatemala to catch more human traffickers.
+
+We’re putting in place dedicated immigration judges so families fleeing persecution and violence can have their cases heard faster.
+
+We’re securing commitments and supporting partners in South and Central America to host more refugees and secure their own borders.
+--------------------------------------------------------------------------------
+```
+
+## 使用向量存储
+
+上面，我们从零开始创建了一个向量存储。然而，很多时候我们希望使用现有的向量存储。
+为此，我们可以直接初始化它。
+
+```python
+index_name = "vector"  # 默认索引名称
+
+store = Neo4jVector.from_existing_index(
+    OpenAIEmbeddings(),
+    url=url,
+    username=username,
+    password=password,
+    index_name=index_name,
+)
+```
+
+我们也可以使用 `from_existing_graph` 方法从现有图中初始化向量存储。此方法从数据库中提取相关的文本信息，计算文本嵌入并将其存储回数据库。
+
+```python
+# 首先我们在图中创建示例数据
+store.query(
+    "CREATE (p:Person {name: 'Tomaz', location:'Slovenia', hobby:'Bicycle', age: 33})"
+)
+```
+
+```text
+[]
+```
+
+```python
+# 现在我们从现有图初始化
+existing_graph = Neo4jVector.from_existing_graph(
+    embedding=OpenAIEmbeddings(),
+    url=url,
+    username=username,
+    password=password,
+    index_name="person_index",
+    node_label="Person",
+    text_node_properties=["name", "location"],
+    embedding_node_property="embedding",
+)
+result = existing_graph.similarity_search("Slovenia", k=1)
+```
+
+```python
+result[0]
+```
+
+```python
+Document(page_content='\nname: Tomaz\nlocation: Slovenia', metadata={'age': 33, 'hobby': 'Bicycle'})
+```
+
+Neo4j 还支持关系向量索引，其中嵌入作为关系属性存储并被索引。关系向量索引无法通过 LangChain 填充，但你可以将其连接到现有的关系向量索引。
+
+```python
+# 首先我们在图中创建示例数据并建立索引
+store.query(
+    "MERGE (p:Person {name: 'Tomaz'}) "
+    "MERGE (p1:Person {name:'Leann'}) "
+    "MERGE (p1)-[:FRIEND {text:'example text', embedding:$embedding}]->(p2)",
+    params={"embedding": OpenAIEmbeddings().embed_query("example text")},
+)
+# 创建向量索引
+relationship_index = "relationship_vector"
+store.query(
+    """
+CREATE VECTOR INDEX $relationship_index
+IF NOT EXISTS
+FOR ()-[r:FRIEND]-() ON (r.embedding)
+OPTIONS {indexConfig: {
+ `vector.dimensions`: 1536,
+ `vector.similarity_function`: 'cosine'
+}}
+""",
+    params={"relationship_index": relationship_index},
+)
+```
+
+```text
+[]
+```
+
+```python
+relationship_vector = Neo4jVector.from_existing_relationship_index(
+    OpenAIEmbeddings(),
+    url=url,
+    username=username,
+    password=password,
+    index_name=relationship_index,
+    text_node_property="text",
+)
+relationship_vector.similarity_search("Example")
+```
+
+```python
+[Document(page_content='example text')]
 ```
 
 ### 元数据过滤
 
-```typescript
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { Neo4jVectorStore } from "@langchain/community/vectorstores/neo4j_vector";
+Neo4j 向量存储还支持通过结合并行运行时和精确最近邻搜索进行元数据过滤。
+_需要 Neo4j 5.18 或更高版本。_
 
-/**
- * 带元数据过滤的 `similaritySearch` 方法：
- *
- * 描述：
- * 此方法在 Neo4j 向量索引内进行高级相似性搜索，同时利用文本嵌入和元数据属性。
- * 第三个参数 `filter` 允许指定基于元数据的条件，这些条件在执行相似性搜索之前对节点进行预过滤。
- * 这种方法通过允许用户基于复杂的元数据标准以及文本相似性进行查询，从而提高了搜索精度。
- * 元数据过滤还支持以下操作符：
- *
- *  $eq: 等于
- *  $ne: 不等于
- *  $lt: 小于
- *  $lte: 小于或等于
- *  $gt: 大于
- *  $gte: 大于或等于
- *  $in: 在值列表中
- *  $nin: 不在值列表中
- *  $between: 在两个值之间
- *  $like: 文本包含值
- *  $ilike: 小写文本包含值
- *
- * 过滤器支持一系列查询操作，如相等性检查、范围查询和复合条件（使用逻辑操作符如 $and, $or）。
- * 这使得它非常适用于需要基于内容和上下文信息详细和特定检索文档的各种用例。
- *
- * 注意：
- * 有效使用此方法需要一个结构良好的 Neo4j 数据库，其中节点同时包含文本和元数据属性。
- * 在文本分析与详细元数据查询的集成至关重要的场景中，此方法特别有用，例如在内容推荐系统、详细的档案搜索或任何上下文相关性是关键的应用中。
- */
+相等性过滤的语法如下。
 
-// Neo4j 连接和其他相关设置的配置对象
-const config = {
-  url: "bolt://localhost:7687", // Neo4j 实例的 URL
-  username: "neo4j", // Neo4j 认证的用户名
-  password: "pleaseletmein", // Neo4j 认证的密码
-  indexName: "vector", // 向量索引的名称
-  keywordIndexName: "keyword", // 如果使用混合搜索，关键词索引的名称
-  searchType: "vector" as const, // 搜索类型（例如，vector, hybrid）
-  nodeLabel: "Chunk", // 图中节点的标签
-  textNodeProperty: "text", // 包含文本的节点属性
-  embeddingNodeProperty: "embedding", // 包含嵌入向量的节点属性
-};
-
-const documents = [
-  { pageContent: "what's this", metadata: { a: 2 } },
-  { pageContent: "Cat drinks milk", metadata: { a: 1 } },
-];
-
-const neo4jVectorIndex = await Neo4jVectorStore.fromDocuments(
-  documents,
-  new OpenAIEmbeddings(),
-  config
-);
-
-const filter = { a: { $eq: 1 } };
-const results = await neo4jVectorIndex.similaritySearch("water", 1, { filter });
-
-console.log(results);
-
-/*
-  [ Document { pageContent: 'Cat drinks milk', metadata: { a: 1 } } ]
-*/
-
-await neo4jVectorIndex.close();
+```python
+existing_graph.similarity_search(
+    "Slovenia",
+    filter={"hobby": "Bicycle", "name": "Tomaz"},
+)
 ```
 
-# 免责声明 ⚠️
+```python
+[Document(page_content='\nname: Tomaz\nlocation: Slovenia', metadata={'age': 33, 'hobby': 'Bicycle'})]
+```
 
-_安全提示_：请确保数据库连接使用的凭据权限范围严格限定为仅包含必要的权限。
-否则可能导致数据损坏或丢失，因为调用代码可能会尝试执行删除、数据变更（如果被适当触发）或读取敏感数据（如果数据库中存在此类数据）的命令。
-防范此类负面结果的最佳方法是（酌情）限制授予此工具所用凭据的权限。
-例如，为数据库创建只读用户是确保调用代码无法变更或删除数据的好方法。
+元数据过滤还支持以下运算符：
 
-## 相关
+- `$eq: 等于`
+- `$ne: 不等于`
+- `$lt: 小于`
+- `$lte: 小于或等于`
+- `$gt: 大于`
+- `$gte: 大于或等于`
+- `$in: 在值列表中`
+- `$nin: 不在值列表中`
+- `$between: 在两个值之间`
+- `$like: 文本包含值`
+- `$ilike: 小写文本包含值`
 
-- 向量存储[概念指南](/oss/integrations/vectorstores)
-- 向量存储[操作指南](/oss/integrations/vectorstores)
+```python
+existing_graph.similarity_search(
+    "Slovenia",
+    filter={"hobby": {"$eq": "Bicycle"}, "age": {"$gt": 15}},
+)
+```
+
+```python
+[Document(page_content='\nname: Tomaz\nlocation: Slovenia', metadata={'age': 33, 'hobby': 'Bicycle'})]
+```
+
+你也可以在过滤器之间使用 `OR` 运算符
+
+```python
+existing_graph.similarity_search(
+    "Slovenia",
+    filter={"$or": [{"hobby": {"$eq": "Bicycle"}}, {"age": {"$gt": 15}}]},
+)
+```
+
+```python
+[Document(page_content='\nname: Tomaz\nlocation: Slovenia', metadata={'age': 33, 'hobby': 'Bicycle'})]
+```
+
+### 添加文档
+
+我们可以向现有向量存储添加文档。
+
+```python
+store.add_documents([Document(page_content="foo")])
+```
+
+```python
+['acbd18db4cc2f85cedef654fccc4a4d8']
+```
+
+```python
+docs_with_score = store.similarity_search_with_score("foo")
+```
+
+```python
+docs_with_score[0]
+```
+
+```text
+(Document(page_content='foo'), 0.9999997615814209)
+```
+
+## 使用检索查询自定义响应
+
+你也可以通过使用自定义的 Cypher 代码片段来自定义响应，该片段可以从图中获取其他信息。
+在底层，最终的 Cypher 语句是这样构建的：
+
+```
+read_query = (
+  "CALL db.index.vector.queryNodes($index, $k, $embedding) "
+  "YIELD node, score "
+) + retrieval_query
+```
+
+检索查询必须返回以下三列：
+
+- `text`: Union[str, Dict] = 用于填充文档 `page_content` 的值
+- `score`: Float = 相似度分数
+- `metadata`: Dict = 文档的附加元数据
+
+在此 [博客文章](https://medium.com/neo4j/implementing-rag-how-to-write-a-graph-retrieval-query-in-langchain-74abf13044f2) 中了解更多信息。
+
+```python
+retrieval_query = """
+RETURN "Name:" + node.name AS text, score, {foo:"bar"} AS metadata
+"""
+retrieval_example = Neo4jVector.from_existing_index(
+    OpenAIEmbeddings(),
+    url=url,
+    username=username,
+    password=password,
+    index_name="person_index",
+    retrieval_query=retrieval_query,
+)
+retrieval_example.similarity_search("Foo", k=1)
+```
+
+```python
+[Document(page_content='Name:Tomaz', metadata={'foo': 'bar'})]
+```
+
+以下是一个将除 `embedding` 外的所有节点属性作为字典传递给 `text` 列的示例，
+
+```python
+retrieval_query = """
+RETURN node {.name, .age, .hobby} AS text, score, {foo:"bar"} AS metadata
+"""
+retrieval_example = Neo4jVector.from_existing_index(
+    OpenAIEmbeddings(),
+    url=url,
+    username=username,
+    password=password,
+    index_name="person_index",
+    retrieval_query=retrieval_query,
+)
+retrieval_example.similarity_search("Foo", k=1)
+```
+
+```python
+[Document(page_content='name: Tomaz\nage: 33\nhobby: Bicycle\n', metadata={'foo': 'bar'})]
+```
+
+你也可以向检索查询传递 Cypher 参数。
+参数可用于额外的过滤、遍历等...
+
+```python
+retrieval_query = """
+RETURN node {.*, embedding:Null, extra: $extra} AS text, score, {foo:"bar"} AS metadata
+"""
+retrieval_example = Neo4jVector.from_existing_index(
+    OpenAIEmbeddings(),
+    url=url,
+    username=username,
+    password=password,
+    index_name="person_index",
+    retrieval_query=retrieval_query,
+)
+retrieval_example.similarity_search("Foo", k=1, params={"extra": "ParamInfo"})
+```
+
+```python
+[Document(page_content='location: Slovenia\nextra: ParamInfo\nname: Tomaz\nage: 33\nhobby: Bicycle\nembedding: None\n', metadata={'foo': 'bar'})]
+```
+
+## 混合搜索（向量 + 关键词）
+
+Neo4j 集成了向量和关键词索引，允许你使用混合搜索方法
+
+```python
+# Neo4jVector 模块将连接到 Neo4j，并在需要时创建向量和关键词索引。
+hybrid_db = Neo4jVector.from_documents(
+    docs,
+    OpenAIEmbeddings(),
+    url=url,
+    username=username,
+    password=password,
+    search_type="hybrid",
+)
+```
+
+要从现有索引加载混合搜索，你必须同时提供向量和关键词索引
+
+```python
+index_name = "vector"  # 默认向量索引名称
+keyword_index_name = "keyword"  # 默认关键词索引名称
+
+store = Neo4jVector.from_existing_index(
+    OpenAIEmbeddings(),
+    url=url,
+    username=username,
+    password=password,
+    index_name=index_name,
+    keyword_index_name=keyword_index_name,
+    search_type="hybrid",
+)
+```
+
+## 检索器选项
+
+本节展示了如何将 `Neo4jVector` 用作检索器。
+
+```python
+retriever = store.as_retriever()
+retriever.invoke(query)[0]
+```
+
+```python
+Document(page_content='Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections. \n\nTonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service. \n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court. \n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.', metadata={'source': '../../how_to/state_of_the_union.txt'})
+```
+
+## 带来源的问答
+
+本节介绍如何通过索引进行带来源的问答。它通过使用 `RetrievalQAWithSourcesChain` 来实现，该链从索引中查找文档。
+
+```python
+from langchain_classic.chains import RetrievalQAWithSourcesChain
+from langchain_openai import ChatOpenAI
+```
+
+```python
+chain = RetrievalQAWithSourcesChain.from_chain_type(
+    ChatOpenAI(temperature=0), chain_type="stuff", retriever=retriever
+)
+```
+
+```python
+chain.invoke(
+    {"question": "What did the president say about Justice Breyer"},
+    return_only_outputs=True,
+)
+```
+
+```text
+{'answer': 'The president honored Justice Stephen Breyer for his service to the country and mentioned his retirement from the United States Supreme Court.\n',
+ 'sources': '../../how_to/state_of_the_union.txt'}
+```
+
+```python
+
+```

@@ -8,7 +8,7 @@ description: '开始通过 Azure 在 LangChain 中使用 OpenAI [聊天模型](/
 
 <strong>Azure OpenAI 与 OpenAI</strong>
 
-Azure OpenAI 指的是托管在 [Microsoft Azure 平台](https://azure.microsoft.com/en-us/products/ai-services/openai-service) 上的 OpenAI 模型。OpenAI 也提供其自己的模型 API。要直接访问 OpenAI 服务，请使用 [`ChatOpenAI` 集成](/oss/integrations/chat/openai/)。
+Azure OpenAI 指的是托管在 [Microsoft Azure 平台](https://azure.microsoft.com/en-us/products/ai-services/openai-service) 上的 OpenAI 模型。OpenAI 也提供其自己的模型 API。要直接访问 OpenAI 服务，请使用 [`ChatOpenAI` 集成](/oss/python/integrations/chat/openai/)。
 
 </Info>
 
@@ -18,7 +18,7 @@ Azure OpenAI 指的是托管在 [Microsoft Azure 平台](https://azure.microsoft
 
 Azure OpenAI 的 [v1 API](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/api-version-lifecycle?tabs=python#next-generation-api-1)（自 2025 年 8 月起正式发布）允许你直接使用 `ChatOpenAI` 与 Azure 端点交互。这提供了一个统一的接口，并对 Microsoft Entra ID 身份验证和自动令牌刷新提供了原生支持。
 
-有关将 `ChatOpenAI` 与 Azure v1 API 结合使用的详细信息，请参阅 [ChatOpenAI Azure 部分](/oss/integrations/chat/openai#using-with-azure-openai)。
+有关将 `ChatOpenAI` 与 Azure v1 API 结合使用的详细信息，请参阅 [ChatOpenAI Azure 部分](/oss/python/integrations/chat/openai#using-with-azure-openai)。
 
 目前仍支持 `AzureChatOpenAI` 用于传统的 Azure OpenAI API 版本以及需要 Azure 特定配置的场景，但我们建议未来使用 `ChatOpenAI` 或 [LangChain Azure AI](https://docs.langchain.com/oss/python/integrations/providers/azure_ai) 中的 `AzureAIChatCompletionsModel`。
 
@@ -30,7 +30,7 @@ Azure OpenAI 的 [v1 API](https://learn.microsoft.com/en-us/azure/ai-foundry/ope
 
 本页面旨在快速入门，指导你如何将 Azure OpenAI 服务进行身份验证并连接到 LangChain 聊天模型。
 
-有关可用功能的详细信息，请访问 [`ChatOpenAI` 文档](/oss/integrations/chat/openai/)，或前往 <a href="https://reference.langchain.com/python/integrations/langchain_openai/AzureChatOpenAI" target="_blank" rel="noreferrer" class="link"><code>AzureChatOpenAI</code></a> API 参考。
+有关可用功能的详细信息，请访问 [`ChatOpenAI` 文档](/oss/python/integrations/chat/openai/)，或前往 <a href="https://reference.langchain.com/python/integrations/langchain_openai/AzureChatOpenAI" target="_blank" rel="noreferrer" class="link"><code>AzureChatOpenAI</code></a> API 参考。
 
 </Note>
 
@@ -52,7 +52,7 @@ Azure OpenAI 的 [v1 API](https://learn.microsoft.com/en-us/azure/ai-foundry/ope
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/python/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/python/langchain/models#token-usage) | [对数概率](/oss/python/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
 

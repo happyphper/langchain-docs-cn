@@ -18,13 +18,13 @@ title: scikit-learn
 from langchain_community.vectorstores import SKLearnVectorStore
 ```
 
-关于 SKLearnVectorStore 封装的更详细演练，请参阅 [此笔记本](/oss/integrations/vectorstores/sklearn)。
+关于 SKLearnVectorStore 封装的更详细演练，请参阅 [此笔记本](/oss/javascript/integrations/vectorstores/sklearn)。
 
 ## 检索器
 
 `支持向量机 (SVMs)` 是用于分类、回归和异常值检测的监督学习方法。
 
-查看 [使用示例](/oss/integrations/retrievers/svm)。
+查看 [使用示例](/oss/javascript/integrations/retrievers/svm)。
 
 ```python
 from langchain_community.retrievers import SVMRetriever

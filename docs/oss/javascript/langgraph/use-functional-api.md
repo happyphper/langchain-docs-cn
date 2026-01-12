@@ -2,11 +2,11 @@
 title: 使用函数式 API
 sidebarTitle: Use the Functional API
 ---
-[**Functional API**](/oss/langgraph/functional-api) 允许您以最小的代码改动，为您的应用程序添加 LangGraph 的核心功能——[持久化](/oss/langgraph/persistence)、[记忆](/oss/langgraph/add-memory)、[人在回路](/oss/langgraph/interrupts) 和 [流式传输](/oss/langgraph/streaming)。
+[**Functional API**](/oss/javascript/langgraph/functional-api) 允许您以最小的代码改动，为您的应用程序添加 LangGraph 的核心功能——[持久化](/oss/javascript/langgraph/persistence)、[记忆](/oss/javascript/langgraph/add-memory)、[人在回路](/oss/javascript/langgraph/interrupts) 和 [流式传输](/oss/javascript/langgraph/streaming)。
 
 <Tip>
 
-有关 Functional API 的概念性信息，请参阅 [Functional API](/oss/langgraph/functional-api)。
+有关 Functional API 的概念性信息，请参阅 [Functional API](/oss/javascript/langgraph/functional-api)。
 
 </Tip>
 
@@ -167,7 +167,7 @@ console.log(result);
 
 ## 调用图
 
-**Functional API** 和 [**Graph API**](/oss/langgraph/graph-api) 可以在同一个应用程序中一起使用，因为它们共享相同的底层运行时。
+**Functional API** 和 [**Graph API**](/oss/javascript/langgraph/graph-api) 可以在同一个应用程序中一起使用，因为它们共享相同的底层运行时。
 
 ```typescript
 import { entrypoint } from "@langchain/langgraph";
@@ -288,7 +288,7 @@ console.log(await main.invoke({ x: 6, y: 7 }, config)); // Output: { product: 42
 
 ## 流式传输
 
-**Functional API** 使用与 **Graph API** 相同的流式传输机制。请阅读 [**流式传输指南**](/oss/langgraph/streaming) 部分以获取更多详细信息。
+**Functional API** 使用与 **Graph API** 相同的流式传输机制。请阅读 [**流式传输指南**](/oss/javascript/langgraph/streaming) 部分以获取更多详细信息。
 
 使用流式 API 同时流式传输更新和自定义数据的示例。
 
@@ -516,11 +516,11 @@ await main.invoke(null, config);
 
 ## 人在回路
 
-Functional API 支持使用 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.interrupt.html" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 函数和 `Command` 原语实现 [人在回路](/oss/langgraph/interrupts) 工作流。
+Functional API 支持使用 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.interrupt.html" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 函数和 `Command` 原语实现 [人在回路](/oss/javascript/langgraph/interrupts) 工作流。
 
 ### 基本的人在回路工作流
 
-我们将创建三个 [任务](/oss/langgraph/functional-api#task)：
+我们将创建三个 [任务](/oss/javascript/langgraph/functional-api#task)：
 
 1. 追加 `"bar"`。
 2. 暂停等待人工输入。恢复时，追加人工输入。
@@ -546,7 +546,7 @@ const step3 = task("step3", async (inputQuery: string) => {
 });
 ```
 
-现在，我们可以在一个 [入口点](/oss/langgraph/functional-api#entrypoint) 中组合这些任务：
+现在，我们可以在一个 [入口点](/oss/javascript/langgraph/functional-api#entrypoint) 中组合这些任务：
 
 ```typescript
 import { MemorySaver } from "@langchain/langgraph";
@@ -565,7 +565,7 @@ const graph = entrypoint(
 );
 ```
 
-[interrupt()](/oss/langgraph/interrupts#pause-using-interrupt) 在任务内部被调用，使人工能够审查和编辑前一个任务的输出。先前任务（本例中为 `step_1`）的结果会被持久化，因此在 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.interrupt.html" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 之后不会再次运行。
+[interrupt()](/oss/javascript/langgraph/interrupts#pause-using-interrupt) 在任务内部被调用，使人工能够审查和编辑前一个任务的输出。先前任务（本例中为 `step_1`）的结果会被持久化，因此在 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.interrupt.html" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 之后不会再次运行。
 
 让我们发送一个查询字符串：
 
@@ -578,7 +578,7 @@ for await (const event of await graph.stream("foo", config)) {
 }
 ```
 
-注意，我们在 `step_1` 之后通过 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.interrupt.html" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 暂停了。中断提供了恢复运行的指令。要恢复，我们发出一个包含 `human_feedback` 任务期望数据的 [`Command`](/oss/langgraph/interrupts#resuming-interrupts)。
+注意，我们在 `step_1` 之后通过 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.interrupt.html" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 暂停了。中断提供了恢复运行的指令。要恢复，我们发出一个包含 `human_feedback` 任务期望数据的 [`Command`](/oss/javascript/langgraph/interrupts#resuming-interrupts)。
 
 ```typescript
 // Continue execution
@@ -595,7 +595,7 @@ for await (const event of await graph.stream(
 
 ### 审查工具调用
 
-要在执行前审查工具调用，我们添加一个调用 [`interrupt`](/oss/langgraph/interrupts#pause-using-interrupt) 的 `review_tool_call` 函数。当调用此函数时，执行将暂停，直到我们发出恢复命令。
+要在执行前审查工具调用，我们添加一个调用 [`interrupt`](/oss/javascript/langgraph/interrupts#pause-using-interrupt) 的 `review_tool_call` 函数。当调用此函数时，执行将暂停，直到我们发出恢复命令。
 
 给定一个工具调用，我们的函数将 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.interrupt.html" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 以等待人工审查。此时我们可以：
 
@@ -634,7 +634,7 @@ function reviewToolCall(toolCall: ToolCall): ToolCall | ToolMessage {
 }
 ```
 
-现在我们可以更新我们的 [入口点](/oss/langgraph/functional-api#entrypoint) 来审查生成的工具调用。如果工具调用被接受或修改，我们像以前一样执行。否则，我们只追加人工提供的 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.ToolMessage.html" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>。先前任务（本例中是初始模型调用）的结果会被持久化，因此在 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.interrupt.html" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 之后不会再次运行。
+现在我们可以更新我们的 [入口点](/oss/javascript/langgraph/functional-api#entrypoint) 来审查生成的工具调用。如果工具调用被接受或修改，我们像以前一样执行。否则，我们只追加人工提供的 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.ToolMessage.html" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>。先前任务（本例中是初始模型调用）的结果会被持久化，因此在 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.interrupt.html" target="_blank" rel="noreferrer" class="link"><code>interrupt</code></a> 之后不会再次运行。
 
 ```typescript
 import {
@@ -706,7 +706,7 @@ const agent = entrypoint(
 
 ## 短期记忆
 
-短期记忆允许跨同一 **线程 ID** 的不同 **调用** 存储信息。更多详情请参阅 [短期记忆](/oss/langgraph/functional-api#short-term-memory)。
+短期记忆允许跨同一 **线程 ID** 的不同 **调用** 存储信息。更多详情请参阅 [短期记忆](/oss/javascript/langgraph/functional-api#short-term-memory)。
 
 ### 管理检查点
 
@@ -888,11 +888,11 @@ for await (const chunk of await workflow.stream([inputMessage2], {
 
 ## 长期记忆
 
-[长期记忆](/oss/concepts/memory#long-term-memory) 允许跨不同的 **线程 ID** 存储信息。这对于在一次对话中学习关于特定用户的信息并在另一次对话中使用它可能很有用。
+[长期记忆](/oss/javascript/concepts/memory#long-term-memory) 允许跨不同的 **线程 ID** 存储信息。这对于在一次对话中学习关于特定用户的信息并在另一次对话中使用它可能很有用。
 
 ## 工作流
 
-* [工作流和智能体](/oss/langgraph/workflows-agents) 指南，获取更多关于如何使用 Functional API 构建工作流的示例。
+* [工作流和智能体](/oss/javascript/langgraph/workflows-agents) 指南，获取更多关于如何使用 Functional API 构建工作流的示例。
 
 ## 与其他库集成
 

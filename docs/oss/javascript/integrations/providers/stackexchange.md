@@ -30,7 +30,7 @@ uv add stackapi
 from langchain_community.utilities import StackExchangeAPIWrapper
 ```
 
-关于此包装器的更详细教程，请参阅 [此笔记本](/oss/integrations/tools/stackexchange)。
+关于此包装器的更详细教程，请参阅 [此笔记本](/oss/javascript/integrations/tools/stackexchange)。
 
 ### 工具
 
@@ -42,4 +42,4 @@ from langchain_community.agent_toolkits.load_tools import load_tools
 tools = load_tools(["stackexchange"])
 ```
 
-有关工具的更多信息，请参阅 [此页面](/oss/integrations/tools)。
+有关工具的更多信息，请参阅 [此页面](/oss/javascript/integrations/tools)。

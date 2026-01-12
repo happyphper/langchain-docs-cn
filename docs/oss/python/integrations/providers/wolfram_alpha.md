@@ -35,7 +35,7 @@ uv add wolframalpha
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 ```
 
-关于此包装器的更详细说明，请参阅[此笔记本](/oss/integrations/tools/wolfram_alpha)。
+关于此包装器的更详细说明，请参阅[此笔记本](/oss/python/integrations/tools/wolfram_alpha)。
 
 ### 工具
 
@@ -47,4 +47,4 @@ from langchain_community.agent_toolkits.load_tools import load_tools
 tools = load_tools(["wolfram-alpha"])
 ```
 
-有关工具的更多信息，请参阅[此页面](/oss/integrations/tools)。
+有关工具的更多信息，请参阅[此页面](/oss/python/integrations/tools)。

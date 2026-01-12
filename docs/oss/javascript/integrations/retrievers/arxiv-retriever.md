@@ -103,4 +103,4 @@ await ragChain.invoke("What are the latest advances in quantum computing?");
 
 ## 相关链接
 
-- [检索指南](/oss/langchain/retrieval)
+- [检索指南](/oss/javascript/langchain/retrieval)

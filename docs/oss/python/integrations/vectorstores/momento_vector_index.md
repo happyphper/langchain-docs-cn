@@ -1,191 +1,158 @@
 ---
 title: Momento 向量索引 (MVI)
 ---
-[MVI](https://gomomento.com)：为您的数据提供最高效、最易用的无服务器向量索引。要开始使用 MVI，只需注册一个账户。无需处理基础设施、管理服务器或担心扩展问题。MVI 是一项能自动扩展以满足您需求的服务。无论是在 Node.js、浏览器还是边缘环境中，Momento 都能为您提供支持。
+>[MVI](https://gomomento.com)：为您的数据提供最高效、最易用的无服务器向量索引。要开始使用 MVI，只需注册一个账户。无需处理基础设施、管理服务器或担心扩展问题。MVI 是一项自动扩展以满足您需求的服务。
 
 要注册并访问 MVI，请访问 [Momento 控制台](https://console.gomomento.com)。
 
-## 设置
+# 设置
 
-1. 在 [Momento 控制台](https://console.gomomento.com/) 注册并获取 API 密钥。
-2. 为您的环境安装 SDK。
+## 安装先决条件
 
-   2.1. 对于 **Node.js**：
+您需要：
 
-```bash [npm]
-npm install @gomomento/sdk
-```
-   2.2. 对于 **浏览器或边缘环境**：
+- 用于与 MVI 交互的 [`momento`](https://pypi.org/project/momento/) 包，
+- 用于与 OpenAI API 交互的 openai 包。
+- 用于文本分词的 tiktoken 包。
 
-```bash [npm]
-npm install @gomomento/sdk-web
+```python
+pip install -qU  momento langchain-openai langchain-community tiktoken
 ```
 
-3. 在运行代码前，为 Momento 设置环境变量
+## 输入 API 密钥
 
-   3.1 OpenAI
-
-```bash
-export OPENAI_API_KEY=YOUR_OPENAI_API_KEY_HERE
+```python
+import getpass
+import os
 ```
 
-   3.2 Momento
+### Momento：用于索引数据
 
-```bash
-export MOMENTO_API_KEY=YOUR_MOMENTO_API_KEY_HERE # https://console.gomomento.com
+访问 [Momento 控制台](https://console.gomomento.com) 获取您的 API 密钥。
+
+```python
+if "MOMENTO_API_KEY" not in os.environ:
+    os.environ["MOMENTO_API_KEY"] = getpass.getpass("Momento API Key:")
 ```
 
-## 使用
+### OpenAI：用于文本嵌入
 
-<Tip>
-
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/openai @langchain/community @langchain/core
+```python
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("OpenAI API Key:")
 ```
 
-### 使用 `fromTexts` 索引文档并进行搜索
+# 加载您的数据
 
-此示例演示了使用 `fromTexts` 方法实例化向量存储并索引文档。
-如果索引不存在，它将被创建。如果索引已存在，则文档将被添加到现有索引中。
+这里我们使用 LangChain 的示例数据集，即国情咨文。
 
-`ids` 是可选的；如果省略它们，Momento 将为您生成 UUID。
+首先加载相关模块：
 
-```typescript
-import { MomentoVectorIndex } from "@langchain/community/vectorstores/momento_vector_index";
-// 对于浏览器/边缘环境，请调整为从 "@gomomento/sdk-web" 导入；
-import {
-  PreviewVectorIndexClient,
-  VectorIndexConfigurations,
-  CredentialProvider,
-} from "@gomomento/sdk";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { sleep } from "@langchain/classic/util/time";
-
-const vectorStore = await MomentoVectorIndex.fromTexts(
-  ["hello world", "goodbye world", "salutations world", "farewell world"],
-  {},
-  new OpenAIEmbeddings(),
-  {
-    client: new PreviewVectorIndexClient({
-      configuration: VectorIndexConfigurations.Laptop.latest(),
-      credentialProvider: CredentialProvider.fromEnvironmentVariable({
-        environmentVariableName: "MOMENTO_API_KEY",
-      }),
-    }),
-    indexName: "langchain-example-index",
-  },
-  { ids: ["1", "2", "3", "4"] }
-);
-
-// 因为索引是异步的，等待其完成以便之后直接搜索
-await sleep();
-
-const response = await vectorStore.similaritySearch("hello", 2);
-
-console.log(response);
-
-/*
-[
-  Document { pageContent: 'hello world', metadata: {} },
-  Document { pageContent: 'salutations world', metadata: {} }
-]
-*/
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_community.vectorstores import MomentoVectorIndex
+from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import CharacterTextSplitter
 ```
 
-### 使用 `fromDocuments` 索引文档并进行搜索
+然后加载数据：
 
-与上述类似，此示例演示了使用 `fromDocuments` 方法实例化向量存储并索引文档。
-如果索引不存在，它将被创建。如果索引已存在，则文档将被添加到现有索引中。
-
-使用 `fromDocuments` 允许您将各种文档加载器与索引无缝链接。
-
-```typescript
-import { MomentoVectorIndex } from "@langchain/community/vectorstores/momento_vector_index";
-// 对于浏览器/边缘环境，请调整为从 "@gomomento/sdk-web" 导入；
-import {
-  PreviewVectorIndexClient,
-  VectorIndexConfigurations,
-  CredentialProvider,
-} from "@gomomento/sdk";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
-import { sleep } from "@langchain/classic/util/time";
-
-// 使用加载器创建文档
-const loader = new TextLoader("src/document_loaders/example_data/example.txt");
-const docs = await loader.load();
-
-const vectorStore = await MomentoVectorIndex.fromDocuments(
-  docs,
-  new OpenAIEmbeddings(),
-  {
-    client: new PreviewVectorIndexClient({
-      configuration: VectorIndexConfigurations.Laptop.latest(),
-      credentialProvider: CredentialProvider.fromEnvironmentVariable({
-        environmentVariableName: "MOMENTO_API_KEY",
-      }),
-    }),
-    indexName: "langchain-example-index",
-  }
-);
-
-// 因为索引是异步的，等待其完成以便之后直接搜索
-await sleep();
-
-// 搜索最相似的文档
-const response = await vectorStore.similaritySearch("hello", 1);
-
-console.log(response);
-/*
-[
-  Document {
-    pageContent: 'Foo\nBar\nBaz\n\n',
-    metadata: { source: 'src/document_loaders/example_data/example.txt' }
-  }
-]
-*/
+```python
+loader = TextLoader("../../how_to/state_of_the_union.txt")
+documents = loader.load()
+len(documents)
 ```
 
-### 从现有集合中搜索
-
-```typescript
-import { MomentoVectorIndex } from "@langchain/community/vectorstores/momento_vector_index";
-// 对于浏览器/边缘环境，请调整为从 "@gomomento/sdk-web" 导入；
-import {
-  PreviewVectorIndexClient,
-  VectorIndexConfigurations,
-  CredentialProvider,
-} from "@gomomento/sdk";
-import { OpenAIEmbeddings } from "@langchain/openai";
-
-const vectorStore = new MomentoVectorIndex(new OpenAIEmbeddings(), {
-  client: new PreviewVectorIndexClient({
-    configuration: VectorIndexConfigurations.Laptop.latest(),
-    credentialProvider: CredentialProvider.fromEnvironmentVariable({
-      environmentVariableName: "MOMENTO_API_KEY",
-    }),
-  }),
-  indexName: "langchain-example-index",
-});
-
-const response = await vectorStore.similaritySearch("hello", 1);
-
-console.log(response);
-/*
-[
-  Document {
-    pageContent: 'Foo\nBar\nBaz\n\n',
-    metadata: { source: 'src/document_loaders/example_data/example.txt' }
-  }
-]
-*/
+```text
+1
 ```
 
-## 相关
+注意数据是一个大文件，因此只有一个文档：
 
-- 向量存储 [概念指南](/oss/integrations/vectorstores)
-- 向量存储 [操作指南](/oss/integrations/vectorstores)
+```python
+len(documents[0].page_content)
+```
+
+```text
+38539
+```
+
+由于这是一个大型文本文件，我们将其分割成块以便进行问答。这样，用户的问题将由最相关的块来回答。
+
+```python
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+len(docs)
+```
+
+```text
+42
+```
+
+# 索引您的数据
+
+索引您的数据就像实例化 `MomentoVectorIndex` 对象一样简单。这里我们使用 `from_documents` 辅助函数来同时实例化和索引数据：
+
+```python
+vector_db = MomentoVectorIndex.from_documents(
+    docs, OpenAIEmbeddings(), index_name="sotu"
+)
+```
+
+这将使用您的 API 密钥连接到 Momento 向量索引服务并对数据进行索引。如果索引之前不存在，此过程将为您创建它。数据现在可以搜索了。
+
+# 查询您的数据
+
+## 直接对索引提问
+
+查询数据最直接的方法是搜索索引。我们可以使用 <a href="https://reference.langchain.com/python/langchain_core/vectorstores/?h=#langchain_core.vectorstores.base.VectorStore" target="_blank" rel="noreferrer" class="link"><code>VectorStore</code></a> API 如下操作：
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+docs = vector_db.similarity_search(query)
+```
+
+```python
+docs[0].page_content
+```
+
+```text
+'Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections. \n\nTonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service. \n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court. \n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.'
+```
+
+虽然这包含了关于 Ketanji Brown Jackson 的相关信息，但我们没有一个简洁、易于理解的答案。我们将在下一节解决这个问题。
+
+## 使用 LLM 生成流畅的答案
+
+数据在 MVI 中建立索引后，我们可以与任何利用向量相似性搜索的链集成。这里我们使用 `RetrievalQA` 链来演示如何从索引数据中回答问题。
+
+首先加载相关模块：
+
+```python
+from langchain_classic.chains import RetrievalQA
+from langchain_openai import ChatOpenAI
+```
+
+然后实例化检索问答链：
+
+```python
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+qa_chain = RetrievalQA.from_chain_type(llm, retriever=vector_db.as_retriever())
+```
+
+```python
+qa_chain({"query": "What did the president say about Ketanji Brown Jackson?"})
+```
+
+```text
+{'query': 'What did the president say about Ketanji Brown Jackson?',
+ 'result': "The President said that he nominated Circuit Court of Appeals Judge Ketanji Brown Jackson to serve on the United States Supreme Court. He described her as one of the nation's top legal minds and mentioned that she has received broad support from various groups, including the Fraternal Order of Police and former judges appointed by Democrats and Republicans."}
+```
+
+# 后续步骤
+
+就是这样！您现在已为数据建立了索引，并可以使用 Momento 向量索引进行查询。您可以使用相同的索引，从任何支持向量相似性搜索的链中查询您的数据。
+
+使用 Momento，您不仅可以索引向量数据，还可以缓存 API 调用并存储聊天消息历史记录。查看其他 Momento LangChain 集成以了解更多信息。
+
+要了解更多关于 Momento 向量索引的信息，请访问 [Momento 文档](https://docs.gomomento.com)。

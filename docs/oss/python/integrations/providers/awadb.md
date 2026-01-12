@@ -15,7 +15,7 @@ pip install awadb
 from langchain_community.vectorstores import AwaDB
 ```
 
-查看[使用示例](/oss/integrations/vectorstores/awadb)。
+查看[使用示例](/oss/python/integrations/vectorstores/awadb)。
 
 ## 嵌入模型
 
@@ -23,4 +23,4 @@ from langchain_community.vectorstores import AwaDB
 from langchain_community.embeddings import AwaEmbeddings
 ```
 
-查看[使用示例](/oss/integrations/text_embedding/awadb)。
+查看[使用示例](/oss/python/integrations/text_embedding/awadb)。

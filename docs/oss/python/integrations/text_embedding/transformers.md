@@ -23,7 +23,7 @@ npm install @huggingface/transformers
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/python/langchain/install)。
 
 </Tip>
 
@@ -56,5 +56,5 @@ console.log({ documentRes });
 
 ## 相关链接
 
-- 嵌入模型 [概念指南](/oss/integrations/text_embedding)
-- 嵌入模型 [操作指南](/oss/integrations/text_embedding)
+- 嵌入模型 [概念指南](/oss/python/integrations/text_embedding)
+- 嵌入模型 [操作指南](/oss/python/integrations/text_embedding)

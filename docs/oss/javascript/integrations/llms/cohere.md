@@ -6,7 +6,7 @@ title: Cohere
 
 <strong>旧版功能</strong>
 
-Cohere 已将其用于 LLM 的 `generate` 端点标记为弃用。请遵循其[迁移指南](https://docs.cohere.com/docs/migrating-from-cogenerate-to-cochat)，通过 [`ChatCohere`](/oss/integrations/chat/cohere) 集成开始使用其 Chat API。
+Cohere 已将其用于 LLM 的 `generate` 端点标记为弃用。请遵循其[迁移指南](https://docs.cohere.com/docs/migrating-from-cogenerate-to-cochat)，通过 [`ChatCohere`](/oss/javascript/integrations/chat/cohere) 集成开始使用其 Chat API。
 
 </Warning>
 

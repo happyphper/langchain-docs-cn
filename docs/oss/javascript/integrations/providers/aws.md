@@ -7,7 +7,7 @@ title: 概述
 
 ### Bedrock
 
-查看 [使用示例](/oss/integrations/chat/bedrock)。
+查看 [使用示例](/oss/javascript/integrations/chat/bedrock)。
 
 ```typescript
 import { BedrockChat } from "@langchain/community/chat_models/bedrock";
@@ -17,7 +17,7 @@ import { BedrockChat } from "@langchain/community/chat_models/bedrock";
 
 ### Bedrock
 
-查看 [使用示例](/oss/integrations/llms/bedrock)。
+查看 [使用示例](/oss/javascript/integrations/llms/bedrock)。
 
 ```typescript
 import { Bedrock } from "@langchain/community/llms/bedrock";
@@ -29,7 +29,7 @@ import { Bedrock } from "@langchain/community/llms/bedrock";
 
 我们使用 `SageMaker` 来托管我们的模型，并将其作为 `SageMaker Endpoint` 公开。
 
-查看 [使用示例](/oss/integrations/llms/aws_sagemaker)。
+查看 [使用示例](/oss/javascript/integrations/llms/aws_sagemaker)。
 
 ```typescript
 import {
@@ -42,7 +42,7 @@ import {
 
 ### Bedrock
 
-查看 [使用示例](/oss/integrations/text_embedding/bedrock)。
+查看 [使用示例](/oss/javascript/integrations/text_embedding/bedrock)。
 
 ```typescript
 import { BedrockEmbeddings } from "@langchain/aws";
@@ -55,7 +55,7 @@ import { BedrockEmbeddings } from "@langchain/aws";
 > [Amazon Simple Storage Service (Amazon S3)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.html) 是一种对象存储服务。
 > [AWS S3 目录](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.html) >[AWS S3 存储桶](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingBucket.html)
 
-查看 [S3FileLoader 的使用示例](/oss/integrations/document_loaders/web_loaders/s3)。
+查看 [S3FileLoader 的使用示例](/oss/javascript/integrations/document_loaders/web_loaders/s3)。
 
 ```bash [npm]
 npm install @aws-sdk/client-s3

@@ -28,7 +28,7 @@ Psychic 易于设置 - 您导入 `react` 库并使用从 [Psychic 仪表板](htt
 
 1.  在 [仪表板](https://dashboard.psychic.dev/) 中创建一个账户。
 2.  使用 [react 库](https://docs.psychic.dev/sidekick-link) 将 Psychic 链接模态框添加到您的前端 React 应用中。您将使用它来连接 SaaS 应用。
-3.  创建连接后，您可以按照 [示例笔记本](/oss/integrations/document_loaders/psychic) 使用 `PsychicLoader`。
+3.  创建连接后，您可以按照 [示例笔记本](/oss/python/integrations/document_loaders/psychic) 使用 `PsychicLoader`。
 
 ## 与其他文档加载器的优势
 

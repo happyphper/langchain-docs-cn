@@ -41,7 +41,7 @@ $env:ISAACUS_API_KEY="your_api_key_here"
 :::
 
 ## 嵌入
-下面的代码片段演示了如何使用 Isaacus 的 Kanon 2 Embedder 模型，通过 LangChain 评估法律查询与法律文档之间的语义相似性。关于如何使用 Isaacus LangChain 集成生成嵌入的更详细教程，请参见 [此处](/oss/integrations/text_embedding/isaacus)。
+下面的代码片段演示了如何使用 Isaacus 的 Kanon 2 Embedder 模型，通过 LangChain 评估法律查询与法律文档之间的语义相似性。关于如何使用 Isaacus LangChain 集成生成嵌入的更详细教程，请参见 [此处](/oss/javascript/integrations/text_embedding/isaacus)。
 
 ```python
 import numpy as np # 注意：您可能需要 `pip install numpy`。

@@ -1,70 +1,46 @@
 ---
-title: SupabaseVectorStore
+title: Supabase (Postgres)
 ---
-[Supabase](https://supabase.com/docs) 是一个开源的 Firebase 替代方案。Supabase 构建于 PostgreSQL 之上，提供了强大的 SQL 查询能力，并能与现有工具和框架实现简单的接口。
+>[Supabase](https://supabase.com/docs) 是一个开源的 Firebase 替代方案。`Supabase` 构建于 `PostgreSQL` 之上，它提供了强大的 SQL 查询能力，并能与现有工具和框架实现简单的接口。
 
-LangChain.js 支持使用 Supabase Postgres 数据库作为向量存储，这依赖于 [`pgvector`](https://github.com/pgvector/pgvector) 扩展。更多信息请参考 [Supabase 博客文章](https://supabase.com/blog/openai-embeddings-postgres-vector)。
+>[PostgreSQL](https://en.wikipedia.org/wiki/PostgreSQL)，也称为 `Postgres`，是一个免费开源的关系型数据库管理系统（RDBMS），强调可扩展性和 SQL 合规性。
 
-本指南提供了快速入门 Supabase [向量存储](/oss/integrations/vectorstores) 的概述。关于 `SupabaseVectorStore` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_supabase.SupabaseVectorStore.html)。
+本笔记本展示了如何使用 `Supabase` 和 `pgvector` 作为你的向量存储（VectorStore）。
 
-## 概述
+你需要安装 `langchain-community`，使用 `pip install -qU langchain-community` 来使用此集成。
 
-### 集成详情
+要运行此笔记本，请确保：
 
-| 类 | 包 | [PY 支持](https://python.langchain.com/docs/integrations/vectorstores/supabase/) |  版本 |
-| :--- | :--- | :---: | :---: |
-| [`SupabaseVectorStore`](https://api.js.langchain.com/classes/langchain_community_vectorstores_supabase.SupabaseVectorStore.html) | [`@langchain/community`](https://npmjs.com/@langchain/community) | ✅ |  ![NPM - Version](https://img.shields.io/npm/v/@langchain/community?style=flat-square&label=%20&) |
+- 已启用 `pgvector` 扩展
+- 已安装 `supabase-py` 包
+- 已在数据库中创建了 `match_documents` 函数
+- 在 `public` 模式中有一个类似于下文的 `documents` 表。
 
-## 设置
-
-要使用 Supabase 向量存储，你需要设置一个 Supabase 数据库并安装 `@langchain/community` 集成包。你还需要安装官方的 [`@supabase/supabase-js`](https://www.npmjs.com/package/@supabase/supabase-js) SDK 作为对等依赖。
-
-本指南也将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
-
-::: code-group
-
-```bash [npm]
-npm install @langchain/community @langchain/core @supabase/supabase-js @langchain/openai
-```
-
-```bash [yarn]
-yarn add @langchain/community @langchain/core @supabase/supabase-js @langchain/openai
-```
-
-```bash [pnpm]
-pnpm add @langchain/community @langchain/core @supabase/supabase-js @langchain/openai
-```
-
-:::
-
-创建数据库后，运行以下 SQL 来设置 [`pgvector`](https://github.com/pgvector/pgvector) 并创建必要的表和函数：
+以下函数用于计算余弦相似度，但你可以根据需要调整。
 
 ```sql
 -- Enable the pgvector extension to work with embedding vectors
-create extension vector;
+create extension if not exists vector;
 
 -- Create a table to store your documents
-create table documents (
-  id bigserial primary key,
-  content text, -- corresponds to Document.pageContent
-  metadata jsonb, -- corresponds to Document.metadata
-  embedding vector(1536) -- 1536 works for OpenAI embeddings, change if needed
-);
+create table
+  documents (
+    id uuid primary key,
+    content text, -- corresponds to Document.pageContent
+    metadata jsonb, -- corresponds to Document.metadata
+    embedding vector (1536) -- 1536 works for OpenAI embeddings, change if needed
+  );
 
 -- Create a function to search for documents
 create function match_documents (
-  query_embedding vector(1536),
-  match_count int DEFAULT null,
-  filter jsonb DEFAULT '{}'
+  query_embedding vector (1536),
+  filter jsonb default '{}'
 ) returns table (
-  id bigint,
+  id uuid,
   content text,
   metadata jsonb,
-  embedding jsonb,
   similarity float
-)
-language plpgsql
-as $$
+) language plpgsql as $$
 #variable_conflict use_column
 begin
   return query
@@ -72,202 +48,237 @@ begin
     id,
     content,
     metadata,
-    (embedding::text)::jsonb as embedding,
     1 - (documents.embedding <=> query_embedding) as similarity
   from documents
   where metadata @> filter
-  order by documents.embedding <=> query_embedding
-  limit match_count;
+  order by documents.embedding <=> query_embedding;
 end;
 $$;
 ```
 
-### 凭证
+```python
+# with pip
+pip install -qU  supabase
 
-完成上述设置后，设置 `SUPABASE_PRIVATE_KEY` 和 `SUPABASE_URL` 环境变量：
-
-```typescript
-process.env.SUPABASE_PRIVATE_KEY = "your-api-key";
-process.env.SUPABASE_URL = "your-supabase-db-url";
+# with conda
+# !conda install -c conda-forge supabase
 ```
 
-如果你在本指南中使用 OpenAI 嵌入，还需要设置你的 OpenAI 密钥：
+我们希望使用 `OpenAIEmbeddings`，因此需要获取 OpenAI API 密钥。
 
-```typescript
-process.env.OPENAI_API_KEY = "YOUR_API_KEY";
+```python
+import getpass
+import os
+
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("OpenAI API Key:")
 ```
 
-如果你想获得模型调用的自动化追踪，也可以通过取消注释以下代码来设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
-
-```typescript
-// process.env.LANGSMITH_TRACING="true"
-// process.env.LANGSMITH_API_KEY="your-api-key"
+```python
+if "SUPABASE_URL" not in os.environ:
+    os.environ["SUPABASE_URL"] = getpass.getpass("Supabase URL:")
 ```
 
-## 实例化
-
-```typescript
-import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
-import { OpenAIEmbeddings } from "@langchain/openai";
-
-import { createClient } from "@supabase/supabase-js";
-
-const embeddings = new OpenAIEmbeddings({
-  model: "text-embedding-3-small",
-});
-
-const supabaseClient = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_PRIVATE_KEY
-);
-
-const vectorStore = new SupabaseVectorStore(embeddings, {
-  client: supabaseClient,
-  tableName: "documents",
-  queryName: "match_documents",
-});
+```python
+if "SUPABASE_SERVICE_KEY" not in os.environ:
+    os.environ["SUPABASE_SERVICE_KEY"] = getpass.getpass("Supabase Service Key:")
 ```
 
-## 管理向量存储
+```python
+# 如果你将 Supabase 和 OpenAI API 密钥存储在 .env 文件中，可以使用 dotenv 加载它们
+from dotenv import load_dotenv
 
-### 向向量存储添加项目
-
-```typescript
-import type { Document } from "@langchain/core/documents";
-
-const document1: Document = {
-  pageContent: "The powerhouse of the cell is the mitochondria",
-  metadata: { source: "https://example.com" }
-};
-
-const document2: Document = {
-  pageContent: "Buildings are made out of brick",
-  metadata: { source: "https://example.com" }
-};
-
-const document3: Document = {
-  pageContent: "Mitochondria are made out of lipids",
-  metadata: { source: "https://example.com" }
-};
-
-const document4: Document = {
-  pageContent: "The 2024 Olympics are in Paris",
-  metadata: { source: "https://example.com" }
-}
-
-const documents = [document1, document2, document3, document4];
-
-await vectorStore.addDocuments(documents, { ids: ["1", "2", "3", "4"] });
+load_dotenv()
 ```
 
-```text
-[ 1, 2, 3, 4 ]
+首先，我们将创建一个 Supabase 客户端并实例化一个 OpenAI 嵌入类。
+
+```python
+import os
+
+from langchain_community.vectorstores import SupabaseVectorStore
+from langchain_openai import OpenAIEmbeddings
+from supabase.client import Client, create_client
+
+supabase_url = os.environ.get("SUPABASE_URL")
+supabase_key = os.environ.get("SUPABASE_SERVICE_KEY")
+supabase: Client = create_client(supabase_url, supabase_key)
+
+embeddings = OpenAIEmbeddings()
 ```
 
-### 从向量存储删除项目
+接下来，我们将为向量存储加载并解析一些数据（如果你的数据库中已存储了带嵌入向量的文档，请跳过此步骤）。
 
-```typescript
-await vectorStore.delete({ ids: ["4"] });
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import CharacterTextSplitter
+
+loader = TextLoader("../../how_to/state_of_the_union.txt")
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
 ```
 
-## 查询向量存储
+将上述文档插入数据库。每个文档的嵌入向量将自动生成。你可以根据文档数量调整 `chunk_size`。默认值为 500，但可能需要降低此值。
 
-一旦你的向量存储创建完成并添加了相关文档，你很可能会希望在运行链或代理时查询它。
+```python
+vector_store = SupabaseVectorStore.from_documents(
+    docs,
+    embeddings,
+    client=supabase,
+    table_name="documents",
+    query_name="match_documents",
+    chunk_size=500,
+)
+```
 
-### 直接查询
+或者，如果你的数据库中已有带嵌入向量的文档，可以直接实例化一个新的 `SupabaseVectorStore`：
 
-执行简单的相似性搜索可以按如下方式进行：
+```python
+vector_store = SupabaseVectorStore(
+    embedding=embeddings,
+    client=supabase,
+    table_name="documents",
+    query_name="match_documents",
+)
+```
 
-```typescript
-const filter = { source: "https://example.com" };
+最后，通过执行相似性搜索来测试它：
 
-const similaritySearchResults = await vectorStore.similaritySearch("biology", 2, filter);
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+matched_docs = vector_store.similarity_search(query)
+```
 
-for (const doc of similaritySearchResults) {
-  console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
-}
+```python
+print(matched_docs[0].page_content)
 ```
 
 ```text
-* The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
-* Mitochondria are made out of lipids [{"source":"https://example.com"}]
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
+
+Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
+
+One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
+
+And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
 ```
 
-如果你想执行相似性搜索并获取相应的分数，可以运行：
+## 带分数的相似性搜索
 
-```typescript
-const similaritySearchWithScoreResults = await vectorStore.similaritySearchWithScore("biology", 2, filter)
+返回的距离分数是余弦距离。因此，分数越低越好。
 
-for (const [doc, score] of similaritySearchWithScoreResults) {
-  console.log(`* [SIM=${score.toFixed(3)}] ${doc.pageContent} [${JSON.stringify(doc.metadata)}]`);
-}
+```python
+matched_docs = vector_store.similarity_search_with_relevance_scores(query)
 ```
 
-```text
-* [SIM=0.165] The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
-* [SIM=0.148] Mitochondria are made out of lipids [{"source":"https://example.com"}]
-```
-
-### 元数据查询构建器过滤
-
-你也可以使用类似于 [Supabase JavaScript 库](https://supabase.com/docs/reference/javascript/using-filters) 工作方式的查询构建器风格过滤，而不是传递一个对象。请注意，由于大多数过滤属性都在元数据列中，你需要使用 [Postgrest API 文档](https://postgrest.org/en/stable/references/api/tables_views.html#json-columns) 中定义的箭头运算符（整数用 ->，文本用 ->>）并指定属性的数据类型（例如，列应类似于 `metadata->some_int_prop_name::int`）。
-
-```typescript
-import { SupabaseFilterRPCCall } from "@langchain/community/vectorstores/supabase";
-
-const funcFilter: SupabaseFilterRPCCall = (rpc) =>
-  rpc.filter("metadata->>source", "eq", "https://example.com");
-
-const funcFilterSearchResults = await vectorStore.similaritySearch("biology", 2, funcFilter);
-
-for (const doc of funcFilterSearchResults) {
-  console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
-}
+```python
+matched_docs[0]
 ```
 
 ```text
-* The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
-* Mitochondria are made out of lipids [{"source":"https://example.com"}]
+(Document(page_content='Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections. \n\nTonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service. \n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court. \n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.', metadata={'source': '../../../state_of_the_union.txt'}),
+ 0.802509746274066)
 ```
 
-### 转换为检索器进行查询
+## 检索器选项
 
-你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+本节介绍如何将 SupabaseVectorStore 用作检索器的不同选项。
 
-```typescript
-const retriever = vectorStore.asRetriever({
-  // 可选过滤器
-  filter: filter,
-  k: 2,
-});
-await retriever.invoke("biology");
+### 最大边际相关性搜索
+
+除了在检索器对象中使用相似性搜索外，你还可以使用 `mmr`。
+
+```python
+retriever = vector_store.as_retriever(search_type="mmr")
 ```
 
-```javascript
-[
-  Document {
-    pageContent: 'The powerhouse of the cell is the mitochondria',
-    metadata: { source: 'https://example.com' },
-    id: undefined
-  },
-  Document {
-    pageContent: 'Mitochondria are made out of lipids',
-    metadata: { source: 'https://example.com' },
-    id: undefined
-  }
-]
+```python
+matched_docs = retriever.invoke(query)
 ```
 
-### 用于检索增强生成
+```python
+for i, d in enumerate(matched_docs):
+    print(f"\n## Document {i}\n")
+    print(d.page_content)
+```
 
-关于如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
+```text
+## Document 0
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [智能体 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
 
----
+Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
 
-## API 参考
+One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
 
-关于 `SupabaseVectorStore` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_supabase.SupabaseVectorStore.html)。
+And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
+
+## Document 1
+
+One was stationed at bases and breathing in toxic smoke from “burn pits” that incinerated wastes of war—medical and hazard material, jet fuel, and more.
+
+When they came home, many of the world’s fittest and best trained warriors were never the same.
+
+Headaches. Numbness. Dizziness.
+
+A cancer that would put them in a flag-draped coffin.
+
+I know.
+
+One of those soldiers was my son Major Beau Biden.
+
+We don’t know for sure if a burn pit was the cause of his brain cancer, or the diseases of so many of our troops.
+
+But I’m committed to finding out everything we can.
+
+Committed to military families like Danielle Robinson from Ohio.
+
+The widow of Sergeant First Class Heath Robinson.
+
+He was born a soldier. Army National Guard. Combat medic in Kosovo and Iraq.
+
+Stationed near Baghdad, just yards from burn pits the size of football fields.
+
+Heath’s widow Danielle is here with us tonight. They loved going to Ohio State football games. He loved building Legos with their daughter.
+
+## Document 2
+
+And I’m taking robust action to make sure the pain of our sanctions  is targeted at Russia’s economy. And I will use every tool at our disposal to protect American businesses and consumers.
+
+Tonight, I can announce that the United States has worked with 30 other countries to release 60 Million barrels of oil from reserves around the world.
+
+America will lead that effort, releasing 30 Million barrels from our own Strategic Petroleum Reserve. And we stand ready to do more if necessary, unified with our allies.
+
+These steps will help blunt gas prices here at home. And I know the news about what’s happening can seem alarming.
+
+But I want you to know that we are going to be okay.
+
+When the history of this era is written Putin’s war on Ukraine will have left Russia weaker and the rest of the world stronger.
+
+While it shouldn’t have taken something so terrible for people around the world to see what’s at stake now everyone sees it clearly.
+
+## Document 3
+
+We can’t change how divided we’ve been. But we can change how we move forward—on COVID-19 and other issues we must face together.
+
+I recently visited the New York City Police Department days after the funerals of Officer Wilbert Mora and his partner, Officer Jason Rivera.
+
+They were responding to a 9-1-1 call when a man shot and killed them with a stolen gun.
+
+Officer Mora was 27 years old.
+
+Officer Rivera was 22.
+
+Both Dominican Americans who’d grown up on the same streets they later chose to patrol as police officers.
+
+I spoke with their families and told them that we are forever in debt for their sacrifice, and we will carry on their mission to restore the trust and safety every community deserves.
+
+I’ve worked on these issues a long time.
+
+I know what works: Investing in crime prevention and community police officers who’ll walk the beat, who’ll know the neighborhood, and who can restore trust and safety.
+```
+
+```python
+
+```

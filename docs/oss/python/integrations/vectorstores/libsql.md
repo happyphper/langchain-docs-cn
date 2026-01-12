@@ -25,7 +25,7 @@ LangChain.js 支持使用本地 libSQL 或远程 Turso 数据库作为向量存�
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/python/langchain/install)。
 
 </Tip>
 
@@ -160,5 +160,5 @@ for (const [doc, score] of similaritySearchWithScoreResults) {
 
 ## 相关内容
 
-- 向量存储[概念指南](/oss/integrations/vectorstores)
-- 向量存储[操作指南](/oss/integrations/vectorstores)
+- 向量存储[概念指南](/oss/python/integrations/vectorstores)
+- 向量存储[操作指南](/oss/python/integrations/vectorstores)

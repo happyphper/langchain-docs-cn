@@ -4,9 +4,9 @@ title: Ollama
 
 <Warning>
 
-<strong>您当前正在查阅的是关于使用 Ollama 模型作为文本补全模型的文档。Ollama 上提供的许多流行模型是[聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查阅的是关于使用 Ollama 模型作为文本补全模型的文档。Ollama 上提供的许多流行模型是[聊天补全模型](/oss/javascript/langchain/models)。</strong>
 
-您可能正在寻找[这个页面](/oss/integrations/chat/ollama/)。
+您可能正在寻找[这个页面](/oss/javascript/integrations/chat/ollama/)。
 
 </Warning>
 
@@ -121,7 +121,7 @@ The image shows a hot dog placed inside what appears to be a bun that has been s
 
 ## 相关链接
 
-- [模型指南](/oss/langchain/models)
+- [模型指南](/oss/javascript/langchain/models)
 
 ---
 

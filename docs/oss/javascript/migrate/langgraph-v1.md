@@ -2,7 +2,7 @@
 title: LangGraph v1 迁移指南
 sidebarTitle: LangGraph v1
 ---
-本指南概述了 LangGraph v1 中的变更以及如何从先前版本迁移。关于新功能的高层概述，请参阅[发布说明](/oss/releases/langgraph-v1)。
+本指南概述了 LangGraph v1 中的变更以及如何从先前版本迁移。关于新功能的高层概述，请参阅[发布说明](/oss/javascript/releases/langgraph-v1)。
 
 升级方法：
 
@@ -43,8 +43,8 @@ LangGraph v1 弃用了 `createReactAgent` 预构建功能。请使用 LangChain 
 
 详情请参阅 LangChain v1 文档：
 
-- [发布说明](/oss/releases/langchain-v1#createagent)
-- [迁移指南](/oss/migrate/langchain-v1#createagent)
+- [发布说明](/oss/javascript/releases/langchain-v1#createagent)
+- [迁移指南](/oss/javascript/migrate/langchain-v1#createagent)
 
 ::: code-group
 
@@ -111,7 +111,7 @@ const graph = new StateGraph(State)
 
 :::
 
-了解更多，请参阅[中断](/oss/langgraph/interrupts)。
+了解更多，请参阅[中断](/oss/javascript/langgraph/interrupts)。
 
 ---
 

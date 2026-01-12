@@ -197,7 +197,7 @@ We’re securing commitments and supporting partners in South and Central Americ
 
 ### 将 Timescale Vector 用作检索器
 
-初始化 TimescaleVector 存储后，您可以将其用作 [检索器](/oss/langchain/retrieval)。
+初始化 TimescaleVector 存储后，您可以将其用作 [检索器](/oss/python/langchain/retrieval)。
 
 ```python
 # Use TimescaleVector as a retriever
@@ -290,7 +290,7 @@ def create_uuid(date_string: str):
     return str(uuid)
 ```
 
-接下来，我们将定义一个元数据函数，用于从 JSON 记录中提取相关元数据。我们将把此函数传递给 JSONLoader。有关更多详细信息，请参阅 [JSON 文档加载器文档](/oss/integrations/document_loaders/json)。
+接下来，我们将定义一个元数据函数，用于从 JSON 记录中提取相关元数据。我们将把此函数传递给 JSONLoader。有关更多详细信息，请参阅 [JSON 文档加载器文档](/oss/python/integrations/document_loaders/json)。
 
 ```python
 # Helper function to split name and email given an author string consisting of Name Lastname <email>

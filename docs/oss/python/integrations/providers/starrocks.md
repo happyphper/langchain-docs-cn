@@ -22,7 +22,7 @@ uv add pymysql
 
 ## 向量存储
 
-查看 [使用示例](/oss/integrations/vectorstores/starrocks)。
+查看 [使用示例](/oss/python/integrations/vectorstores/starrocks)。
 
 ```python
 from langchain_community.vectorstores import StarRocks

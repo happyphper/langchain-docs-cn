@@ -1,7 +1,7 @@
 ---
 title: VectorStoreToolkit
 ---
-这将帮助您开始使用 [VectorStoreToolkit](/oss/langchain/tools#toolkits)。如需了解 VectorStoreToolkit 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain.agents.VectorStoreToolkit.html)。
+这将帮助您开始使用 [VectorStoreToolkit](/oss/javascript/langchain/tools#toolkits)。如需了解 VectorStoreToolkit 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain.agents.VectorStoreToolkit.html)。
 
 `VectorStoreToolkit` 是一个工具包，它接收一个向量存储（vector store），并将其转换为一个工具，然后可以被调用、传递给 LLM、智能体（agent）等。
 

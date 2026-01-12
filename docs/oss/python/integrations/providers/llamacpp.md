@@ -26,7 +26,7 @@ pip install llama-cpp-python
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/llamacpp)。
+查看[使用示例](/oss/python/integrations/chat/llamacpp)。
 
 ```python
 from langchain_community.chat_models import ChatLlamaCpp
@@ -40,7 +40,7 @@ from langchain_community.llms import LlamaCpp
 
 ## 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/llamacpp)。
+查看[使用示例](/oss/python/integrations/text_embedding/llamacpp)。
 
 ```python
 from langchain_community.embeddings import LlamaCppEmbeddings

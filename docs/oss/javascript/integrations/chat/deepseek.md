@@ -1,7 +1,7 @@
 ---
 title: ChatDeepSeek
 ---
-这将帮助您开始使用 DeepSeek [聊天模型](/oss/langchain/models)。有关所有 `ChatDeepSeek` 功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_deepseek.ChatDeepSeek.html)。
+这将帮助您开始使用 DeepSeek [聊天模型](/oss/javascript/langchain/models)。有关所有 `ChatDeepSeek` 功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_deepseek.ChatDeepSeek.html)。
 
 ## 概述
 ### 集成详情
@@ -14,7 +14,7 @@ title: ChatDeepSeek
 
 有关如何使用特定功能的指南，请参阅下表标题中的链接。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
 
@@ -24,7 +24,7 @@ title: ChatDeepSeek
 
 要访问 DeepSeek 模型，您需要创建一个 DeepSeek 账户，获取 API 密钥，并安装 `@langchain/deepseek` 集成包。
 
-您也可以通过 [Together AI](/oss/integrations/chat/togetherai) 或 [Ollama](/oss/integrations/chat/ollama) 等提供商访问 DeepSeek API。
+您也可以通过 [Together AI](/oss/javascript/integrations/chat/togetherai) 或 [Ollama](/oss/javascript/integrations/chat/ollama) 等提供商访问 DeepSeek API。
 
 ### 凭证
 

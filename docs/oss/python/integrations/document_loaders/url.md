@@ -5,7 +5,7 @@ title: 统一资源定位符（URL）
 
 ## Unstructured URL 加载器
 
-对于下面的示例，请安装 `unstructured` 库，并参考[本指南](/oss/integrations/providers/unstructured/)获取更多关于在本地设置 Unstructured 的说明，包括设置所需的系统依赖项：
+对于下面的示例，请安装 `unstructured` 库，并参考[本指南](/oss/python/integrations/providers/unstructured/)获取更多关于在本地设置 Unstructured 的说明，包括设置所需的系统依赖项：
 
 ```python
 pip install -qU unstructured

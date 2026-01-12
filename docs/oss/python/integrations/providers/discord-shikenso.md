@@ -31,7 +31,7 @@ export DISCORD_BOT_TOKEN="your-discord-bot-token"
 
 ## 工具
 
-以下代码片段展示了如何在 Discord 中读取和发送消息。更多详细信息，请参阅 [Discord 工具文档](/oss/integrations/tools/discord)。
+以下代码片段展示了如何在 Discord 中读取和发送消息。更多详细信息，请参阅 [Discord 工具文档](/oss/python/integrations/tools/discord)。
 
 ```python
 from langchain_discord.tools.discord_read_messages import DiscordReadMessages
@@ -54,7 +54,7 @@ print(send_result)
 
 ## 工具包
 
-`DiscordToolkit` 将多个与 Discord 相关的工具分组到一个统一的接口中。使用示例请参阅 [Discord 工具包文档](/oss/integrations/tools/discord)。
+`DiscordToolkit` 将多个与 Discord 相关的工具分组到一个统一的接口中。使用示例请参阅 [Discord 工具包文档](/oss/python/integrations/tools/discord)。
 
 ```python
 from langchain_discord.toolkits import DiscordToolkit

@@ -27,7 +27,7 @@ UPSTASH_REDIS_REST_TOKEN="****"
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/python/langchain/install)。
 
 </Tip>
 

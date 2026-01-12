@@ -4,7 +4,7 @@ sidebarTitle: Implement
 ---
 集成包是用户可以安装并在其项目中使用的 Python 包。它们实现了一个或多个遵循 LangChain 接口标准的组件。
 
-LangChain 组件是 [`langchain-core`](https://github.com/langchain-ai/langchain/tree/master/libs/core) 中基类的子类。例如包括[聊天模型](/oss/integrations/chat)、[工具](/oss/integrations/tools)、[检索器](/oss/integrations/retrievers)等。
+LangChain 组件是 [`langchain-core`](https://github.com/langchain-ai/langchain/tree/master/libs/core) 中基类的子类。例如包括[聊天模型](/oss/python/integrations/chat)、[工具](/oss/python/integrations/tools)、[检索器](/oss/python/integrations/retrievers)等。
 
 您的集成包通常需要实现至少一个此类组件的子类。展开下方标签页以查看每个组件的详细信息。
 
@@ -16,7 +16,7 @@ LangChain 组件是 [`langchain-core`](https://github.com/langchain-ai/langchain
 
 <Warning>
 
-聊天模型集成指南目前正在编写中。在此期间，请阅读[聊天模型概念指南](/oss/langchain/models)以了解 LangChain 聊天模型的工作原理。
+聊天模型集成指南目前正在编写中。在此期间，请阅读[聊天模型概念指南](/oss/python/langchain/models)以了解 LangChain 聊天模型的工作原理。
 
 </Warning>
 
@@ -33,7 +33,7 @@ Tools 类必须继承自 <a href="https://reference.langchain.com/python/langcha
 
 <Warning>
 
-工具集成指南目前正在编写中。在此期间，请阅读[工具概念指南](/oss/langchain/tools)以了解 LangChain 工具的工作原理。
+工具集成指南目前正在编写中。在此期间，请阅读[工具概念指南](/oss/python/langchain/tools)以了解 LangChain 工具的工作原理。
 
 </Warning>
 
@@ -45,7 +45,7 @@ Tools 类必须继承自 <a href="https://reference.langchain.com/python/langcha
 
 <Warning>
 
-检索器集成指南目前正在编写中。在此期间，请阅读[检索器概念指南](/oss/integrations/retrievers)以了解 LangChain 检索器的工作原理。
+检索器集成指南目前正在编写中。在此期间，请阅读[检索器概念指南](/oss/python/integrations/retrievers)以了解 LangChain 检索器的工作原理。
 
 </Warning>
 
@@ -55,11 +55,11 @@ Tools 类必须继承自 <a href="https://reference.langchain.com/python/langcha
 
 所有向量存储必须继承自 <a href="https://reference.langchain.com/python/langchain_core/vectorstores/?h=#langchain_core.vectorstores.base.VectorStore" target="_blank" rel="noreferrer" class="link"><code>VectorStore</code></a> 基类。此接口包含用于在向量存储中写入、删除和搜索文档的方法。
 
-有关实现向量存储集成的详细信息，请参阅[向量存储集成指南](/oss/integrations/vectorstores)。
+有关实现向量存储集成的详细信息，请参阅[向量存储集成指南](/oss/python/integrations/vectorstores)。
 
 <Warning>
 
-向量存储集成指南目前正在编写中。在此期间，请阅读[向量存储概念指南](/oss/integrations/vectorstores)以了解 LangChain 向量存储的工作原理。
+向量存储集成指南目前正在编写中。在此期间，请阅读[向量存储概念指南](/oss/python/integrations/vectorstores)以了解 LangChain 向量存储的工作原理。
 
 </Warning>
 
@@ -71,7 +71,7 @@ Tools 类必须继承自 <a href="https://reference.langchain.com/python/langcha
 
 <Warning>
 
-嵌入模型集成指南目前正在编写中。在此期间，请阅读[嵌入模型概念指南](/oss/integrations/text_embedding)以了解 LangChain 嵌入模型的工作原理。
+嵌入模型集成指南目前正在编写中。在此期间，请阅读[嵌入模型概念指南](/oss/python/integrations/text_embedding)以了解 LangChain 嵌入模型的工作原理。
 
 </Warning>
 

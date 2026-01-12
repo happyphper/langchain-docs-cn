@@ -21,7 +21,7 @@ uv add bibtexparser pymupdf
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/bibtex)。
+查看[使用示例](/oss/python/integrations/document_loaders/bibtex)。
 
 ```python
 from langchain_community.document_loaders import BibtexLoader

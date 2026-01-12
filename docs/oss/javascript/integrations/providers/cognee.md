@@ -27,4 +27,4 @@ uv add langchain-cognee
 
 ## 检索器
 
-有关可用检索器的详细信息，请参见[此处](/oss/integrations/retrievers/cognee)。
+有关可用检索器的详细信息，请参见[此处](/oss/javascript/integrations/retrievers/cognee)。

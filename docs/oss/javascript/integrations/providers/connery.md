@@ -9,7 +9,7 @@ CLI 可以自动化开发过程中的许多任务。SDK 则提供了一个 JavaS
 
 ## 工具包
 
-请参阅[使用示例](/oss/integrations/tools/connery)。
+请参阅[使用示例](/oss/javascript/integrations/tools/connery)。
 
 ```python
 from langchain_community.agent_toolkits.connery import ConneryToolkit

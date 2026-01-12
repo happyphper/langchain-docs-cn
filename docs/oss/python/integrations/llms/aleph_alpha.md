@@ -1,38 +1,68 @@
 ---
-title: AlephAlpha
+title: Aleph Alpha
 ---
-LangChain.js 支持 AlephAlpha 的 Luminous 系列模型。您需要[在其网站上](https://www.aleph-alpha.com/)注册一个 API 密钥。
+[Luminous 系列](https://docs.aleph-alpha.com/docs/category/luminous/) 是一个大型语言模型（LLM）家族。
 
-以下是一个示例：
+本示例将介绍如何使用 LangChain 与 Aleph Alpha 模型进行交互。
 
-<Tip>
-
-关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/community @langchain/core
+```python
+# 安装使用该集成所需的 langchain 包
+pip install -qU langchain-community
 ```
 
-```typescript
-import { AlephAlpha } from "@langchain/community/llms/aleph_alpha";
-
-const model = new AlephAlpha({
-  aleph_alpha_api_key: "YOUR_ALEPH_ALPHA_API_KEY", // 或者设置为 process.env.ALEPH_ALPHA_API_KEY
-});
-
-const res = await model.invoke(`Is cereal soup?`);
-
-console.log({ res });
-
-/*
-  {
-    res: "\nIs soup a cereal? I don’t think so, but it is delicious."
-  }
- */
+```python
+# 安装包
+pip install -qU  aleph-alpha-client
 ```
 
-## 相关链接
+```python
+# 创建新令牌：https://docs.aleph-alpha.com/docs/account/#create-a-new-token
 
-- [模型指南](/oss/langchain/models)
+from getpass import getpass
+
+ALEPH_ALPHA_API_KEY = getpass()
+```
+
+```text
+········
+```
+
+```python
+from langchain_community.llms import AlephAlpha
+from langchain_core.prompts import PromptTemplate
+```
+
+```python
+template = """Q: {question}
+
+A:"""
+
+prompt = PromptTemplate.from_template(template)
+```
+
+```python
+llm = AlephAlpha(
+    model="luminous-extended",
+    maximum_tokens=20,
+    stop_sequences=["Q:"],
+    aleph_alpha_api_key=ALEPH_ALPHA_API_KEY,
+)
+```
+
+```python
+llm_chain = prompt | llm
+```
+
+```python
+question = "What is AI?"
+
+llm_chain.invoke({"question": question})
+```
+
+```text
+' Artificial Intelligence is the simulation of human intelligence processes by machines.\n\n'
+```
+
+```python
+
+```

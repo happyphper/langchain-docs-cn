@@ -23,5 +23,5 @@ console.log(res);
 
 ## 相关链接
 
-- 工具 [概念指南](/oss/langchain/tools)
-- 工具 [使用指南](/oss/langchain/tools)
+- 工具 [概念指南](/oss/python/langchain/tools)
+- 工具 [使用指南](/oss/python/langchain/tools)

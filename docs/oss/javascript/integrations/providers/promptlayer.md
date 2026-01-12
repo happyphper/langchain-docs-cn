@@ -30,7 +30,7 @@ uv add promptlayer
 
 ## 回调函数
 
-查看[使用示例](/oss/integrations/callbacks/promptlayer)。
+查看[使用示例](/oss/javascript/integrations/callbacks/promptlayer)。
 
 ```python
 import promptlayer  # 别忘了这个导入！
@@ -39,7 +39,7 @@ from langchain.callbacks import PromptLayerCallbackHandler
 
 ## LLM
 
-查看[使用示例](/oss/integrations/llms/promptlayer_openai)。
+查看[使用示例](/oss/javascript/integrations/llms/promptlayer_openai)。
 
 ```python
 from langchain_community.llms import PromptLayerOpenAI
@@ -47,7 +47,7 @@ from langchain_community.llms import PromptLayerOpenAI
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/promptlayer_chatopenai)。
+查看[使用示例](/oss/javascript/integrations/chat/promptlayer_chatopenai)。
 
 ```python
 from langchain_community.chat_models import PromptLayerChatOpenAI

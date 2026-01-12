@@ -1,176 +1,61 @@
 ---
 title: SerpApi
 ---
-[SerpApi](https://serpapi.com/) 允许你将搜索引擎结果集成到你的 LLM 应用中。
+本笔记本将介绍如何使用 [SerpApi](https://serpapi.com/) 组件进行网络搜索。
 
-本指南提供了 SerpApi [工具](/oss/integrations/tools/) 的快速入门概览。有关 `SerpAPI` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_community.tools_serpapi.SerpAPI.html)。
+请在此处[注册](https://serpapi.com/users/sign_up) SerpApi 账户，每月可获得 250 次免费搜索。注册后，您可以在[仪表板](https://serpapi.com/manage-api-key)上找到您的 API 密钥。
 
-## 概述
+然后在环境变量文件 `.env` 中设置 `SERPAPI_API_KEY` 为您的 API 密钥。
 
-### 集成详情
-
-| 类 | 包 | [PY 支持](https://python.langchain.com/docs/integrations/tools/serpapi/) | 版本 |
-| :--- | :--- | :---: | :---: |
-| [SerpAPI](https://api.js.langchain.com/classes/_langchain_community.tools_serpapi.SerpAPI.html) | [`@langchain/community`](https://www.npmjs.com/package/@langchain/community) | ✅ |  ![NPM - Version](https://img.shields.io/npm/v/@langchain/community?style=flat-square&label=%20&) |
-
-## 设置
-
-该集成位于 `@langchain/community` 包中，你可以按如下方式安装：
-
-::: code-group
-
-```bash [npm]
-npm install @langchain/community @langchain/core
+```python
+import os
+os.environ["SERPAPI_API_KEY"] = SERPAPI_API_KEY
 ```
 
-```bash [yarn]
-yarn add @langchain/community @langchain/core
+```python
+from langchain_community.utilities import SerpAPIWrapper
 ```
 
-```bash [pnpm]
-pnpm add @langchain/community @langchain/core
+```python
+search = SerpAPIWrapper()
 ```
 
-:::
-
-### 凭证
-
-请在此处 [设置 API 密钥](https://serpapi.com/)，并将其设置为名为 `SERPAPI_API_KEY` 的环境变量。
-
-```typescript
-process.env.SERPAPI_API_KEY = "YOUR_API_KEY"
-```
-
-同时，为了获得最佳的观测性，设置 [LangSmith](https://smith.langchain.com/) 也很有帮助（但不是必需的）：
-
-```typescript
-process.env.LANGSMITH_TRACING="true"
-process.env.LANGSMITH_API_KEY="your-api-key"
-```
-
-## 实例化
-
-你可以像这样导入并实例化 `SerpAPI` 工具：
-
-```typescript
-import { SerpAPI } from "@langchain/community/tools/serpapi";
-
-const tool = new SerpAPI();
-```
-
-## 调用
-
-### [直接使用参数调用](/oss/concepts/#invoke-with-just-the-arguments)
-
-你可以像这样直接调用工具：
-
-```typescript
-await tool.invoke({
-  input: "what is the current weather in SF?"
-});
-```
-
-```json
-{"type":"weather_result","temperature":"63","unit":"Fahrenheit","precipitation":"3%","humidity":"91%","wind":"5 mph","location":"San Francisco, CA","date":"Sunday 9:00 AM","weather":"Mostly cloudy"}
-```
-
-### [使用 ToolCall 调用](/oss/concepts/#invoke-with-toolcall)
-
-我们也可以使用模型生成的 `ToolCall` 来调用工具，在这种情况下，将返回一个 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.ToolMessage" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>：
-
-```typescript
-// 这通常由模型生成，但为了演示目的，我们将直接创建一个工具调用。
-const modelGeneratedToolCall = {
-  args: {
-    input: "what is the current weather in SF?"
-  },
-  id: "1",
-  name: tool.name,
-  type: "tool_call",
-}
-
-await tool.invoke(modelGeneratedToolCall)
+```python
+search.run("Obama's first name?")
 ```
 
 ```text
-ToolMessage {
-  "content": "{\"type\":\"weather_result\",\"temperature\":\"63\",\"unit\":\"Fahrenheit\",\"precipitation\":\"3%\",\"humidity\":\"91%\",\"wind\":\"5 mph\",\"location\":\"San Francisco, CA\",\"date\":\"Sunday 9:00 AM\",\"weather\":\"Mostly cloudy\"}",
-  "name": "search",
-  "additional_kwargs": {},
-  "response_metadata": {},
-  "tool_call_id": "1"
+'Barack Hussein Obama II'
+```
+
+## 自定义参数
+
+您还可以使用任意参数自定义 SerpAPI 包装器。例如，在下面的示例中，我们将使用 `bing` 而不是 `google`。
+
+```python
+params = {
+    "engine": "bing",
+    "gl": "us",
+    "hl": "en",
 }
+search = SerpAPIWrapper(params=params)
 ```
 
-## 链式调用
-
-我们可以通过先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后在链中使用它：
-
-```typescript
-// @lc-docs-hide-cell
-
-import { ChatOpenAI } from "@langchain/openai"
-
-const llm = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0,
-})
+```python
+search.run("Obama's first name?")
 ```
 
-```typescript
-import { HumanMessage } from "@langchain/core/messages";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { RunnableLambda } from "@langchain/core/runnables";
+```text
+'Barack Hussein Obama II is an American politician who served as the 44th president of the United States from 2009 to 2017. A member of the Democratic Party, Obama was the first African-American presi…New content will be added above the current area of focus upon selectionBarack Hussein Obama II is an American politician who served as the 44th president of the United States from 2009 to 2017. A member of the Democratic Party, Obama was the first African-American president of the United States. He previously served as a U.S. senator from Illinois from 2005 to 2008 and as an Illinois state senator from 1997 to 2004, and previously worked as a civil rights lawyer before entering politics.Wikipediabarackobama.com'
+```
 
-const prompt = ChatPromptTemplate.fromMessages(
-  [
-    ["system", "You are a helpful assistant."],
-    ["placeholder", "{messages}"],
-  ]
+```python
+from langchain.tools import Tool
+
+# 您可以创建工具以传递给代理
+custom_tool = Tool(
+    name="web search",
+    description="Search the web for information",
+    func=search.run,
 )
-
-const llmWithTools = llm.bindTools([tool]);
-
-const chain = prompt.pipe(llmWithTools);
-
-const toolChain = RunnableLambda.from(
-  async (userInput: string, config) => {
-    const humanMessage = new HumanMessage(userInput,);
-    const aiMsg = await chain.invoke({
-      messages: [new HumanMessage(userInput)],
-    }, config);
-    const toolMsgs = await tool.batch(aiMsg.tool_calls, config);
-    return chain.invoke({
-      messages: [humanMessage, aiMsg, ...toolMsgs],
-    }, config);
-  }
-);
-
-const toolChainResult = await toolChain.invoke("what is the current weather in sf?");
 ```
-
-```typescript
-const { tool_calls, content } = toolChainResult;
-
-console.log("AIMessage", JSON.stringify({
-  tool_calls,
-  content,
-}, null, 2));
-```
-
-```text
-AIMessage {
-  "tool_calls": [],
-  "content": "The current weather in San Francisco is mostly cloudy, with a temperature of 64°F. The humidity is at 90%, there is a 3% chance of precipitation, and the wind is blowing at 5 mph."
-}
-```
-
-## 智能体
-
-有关如何在智能体中使用 LangChain 工具的指南，请参阅 [LangGraph.js](https://langchain-ai.github.io/langgraphjs/) 文档。
-
----
-
-## API 参考
-
-有关 `SerpAPI` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_community.tools_serpapi.SerpAPI.html)。

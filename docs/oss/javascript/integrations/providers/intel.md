@@ -36,7 +36,7 @@ uv add intel_extension_for_pytorch
 
 ### 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/optimum_intel)。
+查看[使用示例](/oss/javascript/integrations/text_embedding/optimum_intel)。
 我们还提供了一个完整的教程笔记本 [`rag_with_quantized_embeddings.ipynb`](https://github.com/langchain-ai/langchain/blob/v0.3/cookbook/rag_with_quantized_embeddings.ipynb)，用于在 RAG 流程中使用该嵌入器。
 
 ```python
@@ -86,7 +86,7 @@ uv add torch onnx accelerate datasets
 
 ### 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/itrex)。
+查看[使用示例](/oss/javascript/integrations/text_embedding/itrex)。
 
 ```python
 from langchain_community.embeddings import QuantizedBgeEmbeddings
@@ -94,7 +94,7 @@ from langchain_community.embeddings import QuantizedBgeEmbeddings
 
 ### 使用 ITREX 进行仅权重量化
 
-查看[使用示例](/oss/integrations/llms/weight_only_quantization)。
+查看[使用示例](/oss/javascript/integrations/llms/weight_only_quantization)。
 
 ## 配置参数详情
 

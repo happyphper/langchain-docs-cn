@@ -3,7 +3,7 @@ title: DatabricksEmbeddings
 ---
 > [Databricks](https://www.databricks.com/) Lakehouse 平台将数据、分析和 AI 统一在一个平台上。
 
-本指南提供了快速入门 Databricks [嵌入模型](/oss/integrations/text_embedding) 的概览。有关 `DatabricksEmbeddings` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/embeddings/langchain_community.embeddings.databricks.DatabricksEmbeddings.html)。
+本指南提供了快速入门 Databricks [嵌入模型](/oss/python/integrations/text_embedding) 的概览。有关 `DatabricksEmbeddings` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/embeddings/langchain_community.embeddings.databricks.DatabricksEmbeddings.html)。
 
 ## 概述
 
@@ -69,7 +69,7 @@ embeddings = DatabricksEmbeddings(
 
 ## 索引与检索
 
-嵌入模型通常用于检索增强生成 (RAG) 流程中，既作为索引数据的一部分，也用于后续检索。更详细的说明，请参阅我们的 [RAG 教程](/oss/langchain/rag)。
+嵌入模型通常用于检索增强生成 (RAG) 流程中，既作为索引数据的一部分，也用于后续检索。更详细的说明，请参阅我们的 [RAG 教程](/oss/python/langchain/rag)。
 
 下面，我们将展示如何使用上面初始化的 `embeddings` 对象来索引和检索数据。在此示例中，我们将在 `InMemoryVectorStore` 中索引和检索一个示例文档。
 

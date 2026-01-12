@@ -1,269 +1,323 @@
 ---
-title: Zep 开源
+title: Zep
 ---
-> [Zep](https://www.getzep.com) 是一个面向 AI 助手应用的长时记忆服务。
-> 借助 Zep，您可以为 AI 助手提供回忆过去对话的能力，无论对话发生在多久以前，
+> 从聊天历史中回忆、理解并提取数据。为个性化 AI 体验提供动力。
+
+> [Zep](https://www.getzep.com) 是一个为 AI 助手应用设计的长时记忆服务。
+> 通过 Zep，您可以让 AI 助手具备回忆过去对话的能力，无论对话发生在多久以前，
 > 同时还能减少幻觉、降低延迟和成本。
 
-> 对 Zep Cloud 感兴趣？请参阅 [Zep Cloud 安装指南](https://help.getzep.com/sdks)
+> 对 Zep Cloud 感兴趣？请参阅 [Zep Cloud 安装指南](https://help.getzep.com/sdks) 和 [Zep Cloud 向量存储示例](https://help.getzep.com/langchain/examples/vectorstore-example)
 
-**注意：** `ZepVectorStore` 处理 `Documents`，旨在用作 `Retriever`（检索器）。
-它提供的功能与 Zep 的 `ZepMemory` 类不同，后者专用于持久化、丰富和搜索用户的聊天历史。
+## 开源安装与设置
 
-## 为什么选择 Zep 的 VectorStore？
+> Zep 开源项目：[https://github.com/getzep/zep](https://github.com/getzep/zep)
+>
+> Zep 开源文档：[https://docs.getzep.com/](https://docs.getzep.com/)
 
-Zep 会自动使用 Zep 服务器本地的低延迟模型，对添加到 Zep 向量存储的文档进行嵌入。
-Zep TS/JS 客户端可以在非 Node 的边缘环境中使用。这两者与 Zep 的聊天记忆功能相结合，
-使得 Zep 成为构建延迟和性能至关重要的对话式 LLM 应用的理想选择。
-
-### 支持的搜索类型
-
-Zep 支持相似性搜索和最大边际相关性（MMR）搜索。MMR 搜索对于检索增强生成（RAG）应用特别有用，
-因为它会对结果进行重新排序，以确保返回文档的多样性。
-
-## 安装
-
-请遵循 [Zep 开源快速入门指南](https://help.getzep.com/quickstart) 来安装并开始使用 Zep。
+您需要安装 `langchain-community`，使用 `pip install -qU langchain-community` 来使用此集成。
 
 ## 用法
 
-您需要 Zep API URL 和可选的 API 密钥才能使用 Zep VectorStore。更多信息请参阅 [Zep 文档](https://help.getzep.com/welcome)。
+在下面的示例中，我们使用 Zep 的自动嵌入功能，该功能使用低延迟嵌入模型在 Zep 服务器上自动嵌入文档。
 
-在下面的示例中，我们使用了 Zep 的自动嵌入功能，该功能会自动使用低延迟嵌入模型在 Zep 服务器上嵌入文档。由于 LangChain 要求传入一个 <a href="https://reference.langchain.com/python/langchain_core/embeddings/#langchain_core.embeddings.embeddings.Embeddings" target="_blank" rel="noreferrer" class="link"><code>Embeddings</code></a> 实例，我们传入了 `FakeEmbeddings`。
+## 注意
 
-**注意：** 如果您传入除 `FakeEmbeddings` 之外的 <a href="https://reference.langchain.com/python/langchain_core/embeddings/#langchain_core.embeddings.embeddings.Embeddings" target="_blank" rel="noreferrer" class="link"><code>Embeddings</code></a> 实例，该类将用于嵌入文档。
-您还必须将文档集合设置为 `isAutoEmbedded === false`。请参阅下面的 `OpenAIEmbeddings` 示例。
+- 这些示例使用 Zep 的异步接口。通过移除方法名中的 `a` 前缀来调用同步接口。
+- 如果您传入一个 <a href="https://reference.langchain.com/python/langchain_core/embeddings/#langchain_core.embeddings.embeddings.Embeddings" target="_blank" rel="noreferrer" class="link"><code>Embeddings</code></a> 实例，Zep 将使用它来嵌入文档，而不是自动嵌入。您还必须将您的文档集合设置为 `isAutoEmbedded === false`。
+- 如果您将集合设置为 `isAutoEmbedded === false`，则必须传入一个 <a href="https://reference.langchain.com/python/langchain_core/embeddings/#langchain_core.embeddings.embeddings.Embeddings" target="_blank" rel="noreferrer" class="link"><code>Embeddings</code></a> 实例。
 
-### 示例：从文档创建 ZepVectorStore 并进行查询
+## 从文档加载或创建集合
 
-<Tip>
+```python
+from uuid import uuid4
 
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+from langchain_community.document_loaders import WebBaseLoader
+from langchain_community.vectorstores import ZepVectorStore
+from langchain_community.vectorstores.zep import CollectionConfig
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-</Tip>
+ZEP_API_URL = "http://localhost:8000"  # 这是您的 Zep 实例的 API URL
+ZEP_API_KEY = "<optional_key>"  # 您的 Zep 实例的可选 API 密钥
+collection_name = f"babbage{uuid4().hex}"  # 唯一的集合名称。仅限字母数字
 
-```bash [npm]
-npm install @langchain/openai @langchain/community @langchain/core
-```
+# 如果我们要创建一个新的 Zep 集合，则需要集合配置
+config = CollectionConfig(
+    name=collection_name,
+    description="<optional description>",
+    metadata={"optional_metadata": "associated with the collection"},
+    is_auto_embedded=True,  # 我们将让 Zep 使用其低延迟嵌入器嵌入我们的文档
+    embedding_dimensions=1536,  # 这应与您为 Zep 配置使用的模型匹配。
+)
 
-```typescript
-import { ZepVectorStore } from "@langchain/community/vectorstores/zep";
-import { FakeEmbeddings } from "@langchain/core/utils/testing";
-import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
-import { randomUUID } from "crypto";
+# 加载文档
+article_url = "https://www.gutenberg.org/cache/epub/71292/pg71292.txt"
+loader = WebBaseLoader(article_url)
+documents = loader.load()
 
-const loader = new TextLoader("src/document_loaders/example_data/example.txt");
-const docs = await loader.load();
-export const run = async () => {
-  const collectionName = `collection${randomUUID().split("-")[0]}`;
+# 将其分割成块
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
 
-  const zepConfig = {
-    apiUrl: "http://localhost:8000", // 这应该是您的 Zep 实现的 URL
-    collectionName,
-    embeddingDimensions: 1536, // 这必须与您使用的嵌入维度匹配
-    isAutoEmbedded: true, // 如果为 true，向量存储将在添加文档时自动嵌入它们
-  };
-
-  const embeddings = new FakeEmbeddings();
-
-  const vectorStore = await ZepVectorStore.fromDocuments(
+# 实例化 VectorStore。由于该集合在 Zep 中尚不存在，
+# 它将被创建并用我们传入的文档填充。
+vs = ZepVectorStore.from_documents(
     docs,
-    embeddings,
-    zepConfig
-  );
-
-  // 等待文档被嵌入
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const c = await vectorStore.client.document.getCollection(collectionName);
-    console.log(
-      `嵌入状态：${c.document_embedded_count}/${c.document_count} 个文档已嵌入`
-    );
-    // eslint-disable-next-line no-promise-executor-return
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (c.status === "ready") {
-      break;
-    }
-  }
-
-  const results = await vectorStore.similaritySearchWithScore("bar", 3);
-
-  console.log("相似性搜索结果：");
-  console.log(JSON.stringify(results));
-
-  const results2 = await vectorStore.maxMarginalRelevanceSearch("bar", {
-    k: 3,
-  });
-
-  console.log("MMR 搜索结果：");
-  console.log(JSON.stringify(results2));
-};
+    collection_name=collection_name,
+    config=config,
+    api_url=ZEP_API_URL,
+    api_key=ZEP_API_KEY,
+    embedding=None,  # 我们将让 Zep 使用其低延迟嵌入器嵌入我们的文档
+)
 ```
 
-### 示例：使用元数据过滤器查询 ZepVectorStore
+```python
+# 等待集合嵌入完成
 
-```typescript
-import { ZepVectorStore } from "@langchain/community/vectorstores/zep";
-import { FakeEmbeddings } from "@langchain/core/utils/testing";
-import { randomUUID } from "crypto";
-import { Document } from "@langchain/core/documents";
+async def wait_for_ready(collection_name: str) -> None:
+    import time
 
-const docs = [
-  new Document({
-    metadata: { album: "Led Zeppelin IV", year: 1971 },
-    pageContent:
-      "Stairway to Heaven is one of the most iconic songs by Led Zeppelin.",
-  }),
-  new Document({
-    metadata: { album: "Led Zeppelin I", year: 1969 },
-    pageContent:
-      "Dazed and Confused was a standout track on Led Zeppelin's debut album.",
-  }),
-  new Document({
-    metadata: { album: "Physical Graffiti", year: 1975 },
-    pageContent:
-      "Kashmir, from Physical Graffiti, showcases Led Zeppelin's unique blend of rock and world music.",
-  }),
-  new Document({
-    metadata: { album: "Houses of the Holy", year: 1973 },
-    pageContent:
-      "The Rain Song is a beautiful, melancholic piece from Houses of the Holy.",
-  }),
-  new Document({
-    metadata: { band: "Black Sabbath", album: "Paranoid", year: 1970 },
-    pageContent:
-      "Paranoid is Black Sabbath's second studio album and includes some of their most notable songs.",
-  }),
-  new Document({
-    metadata: {
-      band: "Iron Maiden",
-      album: "The Number of the Beast",
-      year: 1982,
+    from zep_python import ZepClient
+
+    client = ZepClient(ZEP_API_URL, ZEP_API_KEY)
+
+    while True:
+        c = await client.document.aget_collection(collection_name)
+        print(
+            "嵌入状态: "
+            f"{c.document_embedded_count}/{c.document_count} 个文档已嵌入"
+        )
+        time.sleep(1)
+        if c.status == "ready":
+            break
+
+await wait_for_ready(collection_name)
+```
+
+```text
+嵌入状态: 0/401 个文档已嵌入
+嵌入状态: 0/401 个文档已嵌入
+嵌入状态: 0/401 个文档已嵌入
+嵌入状态: 0/401 个文档已嵌入
+嵌入状态: 0/401 个文档已嵌入
+嵌入状态: 0/401 个文档已嵌入
+嵌入状态: 401/401 个文档已嵌入
+```
+
+## 在集合上进行相似性搜索查询
+
+```python
+# 查询它
+query = "what is the structure of our solar system?"
+docs_scores = await vs.asimilarity_search_with_relevance_scores(query, k=3)
+
+# 打印结果
+for d, s in docs_scores:
+    print(d.page_content, " -> ", s, "\n====\n")
+```
+
+```text
+the positions of the two principal planets, (and these the most
+necessary for the navigator,) Jupiter and Saturn, require each not less
+than one hundred and sixteen tables. Yet it is not only necessary to
+predict the position of these bodies, but it is likewise expedient to
+tabulate the motions of the four satellites of Jupiter, to predict the
+exact times at which they enter his shadow, and at which their shadows
+cross his disc, as well as the times at which they are interposed  ->  0.9003241539387915
+====
+
+furnish more than a small fraction of that aid to navigation (in the
+large sense of that term), which, with greater facility, expedition, and
+economy in the calculation and printing of tables, it might be made to
+supply.
+
+Tables necessary to determine the places of the planets are not less
+necessary than those for the sun, moon, and stars. Some notion of the
+number and complexity of these tables may be formed, when we state that  ->  0.8911165633479508
+====
+
+the scheme of notation thus applied, immediately suggested the
+advantages which must attend it as an instrument for expressing the
+structure, operation, and circulation of the animal system; and we
+entertain no doubt of its adequacy for that purpose. Not only the
+mechanical connexion of the solid members of the bodies of men and
+animals, but likewise the structure and operation of the softer parts,
+including the muscles, integuments, membranes, &c. the nature, motion,  ->  0.8899750214770481
+====
+```
+
+## 通过 MMR 重新排序的集合搜索
+
+Zep 提供原生的、硬件加速的 MMR 搜索结果重新排序。
+
+```python
+query = "what is the structure of our solar system?"
+docs = await vs.asearch(query, search_type="mmr", k=3)
+
+for d in docs:
+    print(d.page_content, "\n====\n")
+```
+
+```text
+the positions of the two principal planets, (and these the most
+necessary for the navigator,) Jupiter and Saturn, require each not less
+than one hundred and sixteen tables. Yet it is not only necessary to
+predict the position of these bodies, but it is likewise expedient to
+tabulate the motions of the four satellites of Jupiter, to predict the
+exact times at which they enter his shadow, and at which their shadows
+cross his disc, as well as the times at which they are interposed
+====
+
+the scheme of notation thus applied, immediately suggested the
+advantages which must attend it as an instrument for expressing the
+structure, operation, and circulation of the animal system; and we
+entertain no doubt of its adequacy for that purpose. Not only the
+mechanical connexion of the solid members of the bodies of men and
+animals, but likewise the structure and operation of the softer parts,
+including the muscles, integuments, membranes, &c. the nature, motion,
+====
+
+resistance, economizing time, harmonizing the mechanism, and giving to
+the whole mechanical action the utmost practical perfection.
+
+The system of mechanical contrivances by which the results, here
+attempted to be described, are attained, form only one order of
+expedients adopted in this machinery;--although such is the perfection
+of their action, that in any ordinary case they would be regarded as
+having attained the ends in view with an almost superfluous degree of
+====
+```
+
+# 按元数据过滤
+
+使用元数据过滤器来缩小结果范围。首先，加载另一本书："Adventures of Sherlock Holmes"
+
+```python
+# 让我们向现有集合添加更多内容
+article_url = "https://www.gutenberg.org/files/48320/48320-0.txt"
+loader = WebBaseLoader(article_url)
+documents = loader.load()
+
+# 将其分割成块
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
+
+await vs.aadd_documents(docs)
+
+await wait_for_ready(collection_name)
+```
+
+```text
+嵌入状态: 401/1691 个文档已嵌入
+嵌入状态: 401/1691 个文档已嵌入
+嵌入状态: 401/1691 个文档已嵌入
+嵌入状态: 401/1691 个文档已嵌入
+嵌入状态: 401/1691 个文档已嵌入
+嵌入状态: 401/1691 个文档已嵌入
+嵌入状态: 901/1691 个文档已嵌入
+嵌入状态: 901/1691 个文档已嵌入
+嵌入状态: 901/1691 个文档已嵌入
+嵌入状态: 901/1691 个文档已嵌入
+嵌入状态: 901/1691 个文档已嵌入
+嵌入状态: 901/1691 个文档已嵌入
+嵌入状态: 1401/1691 个文档已嵌入
+嵌入状态: 1401/1691 个文档已嵌入
+嵌入状态: 1401/1691 个文档已嵌入
+嵌入状态: 1401/1691 个文档已嵌入
+嵌入状态: 1691/1691 个文档已嵌入
+```
+
+我们看到来自两本书的结果。注意 `source` 元数据。
+
+```python
+query = "Was he interested in astronomy?"
+docs = await vs.asearch(query, search_type="similarity", k=3)
+
+for d in docs:
+    print(d.page_content, " -> ", d.metadata, "\n====\n")
+```
+
+```text
+or remotely, for this purpose. But in addition to these, a great number
+of tables, exclusively astronomical, are likewise indispensable. The
+predictions of the astronomer, with respect to the positions and motions
+of the bodies of the firmament, are the means, and the only means, which
+enable the mariner to prosecute his art. By these he is enabled to
+discover the distance of his ship from the Line, and the extent of his  ->  {'source': 'https://www.gutenberg.org/cache/epub/71292/pg71292.txt'}
+====
+
+possess all knowledge which is likely to be useful to him in his work,
+and this I have endeavored in my case to do. If I remember rightly, you
+on one occasion, in the early days of our friendship, defined my limits
+in a very precise fashion.”
+
+“Yes,” I answered, laughing. “It was a singular document. Philosophy,
+astronomy, and politics were marked at zero, I remember. Botany
+variable, geology profound as regards the mud-stains from any region  ->  {'source': 'https://www.gutenberg.org/files/48320/48320-0.txt'}
+====
+
+of astronomy, and its kindred sciences, with the various arts dependent
+on them. In none are computations more operose than those which
+astronomy in particular requires;--in none are preparatory facilities
+more needful;--in none is error more detrimental. The practical
+astronomer is interrupted in his pursuit, and diverted from his task of
+observation by the irksome labours of computation, or his diligence in
+observing becomes ineffectual for want of yet greater industry of  ->  {'source': 'https://www.gutenberg.org/cache/epub/71292/pg71292.txt'}
+====
+```
+
+现在，我们设置一个过滤器
+
+```python
+filter = {
+    "where": {
+        "jsonpath": (
+            "$[*] ? (@.source == 'https://www.gutenberg.org/files/48320/48320-0.txt')"
+        )
     },
-    pageContent:
-      "The Number of the Beast is often considered Iron Maiden's best album.",
-  }),
-  new Document({
-    metadata: { band: "Metallica", album: "Master of Puppets", year: 1986 },
-    pageContent:
-      "Master of Puppets is widely regarded as Metallica's finest work.",
-  }),
-  new Document({
-    metadata: { band: "Megadeth", album: "Rust in Peace", year: 1990 },
-    pageContent:
-      "Rust in Peace is Megadeth's fourth studio album and features intricate guitar work.",
-  }),
-];
+}
 
-export const run = async () => {
-  const collectionName = `collection${randomUUID().split("-")[0]}`;
+docs = await vs.asearch(query, search_type="similarity", metadata=filter, k=3)
 
-  const zepConfig = {
-    apiUrl: "http://localhost:8000", // 这应该是您的 Zep 实现的 URL
-    collectionName,
-    embeddingDimensions: 1536, // 这必须与您使用的嵌入维度匹配
-    isAutoEmbedded: true, // 如果为 true，向量存储将在添加文档时自动嵌入它们
-  };
-
-  const embeddings = new FakeEmbeddings();
-
-  const vectorStore = await ZepVectorStore.fromDocuments(
-    docs,
-    embeddings,
-    zepConfig
-  );
-
-  // 等待文档被嵌入
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const c = await vectorStore.client.document.getCollection(collectionName);
-    console.log(
-      `嵌入状态：${c.document_embedded_count}/${c.document_count} 个文档已嵌入`
-    );
-    // eslint-disable-next-line no-promise-executor-return
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (c.status === "ready") {
-      break;
-    }
-  }
-
-  vectorStore
-    .similaritySearchWithScore("sad music", 3, {
-      where: { jsonpath: "$[*] ? (@.year == 1973)" }, // 我们应该看到一个结果：The Rain Song
-    })
-    .then((results) => {
-      console.log(`\n\n相似性搜索结果：\n${JSON.stringify(results)}`);
-    })
-    .catch((e) => {
-      if (e.name === "NotFoundError") {
-        console.log("未找到结果");
-      } else {
-        throw e;
-      }
-    });
-
-  // 我们这里没有过滤，而是演示 MMR 的工作原理。
-  // 我们也可以像上面的相似性搜索一样，为 MMR 搜索添加过滤器。
-  vectorStore
-    .maxMarginalRelevanceSearch("sad music", {
-      k: 3,
-    })
-    .then((results) => {
-      console.log(`\n\nMMR 搜索结果：\n${JSON.stringify(results)}`);
-    })
-    .catch((e) => {
-      if (e.name === "NotFoundError") {
-        console.log("未找到结果");
-      } else {
-        throw e;
-      }
-    });
-};
+for d in docs:
+    print(d.page_content, " -> ", d.metadata, "\n====\n")
 ```
 
-### 示例：使用 LangChain 嵌入类，例如 `OpenAIEmbeddings`
+```text
+possess all knowledge which is likely to be useful to him in his work,
+and this I have endeavored in my case to do. If I remember rightly, you
+on one occasion, in the early days of our friendship, defined my limits
+in a very precise fashion.”
 
-```typescript
-import { ZepVectorStore } from "@langchain/community/vectorstores/zep";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
-import { randomUUID } from "crypto";
+“Yes,” I answered, laughing. “It was a singular document. Philosophy,
+astronomy, and politics were marked at zero, I remember. Botany
+variable, geology profound as regards the mud-stains from any region  ->  {'source': 'https://www.gutenberg.org/files/48320/48320-0.txt'}
+====
 
-const loader = new TextLoader("src/document_loaders/example_data/example.txt");
-const docs = await loader.load();
-export const run = async () => {
-  const collectionName = `collection${randomUUID().split("-")[0]}`;
+the light shining upon his strong-set aquiline features. So he sat as I
+dropped off to sleep, and so he sat when a sudden ejaculation caused me
+to wake up, and I found the summer sun shining into the apartment. The
+pipe was still between his lips, the smoke still curled upward, and the
+room was full of a dense tobacco haze, but nothing remained of the heap
+of shag which I had seen upon the previous night.
 
-  const zepConfig = {
-    apiUrl: "http://localhost:8000", // 这应该是您的 Zep 实现的 URL
-    collectionName,
-    embeddingDimensions: 1536, // 这必须与您使用的嵌入维度匹配
-    isAutoEmbedded: false, // 设置为 false 以禁用自动嵌入
-  };
+“Awake, Watson?” he asked.
 
-  const embeddings = new OpenAIEmbeddings();
+“Yes.”
 
-  const vectorStore = await ZepVectorStore.fromDocuments(
-    docs,
-    embeddings,
-    zepConfig
-  );
+“Game for a morning drive?”  ->  {'source': 'https://www.gutenberg.org/files/48320/48320-0.txt'}
+====
 
-  const results = await vectorStore.similaritySearchWithScore("bar", 3);
-
-  console.log("相似性搜索结果：");
-  console.log(JSON.stringify(results));
-
-  const results2 = await vectorStore.maxMarginalRelevanceSearch("bar", {
-    k: 3,
-  });
-
-  console.log("MMR 搜索结果：");
-  console.log(JSON.stringify(results2));
-};
+“I glanced at the books upon the table, and in spite of my ignorance
+of German I could see that two of them were treatises on science, the
+others being volumes of poetry. Then I walked across to the window,
+hoping that I might catch some glimpse of the country-side, but an oak
+shutter, heavily barred, was folded across it. It was a wonderfully
+silent house. There was an old clock ticking loudly somewhere in the
+passage, but otherwise everything was deadly still. A vague feeling of  ->  {'source': 'https://www.gutenberg.org/files/48320/48320-0.txt'}
+====
 ```
 
-## 相关
+```python
 
-- 向量存储 [概念指南](/oss/integrations/vectorstores)
-- 向量存储 [操作指南](/oss/integrations/vectorstores)
+```

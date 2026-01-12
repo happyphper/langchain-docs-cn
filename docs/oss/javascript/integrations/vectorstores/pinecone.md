@@ -3,7 +3,7 @@ title: PineconeStore
 ---
 [Pinecone](https://www.pinecone.io/) 是一个向量数据库，为全球一些顶尖公司的 AI 应用提供支持。
 
-本指南提供了快速入门 Pinecone [向量存储](/oss/integrations/vectorstores) 的概览。有关 `PineconeStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_pinecone.PineconeStore.html)。
+本指南提供了快速入门 Pinecone [向量存储](/oss/javascript/integrations/vectorstores) 的概览。有关 `PineconeStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_pinecone.PineconeStore.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ title: PineconeStore
 
 要使用 Pinecone 向量存储，您需要创建一个 Pinecone 账户，初始化一个索引，并安装 `@langchain/pinecone` 集成包。您还需要安装 [官方 Pinecone SDK](https://www.npmjs.com/package/@pinecone-database/pinecone) 来初始化一个客户端，以便传递给 `PineconeStore` 实例。
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要您安装 `@langchain/openai` 集成包。您也可以使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+本指南还将使用 [OpenAI 嵌入](/oss/javascript/integrations/text_embedding/openai)，这需要您安装 `@langchain/openai` 集成包。您也可以使用 [其他支持的嵌入模型](/oss/javascript/integrations/text_embedding)。
 
 ::: code-group
 
@@ -173,7 +173,7 @@ for (const [doc, score] of similaritySearchWithScoreResults) {
 
 ### 转换为检索器进行查询
 
-您也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在您的链中更轻松地使用。
+您也可以将向量存储转换为 [检索器](/oss/javascript/langchain/retrieval)，以便在您的链中更轻松地使用。
 
 ```typescript
 const retriever = vectorStore.asRetriever({
@@ -204,9 +204,9 @@ await retriever.invoke("biology");
 
 有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [代理式 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/javascript/langchain/rag)。
+- [代理式 RAG](/oss/javascript/langgraph/agentic-rag)
+- [检索文档](/oss/javascript/langchain/retrieval)
 
 ---
 

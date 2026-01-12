@@ -5,7 +5,7 @@ title: SupabaseVectorStore
 
 LangChain.js 支持使用 Supabase Postgres 数据库作为向量存储，这依赖于 [`pgvector`](https://github.com/pgvector/pgvector) 扩展。更多信息请参考 [Supabase 博客文章](https://supabase.com/blog/openai-embeddings-postgres-vector)。
 
-本指南提供了快速入门 Supabase [向量存储](/oss/integrations/vectorstores) 的概述。关于 `SupabaseVectorStore` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_supabase.SupabaseVectorStore.html)。
+本指南提供了快速入门 Supabase [向量存储](/oss/javascript/integrations/vectorstores) 的概述。关于 `SupabaseVectorStore` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_supabase.SupabaseVectorStore.html)。
 
 ## 概述
 
@@ -19,7 +19,7 @@ LangChain.js 支持使用 Supabase Postgres 数据库作为向量存储，这依
 
 要使用 Supabase 向量存储，你需要设置一个 Supabase 数据库并安装 `@langchain/community` 集成包。你还需要安装官方的 [`@supabase/supabase-js`](https://www.npmjs.com/package/@supabase/supabase-js) SDK 作为对等依赖。
 
-本指南也将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+本指南也将使用 [OpenAI 嵌入](/oss/javascript/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/javascript/integrations/text_embedding)。
 
 ::: code-group
 
@@ -232,7 +232,7 @@ for (const doc of funcFilterSearchResults) {
 
 ### 转换为检索器进行查询
 
-你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+你也可以将向量存储转换为 [检索器](/oss/javascript/langchain/retrieval)，以便在你的链中更轻松地使用。
 
 ```typescript
 const retriever = vectorStore.asRetriever({
@@ -262,9 +262,9 @@ await retriever.invoke("biology");
 
 关于如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [智能体 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/javascript/langchain/rag)。
+- [智能体 RAG](/oss/javascript/langgraph/agentic-rag)
+- [检索文档](/oss/javascript/langchain/retrieval)
 
 ---
 

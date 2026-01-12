@@ -13,7 +13,7 @@ title: Azure Blob 存储文件
 
 要使用此加载器，您需要先配置好 Unstructured，并确保其在一个可访问的 URL 端点就绪。也可以将其配置为在本地运行。
 
-关于如何设置，请参阅[此处的文档](/oss/integrations/document_loaders/file_loaders/unstructured)。
+关于如何设置，请参阅[此处的文档](/oss/javascript/integrations/document_loaders/file_loaders/unstructured)。
 
 您还需要安装官方的 Azure 存储 Blob 客户端库：
 

@@ -9,7 +9,7 @@ title: HuggingFace 推理
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -38,5 +38,5 @@ const embeddings = new HuggingFaceInferenceEmbeddings({
 
 ## 相关
 
-- 嵌入模型[概念指南](/oss/integrations/text_embedding)
-- 嵌入模型[操作指南](/oss/integrations/text_embedding)
+- 嵌入模型[概念指南](/oss/javascript/integrations/text_embedding)
+- 嵌入模型[操作指南](/oss/javascript/integrations/text_embedding)

@@ -1,7 +1,7 @@
 ---
 title: Airbyte CDK（已弃用）
 ---
-注意：`AirbyteCDKLoader` 已弃用。请改用 [`AirbyteLoader`](/oss/integrations/document_loaders/airbyte)。
+注意：`AirbyteCDKLoader` 已弃用。请改用 [`AirbyteLoader`](/oss/python/integrations/document_loaders/airbyte)。
 
 >[Airbyte](https://github.com/airbytehq/airbyte) 是一个数据集成平台，用于将来自 API、数据库和文件的 ELT 管道传输到数据仓库和数据湖。它拥有最大的 ELT 连接器目录，支持多种数据仓库和数据库。
 

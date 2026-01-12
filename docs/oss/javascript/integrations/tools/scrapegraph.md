@@ -1,7 +1,7 @@
 ---
 title: ScrapeGraph
 ---
-本指南提供了快速入门 ScrapeGraph [工具](/oss/integrations/tools/) 的概述。有关所有 ScrapeGraph 功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/docs/integrations/tools/scrapegraph)。
+本指南提供了快速入门 ScrapeGraph [工具](/oss/javascript/integrations/tools/) 的概述。有关所有 ScrapeGraph 功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/docs/integrations/tools/scrapegraph)。
 
 有关 ScrapeGraph AI 的更多信息：
 
@@ -81,7 +81,7 @@ credits = GetCreditsTool()
 
 ## 调用
 
-### [直接使用参数调用](/oss/langchain/tools)
+### [直接使用参数调用](/oss/javascript/langchain/tools)
 
 让我们分别尝试每个工具：
 
@@ -175,7 +175,7 @@ result = tool.invoke(
 print(json.dumps(result, indent=2))
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools)
+### [使用 ToolCall 调用](/oss/javascript/langchain/tools)
 
 我们也可以使用模型生成的 ToolCall 来调用工具：
 

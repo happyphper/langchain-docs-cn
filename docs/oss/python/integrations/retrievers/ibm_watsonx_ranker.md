@@ -81,7 +81,7 @@ def pretty_print_docs(docs):
 
 让我们首先初始化一个简单的向量存储检索器，并存储 2023 年国情咨文演讲（分块）。我们可以将检索器设置为检索大量（20 个）文档。
 
-初始化 `WatsonxEmbeddings`。更多详情请参阅 [WatsonxEmbeddings](/oss/integrations/text_embedding/ibm_watsonx)。
+初始化 `WatsonxEmbeddings`。更多详情请参阅 [WatsonxEmbeddings](/oss/python/integrations/text_embedding/ibm_watsonx)。
 
 **注意**：
 
@@ -237,7 +237,7 @@ In this struggle as President Zelenskyy said in his speech to the European Parli
 
 您当然可以在 QA 管道中使用此检索器。
 
-初始化 `ChatWatsonx`。更多详情请参阅 [ChatWatsonx](/oss/integrations/chat/ibm_watsonx)。
+初始化 `ChatWatsonx`。更多详情请参阅 [ChatWatsonx](/oss/python/integrations/chat/ibm_watsonx)。
 
 ```python
 from langchain_ibm import ChatWatsonx

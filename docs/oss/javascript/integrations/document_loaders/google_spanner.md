@@ -3,7 +3,7 @@ title: Google Spanner
 ---
 > [Spanner](https://cloud.google.com/spanner) 是一个高度可扩展的数据库，它将无限的可扩展性与关系语义（如二级索引、强一致性、模式和 SQL）相结合，在一个简单的解决方案中提供 99.999% 的可用性。
 
-本笔记本将介绍如何使用 [Spanner](https://cloud.google.com/spanner) 通过 `SpannerLoader` 和 `SpannerDocumentSaver` 来[保存、加载和删除 LangChain 文档](/oss/integrations/document_loaders)。
+本笔记本将介绍如何使用 [Spanner](https://cloud.google.com/spanner) 通过 `SpannerLoader` 和 `SpannerDocumentSaver` 来[保存、加载和删除 LangChain 文档](/oss/javascript/integrations/document_loaders)。
 
 在 [GitHub](https://github.com/googleapis/langchain-google-spanner-python/) 上了解更多关于该包的信息。
 

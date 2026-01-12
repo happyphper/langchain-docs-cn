@@ -14,14 +14,14 @@ pip install openai
 
 ## 聊天模型
 
-查看 [使用示例](/oss/integrations/chat/octoai)。
+查看 [使用示例](/oss/python/integrations/chat/octoai)。
 
 ```python
 from langchain_community.chat_models import ChatOctoAI
 ```
 ## 大语言模型 (LLMs)
 
-查看 [使用示例](/oss/integrations/llms/octoai)。
+查看 [使用示例](/oss/python/integrations/llms/octoai)。
 
 ```python
 from langchain_community.llms.octoai_endpoint import OctoAIEndpoint

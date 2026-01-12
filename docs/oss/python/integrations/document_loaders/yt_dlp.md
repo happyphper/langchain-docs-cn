@@ -3,7 +3,7 @@ title: YoutubeLoaderDL
 ---
 基于 `yt-dlp` 库的 YouTube 加载器。
 
-此包实现了一个用于 YouTube 的[文档加载器](/oss/integrations/document_loaders/)。与 `langchain-community` 中依赖 `pytube` 的 [YoutubeLoader](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.youtube.YoutubeLoader.html) 不同，`YoutubeLoaderDL` 能够获取 YouTube 元数据。`langchain-yt-dlp` 利用了强大的 `yt-dlp` 库，提供了一个更可靠、功能更丰富的 YouTube 文档加载器。
+此包实现了一个用于 YouTube 的[文档加载器](/oss/python/integrations/document_loaders/)。与 `langchain-community` 中依赖 `pytube` 的 [YoutubeLoader](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.youtube.YoutubeLoader.html) 不同，`YoutubeLoaderDL` 能够获取 YouTube 元数据。`langchain-yt-dlp` 利用了强大的 `yt-dlp` 库，提供了一个更可靠、功能更丰富的 YouTube 文档加载器。
 
 ## 概述
 

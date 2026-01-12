@@ -40,6 +40,6 @@ tool = BrightDataSERP(bright_data_api_key="your-api-key")
 
 Bright Data 集成提供了以下几种工具：
 
-- [BrightDataSERP](/oss/integrations/tools/brightdata_serp) - 支持地理定位和自定义区域的搜索引擎结果收集
-- [BrightDataUnlocker](/oss/integrations/tools/brightdata_unlocker) - 访问任何可能受地理限制或受机器人保护的公共网站
-- [BrightDataWebScraperAPI](/oss/integrations/tools/brightdata-webscraperapi) - 从 44 个热门域名（包括 Amazon、LinkedIn、Instagram、TikTok 等）提取结构化数据
+- [BrightDataSERP](/oss/python/integrations/tools/brightdata_serp) - 支持地理定位和自定义区域的搜索引擎结果收集
+- [BrightDataUnlocker](/oss/python/integrations/tools/brightdata_unlocker) - 访问任何可能受地理限制或受机器人保护的公共网站
+- [BrightDataWebScraperAPI](/oss/python/integrations/tools/brightdata-webscraperapi) - 从 44 个热门域名（包括 Amazon、LinkedIn、Instagram、TikTok 等）提取结构化数据

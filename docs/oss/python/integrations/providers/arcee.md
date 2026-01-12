@@ -12,7 +12,7 @@ title: Arcee
 
 ## LLMs
 
-查看[使用示例](/oss/integrations/llms/arcee)。
+查看[使用示例](/oss/python/integrations/llms/arcee)。
 
 ```python
 from langchain_community.llms import Arcee
@@ -20,7 +20,7 @@ from langchain_community.llms import Arcee
 
 ## 检索器
 
-查看[使用示例](/oss/integrations/retrievers/arcee)。
+查看[使用示例](/oss/python/integrations/retrievers/arcee)。
 
 ```python
 from langchain_community.retrievers import ArceeRetriever

@@ -1,7 +1,7 @@
 ---
 title: ChatBaseten
 ---
-本指南提供了快速入门 Baseten [聊天模型](/oss/langchain/models) 的概述。如需查看 ChatBaseten 所有功能、参数和配置的详细列表，请前往 [ChatBaseten API 参考](https://python.langchain.com/api_reference/baseten/chat_models/langchain_baseten.chat_models.ChatBaseten.html)。
+本指南提供了快速入门 Baseten [聊天模型](/oss/javascript/langchain/models) 的概述。如需查看 ChatBaseten 所有功能、参数和配置的详细列表，请前往 [ChatBaseten API 参考](https://python.langchain.com/api_reference/baseten/chat_models/langchain_baseten.chat_models.ChatBaseten.html)。
 
 Baseten 提供专为生产应用设计的推理服务。这些 API 构建在 Baseten 推理栈之上，为领先的开源或自定义模型提供企业级的性能和可靠性：https://www.baseten.co/library/。
 
@@ -15,7 +15,7 @@ Baseten 提供专为生产应用设计的推理服务。这些 API 构建在 Bas
 
 ### 功能
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
 
@@ -127,7 +127,7 @@ content='Buds yawn open wide—  \na robin stitches the hush  \nwith threads of 
 
 <Tip>
 
-关于 [聊天模型调用类型](/oss/langchain/models#invocation)、[消息类型](/oss/langchain/messages#message-types) 和 [内容块](/oss/langchain/messages#standard-content-blocks) 的完整指南可供查阅。
+关于 [聊天模型调用类型](/oss/javascript/langchain/models#invocation)、[消息类型](/oss/javascript/langchain/messages#message-types) 和 [内容块](/oss/javascript/langchain/messages#standard-content-blocks) 的完整指南可供查阅。
 
 </Tip>
 

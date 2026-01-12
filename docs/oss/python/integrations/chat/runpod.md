@@ -15,7 +15,7 @@ title: RunPod 聊天模型
 pip install -qU langchain-runpod
 ```
 
-2.  **部署聊天模型端点：** 按照 [RunPod 提供商指南](/oss/integrations/providers/runpod#setup) 中的设置步骤，在 RunPod Serverless 上部署一个兼容的聊天模型端点并获取其端点 ID。
+2.  **部署聊天模型端点：** 按照 [RunPod 提供商指南](/oss/python/integrations/providers/runpod#setup) 中的设置步骤，在 RunPod Serverless 上部署一个兼容的聊天模型端点并获取其端点 ID。
 3.  **设置环境变量：** 确保 `RUNPOD_API_KEY` 和 `RUNPOD_ENDPOINT_ID`（或特定的 `RUNPOD_CHAT_ENDPOINT_ID`）已设置。
 
 ```python
@@ -165,8 +165,8 @@ except Exception as e:
 
 | 功能                                                         | 集成支持 | 取决于端点？ | 备注                                                                                                                                                                                                 |
 | :----------------------------------------------------------- | :------: | :----------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [工具调用](/oss/langchain/tools)                             | ❌       | ✅           | 需要处理器处理工具定义并返回工具调用（例如，OpenAI 格式）。集成需要解析逻辑。                                                                                                                         |
-| [结构化输出](/oss/langchain/structured-output)               | ❌       | ✅           | 需要处理器接受 `json_mode` 参数（或类似参数）并保证 JSON 输出。                                                                                                                                      |
+| [工具调用](/oss/python/langchain/tools)                             | ❌       | ✅           | 需要处理器处理工具定义并返回工具调用（例如，OpenAI 格式）。集成需要解析逻辑。                                                                                                                         |
+| [结构化输出](/oss/python/langchain/structured-output)               | ❌       | ✅           | 需要处理器接受 `json_mode` 参数（或类似参数）并保证 JSON 输出。                                                                                                                                      |
 | 多模态（图像）                                               | ❌       | ✅           | 需要接受图像数据（例如，base64）的多模态处理器。集成不支持多模态消息。                                                                                                                               |
 | 多模态（音频）                                               | ❌       | ✅           | 需要接受音频数据的处理器。集成不支持音频消息。                                                                                                                                                       |
 | 多模态（视频）                                               | ❌       | ✅           | 需要接受视频数据的处理器。集成不支持视频消息。                                                                                                                                                       |

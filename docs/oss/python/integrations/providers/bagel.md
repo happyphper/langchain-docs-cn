@@ -20,7 +20,7 @@ uv add bagelML
 
 ## VectorStore
 
-查看[使用示例](/oss/integrations/vectorstores/bagel)。
+查看[使用示例](/oss/python/integrations/vectorstores/bagel)。
 
 ```python
 from langchain_community.vectorstores import Bagel

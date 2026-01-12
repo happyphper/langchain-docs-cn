@@ -264,9 +264,9 @@ retriever.invoke(
 
 有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)
-- [智能体式 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/python/langchain/rag)
+- [智能体式 RAG](/oss/python/langgraph/agentic-rag)
+- [检索文档](/oss/python/langchain/retrieval)
 
 ---
 

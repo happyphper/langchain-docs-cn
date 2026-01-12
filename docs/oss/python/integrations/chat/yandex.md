@@ -1,58 +1,49 @@
 ---
 title: ChatYandexGPT
 ---
-LangChain.js 支持调用 [YandexGPT](https://cloud.yandex.com/en/services/yandexgpt) 聊天模型。
+本笔记本将介绍如何将 LangChain 与 [YandexGPT](https://cloud.yandex.com/en/services/yandexgpt) 聊天模型结合使用。
 
-## 设置
+使用前，请确保已安装 `yandexcloud` Python 包。
+
+```python
+pip install -qU  yandexcloud
+```
 
 首先，您需要[创建一个服务账户](https://cloud.yandex.com/en/docs/iam/operations/sa/create)，并为其分配 `ai.languageModels.user` 角色。
 
 接下来，您有两种身份验证选项：
 
 - [IAM 令牌](https://cloud.yandex.com/en/docs/iam/operations/iam-token/create-for-sa)。
-  您可以在构造函数参数中指定令牌为 `iam_token`，或在环境变量 `YC_IAM_TOKEN` 中设置。
-- [API 密钥](https://cloud.yandex.com/en/docs/iam/operations/api-key/create)。
-  您可以在构造函数参数中指定密钥为 `api_key`，或在环境变量 `YC_API_KEY` 中设置。
+您可以在构造函数参数 `iam_token` 或环境变量 `YC_IAM_TOKEN` 中指定令牌。
 
-## 用法
+- [API 密钥](https://cloud.yandex.com/en/docs/iam/operations/api-key/create)
+您可以在构造函数参数 `api_key` 或环境变量 `YC_API_KEY` 中指定密钥。
 
-<Tip>
+要指定模型，可以使用 `model_uri` 参数，更多详情请参阅[相关文档](https://cloud.yandex.com/en/docs/yandexgpt/concepts/models#yandexgpt-generation)。
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+默认情况下，系统会使用参数 `folder_id` 或环境变量 `YC_FOLDER_ID` 指定的文件夹中的最新版 `yandexgpt-lite` 模型。
 
-</Tip>
-
-```bash [npm]
-npm install @langchain/yandex @langchain/core
+```python
+from langchain_community.chat_models import ChatYandexGPT
+from langchain.messages import HumanMessage, SystemMessage
 ```
 
-```typescript
-import { ChatYandexGPT } from "@langchain/yandex/chat_models";
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-
-const chat = new ChatYandexGPT();
-
-const res = await chat.invoke([
-  new SystemMessage(
-    "You are a helpful assistant that translates English to French."
-  ),
-  new HumanMessage("I love programming."),
-]);
-console.log(res);
-
-/*
-AIMessage {
-  lc_serializable: true,
-  lc_kwargs: { content: "Je t'aime programmer.", additional_kwargs: {} },
-  lc_namespace: [ 'langchain', 'schema' ],
-  content: "Je t'aime programmer.",
-  name: undefined,
-  additional_kwargs: {}
-}
- */
+```python
+chat_model = ChatYandexGPT()
 ```
 
-## 相关链接
+```python
+answer = chat_model.invoke(
+    [
+        SystemMessage(
+            content="You are a helpful assistant that translates English to French."
+        ),
+        HumanMessage(content="I love programming."),
+    ]
+)
+answer
+```
 
-- 聊天模型[概念指南](/oss/langchain/models)
-- 聊天模型[操作指南](/oss/langchain/models)
+```text
+AIMessage(content='Je adore le programmement.')
+```

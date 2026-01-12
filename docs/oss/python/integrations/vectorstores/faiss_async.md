@@ -12,7 +12,7 @@ title: Faiss（异步）
 本笔记本展示了如何使用 `asyncio` 来使用与 `FAISS` 向量数据库相关的功能。
 LangChain 实现了同步和异步的向量存储函数。
 
-查看 `synchronous` 版本 [请点击这里](/oss/integrations/vectorstores/faiss)。
+查看 `synchronous` 版本 [请点击这里](/oss/python/integrations/vectorstores/faiss)。
 
 ```python
 pip install -qU  faiss-gpu # 适用于支持 CUDA 7.5+ 的 GPU。

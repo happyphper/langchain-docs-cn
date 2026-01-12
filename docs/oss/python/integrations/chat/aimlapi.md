@@ -1,7 +1,7 @@
 ---
 title: ChatAimlapi
 ---
-本指南将帮助您开始使用 AI/ML API 的[聊天模型](/oss/langchain/models)。有关 `ChatAimlapi` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/aimlapi/chat_models/langchain_aimlapi.chat_models.ChatAimlapi.html)。
+本指南将帮助您开始使用 AI/ML API 的[聊天模型](/oss/python/langchain/models)。有关 `ChatAimlapi` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/aimlapi/chat_models/langchain_aimlapi.chat_models.ChatAimlapi.html)。
 
 [AI/ML API](https://aimlapi.com/app/?utm_source=langchain&utm_medium=github&utm_campaign=integration) 提供了对数百个托管基础模型的统一访问，具备高可用性和高吞吐量。
 
@@ -15,7 +15,7 @@ title: ChatAimlapi
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/python/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/python/langchain/models#token-usage) | [对数概率](/oss/python/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 

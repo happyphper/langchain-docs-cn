@@ -27,7 +27,7 @@ uv add tiktoken hippo-api
 
 ### Hippo
 
-查看[使用示例和安装说明](/oss/integrations/vectorstores/hippo)。
+查看[使用示例和安装说明](/oss/javascript/integrations/vectorstores/hippo)。
 
 ```python
 from langchain_community.vectorstores.hippo import Hippo

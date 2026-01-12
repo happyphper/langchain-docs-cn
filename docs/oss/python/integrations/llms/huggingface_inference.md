@@ -26,4 +26,4 @@ console.log({ res });
 
 ## 相关链接
 
-- [模型指南](/oss/langchain/models)
+- [模型指南](/oss/python/langchain/models)

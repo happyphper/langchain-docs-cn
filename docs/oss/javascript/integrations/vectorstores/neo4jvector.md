@@ -18,7 +18,7 @@ npm install neo4j-driver
 
 <Tip>
 
-关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -266,5 +266,5 @@ _安全提示_：请确保数据库连接使用的凭据权限范围严格限定
 
 ## 相关
 
-- 向量存储[概念指南](/oss/integrations/vectorstores)
-- 向量存储[操作指南](/oss/integrations/vectorstores)
+- 向量存储[概念指南](/oss/javascript/integrations/vectorstores)
+- 向量存储[操作指南](/oss/javascript/integrations/vectorstores)

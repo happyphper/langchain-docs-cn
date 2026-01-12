@@ -48,7 +48,7 @@ set_llm_cache(MomentoCache(cache_client, cache_name))
 
 Momento Vector Index (MVI) 可用作向量存储。
 
-请参阅[此笔记本](/oss/integrations/vectorstores/momento_vector_index)，了解如何将 MVI 用作向量存储的详细步骤。
+请参阅[此笔记本](/oss/javascript/integrations/vectorstores/momento_vector_index)，了解如何将 MVI 用作向量存储的详细步骤。
 
 ```python
 from langchain_community.vectorstores import MomentoVectorIndex

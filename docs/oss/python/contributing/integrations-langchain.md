@@ -31,16 +31,16 @@ LangChain 组件暴露了一个标准接口，允许开发者轻松地将它们�
 虽然任何组件都可以集成到 LangChain 中，但我们更鼓励集成特定类型的组件：
 
 **建议集成这些 ✅**：
-- [**聊天模型**](/oss/integrations/chat)：最活跃使用的组件类型
-- [**工具/工具包**](/oss/integrations/tools)：支持智能体（Agent）能力
-- [**检索器**](/oss/integrations/retrievers)：RAG 应用程序的核心
-- [**嵌入模型**](/oss/integrations/text_embedding)：向量操作的基础
-- [**向量存储**](/oss/integrations/vectorstores)：语义搜索的关键
+- [**聊天模型**](/oss/python/integrations/chat)：最活跃使用的组件类型
+- [**工具/工具包**](/oss/python/integrations/tools)：支持智能体（Agent）能力
+- [**检索器**](/oss/python/integrations/retrievers)：RAG 应用程序的核心
+- [**嵌入模型**](/oss/python/integrations/text_embedding)：向量操作的基础
+- [**向量存储**](/oss/python/integrations/vectorstores)：语义搜索的关键
 
 **不建议集成这些 ❌**：
-- **LLMs（文本补全模型）**：已弃用，建议使用[聊天模型](/oss/integrations/chat)
-- [**文档加载器**](/oss/integrations/document_loaders)：维护负担高
-- [**键值存储**](/oss/integrations/stores)：使用有限
+- **LLMs（文本补全模型）**：已弃用，建议使用[聊天模型](/oss/python/integrations/chat)
+- [**文档加载器**](/oss/python/integrations/document_loaders)：维护负担高
+- [**键值存储**](/oss/python/integrations/stores)：使用有限
 - **文档转换器**：小众用例
 - **模型缓存**：基础设施问题
 - **图**：复杂抽象
@@ -67,7 +67,7 @@ LangChain 组件暴露了一个标准接口，允许开发者轻松地将它们�
 
 <Step title="通过标准测试">
 
-如果适用，请为您的集成实现 LangChain [标准测试](/oss/contributing/standard-tests-langchain)套件的支持，并成功运行它们。
+如果适用，请为您的集成实现 LangChain [标准测试](/oss/python/contributing/standard-tests-langchain)套件的支持，并成功运行它们。
 
 </Step>
 
@@ -104,7 +104,7 @@ LangChain 组件暴露了一个标准接口，允许开发者轻松地将它们�
 
 <Step title="联合营销" icon="megaphone">
 
-（可选）与 LangChain 团队合作进行[联合营销](/oss/contributing/comarketing)。
+（可选）与 LangChain 团队合作进行[联合营销](/oss/python/contributing/comarketing)。
 
 </Step>
 

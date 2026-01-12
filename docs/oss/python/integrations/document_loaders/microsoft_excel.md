@@ -3,7 +3,7 @@ title: Microsoft Excel
 ---
 `UnstructuredExcelLoader` 用于加载 `Microsoft Excel` 文件。该加载器支持 `.xlsx` 和 `.xls` 格式的文件。页面内容将是 Excel 文件的原始文本。如果您在 `"elements"` 模式下使用加载器，Excel 文件的 HTML 表示形式将在文档元数据的 `text_as_html` 键下可用。
 
-有关在本地设置 Unstructured 的更多说明（包括设置所需的系统依赖项），请参阅[本指南](/oss/integrations/providers/unstructured/)。
+有关在本地设置 Unstructured 的更多说明（包括设置所需的系统依赖项），请参阅[本指南](/oss/python/integrations/providers/unstructured/)。
 
 ```python
 pip install -qU langchain-community unstructured openpyxl

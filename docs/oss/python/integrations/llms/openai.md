@@ -4,121 +4,122 @@ title: OpenAI
 
 <Warning>
 
-<strong>您当前正在查阅的是 OpenAI 文本补全模型的使用文档。最新且最受欢迎的 OpenAI 模型是 [聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查阅的是关于 OpenAI 文本补全模型使用的文档。最新且最受欢迎的 OpenAI 模型是 [聊天补全模型](/oss/python/langchain/models)。</strong>
 
-除非您明确在使用 `gpt-3.5-turbo-instruct`，否则您可能应该查看 [这个页面](/oss/integrations/chat/openai/)。
+除非您明确在使用 `gpt-3.5-turbo-instruct`，否则您可能正在寻找 [这个页面](/oss/python/integrations/chat/openai/)。
 
 </Warning>
 
-[OpenAI](https://en.wikipedia.org/wiki/OpenAI) 是一个人工智能（AI）研究实验室。
+[OpenAI](https://platform.openai.com/docs/introduction) 提供了一系列具有不同能力级别、适用于不同任务的模型。
 
-本文将帮助您开始使用 LangChain 集成 OpenAI 的补全模型（LLMs）。关于 OpenAI 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_openai.OpenAI.html)。
+本示例将介绍如何使用 LangChain 与 OpenAI [模型](https://platform.openai.com/docs/models) 进行交互。
 
 ## 概述
 
 ### 集成详情
 
-| 类 | 包 | 本地 | 可序列化 | [Python 支持](https://python.langchain.com/docs/integrations/llms/openai) | 下载量 | 版本 |
+| 类 | 包 | 本地 | 可序列化 | [JS 支持](https://js.langchain.com/docs/integrations/chat/openai) | 下载量 | 版本 |
 | :--- | :--- | :---: | :---: |  :---: | :---: | :---: |
-| [OpenAI](https://api.js.langchain.com/classes/langchain_openai.OpenAI.html) | [@langchain/openai](https://www.npmjs.com/package/@langchain/openai) | ❌ | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/openai?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/openai?style=flat-square&label=%20&) |
+| [ChatOpenAI](https://python.langchain.com/api_reference/openai/chat_models/langchain_openai.chat_models.base.ChatOpenAI.html) | [langchain-openai](https://python.langchain.com/api_reference/openai/index.html) | ❌ | beta | ✅ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain-openai?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-openai?style=flat-square&label=%20) |
 
 ## 设置
 
-要访问 OpenAI 模型，您需要创建一个 OpenAI 账户，获取一个 API 密钥，并安装 `@langchain/openai` 集成包。
+要访问 OpenAI 模型，您需要创建一个 OpenAI 账户，获取一个 API 密钥，并安装 `langchain-openai` 集成包。
 
 ### 凭证
 
-前往 [platform.openai.com](https://platform.openai.com/) 注册 OpenAI 并生成 API 密钥。完成后，请设置 `OPENAI_API_KEY` 环境变量：
+前往 [platform.openai.com](https://platform.openai.com) 注册 OpenAI 并生成一个 API 密钥。完成后，设置 OPENAI_API_KEY 环境变量：
 
-```bash
-export OPENAI_API_KEY="your-api-key"
+```python
+import getpass
+import os
+
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("Enter your OpenAI API key: ")
 ```
 
-如果您希望自动追踪模型调用，也可以通过取消下方注释来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+要启用模型调用的自动追踪，请设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
 
-```bash
-# export LANGSMITH_TRACING="true"
-# export LANGSMITH_API_KEY="your-api-key"
+```python
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
+os.environ["LANGSMITH_TRACING"] = "true"
 ```
 
 ### 安装
 
-LangChain 的 OpenAI 集成位于 `@langchain/openai` 包中：
+LangChain OpenAI 集成位于 `langchain-openai` 包中：
 
-::: code-group
-
-```bash [npm]
-npm install @langchain/openai @langchain/core
+```python
+pip install -qU langchain-openai
 ```
 
-```bash [yarn]
-yarn add @langchain/openai @langchain/core
-```
+如果您需要指定您的组织 ID，可以使用以下代码。但是，如果您只属于单个组织或打算使用您的默认组织，则不需要指定。您可以在此处 [查看您的默认组织](https://platform.openai.com/account/api-keys)。
 
-```bash [pnpm]
-pnpm add @langchain/openai @langchain/core
-```
+要指定您的组织，可以使用以下代码：
 
-:::
+```python
+OPENAI_ORGANIZATION = getpass()
+
+os.environ["OPENAI_ORGANIZATION"] = OPENAI_ORGANIZATION
+```
 
 ## 实例化
 
-现在我们可以实例化我们的模型对象并生成补全结果：
+现在我们可以实例化我们的模型对象并生成聊天补全：
 
-```typescript
-import { OpenAI } from "@langchain/openai"
+```python
+from langchain_openai import OpenAI
 
-const llm = new OpenAI({
-  model: "gpt-3.5-turbo-instruct",
-  temperature: 0,
-  maxTokens: undefined,
-  timeout: undefined,
-  maxRetries: 2,
-  apiKey: process.env.OPENAI_API_KEY,
-  // 其他参数...
-})
+llm = OpenAI()
 ```
 
 ## 调用
 
-```typescript
-const inputText = "OpenAI is an AI company that "
-
-const completion = await llm.invoke(inputText)
-completion
+```python
+llm.invoke("Hello how are you?")
 ```
 
 ```text
-develops and promotes friendly AI for the benefit of humanity. It was founded in 2015 by Elon Musk, Sam Altman, Greg Brockman, Ilya Sutskever, Wojciech Zaremba, John Schulman, and Chris Olah. The company's mission is to create and promote artificial general intelligence (AGI) that is safe and beneficial to humanity.
-
-OpenAI conducts research in various areas of AI, including deep learning, reinforcement learning, robotics, and natural language processing. The company also develops and releases open-source tools and platforms for AI research, such as the GPT-3 language model and the Gym toolkit for reinforcement learning.
-
-One of the main goals of OpenAI is to ensure that the development of AI is aligned with human values and does not pose a threat to humanity. To this end, the company has established a set of principles for safe and ethical AI development, and it actively collaborates with other organizations and researchers in the field.
-
-OpenAI has received funding from various sources, including tech giants like Microsoft and Amazon, as well as individual investors. It has also partnered with companies and organizations such as Google, IBM, and the United Nations to advance its research and promote responsible AI development.
-
-In addition to its research and development
+'\n\nI am an AI and do not have emotions like humans do, so I am always functioning at my optimal level. Thank you for asking! How can I assist you today?'
 ```
 
-## 自定义 URL
+## 链式调用
 
-您可以通过传递 `configuration` 参数来自定义 SDK 发送请求的基础 URL，如下所示：
+```python
+from langchain_core.prompts import PromptTemplate
 
-```typescript
-const llmCustomURL = new OpenAI({
-  temperature: 0.9,
-  configuration: {
-    baseURL: "https://your_custom_url.com",
-  },
-});
+prompt = PromptTemplate.from_template("How to say {input} in {output_language}:\n")
+
+chain = prompt | llm
+chain.invoke(
+    {
+        "output_language": "German",
+        "input": "I love programming.",
+    }
+)
 ```
 
-您也可以传递官方 SDK 接受的其他 `ClientOptions` 参数。
+```text
+'\nIch liebe Programmieren.'
+```
 
-如果您使用的是 Azure OpenAI 托管服务，请参阅 [专用页面](/oss/integrations/llms/azure)。
+## 使用代理
+
+如果您位于显式代理之后，可以指定 `http_client` 来通过代理
+
+```python
+pip install httpx
+
+import httpx
+
+openai = OpenAI(
+    model_name="gpt-3.5-turbo-instruct",
+    http_client=httpx.Client(proxies="http://proxy.yourcompany.com:8080"),
+)
+```
 
 ---
 
 ## API 参考
 
-关于所有 OpenAI 功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_openai.OpenAI.html)。
+有关 <a href="https://reference.langchain.com/python/integrations/langchain_openai/OpenAI" target="_blank" rel="noreferrer" class="link"><code>OpenAI</code></a> llm 所有功能和配置的详细文档，请参阅 API 参考：[python.langchain.com/api_reference/openai/llms/langchain_openai.llms.base.OpenAI.html](https://python.langchain.com/api_reference/openai/llms/langchain_openai.llms.base.OpenAI.html)

@@ -11,7 +11,7 @@ description: 为您的智能体（agent）实施安全检查与内容过滤
 - 执行业务规则和合规要求
 - 验证输出质量和准确性
 
-您可以使用[中间件](/oss/langchain/middleware)在关键节点拦截执行，从而实施防护栏——例如在智能体启动前、完成后，或在模型调用和工具调用前后。
+您可以使用[中间件](/oss/javascript/langchain/middleware)在关键节点拦截执行，从而实施防护栏——例如在智能体启动前、完成后，或在模型调用和工具调用前后。
 
 <img src="/oss/images/middleware_final.png" alt="中间件流程图" />
 
@@ -112,7 +112,7 @@ const result = await agent.invoke({
 
 ::::
 
-有关 PII 检测功能的完整详细信息，请参阅[中间件文档](/oss/langchain/middleware#pii-detection)。
+有关 PII 检测功能的完整详细信息，请参阅[中间件文档](/oss/javascript/langchain/middleware#pii-detection)。
 
 ### 人工介入
 
@@ -158,7 +158,7 @@ result = await agent.invoke(
 
 <Tip>
 
-有关实现审批工作流的完整详细信息，请参阅[人工介入文档](/oss/langchain/human-in-the-loop)。
+有关实现审批工作流的完整详细信息，请参阅[人工介入文档](/oss/javascript/langchain/human-in-the-loop)。
 
 </Tip>
 
@@ -338,8 +338,8 @@ const agent = createAgent({
 
 ## 额外资源 (Additional resources)
 
-- [中间件文档 (Middleware documentation)](/oss/langchain/middleware) - 自定义中间件的完整指南
+- [中间件文档 (Middleware documentation)](/oss/javascript/langchain/middleware) - 自定义中间件的完整指南
 - [中间件 API 参考 (Middleware API reference)](https://reference.langchain.com/python/langchain/middleware/) - 详细的 API 说明
-- [人工介入 (Human-in-the-loop)](/oss/langchain/human-in-the-loop) - 为敏感操作添加人工审核
-- [测试智能体 (Testing agents)](/oss/langchain/test) - 安全机制的测试策略
+- [人工介入 (Human-in-the-loop)](/oss/javascript/langchain/human-in-the-loop) - 为敏感操作添加人工审核
+- [测试智能体 (Testing agents)](/oss/javascript/langchain/test) - 安全机制的测试策略
 

@@ -9,7 +9,7 @@ Vearch Python SDK 支持在本地使用 Vearch。可以通过 pip install vearch
 
 # 向量存储
 
-Vearch 也可以用作向量存储。更多详细信息请参阅[此笔记本](/oss/integrations/vectorstores/vearch)。
+Vearch 也可以用作向量存储。更多详细信息请参阅[此笔记本](/oss/python/integrations/vectorstores/vearch)。
 
 ```python
 from langchain_community.vectorstores import Vearch

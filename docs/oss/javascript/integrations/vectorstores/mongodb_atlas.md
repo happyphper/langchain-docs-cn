@@ -14,7 +14,7 @@ title: MongoDB Atlas
 
 </Tip>
 
-本指南提供了快速入门 MongoDB Atlas [向量存储](/oss/integrations/vectorstores) 的概述。有关 `MongoDBAtlasVectorSearch` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_mongodb.MongoDBAtlasVectorSearch.html)。
+本指南提供了快速入门 MongoDB Atlas [向量存储](/oss/javascript/integrations/vectorstores) 的概述。有关 `MongoDBAtlasVectorSearch` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_mongodb.MongoDBAtlasVectorSearch.html)。
 
 ## 概述
 
@@ -63,7 +63,7 @@ title: MongoDB Atlas
 
 ### 嵌入模型
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+本指南还将使用 [OpenAI 嵌入](/oss/javascript/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/javascript/integrations/text_embedding)。
 
 ### 安装
 
@@ -269,7 +269,7 @@ for (const [doc, score] of similaritySearchWithScoreResults) {
 
 ### 转换为检索器进行查询
 
-你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在链中更轻松地使用。
+你也可以将向量存储转换为 [检索器](/oss/javascript/langchain/retrieval)，以便在链中更轻松地使用。
 
 ```typescript
 const retriever = vectorStore.asRetriever({
@@ -299,9 +299,9 @@ await retriever.invoke("biology");
 
 有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [智能体 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/javascript/langchain/rag)。
+- [智能体 RAG](/oss/javascript/langgraph/agentic-rag)
+- [检索文档](/oss/javascript/langchain/retrieval)
 
 ## 关闭连接
 

@@ -1,7 +1,7 @@
 ---
 title: LangSmith加载器
 ---
-本笔记本提供了快速入门 [LangSmithLoader](/oss/integrations/document_loaders/) 的概述。有关 `LangSmithLoader` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/_langchain_core.document_loaders_langsmith.LangSmithLoader.html)。
+本笔记本提供了快速入门 [LangSmithLoader](/oss/javascript/integrations/document_loaders/) 的概述。有关 `LangSmithLoader` 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/_langchain_core.document_loaders_langsmith.LangSmithLoader.html)。
 
 ## 概述
 

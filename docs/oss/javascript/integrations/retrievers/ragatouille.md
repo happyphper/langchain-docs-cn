@@ -7,7 +7,7 @@ title: RAGatouille
 
 >详见论文 [ColBERTv2: Effective and Efficient Retrieval via Lightweight Late Interaction](https://arxiv.org/abs/2112.01488)。
 
-我们可以将其用作一个[检索器](/oss/langchain/retrieval)。它将展示此集成特有的功能。了解之后，探索[相关用例页面](/oss/langchain/rag)可能会有所帮助，以学习如何将此向量存储作为更大链条的一部分使用。
+我们可以将其用作一个[检索器](/oss/javascript/langchain/retrieval)。它将展示此集成特有的功能。了解之后，探索[相关用例页面](/oss/javascript/langchain/rag)可能会有所帮助，以学习如何将此向量存储作为更大链条的一部分使用。
 
 本页介绍如何在 LangChain 链中使用 [RAGatouille](https://github.com/bclavie/RAGatouille) 作为检索器。
 

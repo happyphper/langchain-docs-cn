@@ -19,7 +19,7 @@ uv add aphrodite-engine
 
 ## LLMs
 
-查看 [使用示例](/oss/integrations/llms/aphrodite)。
+查看 [使用示例](/oss/javascript/integrations/llms/aphrodite)。
 
 ```python
 from langchain_community.llms import Aphrodite

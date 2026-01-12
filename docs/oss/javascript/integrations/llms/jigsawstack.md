@@ -18,7 +18,7 @@ export JIGSAWSTACK_API_KEY="your-api-key"
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -40,4 +40,4 @@ export const run = async () => {
 
 ## 相关链接
 
-- [模型指南](/oss/langchain/models)
+- [模型指南](/oss/javascript/langchain/models)

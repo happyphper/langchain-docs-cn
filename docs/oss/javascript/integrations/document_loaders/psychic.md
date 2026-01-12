@@ -1,11 +1,11 @@
 ---
 title: Psychic
 ---
-本笔记本介绍了如何从 `Psychic` 加载文档。更多详情请参阅[此处](/oss/integrations/providers/psychic)。
+本笔记本介绍了如何从 `Psychic` 加载文档。更多详情请参阅[此处](/oss/javascript/integrations/providers/psychic)。
 
 ## 前提条件
 
-1. 请按照[此文档](/oss/integrations/providers/psychic)中的“快速开始”部分操作。
+1. 请按照[此文档](/oss/javascript/integrations/providers/psychic)中的“快速开始”部分操作。
 2. 登录 [Psychic 仪表板](https://dashboard.psychic.dev/) 并获取您的密钥。
 3. 将前端 React 库安装到您的 Web 应用中，并让用户验证一个连接。该连接将使用您指定的连接 ID 创建。
 

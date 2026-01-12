@@ -25,7 +25,7 @@ uv add langchain-mistralai
 
 ### ChatMistralAI
 
-查看 [使用示例](/oss/integrations/chat/mistralai)。
+查看 [使用示例](/oss/python/integrations/chat/mistralai)。
 
 ```python
 from langchain_mistralai.chat_models import ChatMistralAI
@@ -35,7 +35,7 @@ from langchain_mistralai.chat_models import ChatMistralAI
 
 ### MistralAIEmbeddings
 
-查看 [使用示例](/oss/integrations/text_embedding/mistralai)。
+查看 [使用示例](/oss/python/integrations/text_embedding/mistralai)。
 
 ```python
 from langchain_mistralai import MistralAIEmbeddings

@@ -5,7 +5,7 @@ title: Microsoft PowerPoint
 
 本文档介绍如何将 `Microsoft PowerPoint` 文档加载成可供下游使用的文档格式。
 
-关于在本地设置 Unstructured 的更多说明（包括设置所需的系统依赖项），请参阅[本指南](/oss/integrations/providers/unstructured/)。
+关于在本地设置 Unstructured 的更多说明（包括设置所需的系统依赖项），请参阅[本指南](/oss/javascript/integrations/providers/unstructured/)。
 
 ```python
 # 安装包

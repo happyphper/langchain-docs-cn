@@ -8,13 +8,13 @@ title: 苹果
 
 ## 安装与设置
 
-请参阅 [设置说明](/oss/integrations/chat_loaders/imessage)。
+请参阅 [设置说明](/oss/python/integrations/chat_loaders/imessage)。
 
 ## 聊天加载器
 
 它从 `iMessage` 的 `chat.db` `SQLite` 文件中加载聊天会话。
 
-请参阅 [使用示例](/oss/integrations/chat_loaders/imessage)。
+请参阅 [使用示例](/oss/python/integrations/chat_loaders/imessage)。
 
 ```python
 from langchain_community.chat_loaders.imessage import IMessageChatLoader

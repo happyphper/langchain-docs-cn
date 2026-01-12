@@ -31,4 +31,4 @@ uv add fiddler-client
 from langchain_community.callbacks.fiddler_callback import FiddlerCallbackHandler
 ```
 
-查看[示例](/oss/integrations/callbacks/fiddler)。
+查看[示例](/oss/javascript/integrations/callbacks/fiddler)。

@@ -112,5 +112,5 @@ const agent = createAgent({ llm: model, tools: tools });
 
 ## 相关链接
 
-- 工具[概念指南](/oss/concepts/#tools)
-- 工具[操作指南](/oss/langchain/tools)
+- 工具[概念指南](/oss/javascript/concepts/#tools)
+- 工具[操作指南](/oss/javascript/langchain/tools)

@@ -23,7 +23,7 @@ Dria 检索器也暴露了底层的 [Dria 客户端](https://npmjs.com/package/d
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/python/langchain/install)。
 
 </Tip>
 
@@ -50,4 +50,4 @@ console.log(docs);
 
 ## 相关链接
 
-- [检索指南](/oss/langchain/retrieval)
+- [检索指南](/oss/python/langchain/retrieval)

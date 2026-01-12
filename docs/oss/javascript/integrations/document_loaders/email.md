@@ -3,7 +3,7 @@ title: 电子邮件
 ---
 本笔记本展示了如何加载电子邮件（`.eml`）或 `Microsoft Outlook`（`.msg`）文件。
 
-有关在本地设置 Unstructured 的更多说明（包括设置所需的系统依赖项），请参阅[本指南](/oss/integrations/providers/unstructured/)。
+有关在本地设置 Unstructured 的更多说明（包括设置所需的系统依赖项），请参阅[本指南](/oss/javascript/integrations/providers/unstructured/)。
 
 ## 使用 Unstructured
 

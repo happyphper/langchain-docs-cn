@@ -76,7 +76,7 @@ agent.invoke(
 )
 ```
 
-详情请参阅 [Agents](/oss/langchain/agents)。
+详情请参阅 [Agents](/oss/python/langchain/agents)。
 
 </Tab>
 
@@ -90,7 +90,7 @@ def node(state: State, runtime: Runtime[ContextSchema]):  # [!code highlight]
     ...
 ```
 
-    * 详情请参阅 [the Graph API](/oss/langgraph/graph-api#add-runtime-configuration)。
+    * 详情请参阅 [the Graph API](/oss/python/langgraph/graph-api#add-runtime-configuration)。
 
 </Tab>
 
@@ -107,7 +107,7 @@ def get_user_email(runtime: ToolRuntime[ContextSchema]) -> str:
     return email
 ```
 
-详情请参阅 [tool calling guide](/oss/langchain/tools#configuration)。
+详情请参阅 [tool calling guide](/oss/python/langchain/tools#configuration)。
 
 </Tab>
 
@@ -123,7 +123,7 @@ def get_user_email(runtime: ToolRuntime[ContextSchema]) -> str:
 <a id="state"></a>
 ## 动态运行时上下文
 
-**动态运行时上下文**表示在单次运行期间可以演变的可变数据，并通过 LangGraph 状态对象进行管理。这包括对话历史、中间结果以及从工具或 LLM 输出派生的值。在 LangGraph 中，状态对象在运行期间充当[短期记忆](/oss/concepts/memory)。
+**动态运行时上下文**表示在单次运行期间可以演变的可变数据，并通过 LangGraph 状态对象进行管理。这包括对话历史、中间结果以及从工具或 LLM 输出派生的值。在 LangGraph 中，状态对象在运行期间充当[短期记忆](/oss/python/concepts/memory)。
 
 <Tabs>
 
@@ -131,7 +131,7 @@ def get_user_email(runtime: ToolRuntime[ContextSchema]) -> str:
 
 示例展示了如何将状态整合到智能体**提示**中。
 
-状态也可以被智能体的**工具**访问，这些工具可以根据需要读取或更新状态。详情请参阅 [tool calling guide](/oss/langchain/tools#short-term-memory)。
+状态也可以被智能体的**工具**访问，这些工具可以根据需要读取或更新状态。详情请参阅 [tool calling guide](/oss/python/langchain/tools#short-term-memory)。
 
 ```python
 from langchain.agents import create_agent
@@ -192,7 +192,7 @@ graph = builder.compile()
 <Tip>
 
 <strong>启用记忆</strong>
-有关如何启用记忆的更多详细信息，请参阅 [memory guide](/oss/langgraph/add-memory)。这是一个强大的功能，允许你在多次调用之间持久化智能体的状态。否则，状态仅限定于单次运行。
+有关如何启用记忆的更多详细信息，请参阅 [memory guide](/oss/python/langgraph/add-memory)。这是一个强大的功能，允许你在多次调用之间持久化智能体的状态。否则，状态仅限定于单次运行。
 
 </Tip>
 
@@ -200,11 +200,11 @@ graph = builder.compile()
 
 ## 动态跨对话上下文
 
-**动态跨对话上下文**表示跨越多次对话或会话的持久化、可变数据，并通过 LangGraph 存储进行管理。这包括用户档案、偏好和历史交互。LangGraph 存储充当跨多次运行的[长期记忆](/oss/concepts/memory#long-term-memory)。这可用于读取或更新持久化的事实（例如，用户档案、偏好、先前的交互）。
+**动态跨对话上下文**表示跨越多次对话或会话的持久化、可变数据，并通过 LangGraph 存储进行管理。这包括用户档案、偏好和历史交互。LangGraph 存储充当跨多次运行的[长期记忆](/oss/python/concepts/memory#long-term-memory)。这可用于读取或更新持久化的事实（例如，用户档案、偏好、先前的交互）。
 
 ## 另请参阅
 
-- [记忆概念概述](/oss/concepts/memory)
-- [LangChain 中的短期记忆](/oss/langchain/short-term-memory)
-- [LangChain 中的长期记忆](/oss/langchain/long-term-memory)
-- [LangGraph 中的记忆](/oss/langgraph/add-memory)
+- [记忆概念概述](/oss/python/concepts/memory)
+- [LangChain 中的短期记忆](/oss/python/langchain/short-term-memory)
+- [LangChain 中的长期记忆](/oss/python/langchain/long-term-memory)
+- [LangGraph 中的记忆](/oss/python/langgraph/add-memory)

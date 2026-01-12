@@ -27,8 +27,8 @@ uv add langchain-localai
 
 ## 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/localai)。
+查看[使用示例](/oss/javascript/integrations/text_embedding/localai)。
 
 ## 重排序器
 
-查看[使用示例](/oss/integrations/document_transformers/localai_rerank)。
+查看[使用示例](/oss/javascript/integrations/document_transformers/localai_rerank)。

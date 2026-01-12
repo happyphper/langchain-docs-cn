@@ -21,7 +21,7 @@ uv add oci langchain-community
 
 :::
 
-查看 [聊天](/oss/integrations/llms/oci_generative_ai)、[补全](/oss/integrations/chat/oci_generative_ai) 和 [嵌入](/oss/integrations/text_embedding/oci_generative_ai) 的使用示例。
+查看 [聊天](/oss/javascript/integrations/llms/oci_generative_ai)、[补全](/oss/javascript/integrations/chat/oci_generative_ai) 和 [嵌入](/oss/javascript/integrations/text_embedding/oci_generative_ai) 的使用示例。
 
 ```python
 from langchain_community.chat_models import ChatOCIGenAI
@@ -49,7 +49,7 @@ uv add oracle-ads
 
 :::
 
-查看 [聊天](/oss/integrations/chat/oci_data_science) 和 [补全](/oss/integrations/llms/oci_model_deployment_endpoint) 的使用示例。
+查看 [聊天](/oss/javascript/integrations/chat/oci_data_science) 和 [补全](/oss/javascript/integrations/llms/oci_model_deployment_endpoint) 的使用示例。
 
 ```python
 from langchain_community.chat_models import ChatOCIModelDeployment

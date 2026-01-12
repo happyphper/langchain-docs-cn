@@ -3,7 +3,7 @@ title: ChatDatabricks
 ---
 > [Databricks](https://www.databricks.com/) Lakehouse 平台将数据、分析和 AI 统一在一个平台上。
 
-本指南提供了快速入门 Databricks [聊天模型](/oss/langchain/models) 的概述。有关 ChatDatabricks 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.databricks.ChatDatabricks.html)。
+本指南提供了快速入门 Databricks [聊天模型](/oss/python/langchain/models) 的概述。有关 ChatDatabricks 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.databricks.ChatDatabricks.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ title: ChatDatabricks
 
 ### 模型功能
 
-| [工具调用](/oss/langchain/tools/) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/python/langchain/tools/) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/python/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/python/langchain/models#token-usage) | [对数概率](/oss/python/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ❌ | ❌ | ❌ |  ✅ | ✅ | ✅ | ❌ |
 
@@ -302,7 +302,7 @@ messages = [{"role": "user", "content": "What is the current temperature of Chic
 print(model.invoke(messages))
 ```
 
-有关如何在链中使用 UC 函数，请参阅 [Databricks Unity Catalog](/oss/integrations/tools/databricks)。
+有关如何在链中使用 UC 函数，请参阅 [Databricks Unity Catalog](/oss/python/integrations/tools/databricks)。
 
 ---
 

@@ -25,7 +25,7 @@ uv add dria
 
 ## 检索器
 
-查看[使用示例](/oss/integrations/retrievers/dria_index)。
+查看[使用示例](/oss/javascript/integrations/retrievers/dria_index)。
 
 ```python
 from langchain_community.retrievers import DriaRetriever

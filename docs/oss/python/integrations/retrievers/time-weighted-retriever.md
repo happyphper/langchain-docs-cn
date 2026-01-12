@@ -66,4 +66,4 @@ console.log(results2);
 
 ## 相关链接
 
-- [检索指南](/oss/langchain/retrieval)
+- [检索指南](/oss/python/langchain/retrieval)

@@ -33,7 +33,7 @@ uv add langchain-kuzu
 
 ## 图
 
-查看[使用示例](/oss/integrations/graphs/kuzu_db)。
+查看[使用示例](/oss/python/integrations/graphs/kuzu_db)。
 
 ```python
 from langchain_kuzu.graphs.kuzu_graph import KuzuGraph
@@ -41,7 +41,7 @@ from langchain_kuzu.graphs.kuzu_graph import KuzuGraph
 
 ## 链
 
-查看[使用示例](/oss/integrations/graphs/kuzu_db/#creating-kuzuqachain)。
+查看[使用示例](/oss/python/integrations/graphs/kuzu_db/#creating-kuzuqachain)。
 
 ```python
 from langchain_kuzu.chains.graph_qa.kuzu import KuzuQAChain

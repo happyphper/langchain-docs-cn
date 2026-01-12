@@ -20,7 +20,7 @@ uv add beautifulsoup4
 
 ## 文档转换器
 
-查看[使用示例](/oss/integrations/document_transformers/beautiful_soup)。
+查看[使用示例](/oss/python/integrations/document_transformers/beautiful_soup)。
 
 ```python
 from langchain_community.document_loaders import BeautifulSoupTransformer

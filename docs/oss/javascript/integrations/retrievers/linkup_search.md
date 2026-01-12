@@ -3,7 +3,7 @@ title: LinkupSearchRetriever
 ---
 > [Linkup](https://www.linkup.so/) 提供了一个 API，用于将 LLM 连接到网络以及 Linkup 高级合作伙伴数据源。
 
-本文将帮助你开始使用 LinkupSearchRetriever [检索器](/oss/langchain/retrieval/)。有关 LinkupSearchRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/linkup/retrievers/linkup_langchain.search_retriever.LinkupSearchRetriever.html)。
+本文将帮助你开始使用 LinkupSearchRetriever [检索器](/oss/javascript/langchain/retrieval/)。有关 LinkupSearchRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/linkup/retrievers/linkup_langchain.search_retriever.LinkupSearchRetriever.html)。
 
 ### 集成详情
 

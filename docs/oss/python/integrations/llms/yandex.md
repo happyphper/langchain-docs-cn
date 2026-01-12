@@ -1,39 +1,53 @@
 ---
 title: YandexGPT
 ---
-LangChain.js 支持调用 [YandexGPT](https://cloud.yandex.com/en/services/yandexgpt) 大语言模型。
+本笔记本将介绍如何在 LangChain 中使用 [YandexGPT](https://cloud.yandex.com/en/services/yandexgpt)。
 
-## 设置
+使用前，请确保已安装 `yandexcloud` Python 包。
+
+```python
+pip install -qU  yandexcloud
+```
 
 首先，您需要[创建一个服务账户](https://cloud.yandex.com/en/docs/iam/operations/sa/create)，并为其分配 `ai.languageModels.user` 角色。
 
-接下来，您有两种身份验证选项：
+接下来，您有两种身份验证方式可选：
 
 - [IAM 令牌](https://cloud.yandex.com/en/docs/iam/operations/iam-token/create-for-sa)。
-  您可以在构造函数参数 `iam_token` 或环境变量 `YC_IAM_TOKEN` 中指定令牌。
-- [API 密钥](https://cloud.yandex.com/en/docs/iam/operations/api-key/create)。
-  您可以在构造函数参数 `api_key` 或环境变量 `YC_API_KEY` 中指定密钥。
+您可以在构造函数参数 `iam_token` 或环境变量 `YC_IAM_TOKEN` 中指定该令牌。
 
-## 使用方法
+- [API 密钥](https://cloud.yandex.com/en/docs/iam/operations/api-key/create)
+您可以在构造函数参数 `api_key` 或环境变量 `YC_API_KEY` 中指定该密钥。
 
-<Tip>
+您可以通过 `model_uri` 参数指定要使用的模型，更多详情请参阅[相关文档](https://cloud.yandex.com/en/docs/yandexgpt/concepts/models#yandexgpt-generation)。
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+默认情况下，系统会使用参数 `folder_id` 或环境变量 `YC_FOLDER_ID` 所指定文件夹中的最新版 `yandexgpt-lite` 模型。
 
-</Tip>
-
-```bash [npm]
-npm install @langchain/yandex @langchain/core
+```python
+from langchain_classic.chains import LLMChain
+from langchain_community.llms import YandexGPT
+from langchain_core.prompts import PromptTemplate
 ```
 
-```typescript
-import { YandexGPT } from "@langchain/yandex/llms";
-
-const model = new YandexGPT();
-const res = await model.invoke(['Translate "I love programming" into French.']);
-console.log({ res });
+```python
+template = "What is the capital of {country}?"
+prompt = PromptTemplate.from_template(template)
 ```
 
-## 相关链接
+```python
+llm = YandexGPT()
+```
 
-- [模型指南](/oss/langchain/models)
+```python
+llm_chain = LLMChain(prompt=prompt, llm=llm)
+```
+
+```python
+country = "Russia"
+
+llm_chain.invoke(country)
+```
+
+```text
+'The capital of Russia is Moscow.'
+```

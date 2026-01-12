@@ -16,5 +16,5 @@ title: Pebblo
 
 有关使用 Pebblo 的更详细示例，请参阅以下 Notebook：
 
-*   [PebbloSafeLoader](/oss/integrations/document_loaders/pebblo) 展示了如何使用 Pebblo 加载器安全地加载数据。
-*   [PebbloRetrievalQA](/oss/integrations/providers/pebblo/pebblo_retrieval_qa) 展示了如何使用 Pebblo 检索问答链安全地检索数据。
+*   [PebbloSafeLoader](/oss/python/integrations/document_loaders/pebblo) 展示了如何使用 Pebblo 加载器安全地加载数据。
+*   [PebbloRetrievalQA](/oss/python/integrations/providers/pebblo/pebblo_retrieval_qa) 展示了如何使用 Pebblo 检索问答链安全地检索数据。

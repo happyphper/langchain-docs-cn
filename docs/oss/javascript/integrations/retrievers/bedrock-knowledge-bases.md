@@ -3,7 +3,7 @@ title: Amazon Bedrock 知识库
 ---
 ## 概述
 
-本文将帮助您开始使用 [AmazonKnowledgeBaseRetriever](/oss/langchain/retrieval)。有关 AmazonKnowledgeBaseRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_aws.AmazonKnowledgeBaseRetriever.html)。
+本文将帮助您开始使用 [AmazonKnowledgeBaseRetriever](/oss/javascript/langchain/retrieval)。有关 AmazonKnowledgeBaseRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_aws.AmazonKnowledgeBaseRetriever.html)。
 
 Amazon Bedrock 知识库是亚马逊云科技 (AWS) 提供的对端到端 RAG 工作流的完全托管支持。
 它提供了完整的摄取工作流，可将您的文档转换为嵌入向量，并将这些嵌入存储在专门的向量数据库中。

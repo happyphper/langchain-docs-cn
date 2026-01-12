@@ -27,7 +27,7 @@ uv add pandas
 
 ## 文档加载器
 
-查看 [使用示例](/oss/integrations/document_loaders/discord)。
+查看 [使用示例](/oss/javascript/integrations/document_loaders/discord)。
 
 **注意：** `DiscordChatLoader` 不是 `ChatLoader`，而是一个 `DocumentLoader`。它用于从 `Discord` 数据转储中加载数据。关于 `ChatLoader`，请参阅下面的聊天加载器部分。
 

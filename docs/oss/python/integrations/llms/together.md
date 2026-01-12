@@ -1,100 +1,60 @@
 ---
-title: TogetherAI
+title: Together AI
 ---
 
 <Warning>
 
-<strong>您当前正在查看的是关于将 Together AI 模型用作文本补全模型的文档。Together AI 上提供的许多流行模型是[聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查看的是关于将 Together AI 模型用作文本补全模型的文档页面。许多流行的 Together AI 模型是 [聊天补全模型](/oss/python/langchain/models)。</strong>
 
-您可能正在寻找[这个页面](/oss/integrations/chat/togetherai/)。
+您可能正在寻找 [这个页面](/oss/python/integrations/chat/together/)。
 
 </Warning>
 
-[Together AI](https://www.together.ai/) 提供了一个 API，可以用几行代码查询[50多个领先的开源模型](https://docs.together.ai/docs/inference-models)。
+[Together AI](https://www.together.ai/) 提供了一个 API，可以用几行代码查询 [50 多个领先的开源模型](https://docs.together.ai/docs/inference-models)。
 
-本文将帮助您开始使用 LangChain 集成 Together AI 的文本补全模型（LLMs）。有关 `TogetherAI` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_llms_togetherai.TogetherAI.html)。
+本示例将介绍如何使用 LangChain 与 Together AI 模型进行交互。
 
-## 概述
+## 安装
 
-### 集成详情
-
-| 类 | 包 | 本地 | 可序列化 | [PY 支持](https://python.langchain.com/docs/integrations/llms/together/) | 下载量 | 版本 |
-| :--- | :--- | :---: | :---: |  :---: | :---: | :---: |
-| [`TogetherAI`](https://api.js.langchain.com/classes/langchain_community_llms_togetherai.TogetherAI.html) | [`@langchain/community`](https://npmjs.com/@langchain/community) | ❌ | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/community?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/community?style=flat-square&label=%20&) |
-
-## 设置
-
-要访问 `ChatTogetherAI` 模型，您需要创建一个 Together 账户，在[此处](https://api.together.xyz/)获取 API 密钥，并安装 `@langchain/community` 集成包。
-
-### 凭证
-
-前往 [api.together.ai](https://api.together.ai/) 注册 TogetherAI 并生成 API 密钥。完成后，请设置 `TOGETHER_AI_API_KEY` 环境变量：
-
-```bash
-export TOGETHER_AI_API_KEY="your-api-key"
+```python
+pip install -U langchain-together
 ```
 
-如果您希望自动追踪模型调用，还可以通过取消注释以下行来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+## 环境设置
 
-```bash
-# export LANGSMITH_TRACING="true"
-# export LANGSMITH_API_KEY="your-api-key"
+要使用 Together AI，您需要一个 API 密钥，您可以在此处找到：
+[api.together.ai/settings/api-keys](https://api.together.ai/settings/api-keys)。该密钥可以作为初始化参数 `together_api_key` 传入，或设置为环境变量 `TOGETHER_API_KEY`。
+
+## 示例
+
+```python
+# 使用 Together AI 查询聊天模型
+
+from langchain_together import ChatTogether
+
+# 从我们的 50 多个模型中选择：https://docs.together.ai/docs/inference-models
+chat = ChatTogether(
+    # together_api_key="YOUR_API_KEY",
+    model="meta-llama/Llama-3-70b-chat-hf",
+)
+
+# 从模型流式返回响应
+for m in chat.stream("Tell me fun things to do in NYC"):
+    print(m.content, end="", flush=True)
+
+# 如果您不想使用流式处理，可以使用 invoke 方法
+# chat.invoke("Tell me fun things to do in NYC")
 ```
 
-### 安装
+```python
+# 使用 Together AI 查询代码和语言模型
 
-LangChain 的 TogetherAI 集成位于 `@langchain/community` 包中：
+from langchain_together import Together
 
-::: code-group
+llm = Together(
+    model="codellama/CodeLlama-70b-Python-hf",
+    # together_api_key="..."
+)
 
-```bash [npm]
-npm install @langchain/community @langchain/core
+print(llm.invoke("def bubble_sort(): "))
 ```
-
-```bash [yarn]
-yarn add @langchain/community @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @langchain/community @langchain/core
-```
-
-:::
-
-## 实例化
-
-现在我们可以实例化模型对象并生成文本补全：
-
-```typescript
-import { TogetherAI } from "@langchain/community/llms/togetherai";
-
-const llm = new TogetherAI({
-  model: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
-  maxTokens: 256,
-});
-```
-
-## 调用
-
-```typescript
-const inputText = "Together is an AI company that "
-
-const completion = await llm.invoke(inputText)
-completion
-```
-
-```text
- offers a range of AI-powered solutions to help businesses and organizations improve their customer service, sales, and marketing efforts. Their platform uses natural language processing (NLP) and machine learning algorithms to analyze customer interactions and provide insights and recommendations to help businesses improve their customer experience.
-Together's solutions include:
-1. Customer Service: Together's customer service solution uses AI to analyze customer interactions and provide insights and recommendations to help businesses improve their customer experience. This includes analyzing customer feedback, sentiment analysis, and predictive analytics to identify areas for improvement.
-2. Sales: Together's sales solution uses AI to analyze customer interactions and provide insights and recommendations to help businesses improve their sales efforts. This includes analyzing customer behavior, sentiment analysis, and predictive analytics to identify opportunities for upselling and cross-selling.
-3. Marketing: Together's marketing solution uses AI to analyze customer interactions and provide insights and recommendations to help businesses improve their marketing efforts. This includes analyzing customer behavior, sentiment analysis, and predictive analytics to identify areas for improvement.
-Together's platform is designed to be easy to use and integrates with a range of popular CRM and marketing automation tools. Their solutions are available as a cloud-based subscription service, making it easy for businesses to get started with AI-powered customer service, sales, and marketing.
-Overall,
-```
-
----
-
-## API 参考
-
-有关所有 `TogetherAi` 功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_llms_togetherai.TogetherAI.html)。

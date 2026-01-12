@@ -54,4 +54,4 @@ from langchain_community.document_loaders import DedocPDFLoader
 from langchain_community.document_loaders import DedocAPIFileLoader
 ```
 
-更多详情请参阅[使用示例](/oss/integrations/document_loaders/dedoc)。
+更多详情请参阅[使用示例](/oss/javascript/integrations/document_loaders/dedoc)。

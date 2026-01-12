@@ -11,7 +11,7 @@ title: 腾讯
 > 实现了对话通信、内容生成、分析理解等功能，可广泛应用于智能客服、智能营销、角色扮演、广告、文案创作、产品描述、
 > 剧本创作、简历生成、文章写作、代码生成、数据分析和内容分析等多种场景。
 
-更多信息，请参阅 [此笔记本](/oss/integrations/chat/tencent_hunyuan)
+更多信息，请参阅 [此笔记本](/oss/javascript/integrations/chat/tencent_hunyuan)
 
 ```python
 from langchain_community.chat_models import ChatHunyuan
@@ -41,7 +41,7 @@ uv add cos-python-sdk-v5
 
 #### 腾讯 COS 目录加载器
 
-更多信息，请参阅 [此笔记本](/oss/integrations/document_loaders/tencent_cos_directory)
+更多信息，请参阅 [此笔记本](/oss/javascript/integrations/document_loaders/tencent_cos_directory)
 
 ```python
 from langchain_community.document_loaders import TencentCOSDirectoryLoader
@@ -50,7 +50,7 @@ from qcloud_cos import CosConfig
 
 #### 腾讯 COS 文件加载器
 
-更多信息，请参阅 [此笔记本](/oss/integrations/document_loaders/tencent_cos_file)
+更多信息，请参阅 [此笔记本](/oss/javascript/integrations/document_loaders/tencent_cos_file)
 
 ```python
 from langchain_community.document_loaders import TencentCOSFileLoader
@@ -79,7 +79,7 @@ uv add tcvectordb
 
 :::
 
-更多信息，请参阅 [此笔记本](/oss/integrations/vectorstores/tencentvectordb)
+更多信息，请参阅 [此笔记本](/oss/javascript/integrations/vectorstores/tencentvectordb)
 
 ```python
 from langchain_community.vectorstores import TencentVectorDB

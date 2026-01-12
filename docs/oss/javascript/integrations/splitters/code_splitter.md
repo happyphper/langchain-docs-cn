@@ -1,7 +1,7 @@
 ---
 title: 代码分割
 ---
-<a href="https://reference.langchain.com/javascript/classes/_langchain_textsplitters.RecursiveCharacterTextSplitter.html" target="_blank" rel="noreferrer" class="link">RecursiveCharacterTextSplitter</a> 包含预定义的分隔符列表，这些列表对于在特定编程语言中[分割文本](/oss/integrations/splitters/)非常有用。
+<a href="https://reference.langchain.com/javascript/classes/_langchain_textsplitters.RecursiveCharacterTextSplitter.html" target="_blank" rel="noreferrer" class="link">RecursiveCharacterTextSplitter</a> 包含预定义的分隔符列表，这些列表对于在特定编程语言中[分割文本](/oss/javascript/integrations/splitters/)非常有用。
 
 支持的语言保存在 `SupportedTextSplitterLanguages` 类型中。它们包括：
 

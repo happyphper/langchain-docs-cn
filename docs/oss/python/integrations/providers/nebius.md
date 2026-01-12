@@ -38,7 +38,7 @@ os.environ["NEBIUS_API_KEY"] = "YOUR-NEBIUS-API-KEY"
 
 `ChatNebius` 类允许你与 Nebius AI Studio 的聊天模型进行交互。
 
-查看 [使用示例](/oss/integrations/chat/nebius)。
+查看 [使用示例](/oss/python/integrations/chat/nebius)。
 
 ```python
 from langchain_nebius import ChatNebius
@@ -57,7 +57,7 @@ chat = ChatNebius(
 
 `NebiusEmbeddings` 类允许你使用 Nebius AI Studio 的嵌入模型生成向量嵌入。
 
-查看 [使用示例](/oss/integrations/text_embedding/nebius)。
+查看 [使用示例](/oss/python/integrations/text_embedding/nebius)。
 
 ```python
 from langchain_nebius import NebiusEmbeddings
@@ -74,7 +74,7 @@ embeddings = NebiusEmbeddings(
 
 `NebiusRetriever` 利用 Nebius AI Studio 的嵌入实现高效的相似性搜索。它利用高质量的嵌入模型来实现对文档的语义搜索。
 
-查看 [使用示例](/oss/integrations/retrievers/nebius)。
+查看 [使用示例](/oss/python/integrations/retrievers/nebius)。
 
 ```python
 from langchain_core.documents import Document

@@ -23,7 +23,7 @@ uv add nlpcloud
 
 ## 大语言模型 (LLM)
 
-查看[使用示例](/oss/integrations/llms/nlpcloud)。
+查看[使用示例](/oss/javascript/integrations/llms/nlpcloud)。
 
 ```python
 from langchain_community.llms import NLPCloud
@@ -31,7 +31,7 @@ from langchain_community.llms import NLPCloud
 
 ## 文本嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/nlp_cloud)
+查看[使用示例](/oss/javascript/integrations/text_embedding/nlp_cloud)
 
 ```python
 from langchain_community.embeddings import NLPCloudEmbeddings

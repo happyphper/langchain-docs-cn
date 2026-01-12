@@ -12,7 +12,7 @@ title: KoboldAI
 
 ## LLMs
 
-请参阅 [使用示例](/oss/integrations/llms/koboldai)。
+请参阅 [使用示例](/oss/python/integrations/llms/koboldai)。
 
 ```python
 from langchain_community.llms import KoboldApiLLM

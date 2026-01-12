@@ -1,43 +1,140 @@
 ---
-title: Nomic
+title: NomicEmbeddings
 ---
-`NomicEmbeddings` 类使用 Nomic AI API 为给定文本生成嵌入向量。
+这将帮助您开始使用 LangChain 的 Nomic 嵌入模型。关于 `NomicEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/nomic/embeddings/langchain_nomic.embeddings.NomicEmbeddings.html)。
+
+## 概述
+
+### 集成详情
+
+<ItemTable category="text_embedding" item="Nomic" />
 
 ## 设置
 
-要使用 Nomic API，您需要一个 API 密钥。
-您可以注册一个 Nomic 账户并在此处创建 API 密钥 [here](https://atlas.nomic.ai/)。
+要访问 Nomic 嵌入模型，您需要创建一个 Nomic 账户，获取一个 API 密钥，并安装 `langchain-nomic` 集成包。
 
-首先，您需要安装 [`@langchain/nomic`](https://www.npmjs.com/package/@langchain/nomic) 包：
+### 凭证
 
-<Tip>
+前往 [https://atlas.nomic.ai/](https://atlas.nomic.ai/) 注册 Nomic 并生成 API 密钥。完成后，设置 `NOMIC_API_KEY` 环境变量：
 
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+```python
+import getpass
+import os
 
-</Tip>
-
-```bash [npm]
-npm install @langchain/nomic @langchain/core
+if not os.getenv("NOMIC_API_KEY"):
+    os.environ["NOMIC_API_KEY"] = getpass.getpass("Enter your Nomic API key: ")
 ```
 
-## 用法
+要启用模型调用的自动追踪，请设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
 
-```typescript
-import { NomicEmbeddings } from "@langchain/nomic";
-
-/* 嵌入查询 */
-const nomicEmbeddings = new NomicEmbeddings();
-const res = await nomicEmbeddings.embedQuery("Hello world");
-console.log(res);
-/* 嵌入文档 */
-const documentRes = await nomicEmbeddings.embedDocuments([
-  "Hello world",
-  "Bye bye",
-]);
-console.log(documentRes);
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+os.environ["LANGSMITH_API_KEY"] = getpass.getpass("Enter your LangSmith API key: ")
 ```
 
-## 相关链接
+### 安装
 
-- 嵌入模型 [概念指南](/oss/integrations/text_embedding)
-- 嵌入模型 [操作指南](/oss/integrations/text_embedding)
+LangChain Nomic 集成位于 `langchain-nomic` 包中：
+
+```python
+pip install -qU langchain-nomic
+```
+
+## 实例化
+
+现在我们可以实例化我们的模型对象并生成嵌入：
+
+```python
+from langchain_nomic import NomicEmbeddings
+
+embeddings = NomicEmbeddings(
+    model="nomic-embed-text-v1.5",
+    # dimensionality=256,
+    # Nomic 的 `nomic-embed-text-v1.5` 模型采用了 [套娃学习法（Matryoshka learning）](https://blog.nomic.ai/posts/nomic-embed-matryoshka) 进行训练，
+    # 使得单个模型能够生成可变长度的嵌入。
+    # 这意味着您可以在推理时指定嵌入的维度。
+    # 该模型支持的维度范围从 64 到 768。
+    # inference_mode="remote",
+    # 可选值为 `remote`、`local` (Embed4All) 或 `dynamic` (自动)。默认为 `remote`。
+    # api_key=... , # 如果使用远程推理，
+    # device="cpu",
+    # 用于本地嵌入的设备。选项包括
+    # `cpu`、`gpu`、`nvidia`、`amd` 或特定的设备名称。更多信息请参阅
+    # `GPT4All.__init__` 的文档字符串。通常
+    # 默认为 CPU。不要在 macOS 上使用。
+)
+```
+
+## 索引与检索
+
+嵌入模型通常用于检索增强生成（RAG）流程中，既用于索引数据，也用于后续检索。更详细的说明，请参阅我们的 [RAG 教程](/oss/python/langchain/rag)。
+
+下面，我们将展示如何使用上面初始化的 `embeddings` 对象来索引和检索数据。在这个例子中，我们将在 `InMemoryVectorStore` 中索引和检索一个示例文档。
+
+```python
+# 使用示例文本创建向量存储
+from langchain_core.vectorstores import InMemoryVectorStore
+
+text = "LangChain is the framework for building context-aware reasoning applications"
+
+vectorstore = InMemoryVectorStore.from_texts(
+    [text],
+    embedding=embeddings,
+)
+
+# 将向量存储用作检索器
+retriever = vectorstore.as_retriever()
+
+# 检索最相似的文本
+retrieved_documents = retriever.invoke("What is LangChain?")
+
+# 显示检索到的文档内容
+retrieved_documents[0].page_content
+```
+
+```text
+'LangChain is the framework for building context-aware reasoning applications'
+```
+
+## 直接使用
+
+在底层，向量存储和检索器的实现分别调用 `embeddings.embed_documents(...)` 和 `embeddings.embed_query(...)` 来为 `from_texts` 中使用的文本和检索 `invoke` 操作创建嵌入。
+
+您可以直接调用这些方法来获取嵌入，以满足您自己的用例。
+
+### 嵌入单个文本
+
+您可以使用 `embed_query` 嵌入单个文本或文档：
+
+```python
+single_vector = embeddings.embed_query(text)
+print(str(single_vector)[:100])  # 显示向量的前 100 个字符
+```
+
+```text
+[0.024642944, 0.029083252, -0.14013672, -0.09082031, 0.058898926, -0.07489014, -0.0138168335, 0.0037
+```
+
+### 嵌入多个文本
+
+您可以使用 `embed_documents` 嵌入多个文本：
+
+```python
+text2 = (
+    "LangGraph is a library for building stateful, multi-actor applications with LLMs"
+)
+two_vectors = embeddings.embed_documents([text, text2])
+for vector in two_vectors:
+    print(str(vector)[:100])  # 显示向量的前 100 个字符
+```
+
+```text
+[0.012771606, 0.023727417, -0.12365723, -0.083740234, 0.06530762, -0.07110596, -0.021896362, -0.0068
+[-0.019058228, 0.04058838, -0.15222168, -0.06842041, -0.012130737, -0.07128906, -0.04534912, 0.00522
+```
+
+---
+
+## API 参考
+
+关于 `NomicEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/nomic/embeddings/langchain_nomic.embeddings.NomicEmbeddings.html)。

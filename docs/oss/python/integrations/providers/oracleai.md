@@ -23,7 +23,7 @@ Oracle AI Vector Search 的最大优势之一是，可以在单一系统中将�
 
 ## 文档加载器
 
-请查看[使用示例](/oss/integrations/document_loaders/oracleai)。
+请查看[使用示例](/oss/python/integrations/document_loaders/oracleai)。
 
 ```python
 from langchain_oracledb.document_loaders.oracleai import OracleDocLoader
@@ -31,7 +31,7 @@ from langchain_oracledb.document_loaders.oracleai import OracleDocLoader
 
 ## 文本分割器
 
-请查看[使用示例](/oss/integrations/document_loaders/oracleai)。
+请查看[使用示例](/oss/python/integrations/document_loaders/oracleai)。
 
 ```python
 from langchain_oracledb.document_loaders.oracleai import OracleTextSplitter
@@ -39,7 +39,7 @@ from langchain_oracledb.document_loaders.oracleai import OracleTextSplitter
 
 ## 嵌入
 
-请查看[使用示例](/oss/integrations/text_embedding/oracleai)。
+请查看[使用示例](/oss/python/integrations/text_embedding/oracleai)。
 
 ```python
 from langchain_oracledb.embeddings.oracleai import OracleEmbeddings
@@ -47,7 +47,7 @@ from langchain_oracledb.embeddings.oracleai import OracleEmbeddings
 
 ## 摘要
 
-请查看[使用示例](/oss/integrations/tools/oracleai)。
+请查看[使用示例](/oss/python/integrations/tools/oracleai)。
 
 ```python
 from langchain_oracledb.utilities.oracleai import OracleSummary
@@ -55,7 +55,7 @@ from langchain_oracledb.utilities.oracleai import OracleSummary
 
 ## 向量存储
 
-请查看[使用示例](/oss/integrations/vectorstores/oracle)。
+请查看[使用示例](/oss/python/integrations/vectorstores/oracle)。
 
 ```python
 from langchain_oracledb.vectorstores.oraclevs import OracleVS

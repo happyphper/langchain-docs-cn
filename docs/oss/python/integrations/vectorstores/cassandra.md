@@ -1,194 +1,290 @@
 ---
-title: Cassandra
+title: Apache Cassandra
 ---
-<提示>
-**兼容性说明**
+本页面提供了使用 [Apache Cassandra®](https://cassandra.apache.org/) 作为向量存储的快速入门指南。
 
-仅适用于 Node.js 环境。
-</提示>
+> [Cassandra](https://cassandra.apache.org/) 是一个面向行的 NoSQL 数据库，具有高度可扩展性和高可用性。从 5.0 版本开始，该数据库内置了[向量搜索功能](https://cassandra.apache.org/doc/trunk/cassandra/vector-search/overview.html)。
 
-[Apache Cassandra®](https://cassandra.apache.org/_/index.html) 是一个 NoSQL、面向行、高度可扩展且高可用的数据库。
+_注意：除了访问数据库外，运行完整示例还需要一个 OpenAI API 密钥。_
 
-Apache Cassandra 的[最新版本](<https://cwiki.apache.org/confluence/display/CASSANDRA/CEP-30%3A+Approximate+Nearest+Neighbor(ANN)+Vector+Search+via+Storage-Attached+Indexes>)原生支持向量相似性搜索。
+### 设置与通用依赖
 
-## 设置
+使用该集成需要以下 Python 包。
 
-首先，安装 Cassandra Node.js 驱动程序：
-
-<提示>
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
-</提示>
-
-```bash [npm]
-npm install cassandra-driver @langchain/community @langchain/openai @langchain/core
-```
-根据您的数据库提供商，连接到数据库的具体细节会有所不同。我们将创建一个文档 `configConnection`，它将作为向量存储配置的一部分。
-
-### Apache Cassandra®
-
-向量搜索在 [Apache Cassandra® 5.0](https://cassandra.apache.org/_/Apache-Cassandra-5.0-Moving-Toward-an-AI-Driven-Future.html) 及更高版本中受支持。您可以使用标准的连接文档，例如：
-
-```typescript
-const configConnection = {
-  contactPoints: ['h1', 'h2'],
-  localDataCenter: 'datacenter1',
-  credentials: {
-    username: <...> as string,
-    password: <...> as string,
-  },
-};
-```
-### Astra DB
-
-Astra DB 是一个云原生的 Cassandra 即服务平台。
-
-1. 创建一个 [Astra DB 账户](https://astra.datastax.com/register)。
-2. 创建一个[支持向量的数据库](https://astra.datastax.com/createDatabase)。
-3. 为您的数据库创建一个[令牌](https://docs.datastax.com/en/astra/docs/manage-application-tokens.html)。
-
-```typescript
-const configConnection = {
-  serviceProviderArgs: {
-    astra: {
-      token: <...> as string,
-      endpoint: <...> as string,
-    },
-  },
-};
-```
-除了 `endpoint:`，您也可以提供属性 `datacenterID:` 和可选的 `regionName:`。
-
-## 索引文档
-
-```typescript
-import { CassandraStore } from "@langchain/classic/vectorstores/cassandra";
-import { OpenAIEmbeddings } from "@langchain/openai";
-
-// configConnection 文档在上面已定义
-const config = {
-  ...configConnection,
-  keyspace: "test",
-  dimensions: 1536,
-  table: "test",
-  indices: [{ name: "name", value: "(name)" }],
-  primaryKey: {
-    name: "id",
-    type: "int",
-  },
-  metadataColumns: [
-    {
-      name: "name",
-      type: "text",
-    },
-  ],
-};
-
-const vectorStore = await CassandraStore.fromTexts(
-  ["I am blue", "Green yellow purple", "Hello there hello"],
-  [
-    { id: 2, name: "2" },
-    { id: 1, name: "1" },
-    { id: 3, name: "3" },
-  ],
-  new OpenAIEmbeddings(),
-  cassandraConfig
-);
-```
-## 查询文档
-
-```typescript
-const results = await vectorStore.similaritySearch("Green yellow purple", 1);
-```
-或带过滤器的查询：
-
-```typescript
-const results = await vectorStore.similaritySearch("B", 1, { name: "Bubba" });
-```
-## 向量类型
-
-Cassandra 支持 `cosine`（默认）、`dot_product` 和 `euclidean` 相似性搜索；这在向量存储首次创建时定义，并在构造函数参数 `vectorType` 中指定，例如：
-
-```typescript
-...,
-vectorType: "dot_product",
-...
-```
-## 索引
-
-从版本 5 开始，Cassandra 引入了存储附加索引（Storage Attached Indexes，SAI）。这些索引允许在不指定分区键的情况下进行 `WHERE` 过滤，并允许使用其他运算符类型，例如非等值比较。您可以使用 `indices` 参数定义这些索引，该参数接受零个或多个字典，每个字典包含 `name` 和 `value` 条目。
-
-索引是可选的，但如果要在非分区列上使用过滤查询，则需要索引。
-
-- `name` 条目是对象名称的一部分；在名为 `test_table` 的表上，一个 `name: "some_column"` 的索引将被命名为 `idx_test_table_some_column`。
-- `value` 条目是创建索引的列，用 `(` 和 `)` 包围。对于上述列 `some_column`，应指定为 `value: "(some_column)"`。
-- 可选的 `options` 条目是一个映射，传递给 `CREATE CUSTOM INDEX` 语句的 `WITH OPTIONS =` 子句。此映射上的具体条目取决于索引类型。
-
-```typescript
-indices: [{ name: "some_column", value: "(some_column)" }],
-```
-## 高级过滤
-
-默认情况下，过滤器使用等值 `=` 应用。对于那些有 `indices` 条目的字段，您可以提供一个 `operator`，其字符串值为索引支持的值；在这种情况下，您可以指定一个或多个过滤器，可以是单个对象或列表（它们将被 `AND` 连接在一起）。例如：
-
-```typescript
-{ name: "create_datetime", operator: ">", value: some_datetime_variable }
-```
-或
-
-```typescript
-[
-  { userid: userid_variable },
-  { name: "create_datetime", operator: ">", value: some_date_variable },
-];
-```
-`value` 可以是单个值或数组。如果它不是数组，或者 `value` 中只有一个元素，生成的查询将类似于 `${name} ${operator} ?`，并将 `value` 绑定到 `?`。
-
-如果 `value` 数组中有多个元素，则会计算 `name` 中未加引号的 `?` 的数量，并从 `value` 的长度中减去该数量，然后将这个数量的 `?` 放在运算符的右侧；如果有多个 `?`，它们将被封装在 `(` 和 `)` 中，例如 `(?, ?, ?)`。
-
-这便于在运算符左侧绑定值，这对于某些函数很有用；例如，一个地理距离过滤器：
-
-```typescript
-{
-  name: "GEO_DISTANCE(coord, ?)",
-  operator: "<",
-  value: [new Float32Array([53.3730617,-6.3000515]), 10000],
-},
-```
-## 数据分区和复合键
-
-在某些系统中，您可能出于各种原因希望对数据进行分区，例如按用户或会话分区。Cassandra 中的数据总是分区的；默认情况下，此库将按第一个主键字段进行分区。您可以指定构成记录主（唯一）键的多个列，并可选择指示哪些字段应作为分区键的一部分。例如，向量存储可以按 `userid` 和 `collectionid` 分区，附加字段 `docid` 和 `docpart` 使单个条目唯一：
-
-```typescript
-...,
-primaryKey: [
-  {name: "userid", type: "text", partition: true},
-  {name: "collectionid", type: "text", partition: true},
-  {name: "docid", type: "text"},
-  {name: "docpart", type: "int"},
-],
-...
-```
-搜索时，您可以在过滤器上包含分区键，而无需为这些列定义 `indices`；您不需要指定所有分区键，但必须首先指定键中的那些。在上面的示例中，您可以指定过滤器 `{userid: userid_variable}` 和 `{userid: userid_variable, collectionid: collectionid_variable}`，但如果您想指定仅包含 `{collectionid: collectionid_variable}` 的过滤器，则必须将 `collectionid` 包含在 `indices` 列表中。
-
-## 其他配置选项
-
-在配置文档中，提供了更多可选参数；它们的默认值为：
-
-```typescript
-...,
-maxConcurrency: 25,
-batchSize: 1,
-withClause: "",
-...
+```python
+pip install -qU langchain-community "cassio>=0.1.4"
 ```
 
-| 参数             | 用途                                                                                                                                                                                                                         |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `maxConcurrency` | 在给定时间内将向 Cassandra 发送多少个并发请求。                                                                                                                                                                              |
-| `batchSize`      | 在单个请求中将向 Cassandra 发送多少个文档。当使用值 > 1 时，您应确保您的批次大小不会超过 Cassandra 参数 `batch_size_fail_threshold_in_kb`。批次是未记录的。                                                                  |
-| `withClause`     | Cassandra 表可以使用可选的 `WITH` 子句创建；这通常不需要，但为了完整性而提供。                                                                                                                                               |
+_注意：根据您的 LangChain 设置，您可能需要安装/升级此演示所需的其他依赖项_
+_(具体来说，需要 `datasets`、`openai`、`pypdf` 和 `tiktoken` 的最新版本，以及 `langchain-community`)。_
 
-## 相关链接
+```python
+import os
+from getpass import getpass
 
-- 向量存储[概念指南](/oss/integrations/vectorstores)
-- 向量存储[操作指南](/oss/integrations/vectorstores)
+from datasets import (
+    load_dataset,
+)
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_core.documents import Document
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+```
+
+```python
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = getpass("OPENAI_API_KEY = ")
+```
+
+```python
+embe = OpenAIEmbeddings()
+```
+
+## 导入向量存储
+
+```python
+from langchain_community.vectorstores import Cassandra
+```
+
+## 连接参数
+
+本页展示的向量存储集成可用于 Cassandra 以及其他使用 CQL (Cassandra Query Language) 协议的衍生数据库，例如 Astra DB。
+
+> DataStax [Astra DB](https://docs.datastax.com/en/astra-serverless/docs/vector-search/quickstart.html) 是一个基于 Cassandra 构建的托管无服务器数据库，提供相同的接口和优势。
+
+根据您是通过 CQL 连接到 Cassandra 集群还是 Astra DB，在创建向量存储对象时将提供不同的参数。
+
+### 连接到 Cassandra 集群
+
+您首先需要创建一个 `cassandra.cluster.Session` 对象，如 [Cassandra 驱动程序文档](https://docs.datastax.com/en/developer/python-driver/latest/api/cassandra/cluster/#module-cassandra.cluster) 所述。具体细节可能有所不同（例如网络设置和身份验证），但可能类似于：
+
+```python
+from cassandra.cluster import Cluster
+
+cluster = Cluster(["127.0.0.1"])
+session = cluster.connect()
+```
+
+现在，您可以将会话以及所需的键空间名称设置为全局 CassIO 参数：
+
+```python
+import cassio
+
+CASSANDRA_KEYSPACE = input("CASSANDRA_KEYSPACE = ")
+
+cassio.init(session=session, keyspace=CASSANDRA_KEYSPACE)
+```
+
+现在您可以创建向量存储：
+
+```python
+vstore = Cassandra(
+    embedding=embe,
+    table_name="cassandra_vector_demo",
+    # session=None, keyspace=None  # 在旧版本 LangChain 上取消注释
+)
+```
+
+_注意：您也可以在创建向量存储时直接将会话和键空间作为参数传递。但是，如果您的应用程序以多种方式使用 Cassandra（例如，用于向量存储、聊天记忆和 LLM 响应缓存），使用全局 `cassio.init` 设置非常方便，因为它允许在一个地方集中管理凭据和数据库连接。_
+
+### 通过 CQL 连接到 Astra DB
+
+在这种情况下，您需要使用以下连接参数初始化 CassIO：
+
+- 数据库 ID，例如 `01234567-89ab-cdef-0123-456789abcdef`
+- 令牌，例如 `AstraCS:6gBhNmsk135....`（必须是“数据库管理员”令牌）
+- 可选的键空间名称（如果省略，将使用数据库的默认键空间）
+
+```python
+ASTRA_DB_ID = input("ASTRA_DB_ID = ")
+ASTRA_DB_APPLICATION_TOKEN = getpass("ASTRA_DB_APPLICATION_TOKEN = ")
+
+desired_keyspace = input("ASTRA_DB_KEYSPACE (optional, can be left empty) = ")
+if desired_keyspace:
+    ASTRA_DB_KEYSPACE = desired_keyspace
+else:
+    ASTRA_DB_KEYSPACE = None
+```
+
+```python
+import cassio
+
+cassio.init(
+    database_id=ASTRA_DB_ID,
+    token=ASTRA_DB_APPLICATION_TOKEN,
+    keyspace=ASTRA_DB_KEYSPACE,
+)
+```
+
+现在您可以创建向量存储：
+
+```python
+vstore = Cassandra(
+    embedding=embe,
+    table_name="cassandra_vector_demo",
+    # session=None, keyspace=None  # 在旧版本 LangChain 上取消注释
+)
+```
+
+## 加载数据集
+
+将源数据集中的每个条目转换为 `Document`，然后将它们写入向量存储：
+
+```python
+philo_dataset = load_dataset("datastax/philosopher-quotes")["train"]
+
+docs = []
+for entry in philo_dataset:
+    metadata = {"author": entry["author"]}
+    doc = Document(page_content=entry["quote"], metadata=metadata)
+    docs.append(doc)
+
+inserted_ids = vstore.add_documents(docs)
+print(f"\nInserted {len(inserted_ids)} documents.")
+```
+
+在上面的代码中，`metadata` 字典是从源数据创建的，并且是 `Document` 的一部分。
+
+使用 `add_texts` 添加更多条目：
+
+```python
+texts = ["I think, therefore I am.", "To the things themselves!"]
+metadatas = [{"author": "descartes"}, {"author": "husserl"}]
+ids = ["desc_01", "huss_xy"]
+
+inserted_ids_2 = vstore.add_texts(texts=texts, metadatas=metadatas, ids=ids)
+print(f"\nInserted {len(inserted_ids_2)} documents.")
+```
+
+_注意：您可能希望通过增加这些批量操作的并发级别来加速 `add_texts` 和 `add_documents` 的执行 - 请查看这些方法的 `batch_size` 参数以获取更多详细信息。根据网络和客户端机器规格，您的最佳性能参数选择可能会有所不同。_
+
+## 运行搜索
+
+本节演示元数据过滤和获取相似度分数：
+
+```python
+results = vstore.similarity_search("Our life is what we make of it", k=3)
+for res in results:
+    print(f"* {res.page_content} [{res.metadata}]")
+```
+
+```python
+results_filtered = vstore.similarity_search(
+    "Our life is what we make of it",
+    k=3,
+    filter={"author": "plato"},
+)
+for res in results_filtered:
+    print(f"* {res.page_content} [{res.metadata}]")
+```
+
+```python
+results = vstore.similarity_search_with_score("Our life is what we make of it", k=3)
+for res, score in results:
+    print(f"* [SIM={score:3f}] {res.page_content} [{res.metadata}]")
+```
+
+### MMR（最大边际相关性）搜索
+
+```python
+results = vstore.max_marginal_relevance_search(
+    "Our life is what we make of it",
+    k=3,
+    filter={"author": "aristotle"},
+)
+for res in results:
+    print(f"* {res.page_content} [{res.metadata}]")
+```
+
+## 删除存储的文档
+
+```python
+delete_1 = vstore.delete(inserted_ids[:3])
+print(f"all_succeed={delete_1}")  # True, 所有文档已删除
+```
+
+```python
+delete_2 = vstore.delete(inserted_ids[2:5])
+print(f"some_succeeds={delete_2}")  # True, 尽管一些 ID 已经不存在了
+```
+
+## 一个最小的 RAG 链
+
+接下来的单元格将实现一个简单的 RAG 管道：
+
+- 下载一个示例 PDF 文件并将其加载到存储中；
+- 使用 LCEL (LangChain Expression Language) 创建一个以向量存储为核心的 RAG 链；
+- 运行问答链。
+
+```python
+!curl -L \
+    "https://github.com/awesome-astra/datasets/blob/main/demo-resources/what-is-philosophy/what-is-philosophy.pdf?raw=true" \
+    -o "what-is-philosophy.pdf"
+```
+
+```python
+pdf_loader = PyPDFLoader("what-is-philosophy.pdf")
+splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=64)
+docs_from_pdf = pdf_loader.load_and_split(text_splitter=splitter)
+
+print(f"Documents from PDF: {len(docs_from_pdf)}.")
+inserted_ids_from_pdf = vstore.add_documents(docs_from_pdf)
+print(f"Inserted {len(inserted_ids_from_pdf)} documents.")
+```
+
+```python
+retriever = vstore.as_retriever(search_kwargs={"k": 3})
+
+philo_template = """
+You are a philosopher that draws inspiration from great thinkers of the past
+to craft well-thought answers to user questions. Use the provided context as the basis
+for your answers and do not make up new reasoning paths - just mix-and-match what you are given.
+Your answers must be concise and to the point, and refrain from answering about other topics than philosophy.
+
+CONTEXT:
+{context}
+
+QUESTION: {question}
+
+YOUR ANSWER:"""
+
+philo_prompt = ChatPromptTemplate.from_template(philo_template)
+
+llm = ChatOpenAI()
+
+chain = (
+    {"context": retriever, "question": RunnablePassthrough()}
+    | philo_prompt
+    | llm
+    | StrOutputParser()
+)
+```
+
+```python
+chain.invoke("How does Russel elaborate on Peirce's idea of the security blanket?")
+```
+
+更多信息，请查看使用 CQL 通过 Astra DB 的完整 RAG 模板[此处](https://github.com/langchain-ai/langchain/tree/master/templates/cassandra-entomology-rag)。
+
+## 清理
+
+以下代码本质上是从 CassIO 检索 `Session` 对象，并用它运行一个 CQL `DROP TABLE` 语句：
+
+_(您将丢失存储在其中的数据。)_
+
+```python
+cassio.config.resolve_session().execute(
+    f"DROP TABLE {cassio.config.resolve_keyspace()}.cassandra_vector_demo;"
+)
+```
+
+### 了解更多
+
+有关更多信息、扩展的快速入门和额外的使用示例，请访问 [CassIO 文档](https://cassio.org/frameworks/langchain/about/)，了解有关使用 LangChain `Cassandra` 向量存储的更多内容。
+
+#### 归属声明
+
+> Apache Cassandra、Cassandra 和 Apache 是 [Apache Software Foundation](http://www.apache.org/) 在美国和/或其他国家的注册商标或商标。

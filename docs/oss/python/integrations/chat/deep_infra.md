@@ -7,7 +7,7 @@ LangChain 通过 `ChatDeepInfra` 包装器支持由 [Deep Infra](https://deepinf
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/python/langchain/install)。
 
 </Tip>
 
@@ -39,5 +39,5 @@ console.log(res);
 
 ## 相关链接
 
-- 聊天模型[概念指南](/oss/langchain/models)
-- 聊天模型[操作指南](/oss/langchain/models)
+- 聊天模型[概念指南](/oss/python/langchain/models)
+- 聊天模型[操作指南](/oss/python/langchain/models)

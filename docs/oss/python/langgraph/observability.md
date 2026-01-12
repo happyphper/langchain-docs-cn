@@ -4,7 +4,7 @@ title: LangSmith 可观测性
 追踪（Traces）是应用程序从输入到输出所经历的一系列步骤。每个独立的步骤都由一个运行（run）表示。您可以使用 [LangSmith](https://smith.langchain.com/) 来可视化这些执行步骤。要使用它，请[为您的应用程序启用追踪](/langsmith/trace-with-langgraph)。这使您可以执行以下操作：
 
 * [调试本地运行的应用程序](/langsmith/observability-studio#debug-langsmith-traces)。
-* [评估应用程序性能](/oss/langchain/evals)。
+* [评估应用程序性能](/oss/python/langchain/evals)。
 * [监控应用程序](/langsmith/dashboards)。
 
 ## 先决条件

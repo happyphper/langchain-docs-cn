@@ -9,7 +9,7 @@ title: 大学招生论坛
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/college_confidential)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/college_confidential)。
 
 ```python
 from langchain_community.document_loaders import CollegeConfidentialLoader

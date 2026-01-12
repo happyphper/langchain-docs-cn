@@ -11,7 +11,7 @@ Cohere 提供了一个用于重排序文档的 API。在本示例中，我们将
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/python/langchain/install)。
 
 </Tip>
 

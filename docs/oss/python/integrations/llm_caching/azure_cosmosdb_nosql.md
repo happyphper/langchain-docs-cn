@@ -1,7 +1,7 @@
 ---
 title: Azure Cosmos DB NoSQL 语义缓存
 ---
-> 语义缓存功能支持与 Azure Cosmos DB for NoSQL 集成，使用户能够基于用户输入与先前缓存结果之间的语义相似性来检索缓存的响应。它利用了 [AzureCosmosDBNoSQLVectorStore](/oss/integrations/vectorstores/azure_cosmosdb_nosql)，该存储用于存储缓存提示的向量嵌入。这些嵌入支持基于相似性的搜索，使系统能够检索相关的缓存结果。
+> 语义缓存功能支持与 Azure Cosmos DB for NoSQL 集成，使用户能够基于用户输入与先前缓存结果之间的语义相似性来检索缓存的响应。它利用了 [AzureCosmosDBNoSQLVectorStore](/oss/python/integrations/vectorstores/azure_cosmosdb_nosql)，该存储用于存储缓存提示的向量嵌入。这些嵌入支持基于相似性的搜索，使系统能够检索相关的缓存结果。
 
 如果您没有 Azure 账户，可以[创建一个免费账户](https://azure.microsoft.com/free/)开始使用。
 
@@ -11,7 +11,7 @@ title: Azure Cosmos DB NoSQL 语义缓存
 
 <Tip>
 
-有关安装 LangChain 包的一般说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的一般说明，请参阅[此部分](/oss/python/langchain/install)。
 
 </Tip>
 

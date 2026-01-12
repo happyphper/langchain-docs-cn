@@ -3,80 +3,112 @@ title: ChatFriendli
 ---
 > [Friendli](https://friendli.ai/) 通过可扩展、高效的部署选项提升 AI 应用性能并优化成本节约，专为高需求的 AI 工作负载量身定制。
 
-本教程将指导您如何使用 LangChain 集成 `ChatFriendli` 来构建聊天应用。`ChatFriendli` 为生成对话式 AI 响应提供了灵活的方法，支持同步和异步调用。
+本教程将指导您如何使用 LangChain 集成 `ChatFriendli` 来构建聊天应用。`ChatFriendli` 提供了一种灵活的方法来生成对话式 AI 响应，支持同步和异步调用。
 
 ## 设置
 
-确保已安装 `@langchain/community`。
+确保已安装 `langchain_community` 和 `friendli-client`。
 
-<Tip>
-
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/community @langchain/core
+```sh
+pip install -U langchain-community friendli-client.
 ```
 
-登录 [Friendli Suite](https://suite.friendli.ai/) 以创建个人访问令牌，并将其设置为 `FRIENDLI_TOKEN` 环境变量。
-您可以将团队 ID 设置为 `FRIENDLI_TEAM` 环境变量。
+登录 [Friendli Suite](https://suite.friendli.ai/) 创建个人访问令牌，并将其设置为 `FRIENDLI_TOKEN` 环境变量。
 
-您可以通过选择要使用的模型来初始化 Friendli 聊天模型。默认模型是 `meta-llama-3-8b-instruct`。您可以在 [docs.friendli.ai](https://docs.friendli.ai/guides/serverless_endpoints/pricing#text-generation-models) 查看可用模型。
+```python
+import getpass
+import os
+
+if "FRIENDLI_TOKEN" not in os.environ:
+    os.environ["FRIENDLI_TOKEN"] = getpass.getpass("Friendi Personal Access Token: ")
+```
+
+您可以通过选择要使用的模型来初始化 Friendli 聊天模型。默认模型是 `mixtral-8x7b-instruct-v0-1`。您可以在 [docs.friendli.ai](https://docs.periflow.ai/guides/serverless_endpoints/pricing#text-generation-models) 查看可用模型。
+
+```python
+from langchain_community.chat_models.friendli import ChatFriendli
+
+chat = ChatFriendli(model="meta-llama-3.1-8b-instruct", max_tokens=100, temperature=0)
+```
 
 ## 用法
 
-```typescript
-import { ChatFriendli } from "@langchain/community/chat_models/friendli";
+`FrienliChat` 支持 [`ChatModel`](/oss/python/langchain/models) 的所有方法，包括异步 API。
 
-const model = new ChatFriendli({
-  model: "meta-llama-3-8b-instruct", // 默认值
-  friendliToken: process.env.FRIENDLI_TOKEN,
-  friendliTeam: process.env.FRIENDLI_TEAM,
-  maxTokens: 800,
-  temperature: 0.9,
-  topP: 0.9,
-  frequencyPenalty: 0,
-  stop: [],
-});
+您也可以使用 `invoke`、`batch`、`generate` 和 `stream` 等功能。
 
-const response = await model.invoke(
-  "Draft a cover letter for a role in software engineering."
-);
+```python
+from langchain.messages import HumanMessage, SystemMessage
 
-console.log(response.content);
+system_message = SystemMessage(content="Answer questions as short as you can.")
+human_message = HumanMessage(content="Tell me a joke.")
+messages = [system_message, human_message]
 
-/*
-Dear [Hiring Manager],
-
-I am excited to apply for the role of Software Engineer at [Company Name]. With my passion for innovation, creativity, and problem-solving, I am confident that I would be a valuable asset to your team.
-
-As a highly motivated and detail-oriented individual, ...
-*/
-
-const stream = await model.stream(
-  "Draft a cover letter for a role in software engineering."
-);
-
-for await (const chunk of stream) {
-  console.log(chunk.content);
-}
-
-/*
-D
-ear
- [
-H
-iring
-...
-[
-Your
- Name
-]
-*/
+chat.invoke(messages)
 ```
 
-## 相关链接
+```text
+AIMessage(content="Why don't eggs tell jokes? They'd crack each other up.", additional_kwargs={}, response_metadata={}, id='run-d47c1056-54e8-4ea9-ad63-07cf74b834b7-0')
+```
 
-- 聊天模型[概念指南](/oss/langchain/models)
-- 聊天模型[操作指南](/oss/langchain/models)
+```python
+chat.batch([messages, messages])
+```
+
+```text
+[AIMessage(content="Why don't eggs tell jokes? They'd crack each other up.", additional_kwargs={}, response_metadata={}, id='run-36775b84-2a7a-48f0-8c68-df23ffffe4b2-0'),
+ AIMessage(content="Why don't eggs tell jokes? They'd crack each other up.", additional_kwargs={}, response_metadata={}, id='run-b204be41-bc06-4d3a-9f74-e66ab1e60e4f-0')]
+```
+
+```python
+chat.generate([messages, messages])
+```
+
+```text
+LLMResult(generations=[[ChatGeneration(text="Why don't eggs tell jokes? They'd crack each other up.", message=AIMessage(content="Why don't eggs tell jokes? They'd crack each other up.", additional_kwargs={}, response_metadata={}, id='run-2e4cb949-8c51-40d5-92a0-cd0ac577db83-0'))], [ChatGeneration(text="Why don't eggs tell jokes? They'd crack each other up.", message=AIMessage(content="Why don't eggs tell jokes? They'd crack each other up.", additional_kwargs={}, response_metadata={}, id='run-afcdd1be-463c-4e50-9731-7a9f5958e396-0'))]], llm_output={}, run=[RunInfo(run_id=UUID('2e4cb949-8c51-40d5-92a0-cd0ac577db83')), RunInfo(run_id=UUID('afcdd1be-463c-4e50-9731-7a9f5958e396'))], type='LLMResult')
+```
+
+```python
+for chunk in chat.stream(messages):
+    print(chunk.content, end="", flush=True)
+```
+
+```text
+Why don't eggs tell jokes? They'd crack each other up.
+```
+
+您也可以使用异步 API 的所有功能：`ainvoke`、`abatch`、`agenerate` 和 `astream`。
+
+```python
+await chat.ainvoke(messages)
+```
+
+```text
+AIMessage(content="Why don't eggs tell jokes? They'd crack each other up.", additional_kwargs={}, response_metadata={}, id='run-ba8062fb-68af-47b8-bd7b-d1e01b914744-0')
+```
+
+```python
+await chat.abatch([messages, messages])
+```
+
+```text
+[AIMessage(content="Why don't eggs tell jokes? They'd crack each other up.", additional_kwargs={}, response_metadata={}, id='run-5d2c77ab-2637-45da-8bbe-1b1f18a22369-0'),
+ AIMessage(content="Why don't eggs tell jokes? They'd crack each other up.", additional_kwargs={}, response_metadata={}, id='run-f1338470-8b52-4d6e-9428-a694a08ae484-0')]
+```
+
+```python
+await chat.agenerate([messages, messages])
+```
+
+```text
+LLMResult(generations=[[ChatGeneration(text="Why don't eggs tell jokes? They'd crack each other up.", message=AIMessage(content="Why don't eggs tell jokes? They'd crack each other up.", additional_kwargs={}, response_metadata={}, id='run-d4e44569-39cc-40cc-93fc-de53e599fd51-0'))], [ChatGeneration(text="Why don't eggs tell jokes? They'd crack each other up.", message=AIMessage(content="Why don't eggs tell jokes? They'd crack each other up.", additional_kwargs={}, response_metadata={}, id='run-54647cc2-bee3-4154-ad00-2e547993e6d7-0'))]], llm_output={}, run=[RunInfo(run_id=UUID('d4e44569-39cc-40cc-93fc-de53e599fd51')), RunInfo(run_id=UUID('54647cc2-bee3-4154-ad00-2e547993e6d7'))], type='LLMResult')
+```
+
+```python
+async for chunk in chat.astream(messages):
+    print(chunk.content, end="", flush=True)
+```
+
+```text
+Why don't eggs tell jokes? They'd crack each other up.
+```

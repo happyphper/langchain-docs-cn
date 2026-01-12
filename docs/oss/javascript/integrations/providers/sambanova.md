@@ -41,7 +41,7 @@ export SAMBANOVA_API_KEY="your-sambastack-api-key-here"
 
 ## 聊天模型
 
-有关 `ChatSambaNova` 组件的详细说明，请参阅 [使用示例](/oss/integrations/chat/sambanova)
+有关 `ChatSambaNova` 组件的详细说明，请参阅 [使用示例](/oss/javascript/integrations/chat/sambanova)
 
 ```python
 from langchain_sambanova import ChatSambaNova
@@ -49,7 +49,7 @@ from langchain_sambanova import ChatSambaNova
 
 ## 嵌入模型
 
-有关 `SambaNovaEmbeddings` 组件的详细说明，请参阅 [使用示例](/oss/integrations/text_embedding/sambanova)
+有关 `SambaNovaEmbeddings` 组件的详细说明，请参阅 [使用示例](/oss/javascript/integrations/text_embedding/sambanova)
 
 ```python
 from langchain_sambanova import SambaNovaEmbeddings

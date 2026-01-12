@@ -4,7 +4,7 @@ title: Google El Carro for Oracle 工作负载
 > Google [El Carro Oracle Operator](https://github.com/GoogleCloudPlatform/elcarro-oracle-operator) 提供了一种在 Kubernetes 中运行 Oracle 数据库的方式，它是一个可移植、开源、社区驱动、无供应商锁定的容器编排系统。El Carro 提供了一个强大的声明式 API，用于全面、一致的配置和部署，以及实时操作和监控。
 > 通过利用 El Carro LangChain 集成，扩展您的 Oracle 数据库能力，以构建由 AI 驱动的体验。
 
-本指南将介绍如何使用 El Carro LangChain 集成，通过 `ElCarroLoader` 和 `ElCarroDocumentSaver` 来[保存、加载和删除 LangChain 文档](/oss/integrations/document_loaders)。此集成适用于任何 Oracle 数据库，无论其运行在何处。
+本指南将介绍如何使用 El Carro LangChain 集成，通过 `ElCarroLoader` 和 `ElCarroDocumentSaver` 来[保存、加载和删除 LangChain 文档](/oss/python/integrations/document_loaders)。此集成适用于任何 Oracle 数据库，无论其运行在何处。
 
 在 [GitHub](https://github.com/googleapis/langchain-google-el-carro-python/) 上了解更多关于此包的信息。
 

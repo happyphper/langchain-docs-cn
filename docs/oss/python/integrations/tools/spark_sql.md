@@ -1,7 +1,7 @@
 ---
 title: Spark SQL 工具包
 ---
-本笔记本展示了如何使用智能体（agent）与 `Spark SQL` 进行交互。与 [SQL Database Agent](/oss/integrations/tools/sql_database) 类似，它旨在处理关于 `Spark SQL` 的通用查询并促进错误恢复。
+本笔记本展示了如何使用智能体（agent）与 `Spark SQL` 进行交互。与 [SQL Database Agent](/oss/python/integrations/tools/sql_database) 类似，它旨在处理关于 `Spark SQL` 的通用查询并促进错误恢复。
 
 **注意：请注意，由于此智能体正处于积极开发阶段，所有答案可能并不完全正确。此外，不能保证智能体在回答某些问题时不会在你的 Spark 集群上执行 DML 语句。在敏感数据上运行时要格外小心！**
 

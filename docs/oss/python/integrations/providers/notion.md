@@ -11,7 +11,7 @@ title: Notion 数据库
 
 我们有两个不同的加载器：`NotionDirectoryLoader` 和 `NotionDBLoader`。
 
-查看[使用示例](/oss/integrations/document_loaders/notion)。
+查看[使用示例](/oss/python/integrations/document_loaders/notion)。
 
 ```python
 from langchain_community.document_loaders import NotionDirectoryLoader, NotionDBLoader

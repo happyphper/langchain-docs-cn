@@ -11,7 +11,7 @@ title: Cube
 
 ### Cube 语义层
 
-查看[使用示例](/oss/integrations/document_loaders/cube_semantic)。
+查看[使用示例](/oss/python/integrations/document_loaders/cube_semantic)。
 
 ```python
 from langchain_community.document_loaders import CubeSemanticLoader

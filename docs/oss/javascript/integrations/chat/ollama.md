@@ -5,7 +5,7 @@ title: ChatOllama
 
 Ollama 将模型权重、配置和数据打包成一个由 Modelfile 定义的单一软件包。它优化了设置和配置细节，包括 GPU 的使用。
 
-本指南将帮助您开始使用 `ChatOllama` [聊天模型](/oss/langchain/models)。有关 `ChatOllama` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_ollama.ChatOllama.html)。
+本指南将帮助您开始使用 `ChatOllama` [聊天模型](/oss/javascript/langchain/models)。有关 `ChatOllama` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_ollama.ChatOllama.html)。
 
 ## 概述
 
@@ -23,7 +23,7 @@ Ollama 允许您使用具有不同能力的多种模型。下面详情表中的�
 
 有关如何使用特定功能的指南，请参阅下表标题中的链接。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
 
@@ -285,7 +285,7 @@ AIMessage {
 ## 多模态模型
 
 Ollama 在 0.1.15 及更高版本中支持开源多模态模型，如 [LLaVA](https://ollama.ai/library/llava)。
-您可以将图像作为消息 `content` 字段的一部分传递给[支持多模态的](/oss/langchain/messages#multimodal)模型，如下所示：
+您可以将图像作为消息 `content` 字段的一部分传递给[支持多模态的](/oss/javascript/langchain/messages#multimodal)模型，如下所示：
 
 ```typescript
 import { ChatOllama } from "@langchain/ollama";

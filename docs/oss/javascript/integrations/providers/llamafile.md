@@ -15,7 +15,7 @@ title: Llamafile
 
 ## LLM
 
-请参阅 [使用示例](/oss/integrations/llms/llamafile)。
+请参阅 [使用示例](/oss/javascript/integrations/llms/llamafile)。
 
 ```python
 from langchain_community.llms.llamafile import Llamafile

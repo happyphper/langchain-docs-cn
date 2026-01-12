@@ -71,5 +71,5 @@ LangChain 直接支持一部分 NVIDIA AI Foundation 模型，并提供熟悉的
 当前支持的活动模型可以在 [API 目录](https://build.nvidia.com/) 中找到。
 
 **以下示例可能对您入门有所帮助：**
-- **[`ChatNVIDIA` 模型](/oss/integrations/chat/nvidia_ai_endpoints)。**
-- **[用于 RAG 工作流的 `NVIDIAEmbeddings` 模型](/oss/integrations/text_embedding/nvidia_ai_endpoints)。**
+- **[`ChatNVIDIA` 模型](/oss/javascript/integrations/chat/nvidia_ai_endpoints)。**
+- **[用于 RAG 工作流的 `NVIDIAEmbeddings` 模型](/oss/javascript/integrations/text_embedding/nvidia_ai_endpoints)。**

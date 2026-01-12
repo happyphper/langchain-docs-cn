@@ -1,240 +1,180 @@
 ---
-title: UpstashVectorStore
+title: Upstash Vector
 ---
-[Upstash Vector](https://upstash.com/) 是一个基于 REST 的无服务器向量数据库，专为处理向量嵌入而设计。
+> [Upstash Vector](https://upstash.com/docs/vector/overall/whatisvector) 是一个为处理向量嵌入而设计的无服务器向量数据库。
+>
+> LangChain 的向量集成是对 [upstash-vector](https://github.com/upstash/vector-py) 包的封装。
+>
+> 该 Python 包在底层使用了 [向量 REST API](https://upstash.com/docs/vector/api/get-started)。
 
-本指南提供了快速入门 Upstash [向量存储](/oss/integrations/vectorstores) 的概述。有关 `UpstashVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_upstash.UpstashVectorStore.html)。
+## 安装
 
-## 概述
+从 [Upstash 控制台](https://console.upstash.com/vector) 创建一个具有所需维度和距离度量的免费向量数据库。
 
-### 集成详情
+然后，您可以通过以下方式创建 `UpstashVectorStore` 实例：
 
-| 类 | 包 | [PY 支持](https://python.langchain.com/docs/integrations/vectorstores/upstash/) | 版本 |
-| :--- | :--- | :---: | :---: |
-| [`UpstashVectorStore`](https://api.js.langchain.com/classes/langchain_community_vectorstores_upstash.UpstashVectorStore.html) | [`@langchain/community`](https://npmjs.com/@langchain/community) | ✅ |  ![NPM - Version](https://img.shields.io/npm/v/@langchain/community?style=flat-square&label=%20&) |
+- 提供环境变量 `UPSTASH_VECTOR_URL` 和 `UPSTASH_VECTOR_TOKEN`
+- 将它们作为参数传递给构造函数
+- 将一个 Upstash Vector `Index` 实例传递给构造函数
 
-## 设置
+此外，需要一个 <a href="https://reference.langchain.com/python/langchain_core/embeddings/#langchain_core.embeddings.embeddings.Embeddings" target="_blank" rel="noreferrer" class="link"><code>Embeddings</code></a> 实例来将给定的文本转换为嵌入向量。这里我们以 `OpenAIEmbeddings` 为例。
 
-要使用 Upstash 向量存储，你需要创建一个 Upstash 账户、创建一个索引，并安装 `@langchain/community` 集成包。你还需要安装 [`@upstash/vector`](https://www.npmjs.com/package/@upstash/vector) 包作为对等依赖项。
-
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。如果你愿意，也可以使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
-
-::: code-group
-
-```bash [npm]
-npm install @langchain/community @langchain/core @upstash/vector @langchain/openai
-```
-
-```bash [yarn]
-yarn add @langchain/community @langchain/core @upstash/vector @langchain/openai
-```
-
-```bash [pnpm]
-pnpm add @langchain/community @langchain/core @upstash/vector @langchain/openai
-```
-
-:::
-
-你可以从 [Upstash 控制台](https://console.upstash.com/login) 创建一个索引。更多参考信息，请参阅 [官方文档](https://upstash.com/docs/vector/overall/getstarted)。
-
-Upstash Vector 还内置了嵌入支持。这意味着你可以直接使用它，而无需额外的嵌入模型。更多详情请查看 [嵌入模型文档](https://upstash.com/docs/vector/features/embeddingmodels)。
-
-<Note>
-
-要使用内置的 Upstash 嵌入，你需要在创建索引时选择一个嵌入模型。
-
-</Note>
-
-### 凭证
-
-设置好索引后，请设置以下环境变量：
-
-```typescript
-process.env.UPSTASH_VECTOR_REST_URL = "your-rest-url";
-process.env.UPSTASH_VECTOR_REST_TOKEN = "your-rest-token";
-```
-
-如果你在本指南中使用 OpenAI 嵌入，还需要设置你的 OpenAI 密钥：
-
-```typescript
-process.env.OPENAI_API_KEY = "YOUR_API_KEY";
-```
-
-如果你想自动追踪模型调用，也可以通过取消注释以下代码来设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
-
-```typescript
-// process.env.LANGSMITH_TRACING="true"
-// process.env.LANGSMITH_API_KEY="your-api-key"
-```
-
-## 实例化
-
-确保你的索引与你的嵌入具有相同的维度数量。OpenAI `text-embedding-3-small` 的默认值是 1536。
-
-```typescript
-import { UpstashVectorStore } from "@langchain/community/vectorstores/upstash";
-import { OpenAIEmbeddings } from "@langchain/openai";
-
-import { Index } from "@upstash/vector";
-
-const embeddings = new OpenAIEmbeddings({
-  model: "text-embedding-3-small",
-});
-
-const indexWithCredentials = new Index({
-  url: process.env.UPSTASH_VECTOR_REST_URL,
-  token: process.env.UPSTASH_VECTOR_REST_TOKEN,
-});
-
-const vectorStore = new UpstashVectorStore(embeddings, {
-  index: indexWithCredentials,
-  // 你可以使用命名空间在索引中对数据进行分区
-  // namespace: "test-namespace",
-});
-```
-
-## 使用内置嵌入
-
-要使用内置的 Upstash 嵌入，你可以将一个 `FakeEmbeddings` 实例传递给 `UpstashVectorStore` 构造函数。这将使 `UpstashVectorStore` 使用你在创建索引时选择的内置嵌入。
-
-```typescript
-import { UpstashVectorStore } from "@langchain/community/vectorstores/upstash";
-import { FakeEmbeddings } from "@langchain/core/utils/testing";
-
-import { Index } from "@upstash/vector";
-
-const indexWithEmbeddings = new Index({
-  url: process.env.UPSTASH_VECTOR_REST_URL,
-  token: process.env.UPSTASH_VECTOR_REST_TOKEN,
-});
-
-const vectorStore = new UpstashVectorStore(new FakeEmbeddings(), {
-  index: indexWithEmbeddings,
-});
-```
-
-## 管理向量存储
-
-### 向向量存储添加项目
-
-```typescript
-import type { Document } from "@langchain/core/documents";
-
-const document1: Document = {
-  pageContent: "The powerhouse of the cell is the mitochondria",
-  metadata: { source: "https://example.com" }
-};
-
-const document2: Document = {
-  pageContent: "Buildings are made out of brick",
-  metadata: { source: "https://example.com" }
-};
-
-const document3: Document = {
-  pageContent: "Mitochondria are made out of lipids",
-  metadata: { source: "https://example.com" }
-};
-
-const document4: Document = {
-  pageContent: "The 2024 Olympics are in Paris",
-  metadata: { source: "https://example.com" }
-}
-
-const documents = [document1, document2, document3, document4];
-
-await vectorStore.addDocuments(documents, { ids: ["1", "2", "3", "4"] });
+```python
+pip install langchain-openai langchain langchain-community upstash-vector
 ```
 
 ```python
-[ '1', '2', '3', '4' ]
+import os
+
+from langchain_community.vectorstores.upstash import UpstashVectorStore
+from langchain_openai import OpenAIEmbeddings
+
+os.environ["OPENAI_API_KEY"] = "<YOUR_OPENAI_KEY>"
+os.environ["UPSTASH_VECTOR_REST_URL"] = "<YOUR_UPSTASH_VECTOR_URL>"
+os.environ["UPSTASH_VECTOR_REST_TOKEN"] = "<YOUR_UPSTASH_VECTOR_TOKEN>"
+
+# 创建一个嵌入向量实例
+embeddings = OpenAIEmbeddings()
+
+# 创建一个向量存储实例
+store = UpstashVectorStore(embedding=embeddings)
 ```
 
-**注意：** 添加文档后，可能需要稍等片刻才能进行查询。
+创建 `UpstashVectorStore` 的另一种方法是 [通过选择一个模型来创建 Upstash Vector 索引](https://upstash.com/docs/vector/features/embeddingmodels#using-a-model) 并传递 `embedding=True`。在这种配置下，文档或查询将以文本形式发送到 Upstash 并在那里进行嵌入。
 
-### 从向量存储中删除项目
-
-```typescript
-await vectorStore.delete({ ids: ["4"] });
+```python
+store = UpstashVectorStore(embedding=True)
 ```
 
-## 查询向量存储
+如果您有兴趣尝试这种方法，可以像上面那样更新 `store` 的初始化，然后运行本教程的其余部分。
 
-一旦你的向量存储创建完成并添加了相关文档，你很可能会希望在运行链或代理时查询它。
+## 加载文档
 
-### 直接查询
+加载一个示例文本文件，并将其分割成可以转换为向量嵌入的块。
 
-执行简单的相似性搜索可以按如下方式进行：
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import CharacterTextSplitter
 
-```typescript
-const filter = "source = 'https://example.com'";
+loader = TextLoader("../../how_to/state_of_the_union.txt")
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
 
-const similaritySearchResults = await vectorStore.similaritySearch("biology", 2, filter);
-
-for (const doc of similaritySearchResults) {
-  console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
-}
-```
-
-```text
-* The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
-* Mitochondria are made out of lipids [{"source":"https://example.com"}]
-```
-
-有关 Upstash Vector 过滤器语法的更多信息，请参阅 [此页面](https://upstash.com/docs/vector/features/filtering)。
-
-如果你想执行相似性搜索并获取相应的分数，可以运行：
-
-```typescript
-const similaritySearchWithScoreResults = await vectorStore.similaritySearchWithScore("biology", 2, filter)
-
-for (const [doc, score] of similaritySearchWithScoreResults) {
-  console.log(`* [SIM=${score.toFixed(3)}] ${doc.pageContent} [${JSON.stringify(doc.metadata)}]`);
-}
+docs[:3]
 ```
 
 ```text
-* [SIM=0.576] The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
-* [SIM=0.557] Mitochondria are made out of lipids [{"source":"https://example.com"}]
+[Document(metadata={'source': '../../how_to/state_of_the_union.txt'}, page_content='Madam Speaker, Madam Vice President, our First Lady and Second Gentleman. Members of Congress and the Cabinet. Justices of the Supreme Court. My fellow Americans.  \n\nLast year COVID-19 kept us apart. This year we are finally together again. \n\nTonight, we meet as Democrats Republicans and Independents. But most importantly as Americans. \n\nWith a duty to one another to the American people to the Constitution. \n\nAnd with an unwavering resolve that freedom will always triumph over tyranny. \n\nSix days ago, Russia’s Vladimir Putin sought to shake the foundations of the free world thinking he could make it bend to his menacing ways. But he badly miscalculated. \n\nHe thought he could roll into Ukraine and the world would roll over. Instead he met a wall of strength he never imagined. \n\nHe met the Ukrainian people. \n\nFrom President Zelenskyy to every Ukrainian, their fearlessness, their courage, their determination, inspires the world.'),
+ Document(metadata={'source': '../../how_to/state_of_the_union.txt'}, page_content='Groups of citizens blocking tanks with their bodies. Everyone from students to retirees teachers turned soldiers defending their homeland. \n\nIn this struggle as President Zelenskyy said in his speech to the European Parliament “Light will win over darkness.” The Ukrainian Ambassador to the United States is here tonight. \n\nLet each of us here tonight in this Chamber send an unmistakable signal to Ukraine and to the world. \n\nPlease rise if you are able and show that, Yes, we the United States of America stand with the Ukrainian people. \n\nThroughout our history we’ve learned this lesson when dictators do not pay a price for their aggression they cause more chaos.   \n\nThey keep moving.   \n\nAnd the costs and the threats to America and the world keep rising.   \n\nThat’s why the NATO Alliance was created to secure peace and stability in Europe after World War 2. \n\nThe United States is a member along with 29 other nations. \n\nIt matters. American diplomacy matters. American resolve matters.'),
+ Document(metadata={'source': '../../how_to/state_of_the_union.txt'}, page_content='Putin’s latest attack on Ukraine was premeditated and unprovoked. \n\nHe rejected repeated efforts at diplomacy. \n\nHe thought the West and NATO wouldn’t respond. And he thought he could divide us at home. Putin was wrong. We were ready.  Here is what we did.   \n\nWe prepared extensively and carefully. \n\nWe spent months building a coalition of other freedom-loving nations from Europe and the Americas to Asia and Africa to confront Putin. \n\nI spent countless hours unifying our European allies. We shared with the world in advance what we knew Putin was planning and precisely how he would try to falsely justify his aggression.  \n\nWe countered Russia’s lies with truth.   \n\nAnd now that he has acted the free world is holding him accountable. \n\nAlong with twenty-seven members of the European Union including France, Germany, Italy, as well as countries like the United Kingdom, Canada, Japan, Korea, Australia, New Zealand, and many others, even Switzerland.')]
 ```
 
-### 通过转换为检索器进行查询
+## 插入文档
 
-你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+向量存储使用嵌入对象对文本块进行嵌入，并批量插入到数据库中。这将返回插入向量的 ID 数组。
 
-```typescript
-const retriever = vectorStore.asRetriever({
-  // 可选过滤器
-  filter: filter,
-  k: 2,
-});
-await retriever.invoke("biology");
+```python
+inserted_vectors = store.add_documents(docs)
+
+inserted_vectors[:5]
 ```
 
-```javascript
-[
-  Document {
-    pageContent: 'The powerhouse of the cell is the mitochondria',
-    metadata: { source: 'https://example.com' },
-    id: undefined
-  },
-  Document {
-    pageContent: 'Mitochondria are made out of lipids',
-    metadata: { source: 'https://example.com' },
-    id: undefined
-  }
-]
+```python
+['247aa3ae-9be9-43e2-98e4-48f94f920749',
+ 'c4dfc886-0a2d-497c-b2b7-d923a5cb3832',
+ '0350761d-ca68-414e-b8db-7eca78cb0d18',
+ '902fe5eb-8543-486a-bd5f-79858a7a8af1',
+ '28875612-c672-4de4-b40a-3b658c72036a']
 ```
 
-### 用于检索增强生成
+## 查询
 
-有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
+数据库可以使用向量或文本提示进行查询。
+如果使用文本提示，它首先会被转换为嵌入向量，然后再进行查询。
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [代理式 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+`k` 参数指定从查询中返回多少个结果。
 
----
+```python
+result = store.similarity_search("technology", k=5)
+result
+```
 
-## API 参考
+```text
+[Document(metadata={'source': '../../how_to/state_of_the_union.txt'}, page_content='If you travel 20 miles east of Columbus, Ohio, you’ll find 1,000 empty acres of land. \n\nIt won’t look like much, but if you stop and look closely, you’ll see a “Field of dreams,” the ground on which America’s future will be built. \n\nThis is where Intel, the American company that helped build Silicon Valley, is going to build its $20 billion semiconductor “mega site”. \n\nUp to eight state-of-the-art factories in one place. 10,000 new good-paying jobs. \n\nSome of the most sophisticated manufacturing in the world to make computer chips the size of a fingertip that power the world and our everyday lives. \n\nSmartphones. The Internet. Technology we have yet to invent. \n\nBut that’s just the beginning. \n\nIntel’s CEO, Pat Gelsinger, who is here tonight, told me they are ready to increase their investment from  \n$20 billion to $100 billion. \n\nThat would be one of the biggest investments in manufacturing in American history. \n\nAnd all they’re waiting for is for you to pass this bill.'),
+ Document(metadata={'source': '../../how_to/state_of_the_union.txt'}, page_content='So let’s not wait any longer. Send it to my desk. I’ll sign it.  \n\nAnd we will really take off. \n\nAnd Intel is not alone. \n\nThere’s something happening in America. \n\nJust look around and you’ll see an amazing story. \n\nThe rebirth of the pride that comes from stamping products “Made In America.” The revitalization of American manufacturing.   \n\nCompanies are choosing to build new factories here, when just a few years ago, they would have built them overseas. \n\nThat’s what is happening. Ford is investing $11 billion to build electric vehicles, creating 11,000 jobs across the country. \n\nGM is making the largest investment in its history—$7 billion to build electric vehicles, creating 4,000 jobs in Michigan. \n\nAll told, we created 369,000 new manufacturing jobs in America just last year. \n\nPowered by people I’ve met like JoJo Burgess, from generations of union steelworkers from Pittsburgh, who’s here with us tonight.'),
+ Document(metadata={'source': '../../how_to/state_of_the_union.txt'}, page_content='When we use taxpayer dollars to rebuild America – we are going to Buy American: buy American products to support American jobs. \n\nThe federal government spends about $600 Billion a year to keep the country safe and secure. \n\nThere’s been a law on the books for almost a century \nto make sure taxpayers’ dollars support American jobs and businesses. \n\nEvery Administration says they’ll do it, but we are actually doing it. \n\nWe will buy American to make sure everything from the deck of an aircraft carrier to the steel on highway guardrails are made in America. \n\nBut to compete for the best jobs of the future, we also need to level the playing field with China and other competitors. \n\nThat’s why it is so important to pass the Bipartisan Innovation Act sitting in Congress that will make record investments in emerging technologies and American manufacturing. \n\nLet me give you one example of why it’s so important to pass it.'),
+ Document(metadata={'source': '../../how_to/state_of_the_union.txt'}, page_content='Last month, I announced our plan to supercharge  \nthe Cancer Moonshot that President Obama asked me to lead six years ago. \n\nOur goal is to cut the cancer death rate by at least 50% over the next 25 years, turn more cancers from death sentences into treatable diseases.  \n\nMore support for patients and families. \n\nTo get there, I call on Congress to fund ARPA-H, the Advanced Research Projects Agency for Health. \n\nIt’s based on DARPA—the Defense Department project that led to the Internet, GPS, and so much more.  \n\nARPA-H will have a singular purpose—to drive breakthroughs in cancer, Alzheimer’s, diabetes, and more. \n\nA unity agenda for the nation. \n\nWe can do this. \n\nMy fellow Americans—tonight , we have gathered in a sacred space—the citadel of our democracy. \n\nIn this Capitol, generation after generation, Americans have debated great questions amid great strife, and have done great things. \n\nWe have fought for freedom, expanded liberty, defeated totalitarianism and terror.'),
+ Document(metadata={'source': '../../how_to/state_of_the_union.txt'}, page_content='And based on the projections, more of the country will reach that point across the next couple of weeks. \n\nThanks to the progress we have made this past year, COVID-19 need no longer control our lives.  \n\nI know some are talking about “living with COVID-19”. Tonight – I say that we will never just accept living with COVID-19. \n\nWe will continue to combat the virus as we do other diseases. And because this is a virus that mutates and spreads, we will stay on guard. \n\nHere are four common sense steps as we move forward safely.  \n\nFirst, stay protected with vaccines and treatments. We know how incredibly effective vaccines are. If you’re vaccinated and boosted you have the highest degree of protection. \n\nWe will never give up on vaccinating more Americans. Now, I know parents with kids under 5 are eager to see a vaccine authorized for their children. \n\nThe scientists are working hard to get that done and we’ll be ready with plenty of vaccines when they do.')]
+```
 
-有关 `UpstashVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_upstash.UpstashVectorStore.html)。
+## 带分数的查询
+
+可以为每个结果包含查询的分数。
+
+> 查询请求中返回的分数是一个介于 0 和 1 之间的归一化值，其中 1 表示最高相似度，0 表示最低相似度，与使用的相似度函数无关。更多信息请参阅 [文档](https://upstash.com/docs/vector/overall/features#vector-similarity-functions)。
+
+```python
+result = store.similarity_search_with_score("technology", k=5)
+
+for doc, score in result:
+    print(f"{doc.metadata} - {score}")
+```
+
+```text
+{'source': '../../how_to/state_of_the_union.txt'} - 0.8968438
+{'source': '../../how_to/state_of_the_union.txt'} - 0.8895128
+{'source': '../../how_to/state_of_the_union.txt'} - 0.88626665
+{'source': '../../how_to/state_of_the_union.txt'} - 0.88538057
+{'source': '../../how_to/state_of_the_union.txt'} - 0.88432854
+```
+
+## 命名空间
+
+命名空间可用于分隔不同类型的文档。这可以提高查询效率，因为搜索空间减少了。当未提供命名空间时，将使用默认命名空间。
+
+```python
+store_books = UpstashVectorStore(embedding=embeddings, namespace="books")
+```
+
+```python
+store_books.add_texts(
+    [
+        "A timeless tale set in the Jazz Age, this novel delves into the lives of affluent socialites, their pursuits of wealth, love, and the elusive American Dream. Amidst extravagant parties and glittering opulence, the story unravels the complexities of desire, ambition, and the consequences of obsession.",
+        "Set in a small Southern town during the 1930s, this novel explores themes of racial injustice, moral growth, and empathy through the eyes of a young girl. It follows her father, a principled lawyer, as he defends a black man accused of assaulting a white woman, confronting deep-seated prejudices and challenging societal norms along the way.",
+        "A chilling portrayal of a totalitarian regime, this dystopian novel offers a bleak vision of a future world dominated by surveillance, propaganda, and thought control. Through the eyes of a disillusioned protagonist, it explores the dangers of totalitarianism and the erosion of individual freedom in a society ruled by fear and oppression.",
+        "Set in the English countryside during the early 19th century, this novel follows the lives of the Bennet sisters as they navigate the intricate social hierarchy of their time. Focusing on themes of marriage, class, and societal expectations, the story offers a witty and insightful commentary on the complexities of romantic relationships and the pursuit of happiness.",
+        "Narrated by a disillusioned teenager, this novel follows his journey of self-discovery and rebellion against the phoniness of the adult world. Through a series of encounters and reflections, it explores themes of alienation, identity, and the search for authenticity in a society marked by conformity and hypocrisy.",
+        "In a society where emotion is suppressed and individuality is forbidden, one man dares to defy the oppressive regime. Through acts of rebellion and forbidden love, he discovers the power of human connection and the importance of free will.",
+        "Set in a future world devastated by environmental collapse, this novel follows a group of survivors as they struggle to survive in a harsh, unforgiving landscape. Amidst scarcity and desperation, they must confront moral dilemmas and question the nature of humanity itself.",
+    ],
+    [
+        {"title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "year": 1925},
+        {"title": "To Kill a Mockingbird", "author": "Harper Lee", "year": 1960},
+        {"title": "1984", "author": "George Orwell", "year": 1949},
+        {"title": "Pride and Prejudice", "author": "Jane Austen", "year": 1813},
+        {"title": "The Catcher in the Rye", "author": "J.D. Salinger", "year": 1951},
+        {"title": "Brave New World", "author": "Aldous Huxley", "year": 1932},
+        {"title": "The Road", "author": "Cormac McCarthy", "year": 2006},
+    ],
+)
+```
+
+```python
+['928a5f12-900f-40b7-9406-3861741cc9d6',
+ '4908670e-0b9c-455b-96b8-e0f83bc59204',
+ '7083ff98-d900-4435-a67c-d9690fc555ba',
+ 'b910f9b1-2be0-4e0a-8b6c-93ba9b367df5',
+ '7c40e950-4d2b-4293-9fb8-623a49e72607',
+ '25a70e79-4905-42af-8b08-09f13bd48512',
+ '695e2bcf-23d9-44d4-af26-a7b554c0c375']
+```
+
+```python
+result = store_books.similarity_search("dystopia", k=3)
+result
+```
+
+```text
+[Document(metadata={'title': '1984', 'author': 'George Orwell', 'year': 1949}, page_content='A chilling portrayal of a totalitarian regime, this dystopian novel offers a bleak vision of a future world dominated by surveillance, propaganda, and thought control. Through the eyes of a disillusioned protagonist, it explores the dangers of totalitarianism and the erosion of individual freedom in a society ruled by fear and oppression.'),
+ Document(metadata={'title': 'The Road', 'author': 'Cormac McCarthy', 'year

@@ -10,7 +10,7 @@ description: 教程、概念指南和资源，助您快速入门。
 
 ### LangChain
 
-[LangChain](/oss/langchain/overview) 的 [agent](/oss/langchain/agents) 实现使得大多数用例都能轻松上手。
+[LangChain](/oss/python/langchain/overview) 的 [agent](/oss/python/langchain/agents) 实现使得大多数用例都能轻松上手。
 
 <Card title="语义搜索" icon="magnifying-glass" href="/oss/langchain/knowledge-base" horizontal>
 
@@ -38,7 +38,7 @@ description: 教程、概念指南和资源，助您快速入门。
 
 ### LangGraph
 
-LangChain 的 [agent](/oss/langchain/agents) 实现使用了 [LangGraph](/oss/langgraph/overview) 的原语。
+LangChain 的 [agent](/oss/python/langchain/agents) 实现使用了 [LangGraph](/oss/python/langgraph/overview) 的原语。
 如果需要更深度的定制，可以直接在 LangGraph 中实现智能体。
 
 <Card title="自定义 RAG Agent" icon="user-magnifying-glass" href="/oss/langgraph/agentic-rag" horizontal>
@@ -55,7 +55,7 @@ LangChain 的 [agent](/oss/langchain/agents) 实现使用了 [LangGraph](/oss/la
 
 ### 多智能体
 
-这些教程演示了 [多智能体模式](/oss/langchain/multi-agent)，将 LangChain 智能体与 LangGraph 工作流相结合。
+这些教程演示了 [多智能体模式](/oss/python/langchain/multi-agent)，将 LangChain 智能体与 LangGraph 工作流相结合。
 
 <Card title="子智能体：个人助理" icon="sitemap" href="/oss/langchain/multi-agent/subagents-personal-assistant" horizontal>
 

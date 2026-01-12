@@ -33,7 +33,7 @@ index_name = "<index_name>"
 
 <Tip>
 
-关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+关于安装 LangChain 包的通用说明，请参阅[此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -43,7 +43,7 @@ npm install @langchain/cloudflare @langchain/core
 
 ## 使用
 
-下面是一个示例 Worker，它根据使用的路径向向量存储添加文档、查询或清空数据。它还使用了 [Cloudflare Workers AI Embeddings](/oss/integrations/text_embedding/cloudflare_ai)。
+下面是一个示例 Worker，它根据使用的路径向向量存储添加文档、查询或清空数据。它还使用了 [Cloudflare Workers AI Embeddings](/oss/javascript/integrations/text_embedding/cloudflare_ai)。
 
 <Note>
 
@@ -131,5 +131,5 @@ export default {
 
 ## 相关链接
 
-- 向量存储 [概念指南](/oss/integrations/vectorstores)
-- 向量存储 [操作指南](/oss/integrations/vectorstores)
+- 向量存储 [概念指南](/oss/javascript/integrations/vectorstores)
+- 向量存储 [操作指南](/oss/javascript/integrations/vectorstores)

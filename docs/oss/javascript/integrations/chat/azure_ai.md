@@ -1,7 +1,7 @@
 ---
 title: Azure AI 聊天补全模型
 ---
-本文将帮助你开始使用 AzureAIChatCompletionsModel [聊天模型](/oss/langchain/models)。有关 AzureAIChatCompletionsModel 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/azure_ai/chat_models/langchain_azure_ai.chat_models.AzureAIChatCompletionsModel.html)。
+本文将帮助你开始使用 AzureAIChatCompletionsModel [聊天模型](/oss/javascript/langchain/models)。有关 AzureAIChatCompletionsModel 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/azure_ai/chat_models/langchain_azure_ai.chat_models.AzureAIChatCompletionsModel.html)。
 
 AzureAIChatCompletionsModel 类使用 Azure AI Foundry SDK。AI Foundry 提供了多种聊天模型，包括 AzureOpenAI、Cohere、Llama、Phi-3/4 和 DeepSeek-R1 等。你可以在 [Azure 文档](https://learn.microsoft.com/azure/ai-studio/how-to/model-catalog-overview) 中找到有关其最新模型及其成本、上下文窗口和支持的输入类型的信息。
 
@@ -15,7 +15,7 @@ AzureAIChatCompletionsModel 类使用 Azure AI Foundry SDK。AI Foundry 提供�
 
 ### 模型功能
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅|
 

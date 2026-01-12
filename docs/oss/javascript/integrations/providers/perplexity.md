@@ -25,7 +25,7 @@ uv add langchain-perplexity
 
 ## 聊天模型
 
-查看[此处](/oss/integrations/chat/perplexity)的各种使用示例。
+查看[此处](/oss/javascript/integrations/chat/perplexity)的各种使用示例。
 
 ```python
 from langchain_perplexity import ChatPerplexity

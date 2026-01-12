@@ -13,7 +13,7 @@ description: 将 Alchemyst AI 检索器集成到您的生成式 AI 应用程序�
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/python/langchain/install)。
 
 </Tip>
 

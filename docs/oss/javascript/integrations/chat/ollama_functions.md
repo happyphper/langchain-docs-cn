@@ -4,7 +4,7 @@ title: Ollama 函数
 
 <Warning>
 
-<strong>LangChain Ollama 集成包已正式支持工具调用功能。[点击此处查看文档](/oss/integrations/chat/ollama#tools)。</strong>
+<strong>LangChain Ollama 集成包已正式支持工具调用功能。[点击此处查看文档](/oss/javascript/integrations/chat/ollama#tools)。</strong>
 
 </Warning>
 
@@ -247,5 +247,5 @@ console.log(response);
 
 ## 相关
 
-- 聊天模型 [概念指南](/oss/langchain/models)
-- 聊天模型 [操作指南](/oss/langchain/models)
+- 聊天模型 [概念指南](/oss/javascript/langchain/models)
+- 聊天模型 [操作指南](/oss/javascript/langchain/models)

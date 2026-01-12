@@ -1,7 +1,7 @@
 ---
 title: ChatOCIModelDeployment
 ---
-这将帮助您开始使用 OCIModelDeployment [聊天模型](/oss/langchain/models)。有关 ChatOCIModelDeployment 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.oci_data_science.ChatOCIModelDeployment.html)。
+这将帮助您开始使用 OCIModelDeployment [聊天模型](/oss/javascript/langchain/models)。有关 ChatOCIModelDeployment 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.oci_data_science.ChatOCIModelDeployment.html)。
 
 [OCI Data Science](https://docs.oracle.com/en-us/iaas/data-science/using/home.htm) 是一个完全托管且无服务器的平台，供数据科学团队在 Oracle 云基础设施中构建、训练和管理机器学习模型。您可以使用 [AI Quick Actions](https://blogs.oracle.com/ai-and-datascience/post/ai-quick-actions-in-oci-data-science) 在 [OCI Data Science 模型部署服务](https://docs.oracle.com/en-us/iaas/data-science/using/model-dep-about.htm) 上轻松部署 LLMs。您可以选择使用流行的推理框架（如 vLLM 或 TGI）来部署模型。默认情况下，模型部署端点模拟 OpenAI API 协议。
 
@@ -17,7 +17,7 @@ title: ChatOCIModelDeployment
 
 ### 模型功能
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | 取决于 | 取决于 | 取决于 | 取决于 | 取决于 | ✅ | ✅ | ✅ | ✅ |
 

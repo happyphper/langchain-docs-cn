@@ -305,7 +305,7 @@ pnpm --filter langchain test  # 确保在开始开发前测试通过
 
 :::: details 提供商包
 
-对于[合作伙伴集成](/oss/integrations/providers/overview)的更改：
+对于[合作伙伴集成](/oss/javascript/integrations/providers/overview)的更改：
 
 ```bash
 pnpm install
@@ -355,9 +355,9 @@ LangChain 组织为一个包含多个包的 monorepo：
 :::: details 合作伙伴包
 
 位于 `libs/providers/`，这些是针对特定集成的独立版本包。例如：
-- <strong>[`@langchain/openai`](https://github.com/langchain-ai/langchainjs/tree/main/libs/langchain-openai#readme)</strong>：[OpenAI](/oss/integrations/providers/openai) 集成
-- <strong>[`@langchain/anthropic`](https://github.com/langchain-ai/langchainjs/tree/main/libs/langchain-anthropic#readme)</strong>：[Anthropic](/oss/integrations/providers/anthropic) 集成
-- <strong>[`@langchain/google-genai`](https://github.com/langchain-ai/langchainjs/tree/main/libs/langchain-google-genai#readme)</strong>：[Google Generative AI](/oss/integrations/chat/google_generative_ai) 集成
+- <strong>[`@langchain/openai`](https://github.com/langchain-ai/langchainjs/tree/main/libs/langchain-openai#readme)</strong>：[OpenAI](/oss/javascript/integrations/providers/openai) 集成
+- <strong>[`@langchain/anthropic`](https://github.com/langchain-ai/langchainjs/tree/main/libs/langchain-anthropic#readme)</strong>：[Anthropic](/oss/javascript/integrations/providers/anthropic) 集成
+- <strong>[`@langchain/google-genai`](https://github.com/langchain-ai/langchainjs/tree/main/libs/langchain-google-genai#readme)</strong>：[Google Generative AI](/oss/javascript/integrations/chat/google_generative_ai) 集成
 
 ::::
 

@@ -6,7 +6,7 @@ sidebarTitle: Semantic search
 
 ## 概述
 
-本教程将帮助你熟悉 LangChain 的[文档加载器](/oss/langchain/retrieval#document-loaders)、[嵌入模型](/oss/langchain/retrieval#embedding-models)和[向量存储](/oss/langchain/retrieval#vector-store)抽象。这些抽象旨在支持从（向量）数据库和其他来源检索数据，以便与 LLM 工作流集成。对于需要获取数据以进行推理的应用程序（例如检索增强生成或 [RAG](/oss/langchain/retrieval)）来说，它们非常重要。
+本教程将帮助你熟悉 LangChain 的[文档加载器](/oss/python/langchain/retrieval#document-loaders)、[嵌入模型](/oss/python/langchain/retrieval#embedding-models)和[向量存储](/oss/python/langchain/retrieval#vector-store)抽象。这些抽象旨在支持从（向量）数据库和其他来源检索数据，以便与 LLM 工作流集成。对于需要获取数据以进行推理的应用程序（例如检索增强生成或 [RAG](/oss/python/langchain/retrieval)）来说，它们非常重要。
 
 在这里，我们将基于一个 PDF 文档构建一个搜索引擎。这将允许我们检索 PDF 中与输入查询相似的段落。本指南还包括在搜索引擎之上实现一个最小的 RAG 应用。
 
@@ -14,10 +14,10 @@ sidebarTitle: Semantic search
 
 本指南侧重于文本数据的检索。我们将涵盖以下概念：
 
-- [文档和文档加载器](/oss/integrations/document_loaders)；
-- [文本分割器](/oss/integrations/splitters)；
-- [嵌入模型](/oss/integrations/text_embedding)；
-- [向量存储](/oss/integrations/vectorstores) 和 [检索器](/oss/integrations/retrievers)。
+- [文档和文档加载器](/oss/python/integrations/document_loaders)；
+- [文本分割器](/oss/python/integrations/splitters)；
+- [嵌入模型](/oss/python/integrations/text_embedding)；
+- [向量存储](/oss/python/integrations/vectorstores) 和 [检索器](/oss/python/integrations/retrievers)。
 
 ## 设置
 
@@ -37,7 +37,7 @@ conda install langchain-community pypdf -c conda-forge
 
 :::
 
-更多详情，请参阅我们的[安装指南](/oss/langchain/install)。
+更多详情，请参阅我们的[安装指南](/oss/python/langchain/install)。
 
 ### LangSmith
 
@@ -87,11 +87,11 @@ documents = [
 ]
 ```
 
-然而，LangChain 生态系统实现了[文档加载器](/oss/langchain/retrieval#document-loaders)，这些加载器[与数百个常见来源集成](/oss/integrations/document_loaders/)。这使得将来自这些来源的数据整合到你的 AI 应用程序中变得容易。
+然而，LangChain 生态系统实现了[文档加载器](/oss/python/langchain/retrieval#document-loaders)，这些加载器[与数百个常见来源集成](/oss/python/integrations/document_loaders/)。这使得将来自这些来源的数据整合到你的 AI 应用程序中变得容易。
 
 ### 加载文档
 
-让我们将一个 PDF 加载到一系列 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link"><code>Document</code></a> 对象中。[这里是一个示例 PDF](https://github.com/langchain-ai/langchain/blob/v0.3/docs/docs/example_data/nke-10k-2023.pdf) —— 耐克 2023 年的 10-K 文件。我们可以查阅 LangChain 文档以了解[可用的 PDF 文档加载器](/oss/integrations/document_loaders/#pdfs)。
+让我们将一个 PDF 加载到一系列 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link"><code>Document</code></a> 对象中。[这里是一个示例 PDF](https://github.com/langchain-ai/langchain/blob/v0.3/docs/docs/example_data/nke-10k-2023.pdf) —— 耐克 2023 年的 10-K 文件。我们可以查阅 LangChain 文档以了解[可用的 PDF 文档加载器](/oss/python/integrations/document_loaders/#pdfs)。
 
 ```python
 from langchain_community.document_loaders import PyPDFLoader
@@ -135,7 +135,7 @@ FO
 
 对于信息检索和下游的问答目的，一个页面可能是一个过于粗糙的表示。我们的最终目标是检索能够回答输入查询的 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link"><code>Document</code></a> 对象，进一步分割我们的 PDF 将有助于确保文档相关部分的意义不会被周围的文本“冲淡”。
 
-我们可以为此使用[文本分割器](/oss/langchain/retrieval#text_splitters)。这里我们将使用一个基于字符进行分割的简单文本分割器。我们将文档分割成 1000 个字符的块，块之间有 200 个字符的重叠。重叠有助于减轻将语句与其重要上下文分离的可能性。我们使用 `RecursiveCharacterTextSplitter`，它将使用常见分隔符（如换行符）递归地分割文档，直到每个块达到适当的大小。这是通用文本用例的推荐文本分割器。
+我们可以为此使用[文本分割器](/oss/python/langchain/retrieval#text_splitters)。这里我们将使用一个基于字符进行分割的简单文本分割器。我们将文档分割成 1000 个字符的块，块之间有 200 个字符的重叠。重叠有助于减轻将语句与其重要上下文分离的可能性。我们使用 `RecursiveCharacterTextSplitter`，它将使用常见分隔符（如换行符）递归地分割文档，直到每个块达到适当的大小。这是通用文本用例的推荐文本分割器。
 
 我们设置 `add_start_index=True`，以便将每个分割后的 Document 在初始 Document 中的起始字符索引作为元数据属性“start_index”保留。
 
@@ -156,9 +156,9 @@ print(len(all_splits))
 
 ## 2. 嵌入模型
 
-向量搜索是存储和搜索非结构化数据（如非结构化文本）的常见方法。其思想是存储与文本关联的数字向量。给定一个查询，我们可以将其[嵌入](/oss/langchain/retrieval#embedding_models)为相同维度的向量，并使用向量相似度度量（如余弦相似度）来识别相关文本。
+向量搜索是存储和搜索非结构化数据（如非结构化文本）的常见方法。其思想是存储与文本关联的数字向量。给定一个查询，我们可以将其[嵌入](/oss/python/langchain/retrieval#embedding_models)为相同维度的向量，并使用向量相似度度量（如余弦相似度）来识别相关文本。
 
-LangChain 支持[数十个提供商的嵌入模型](/oss/integrations/text_embedding/)。这些模型指定了如何将文本转换为数字向量。让我们选择一个模型：
+LangChain 支持[数十个提供商的嵌入模型](/oss/python/integrations/text_embedding/)。这些模型指定了如何将文本转换为数字向量。让我们选择一个模型：
 
 <!--@include: @/snippets/python/embeddings-tabs-py.md-->
 
@@ -180,9 +180,9 @@ Generated vectors of length 1536
 
 ## 3. 向量存储
 
-LangChain 的 <a href="https://reference.langchain.com/python/langchain_core/vectorstores/?h=#langchain_core.vectorstores.base.VectorStore" target="_blank" rel="noreferrer" class="link">VectorStore</a> 对象包含将文本和 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link"><code>Document</code></a> 对象添加到存储中的方法，以及使用各种相似性度量进行查询的方法。它们通常使用[嵌入模型](/oss/langchain/retrieval#embedding_models)进行初始化，该模型决定了文本数据如何转换为数字向量。
+LangChain 的 <a href="https://reference.langchain.com/python/langchain_core/vectorstores/?h=#langchain_core.vectorstores.base.VectorStore" target="_blank" rel="noreferrer" class="link">VectorStore</a> 对象包含将文本和 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link"><code>Document</code></a> 对象添加到存储中的方法，以及使用各种相似性度量进行查询的方法。它们通常使用[嵌入模型](/oss/python/langchain/retrieval#embedding_models)进行初始化，该模型决定了文本数据如何转换为数字向量。
 
-LangChain 包含一系列与不同向量存储技术的[集成](/oss/integrations/vectorstores)。一些向量存储由提供商托管（例如，各种云提供商），需要使用特定的凭据；一些（如 [Postgres](/oss/integrations/vectorstores/pgvector)）运行在可以本地运行或通过第三方运行的独立基础设施中；其他一些可以内存运行以处理轻量级工作负载。让我们选择一个向量存储：
+LangChain 包含一系列与不同向量存储技术的[集成](/oss/python/integrations/vectorstores)。一些向量存储由提供商托管（例如，各种云提供商），需要使用特定的凭据；一些（如 [Postgres](/oss/python/integrations/vectorstores/pgvector)）运行在可以本地运行或通过第三方运行的独立基础设施中；其他一些可以内存运行以处理轻量级工作负载。让我们选择一个向量存储：
 
 <!--@include: @/snippets/python/vectorstore-tabs-py.md-->
 
@@ -192,7 +192,7 @@ LangChain 包含一系列与不同向量存储技术的[集成](/oss/integration
 ids = vector_store.add_documents(documents=all_splits)
 ```
 
-请注意，大多数向量存储实现都允许你连接到现有的向量存储——例如，通过提供客户端、索引名称或其他信息。有关更多详细信息，请参阅特定[集成](/oss/integrations/vectorstores)的文档。
+请注意，大多数向量存储实现都允许你连接到现有的向量存储——例如，通过提供客户端、索引名称或其他信息。有关更多详细信息，请参阅特定[集成](/oss/python/integrations/vectorstores)的文档。
 
 一旦我们实例化了一个包含文档的 <a href="https://reference.langchain.com/python/langchain_core/vectorstores/?h=#langchain_core.vectorstores.base.VectorStore" target="_blank" rel="noreferrer" class="link"><code>VectorStore</code></a>，我们就可以查询它。<a href="https://reference.langchain.com/python/langchain_core/vectorstores/?h=#langchain_core.vectorstores.base.VectorStore" target="_blank" rel="noreferrer" class="link">VectorStore</a> 包含用于查询的方法：
 - 同步和异步；

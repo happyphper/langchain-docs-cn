@@ -29,4 +29,4 @@ uv add toolbox-langchain
 
 关于如何创建、配置 MCP Toolbox 并将其与你的智能体一起使用的完整、分步指南，请参阅我们详细的 Jupyter notebook 教程。
 
-**[➡️ 在此查看完整教程](/oss/integrations/tools/mcp_toolbox)**。
+**[➡️ 在此查看完整教程](/oss/javascript/integrations/tools/mcp_toolbox)**。

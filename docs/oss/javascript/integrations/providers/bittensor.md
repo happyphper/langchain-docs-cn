@@ -9,7 +9,7 @@ title: Bittensor
 
 ## 大语言模型
 
-查看 [使用示例](/oss/integrations/llms/bittensor)。
+查看 [使用示例](/oss/javascript/integrations/llms/bittensor)。
 
 ```python
 from langchain_community.llms import NIBittensorLLM

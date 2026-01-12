@@ -19,7 +19,7 @@ uv add wikipedia
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/wikipedia)。
+查看[使用示例](/oss/python/integrations/document_loaders/wikipedia)。
 
 ```python
 from langchain_community.document_loaders import WikipediaLoader
@@ -27,7 +27,7 @@ from langchain_community.document_loaders import WikipediaLoader
 
 ## 检索器
 
-查看[使用示例](/oss/integrations/retrievers/wikipedia)。
+查看[使用示例](/oss/python/integrations/retrievers/wikipedia)。
 
 ```python
 from langchain_classic.retrievers import WikipediaRetriever

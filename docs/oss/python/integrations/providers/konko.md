@@ -43,7 +43,7 @@ export OPENAI_API_KEY={your_OPENAI_API_KEY_here} #可选
 
 另一种查找在 Konko 实例上运行的模型列表的方法是通过此 [端点](https://docs.konko.ai/reference/get-models)。
 
-查看使用 [示例](/oss/integrations/llms/konko)。
+查看使用 [示例](/oss/python/integrations/llms/konko)。
 
 ### 端点使用示例
 
@@ -58,7 +58,7 @@ response = llm.invoke(prompt)
 
 ## 聊天模型
 
-查看使用 [示例](/oss/integrations/chat/konko)。
+查看使用 [示例](/oss/python/integrations/chat/konko)。
 
 -   **使用 Mistral-7B 进行 ChatCompletion：**
 

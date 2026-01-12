@@ -1,7 +1,7 @@
 ---
 title: DuckDuckGo搜索
 ---
-本笔记本提供了快速入门 [DuckDuckGoSearch](/oss/integrations/tools/) 的概述。有关 DuckDuckGoSearch 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_tools_duckduckgo_search.DuckDuckGoSearch.html)。
+本笔记本提供了快速入门 [DuckDuckGoSearch](/oss/javascript/integrations/tools/) 的概述。有关 DuckDuckGoSearch 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_tools_duckduckgo_search.DuckDuckGoSearch.html)。
 
 DuckDuckGoSearch 提供了一个专注于隐私、专为 LLM 智能体设计的搜索 API。它能够与广泛的数据源无缝集成，同时优先考虑用户隐私和相关的搜索结果。
 
@@ -54,7 +54,7 @@ const tool = new DuckDuckGoSearch({ maxResults: 1 })
 
 ## 调用
 
-### [直接使用参数调用](/oss/langchain/tools)
+### [直接使用参数调用](/oss/javascript/langchain/tools)
 
 ```typescript
 await tool.invoke("what is the current weather in sf?")
@@ -64,7 +64,7 @@ await tool.invoke("what is the current weather in sf?")
 [{"title":"San Francisco, CA Current Weather | AccuWeather","link":"https://www.accuweather.com/en/us/san-francisco/94103/current-weather/347629","snippet":"<b>Current</b> <b>weather</b> <b>in</b> San Francisco, CA. Check <b>current</b> conditions in San Francisco, CA with radar, hourly, and more."}]
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools)
+### [使用 ToolCall 调用](/oss/javascript/langchain/tools)
 
 我们也可以使用模型生成的 `ToolCall` 来调用工具，在这种情况下，将返回一个 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.ToolMessage.html" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>：
 
@@ -93,7 +93,7 @@ ToolMessage {
 
 ## 链式调用
 
-我们可以通过先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后在链中使用它：
+我们可以通过先将工具绑定到一个 [工具调用模型](/oss/javascript/langchain/tools/)，然后在链中使用它：
 
 ```typescript
 // @lc-docs-hide-cell

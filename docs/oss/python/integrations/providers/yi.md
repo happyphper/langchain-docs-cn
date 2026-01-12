@@ -9,7 +9,7 @@ title: 零一万物
 
 ## LLMs
 
-查看[使用示例](/oss/integrations/llms/yi)。
+查看[使用示例](/oss/python/integrations/llms/yi)。
 
 ```python
 from langchain_community.llms import YiLLM
@@ -17,7 +17,7 @@ from langchain_community.llms import YiLLM
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/yi)。
+查看[使用示例](/oss/python/integrations/chat/yi)。
 
 ```python
 from langchain_community.chat_models import ChatYi

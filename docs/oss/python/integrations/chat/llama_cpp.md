@@ -18,7 +18,7 @@ title: ChatLlamaCpp
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/python/langchain/install)。
 
 </Tip>
 
@@ -288,5 +288,5 @@ await model.invoke(
 
 ## 相关链接
 
-- 聊天模型[概念指南](/oss/langchain/models)
-- 聊天模型[操作指南](/oss/langchain/models)
+- 聊天模型[概念指南](/oss/python/langchain/models)
+- 聊天模型[操作指南](/oss/python/langchain/models)

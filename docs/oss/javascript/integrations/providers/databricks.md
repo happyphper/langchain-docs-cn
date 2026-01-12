@@ -7,7 +7,7 @@ Databricks 通过多种方式拥抱 LangChain 生态系统：
 
 1.  🚀 **模型服务** - 通过高可用、低延迟的推理端点，访问最先进的 LLM，例如 DBRX、Llama3、Mixtral 或您在 [Databricks Model Serving](https://www.databricks.com/product/model-serving) 上微调的模型。LangChain 提供了 LLM (`Databricks`)、聊天模型 (`ChatDatabricks`) 和嵌入 (`DatabricksEmbeddings`) 的实现，简化了将托管在 Databricks Model Serving 上的模型与您的 LangChain 应用程序的集成。
 2.  📃 **向量搜索** - [Databricks Vector Search](https://www.databricks.com/product/machine-learning/vector-search) 是一个与 Databricks 平台无缝集成的无服务器向量数据库。使用 `DatabricksVectorSearch`，您可以将高度可扩展且可靠的相似性搜索引擎集成到您的 LangChain 应用程序中。
-3.  📊 **MLflow** - [MLflow](https://mlflow.org/) 是一个用于管理完整 ML 生命周期的开源平台，包括实验管理、评估、追踪、部署等。[MLflow 的 LangChain 集成](/oss/integrations/providers/mlflow_tracking) 简化了开发和运营现代复合 ML 系统的过程。
+3.  📊 **MLflow** - [MLflow](https://mlflow.org/) 是一个用于管理完整 ML 生命周期的开源平台，包括实验管理、评估、追踪、部署等。[MLflow 的 LangChain 集成](/oss/javascript/integrations/providers/mlflow_tracking) 简化了开发和运营现代复合 ML 系统的过程。
 4.  🌐 **SQL 数据库** - [Databricks SQL](https://www.databricks.com/product/databricks-sql) 与 LangChain 中的 `SQLDatabase` 集成，允许您访问自动优化、性能卓越的数据仓库。
 5.  💡 **开源模型** - Databricks 开源模型，例如 [DBRX](https://www.databricks.com/blog/introducing-dbrx-new-state-art-open-llm)，可通过 [Hugging Face Hub](https://huggingface.co/databricks/dbrx-instruct) 获取。这些模型可以直接与 LangChain 一起使用，利用其与 `transformers` 库的集成。
 
@@ -41,7 +41,7 @@ from databricks_langchain import ChatDatabricks
 chat_model = ChatDatabricks(endpoint="databricks-meta-llama-3-70b-instruct")
 ```
 
-有关如何在您的 LangChain 应用程序中使用它的更多指导，请参阅 [使用示例](/oss/integrations/chat/databricks)。
+有关如何在您的 LangChain 应用程序中使用它的更多指导，请参阅 [使用示例](/oss/javascript/integrations/chat/databricks)。
 
 LLM
 ---
@@ -50,7 +50,7 @@ LLM
 
 <Warning>
 
-文本补全模型已被弃用，最新和最流行的模型是 [聊天补全模型](/oss/langchain/models)。请改用 `ChatDatabricks` 聊天模型来使用这些模型以及工具调用等高级功能。
+文本补全模型已被弃用，最新和最流行的模型是 [聊天补全模型](/oss/javascript/langchain/models)。请改用 `ChatDatabricks` 聊天模型来使用这些模型以及工具调用等高级功能。
 
 </Warning>
 
@@ -60,7 +60,7 @@ from langchain_community.llm.databricks import Databricks
 llm = Databricks(endpoint="your-completion-endpoint")
 ```
 
-有关如何在您的 LangChain 应用程序中使用它的更多指导，请参阅 [使用示例](/oss/integrations/llms/databricks)。
+有关如何在您的 LangChain 应用程序中使用它的更多指导，请参阅 [使用示例](/oss/javascript/integrations/llms/databricks)。
 
 嵌入
 ----------
@@ -73,7 +73,7 @@ from databricks_langchain import DatabricksEmbeddings
 embeddings = DatabricksEmbeddings(endpoint="databricks-bge-large-en")
 ```
 
-有关如何在您的 LangChain 应用程序中使用它的更多指导，请参阅 [使用示例](/oss/integrations/text_embedding/databricks)。
+有关如何在您的 LangChain 应用程序中使用它的更多指导，请参阅 [使用示例](/oss/javascript/integrations/text_embedding/databricks)。
 
 向量搜索
 -------------
@@ -94,7 +94,7 @@ dvs = DatabricksVectorSearch(
 docs = dvs.similarity_search("What is vector search?)
 ```
 
-有关如何设置向量索引并将其与 LangChain 集成的信息，请参阅 [使用示例](/oss/integrations/vectorstores/databricks_vector_search)。
+有关如何设置向量索引并将其与 LangChain 集成的信息，请参阅 [使用示例](/oss/javascript/integrations/vectorstores/databricks_vector_search)。
 
 MLflow 集成
 ------------------
@@ -106,7 +106,7 @@ MLflow 集成
 -   **模型评估**：提供用于评估 LangChain 应用程序的原生功能。
 -   **追踪**：可视化追踪数据在 LangChain 应用程序中的流动。
 
-请参阅 [MLflow LangChain 集成](/oss/integrations/providers/mlflow_tracking)，通过丰富的代码示例和指南了解将 MLflow 与 LangChain 结合使用的全部功能。
+请参阅 [MLflow LangChain 集成](/oss/javascript/integrations/providers/mlflow_tracking)，通过丰富的代码示例和指南了解将 MLflow 与 LangChain 结合使用的全部功能。
 
 SQLDatabase
 -----------
@@ -116,7 +116,7 @@ SQLDatabase
 开源模型
 -----------
 
-要直接集成托管在 HuggingFace 上的 Databricks 开源模型，您可以使用 LangChain 的 [HuggingFace 集成](/oss/integrations/providers/huggingface)。
+要直接集成托管在 HuggingFace 上的 Databricks 开源模型，您可以使用 LangChain 的 [HuggingFace 集成](/oss/javascript/integrations/providers/huggingface)。
 
 ```
 from langchain_huggingface import HuggingFaceEndpoint

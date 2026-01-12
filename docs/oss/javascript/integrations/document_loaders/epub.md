@@ -5,7 +5,7 @@ title: EPub
 
 本文档介绍了如何将 `.epub` 文档加载为我们可以在下游使用的 Document 格式。您需要安装 [`pandoc`](https://pandoc.org/installing.html) 包才能使此加载器正常工作，例如在 OSX 上使用 `brew install pandoc` 命令。
 
-有关在本地设置 Unstructured 的更多说明，包括设置所需的系统依赖项，请参阅[本指南](/oss/integrations/providers/unstructured/)。
+有关在本地设置 Unstructured 的更多说明，包括设置所需的系统依赖项，请参阅[本指南](/oss/javascript/integrations/providers/unstructured/)。
 
 ```python
 pip install -qU unstructured

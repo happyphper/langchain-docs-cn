@@ -15,9 +15,9 @@ pip install -qU langchain-exa
 
 ## 检索器
 
-你可以在标准的检索流程中使用 [`ExaSearchRetriever`](/oss/integrations/tools/exa_search#using-exasearchretriever)。你可以按如下方式导入它。
+你可以在标准的检索流程中使用 [`ExaSearchRetriever`](/oss/javascript/integrations/tools/exa_search#using-exasearchretriever)。你可以按如下方式导入它。
 
-查看 [使用示例](/oss/integrations/tools/exa_search)。
+查看 [使用示例](/oss/javascript/integrations/tools/exa_search)。
 
 ```python
 from langchain_exa import ExaSearchRetriever
@@ -25,9 +25,9 @@ from langchain_exa import ExaSearchRetriever
 
 ## 工具
 
-你可以按照 [Exa 工具调用文档](/oss/integrations/tools/exa_search#use-within-an-agent) 中的描述，将 Exa 用作智能体工具。
+你可以按照 [Exa 工具调用文档](/oss/javascript/integrations/tools/exa_search#use-within-an-agent) 中的描述，将 Exa 用作智能体工具。
 
-查看 [使用示例](/oss/integrations/tools/exa_search)。
+查看 [使用示例](/oss/javascript/integrations/tools/exa_search)。
 
 ### ExaFindSimilarResults
 

@@ -28,7 +28,7 @@ tilores = TiloresAPI.from_environ()
 
 ## 工具包
 
-您可以使用 [`TiloresTools`](/oss/integrations/tools/tilores) 从 Tilores 查询数据：
+您可以使用 [`TiloresTools`](/oss/javascript/integrations/tools/tilores) 从 Tilores 查询数据：
 
 ```python
 from tilores_langchain import TiloresTools

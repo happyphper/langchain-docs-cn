@@ -50,7 +50,7 @@ const agent = createAgent({
 
 <Tip>
 
-如果使用 `langchain@1.1.0`，`trigger` 和 `keep` 的 `fraction` 条件（如下所示）依赖于聊天模型的[配置文件数据](/oss/langchain/models#model-profiles)。如果数据不可用，请使用其他条件或手动指定：
+如果使用 `langchain@1.1.0`，`trigger` 和 `keep` 的 `fraction` 条件（如下所示）依赖于聊天模型的[配置文件数据](/oss/javascript/langchain/models#model-profiles)。如果数据不可用，请使用其他条件或手动指定：
 
 ```typescript
 const customProfile: ModelProfile = {
@@ -197,7 +197,7 @@ const agent3 = createAgent({
 
 ### 人在回路
 
-在工具调用执行之前，暂停智能体执行以等待人工批准、编辑或拒绝。[人在回路](/oss/langchain/human-in-the-loop) 适用于以下情况：
+在工具调用执行之前，暂停智能体执行以等待人工批准、编辑或拒绝。[人在回路](/oss/javascript/langchain/human-in-the-loop) 适用于以下情况：
 
 - 需要人工批准的高风险操作（例如数据库写入、金融交易）。
 - 强制要求人工监督的合规工作流。
@@ -205,7 +205,7 @@ const agent3 = createAgent({
 
 <Warning>
 
-人在回路中间件需要一个[检查点器](/oss/langgraph/persistence#checkpoints)来在中断期间维护状态。
+人在回路中间件需要一个[检查点器](/oss/javascript/langgraph/persistence#checkpoints)来在中断期间维护状态。
 
 </Warning>
 
@@ -240,7 +240,7 @@ const agent = createAgent({
 
 <Tip>
 
-有关完整示例、配置选项和集成模式，请参阅[人在回路文档](/oss/langchain/human-in-the-loop)。
+有关完整示例、配置选项和集成模式，请参阅[人在回路文档](/oss/javascript/langchain/human-in-the-loop)。
 
 </Tip>
 

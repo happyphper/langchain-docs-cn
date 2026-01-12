@@ -28,7 +28,7 @@ uv add langchain-anchorbrowser
 
 ### 用法
 
-导入并使用你需要的工具。Anchor Browser 所有可用工具的完整列表，请参见 [Anchor Browser 工具页面](/oss/integrations/tools/anchor_browser) 中的 **工具特性** 表格。
+导入并使用你需要的工具。Anchor Browser 所有可用工具的完整列表，请参见 [Anchor Browser 工具页面](/oss/python/integrations/tools/anchor_browser) 中的 **工具特性** 表格。
 
 ```python
 from langchain_anchorbrowser import AnchorContentTool

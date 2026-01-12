@@ -33,7 +33,7 @@ export OPENAI_API_KEY="OPENAI_API_KEY"
 
 ## 工具
 
-查看[使用示例](/oss/integrations/tools/taiga)
+查看[使用示例](/oss/javascript/integrations/tools/taiga)
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: WebPDFLoader
 ---
-本笔记本提供了快速入门 [WebPDFLoader](/oss/integrations/document_loaders/) 的概述。有关 WebPDFLoader 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_pdf.WebPDFLoader.html)。
+本笔记本提供了快速入门 [WebPDFLoader](/oss/python/integrations/document_loaders/) 的概述。有关 WebPDFLoader 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_pdf.WebPDFLoader.html)。
 
 ## 概述
 

@@ -5,7 +5,7 @@ title: Azure AI Search
 
 `AzureAISearchRetriever` 是一个集成模块，用于根据非结构化查询返回文档。它基于 BaseRetriever 类，并针对 Azure AI Search 的 2023-11-01 稳定版 REST API，这意味着它支持向量索引和查询。
 
-本指南将帮助您开始使用 Azure AI Search [检索器](/oss/langchain/retrieval)。有关 `AzureAISearchRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.azure_ai_search.AzureAISearchRetriever.html)。
+本指南将帮助您开始使用 Azure AI Search [检索器](/oss/python/langchain/retrieval)。有关 `AzureAISearchRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/retrievers/langchain_community.retrievers.azure_ai_search.AzureAISearchRetriever.html)。
 
 `AzureAISearchRetriever` 取代了 `AzureCognitiveSearchRetriever`，后者即将被弃用。我们建议切换到基于最新稳定版搜索 API 的新版本。
 

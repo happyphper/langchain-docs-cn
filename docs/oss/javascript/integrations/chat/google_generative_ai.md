@@ -3,7 +3,7 @@ title: ChatGoogleGenerativeAI
 ---
 [Google AI](https://ai.google.dev/) 提供了多种不同的聊天模型，包括强大的 Gemini 系列。有关最新模型、其功能、上下文窗口等信息，请访问 [Google AI 文档](https://ai.google.dev/gemini-api/docs/models/gemini)。
 
-本文将帮助您开始使用 `ChatGoogleGenerativeAI` [聊天模型](/oss/langchain/models)。有关 `ChatGoogleGenerativeAI` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_google_genai.ChatGoogleGenerativeAI.html)。
+本文将帮助您开始使用 `ChatGoogleGenerativeAI` [聊天模型](/oss/javascript/langchain/models)。有关 `ChatGoogleGenerativeAI` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_google_genai.ChatGoogleGenerativeAI.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ title: ChatGoogleGenerativeAI
 
 有关如何使用特定功能的指南，请参阅下表标题中的链接。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/javascript/langchain/streaming/) | [Token 使用量](/oss/javascript/langchain/models#token-usage) | [Logprobs](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 
@@ -27,7 +27,7 @@ title: ChatGoogleGenerativeAI
 
 <Tip>
 
-您也可以通过 LangChain 的 VertexAI 和 VertexAI-web 集成访问 Google 的 `gemini` 系列模型。点击[此处](/oss/integrations/chat/google_vertex_ai)阅读相关文档。
+您也可以通过 LangChain 的 VertexAI 和 VertexAI-web 集成访问 Google 的 `gemini` 系列模型。点击[此处](/oss/javascript/integrations/chat/google_vertex_ai)阅读相关文档。
 
 </Tip>
 
@@ -184,7 +184,7 @@ const llmWithSafetySettings = new ChatGoogleGenerativeAI({
 
 ## 工具调用
 
-使用 Google AI 进行工具调用与[使用其他模型进行工具调用](/oss/langchain/tools)大致相同，但在模式（schema）上有一些限制。
+使用 Google AI 进行工具调用与[使用其他模型进行工具调用](/oss/javascript/langchain/tools)大致相同，但在模式（schema）上有一些限制。
 
 Google AI API 不允许工具模式包含具有未知属性的对象。例如，以下 Zod 模式将抛出错误：
 

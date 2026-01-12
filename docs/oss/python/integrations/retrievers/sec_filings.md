@@ -9,7 +9,7 @@ title: 美国证券交易委员会（SEC）备案文件
 
 首先，你需要安装 `kay` 包。你还需要一个 API 密钥：你可以在 [https://kay.ai](https://kay.ai/) 免费获取一个。获取 API 密钥后，必须将其设置为环境变量 `KAY_API_KEY`。
 
-在这个例子中，我们将使用 `KayAiRetriever`。查看 [kay notebook](/oss/integrations/retrievers/kay) 以获取其接受参数的更详细信息。
+在这个例子中，我们将使用 `KayAiRetriever`。查看 [kay notebook](/oss/python/integrations/retrievers/kay) 以获取其接受参数的更详细信息。
 
 ```python
 # Setup API keys for Kay and OpenAI

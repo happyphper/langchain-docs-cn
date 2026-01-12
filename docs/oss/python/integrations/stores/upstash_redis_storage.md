@@ -96,4 +96,4 @@ await store.mdelete(yieldedKeys);
 
 ## 相关链接
 
-- [键值存储概念指南](/oss/integrations/stores)
+- [键值存储概念指南](/oss/python/integrations/stores)

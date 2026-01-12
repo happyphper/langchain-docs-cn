@@ -16,7 +16,7 @@ title: Runhouse
 from langchain_community.llms import SelfHostedPipeline, SelfHostedHuggingFaceLLM
 ```
 
-有关自托管 LLMs 的详细步骤，请参阅 [此笔记本](/oss/integrations/llms/runhouse)
+有关自托管 LLMs 的详细步骤，请参阅 [此笔记本](/oss/javascript/integrations/llms/runhouse)
 
 ## 自托管 Embeddings
 通过 Runhouse，有几种方式可以在 LangChain 中使用自托管 Embeddings。
@@ -28,4 +28,4 @@ from langchain_community.llms import SelfHostedPipeline, SelfHostedHuggingFaceLL
 from langchain_community.llms import SelfHostedPipeline, SelfHostedHuggingFaceLLM
 ```
 
-有关自托管 Embeddings 的详细步骤，请参阅 [此笔记本](/oss/integrations/text_embedding/self-hosted)
+有关自托管 Embeddings 的详细步骤，请参阅 [此笔记本](/oss/javascript/integrations/text_embedding/self-hosted)

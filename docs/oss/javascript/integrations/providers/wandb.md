@@ -12,7 +12,7 @@ title: Weights & Biases
 
 ## wandb_tracing_enabled
 
-查看[使用示例](/oss/integrations/providers/wandb_tracing)。
+查看[使用示例](/oss/javascript/integrations/providers/wandb_tracing)。
 
 查看 [W&B 文档](https://docs.wandb.ai/guides/integrations/langchain)。
 
@@ -28,7 +28,7 @@ from langchain_community.callbacks import wandb_tracing_enabled
 
 **注意：** `WandbCallbackHandler` 正在被弃用，推荐使用 `wandb_tracing_enabled`。
 
-查看[使用示例](/oss/integrations/providers/wandb_tracking)。
+查看[使用示例](/oss/javascript/integrations/providers/wandb_tracking)。
 
 查看 [W&B 文档](https://docs.wandb.ai/guides/integrations/langchain)。
 

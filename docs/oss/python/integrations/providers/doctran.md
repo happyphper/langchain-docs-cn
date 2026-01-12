@@ -21,7 +21,7 @@ uv add doctran
 
 ### 文档审问器
 
-查看 [DoctranQATransformer 的使用示例](/oss/integrations/document_transformers/doctran_interrogate_document)。
+查看 [DoctranQATransformer 的使用示例](/oss/python/integrations/document_transformers/doctran_interrogate_document)。
 
 ```python
 from langchain_community.document_transformers import DoctranQATransformer
@@ -29,7 +29,7 @@ from langchain_community.document_transformers import DoctranQATransformer
 
 ### 属性提取器
 
-查看 [DoctranPropertyExtractor 的使用示例](/oss/integrations/document_transformers/doctran_extract_properties)。
+查看 [DoctranPropertyExtractor 的使用示例](/oss/python/integrations/document_transformers/doctran_extract_properties)。
 
 ```python
 from langchain_community.document_transformers import DoctranPropertyExtractor
@@ -37,7 +37,7 @@ from langchain_community.document_transformers import DoctranPropertyExtractor
 
 ### 文档翻译器
 
-查看 [DoctranTextTranslator 的使用示例](/oss/integrations/document_transformers/doctran_translate_document)。
+查看 [DoctranTextTranslator 的使用示例](/oss/python/integrations/document_transformers/doctran_translate_document)。
 
 ```python
 from langchain_community.document_transformers import DoctranTextTranslator

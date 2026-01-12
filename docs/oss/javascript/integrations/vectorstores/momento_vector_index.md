@@ -39,7 +39,7 @@ export MOMENTO_API_KEY=YOUR_MOMENTO_API_KEY_HERE # https://console.gomomento.com
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -187,5 +187,5 @@ console.log(response);
 
 ## 相关
 
-- 向量存储 [概念指南](/oss/integrations/vectorstores)
-- 向量存储 [操作指南](/oss/integrations/vectorstores)
+- 向量存储 [概念指南](/oss/javascript/integrations/vectorstores)
+- 向量存储 [操作指南](/oss/javascript/integrations/vectorstores)

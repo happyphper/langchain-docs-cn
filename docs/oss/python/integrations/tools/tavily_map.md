@@ -3,7 +3,7 @@ title: TavilyMap
 ---
 [Tavily](https://tavily.com/) 是一个专为 AI 智能体（LLMs）构建的搜索引擎，能够快速提供实时、准确且基于事实的搜索结果。Tavily 提供四个关键端点，其中之一是 Map（地图）端点，它能够像图一样遍历网站，并通过智能发现并行探索数百条路径，从而生成全面的站点地图。
 
-本指南提供了快速入门 Tavily [工具](/oss/integrations/tools/) 的概述。关于 Tavily 工具的完整解析，您可以在 [API 参考](https://v03.api.js.langchain.com/modules/_langchain_tavily.html) 中找到更详细的文档。
+本指南提供了快速入门 Tavily [工具](/oss/python/integrations/tools/) 的概述。关于 Tavily 工具的完整解析，您可以在 [API 参考](https://v03.api.js.langchain.com/modules/_langchain_tavily.html) 中找到更详细的文档。
 
 ## 概述
 
@@ -65,7 +65,7 @@ const tool = new TavilyMap({
 
 ## 调用
 
-### [使用参数直接调用](/oss/langchain/tools)
+### [使用参数直接调用](/oss/python/langchain/tools)
 
 Tavily 地图工具在调用时接受以下参数：
 
@@ -79,7 +79,7 @@ await tool.invoke({
 });
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools)
+### [使用 ToolCall 调用](/oss/python/langchain/tools)
 
 我们也可以使用模型生成的 `ToolCall` 来调用该工具，在这种情况下，将返回一个 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.ToolMessage" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>：
 
@@ -99,7 +99,7 @@ await tool.invoke(modelGeneratedToolCall)
 
 ## 链式调用
 
-我们可以通过先将工具绑定到一个[工具调用模型](/oss/langchain/tools/)，然后调用它来在链中使用我们的工具：
+我们可以通过先将工具绑定到一个[工具调用模型](/oss/python/langchain/tools/)，然后调用它来在链中使用我们的工具：
 
 ```typescript
 // @lc-docs-hide-cell
@@ -167,4 +167,4 @@ console.log("AIMessage", JSON.stringify({
 
 ## 相关
 
-* [工具文档](/oss/langchain/tools)
+* [工具文档](/oss/python/langchain/tools)

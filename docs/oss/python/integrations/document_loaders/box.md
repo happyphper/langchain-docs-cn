@@ -45,7 +45,7 @@ title: BoxLoader 与 BoxBlobLoader
 
 ### 凭证
 
-对于这些示例，我们将使用[令牌身份验证](https://developer.box.com/guides/authentication/tokens/developer-tokens)。这可以与任何[身份验证方法](https://developer.box.com/guides/authentication/)一起使用。只需使用任何方法获取令牌即可。如果您想了解更多关于如何在 `langchain-box` 中使用其他身份验证类型的信息，请访问 [Box 提供商](/oss/integrations/providers/box) 文档。
+对于这些示例，我们将使用[令牌身份验证](https://developer.box.com/guides/authentication/tokens/developer-tokens)。这可以与任何[身份验证方法](https://developer.box.com/guides/authentication/)一起使用。只需使用任何方法获取令牌即可。如果您想了解更多关于如何在 `langchain-box` 中使用其他身份验证类型的信息，请访问 [Box 提供商](/oss/python/integrations/providers/box) 文档。
 
 ```python
 import getpass

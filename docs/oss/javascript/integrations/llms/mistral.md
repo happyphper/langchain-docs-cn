@@ -4,15 +4,15 @@ title: MistralAI
 
 <Warning>
 
-您当前正在查阅的是关于将 Mistral 模型用作文本补全模型的文档。Mistral 上提供的许多流行模型是[聊天补全模型](/oss/langchain/models)。
+您当前正在查阅的是关于将 Mistral 模型用作文本补全模型的文档。Mistral 上提供的许多流行模型是[聊天补全模型](/oss/javascript/langchain/models)。
 
-您可能正在寻找[这个页面](/oss/integrations/chat/mistral/)。
+您可能正在寻找[这个页面](/oss/javascript/integrations/chat/mistral/)。
 
 </Warning>
 
 <Tip>
 
-<strong>想在本地运行 Mistral 的模型？查看我们的 [Ollama 集成](/oss/integrations/chat/ollama)。</strong>
+<strong>想在本地运行 Mistral 的模型？查看我们的 [Ollama 集成](/oss/javascript/integrations/chat/ollama)。</strong>
 
 </Tip>
 

@@ -25,7 +25,7 @@ uv add yandexcloud
 
 ### YandexGPT
 
-查看[使用示例](/oss/integrations/llms/yandex)。
+查看[使用示例](/oss/python/integrations/llms/yandex)。
 
 ```python
 from langchain_community.llms import YandexGPT
@@ -35,7 +35,7 @@ from langchain_community.llms import YandexGPT
 
 ### YandexGPT
 
-查看[使用示例](/oss/integrations/chat/yandex)。
+查看[使用示例](/oss/python/integrations/chat/yandex)。
 
 ```python
 from langchain_community.chat_models import ChatYandexGPT
@@ -45,7 +45,7 @@ from langchain_community.chat_models import ChatYandexGPT
 
 ### YandexGPT
 
-查看[使用示例](/oss/integrations/text_embedding/yandex)。
+查看[使用示例](/oss/python/integrations/text_embedding/yandex)。
 
 ```python
 from langchain_community.embeddings import YandexGPTEmbeddings
@@ -58,7 +58,7 @@ from langchain_community.embeddings import YandexGPTEmbeddings
 它转录并解析音频文件。
 
 `YandexSTTParser` 类似于 `OpenAIWhisperParser`。
-查看[使用 OpenAIWhisperParser 的示例](/oss/integrations/document_loaders/youtube_audio)。
+查看[使用 OpenAIWhisperParser 的示例](/oss/python/integrations/document_loaders/youtube_audio)。
 
 ```python
 from langchain_community.document_loaders import YandexSTTParser

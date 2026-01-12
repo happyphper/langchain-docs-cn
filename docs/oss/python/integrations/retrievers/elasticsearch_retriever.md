@@ -5,7 +5,7 @@ title: Elasticsearch
 
 `ElasticsearchRetriever` 是一个通用的包装器，旨在通过 [Query DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html) 灵活访问所有 `Elasticsearch` 功能。对于大多数用例，其他类（`ElasticsearchStore`、`ElasticsearchEmbeddings` 等）应该足够使用，但如果它们不能满足需求，你可以使用 `ElasticsearchRetriever`。
 
-本指南将帮助你开始使用 Elasticsearch [检索器](/oss/langchain/retrieval)。有关 `ElasticsearchRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/elasticsearch/retrievers/langchain_elasticsearch.retrievers.ElasticsearchRetriever.html)。
+本指南将帮助你开始使用 Elasticsearch [检索器](/oss/python/langchain/retrieval)。有关 `ElasticsearchRetriever` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/elasticsearch/retrievers/langchain_elasticsearch.retrievers.ElasticsearchRetriever.html)。
 
 ### 集成详情
 
@@ -29,7 +29,7 @@ os.environ["LANGSMITH_TRACING"] = "true"
 
 ### 安装
 
-此检索器位于 `langchain-elasticsearch` 包中。出于演示目的，我们还将安装 `langchain-community` 来生成文本[嵌入](/oss/integrations/text_embedding)。
+此检索器位于 `langchain-elasticsearch` 包中。出于演示目的，我们还将安装 `langchain-community` 来生成文本[嵌入](/oss/python/integrations/text_embedding)。
 
 ```python
 pip install -qU langchain-community langchain-elasticsearch
@@ -56,7 +56,7 @@ es_client = Elasticsearch(hosts=[es_url])
 es_client.info()
 ```
 
-对于向量搜索，我们将仅使用随机嵌入进行说明。对于实际用例，请选择可用的 LangChain [嵌入](/oss/integrations/text_embedding) 类之一。
+对于向量搜索，我们将仅使用随机嵌入进行说明。对于实际用例，请选择可用的 LangChain [嵌入](/oss/python/integrations/text_embedding) 类之一。
 
 ```python
 embeddings = DeterministicFakeEmbedding(size=3)

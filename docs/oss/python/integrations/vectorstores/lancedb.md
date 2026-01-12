@@ -1,148 +1,334 @@
 ---
 title: LanceDB
 ---
-LanceDB 是一个用于 AI 应用的嵌入式向量数据库。它是开源的，采用 Apache-2.0 许可证分发。
+>[LanceDB](https://lancedb.com/) 是一个为向量搜索构建的开源数据库，具备持久化存储功能，极大地简化了嵌入向量的检索、过滤和管理。完全开源。
 
-LanceDB 数据集会持久化到磁盘，并且可以在 Node.js 和 Python 之间共享。
+本笔记本展示了如何基于 Lance 数据格式使用与 `LanceDB` 向量数据库相关的功能。
 
-## 安装
-
-安装 [LanceDB](https://github.com/lancedb/lancedb) 的 [Node.js 绑定](https://www.npmjs.com/package/@lancedb/lancedb)：
-
-```bash [npm]
-npm install -S @lancedb/lancedb
+```python
+! pip install tantivy
 ```
 
-<Tip>
-
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/openai @langchain/community @langchain/core
+```python
+! pip install -U langchain-openai langchain-community
 ```
 
-## 使用方法
-
-### 从文本创建新索引
-
-```typescript
-import { LanceDB } from "@langchain/community/vectorstores/lancedb";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import * as fs from "node:fs/promises";
-import * as path from "node:path";
-import os from "node:os";
-
-export const run = async () => {
-  const vectorStore = await LanceDB.fromTexts(
-    ["Hello world", "Bye bye", "hello nice world"],
-    [{ id: 2 }, { id: 1 }, { id: 3 }],
-    new OpenAIEmbeddings()
-  );
-
-  const resultOne = await vectorStore.similaritySearch("hello world", 1);
-  console.log(resultOne);
-  // [ Document { pageContent: 'hello nice world', metadata: { id: 3 } } ]
-};
-
-export const run_with_existing_table = async () => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "lancedb-"));
-  const vectorStore = await LanceDB.fromTexts(
-    ["Hello world", "Bye bye", "hello nice world"],
-    [{ id: 2 }, { id: 1 }, { id: 3 }],
-    new OpenAIEmbeddings()
-  );
-
-  const resultOne = await vectorStore.similaritySearch("hello world", 1);
-  console.log(resultOne);
-  // [ Document { pageContent: 'hello nice world', metadata: { id: 3 } } ]
-};
+```python
+! pip install lancedb
 ```
 
-### 从加载器创建新索引
+我们想使用 <a href="https://reference.langchain.com/python/integrations/langchain_openai/OpenAIEmbeddings" target="_blank" rel="noreferrer" class="link"><code>OpenAIEmbeddings</code></a>，所以需要获取 OpenAI API 密钥。
 
-```typescript
-import { LanceDB } from "@langchain/community/vectorstores/lancedb";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
-import fs from "node:fs/promises";
-import path from "node:path";
-import os from "node:os";
+```python
+import getpass
+import os
 
-// 使用加载器创建文档
-const loader = new TextLoader("src/document_loaders/example_data/example.txt");
-const docs = await loader.load();
-
-export const run = async () => {
-  const vectorStore = await LanceDB.fromDocuments(docs, new OpenAIEmbeddings());
-
-  const resultOne = await vectorStore.similaritySearch("hello world", 1);
-  console.log(resultOne);
-
-  // [
-  //   Document {
-  //     pageContent: 'Foo\nBar\nBaz\n\n',
-  //     metadata: { source: 'src/document_loaders/example_data/example.txt' }
-  //   }
-  // ]
-};
-
-export const run_with_existing_table = async () => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "lancedb-"));
-
-  const vectorStore = await LanceDB.fromDocuments(docs, new OpenAIEmbeddings());
-
-  const resultOne = await vectorStore.similaritySearch("hello world", 1);
-  console.log(resultOne);
-
-  // [
-  //   Document {
-  //     pageContent: 'Foo\nBar\nBaz\n\n',
-  //     metadata: { source: 'src/document_loaders/example_data/example.txt' }
-  //   }
-  // ]
-};
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("OpenAI API Key:")
 ```
 
-### 打开现有数据集
-
-```typescript
-import { LanceDB } from "@langchain/community/vectorstores/lancedb";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { connect } from "@lancedb/lancedb";
-import * as fs from "node:fs/promises";
-import * as path from "node:path";
-import os from "node:os";
-
-//
-//  您可以通过打开现有表来打开在其他地方（例如 LangChain Python）创建的 LanceDB 数据集
-//
-export const run = async () => {
-  const uri = await createdTestDb();
-  const db = await connect(uri);
-  const table = await db.openTable("vectors");
-
-  const vectorStore = new LanceDB(new OpenAIEmbeddings(), { table });
-
-  const resultOne = await vectorStore.similaritySearch("hello world", 1);
-  console.log(resultOne);
-  // [ Document { pageContent: 'Hello world', metadata: { id: 1 } } ]
-};
-
-async function createdTestDb(): Promise<string> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "lancedb-"));
-  const db = await connect(dir);
-  await db.createTable("vectors", [
-    { vector: Array(1536), text: "Hello world", id: 1 },
-    { vector: Array(1536), text: "Bye bye", id: 2 },
-    { vector: Array(1536), text: "hello nice world", id: 3 },
-  ]);
-  return dir;
-}
+```python
+! rm -rf /tmp/lancedb
 ```
 
-## 相关链接
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_community.vectorstores import LanceDB
+from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import CharacterTextSplitter
 
-- 向量存储[概念指南](/oss/integrations/vectorstores)
-- 向量存储[操作指南](/oss/integrations/vectorstores)
+loader = TextLoader("../../how_to/state_of_the_union.txt")
+documents = loader.load()
+
+documents = CharacterTextSplitter().split_documents(documents)
+embeddings = OpenAIEmbeddings()
+```
+
+##### 对于 LanceDB 云服务，你可以按如下方式调用向量存储
+
+```python
+db_url = "db://lang_test" # 你创建的数据库的 URL
+api_key = "xxxxx" # 你的 API 密钥
+region="us-east-1-dev"  # 你选择的区域
+
+vector_store = LanceDB(
+    uri=db_url,
+    api_key=api_key,
+    region=region,
+    embedding=embeddings,
+    table_name='langchain_test'
+    )
+```
+
+你也可以将 `region`、`api_key`、`uri` 添加到 `from_documents()` 类方法中。
+
+```python
+from lancedb.rerankers import LinearCombinationReranker
+
+reranker = LinearCombinationReranker(weight=0.3)
+
+docsearch = LanceDB.from_documents(documents, embeddings, reranker=reranker)
+query = "What did the president say about Ketanji Brown Jackson"
+```
+
+```python
+docs = docsearch.similarity_search_with_relevance_scores(query)
+print("relevance score - ", docs[0][1])
+print("text- ", docs[0][0].page_content[:1000])
+```
+
+```text
+relevance score -  0.7066475030191711
+text-  They were responding to a 9-1-1 call when a man shot and killed them with a stolen gun.
+
+Officer Mora was 27 years old.
+
+Officer Rivera was 22.
+
+Both Dominican Americans who’d grown up on the same streets they later chose to patrol as police officers.
+
+I spoke with their families and told them that we are forever in debt for their sacrifice, and we will carry on their mission to restore the trust and safety every community deserves.
+
+I’ve worked on these issues a long time.
+
+I know what works: Investing in crime prevention and community police officers who’ll walk the beat, who’ll know the neighborhood, and who can restore trust and safety.
+
+So let’s not abandon our streets. Or choose between safety and equal justice.
+
+Let’s come together to protect our communities, restore trust, and hold law enforcement accountable.
+
+That’s why the Justice Department required body cameras, banned chokeholds, and restricted no-knock warrants for its officers.
+
+That’s why the American Rescue
+```
+
+```python
+docs = docsearch.similarity_search_with_score(query="Headaches", query_type="hybrid")
+print("distance - ", docs[0][1])
+print("text- ", docs[0][0].page_content[:1000])
+```
+
+```text
+distance -  0.30000001192092896
+text-  My administration is providing assistance with job training and housing, and now helping lower-income veterans get VA care debt-free.
+
+Our troops in Iraq and Afghanistan faced many dangers.
+
+One was stationed at bases and breathing in toxic smoke from “burn pits” that incinerated wastes of war—medical and hazard material, jet fuel, and more.
+
+When they came home, many of the world’s fittest and best trained warriors were never the same.
+
+Headaches. Numbness. Dizziness.
+
+A cancer that would put them in a flag-draped coffin.
+
+I know.
+
+One of those soldiers was my son Major Beau Biden.
+
+We don’t know for sure if a burn pit was the cause of his brain cancer, or the diseases of so many of our troops.
+
+But I’m committed to finding out everything we can.
+
+Committed to military families like Danielle Robinson from Ohio.
+
+The widow of Sergeant First Class Heath Robinson.
+
+He was born a soldier. Army National Guard. Combat medic in Kosovo and Iraq.
+
+Stationed near Baghdad, just ya
+```
+
+```python
+print("reranker : ", docsearch._reranker)
+```
+
+```text
+reranker :  <lancedb.rerankers.linear_combination.LinearCombinationReranker object at 0x107ef1130>
+```
+
+此外，要探索表格，你可以将其加载到数据框中或保存为 CSV 文件：
+
+```python
+tbl = docsearch.get_table()
+print("tbl:", tbl)
+pd_df = tbl.to_pandas()
+# pd_df.to_csv("docsearch.csv", index=False)
+
+# 你也可以使用一个旧的连接对象创建一个新的向量存储对象：
+vector_store = LanceDB(connection=tbl, embedding=embeddings)
+```
+
+```python
+docs = docsearch.similarity_search(
+    query=query, filter={"metadata.source": "../../how_to/state_of_the_union.txt"}
+)
+
+print("metadata :", docs[0].metadata)
+
+# 或者你可以直接提供 SQL 字符串过滤器：
+
+print("\nSQL filtering :\n")
+docs = docsearch.similarity_search(query=query, filter="text LIKE '%Officer Rivera%'")
+print(docs[0].page_content)
+```
+
+```text
+metadata : {'source': '../../how_to/state_of_the_union.txt'}
+
+SQL filtering :
+
+They were responding to a 9-1-1 call when a man shot and killed them with a stolen gun.
+
+Officer Mora was 27 years old.
+
+Officer Rivera was 22.
+
+Both Dominican Americans who’d grown up on the same streets they later chose to patrol as police officers.
+
+I spoke with their families and told them that we are forever in debt for their sacrifice, and we will carry on their mission to restore the trust and safety every community deserves.
+
+I’ve worked on these issues a long time.
+
+I know what works: Investing in crime prevention and community police officers who’ll walk the beat, who’ll know the neighborhood, and who can restore trust and safety.
+
+So let’s not abandon our streets. Or choose between safety and equal justice.
+
+Let’s come together to protect our communities, restore trust, and hold law enforcement accountable.
+
+That’s why the Justice Department required body cameras, banned chokeholds, and restricted no-knock warrants for its officers.
+
+That’s why the American Rescue Plan provided $350 Billion that cities, states, and counties can use to hire more police and invest in proven strategies like community violence interruption—trusted messengers breaking the cycle of violence and trauma and giving young people hope.
+
+We should all agree: The answer is not to Defund the police. The answer is to FUND the police with the resources and training they need to protect our communities.
+
+I ask Democrats and Republicans alike: Pass my budget and keep our neighborhoods safe.
+
+And I will keep doing everything in my power to crack down on gun trafficking and ghost guns you can buy online and make at home—they have no serial numbers and can’t be traced.
+
+And I ask Congress to pass proven measures to reduce gun violence. Pass universal background checks. Why should anyone on a terrorist list be able to purchase a weapon?
+
+Ban assault weapons and high-capacity magazines.
+
+Repeal the liability shield that makes gun manufacturers the only industry in America that can’t be sued.
+
+These laws don’t infringe on the Second Amendment. They save lives.
+
+The most fundamental right in America is the right to vote – and to have it counted. And it’s under assault.
+
+In state after state, new laws have been passed, not only to suppress the vote, but to subvert entire elections.
+
+We cannot let this happen.
+
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
+
+Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
+
+One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
+
+And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
+
+A former top litigator in private practice. A former federal public defender. And from a family of public school educators and police officers. A consensus builder. Since she’s been nominated, she’s received a broad range of support—from the Fraternal Order of Police to former judges appointed by Democrats and Republicans.
+
+And if we are to advance liberty and justice, we need to secure the Border and fix the immigration system.
+
+We can do both. At our border, we’ve installed new technology like cutting-edge scanners to better detect drug smuggling.
+
+We’ve set up joint patrols with Mexico and Guatemala to catch more human traffickers.
+
+We’re putting in place dedicated immigration judges so families fleeing persecution and violence can have their cases heard faster.
+```
+
+## 添加图像
+
+```python
+! pip install -U langchain-experimental
+```
+
+```python
+! pip install open_clip_torch torch
+```
+
+```python
+! rm -rf '/tmp/multimmodal_lance'
+```
+
+```python
+from langchain_experimental.open_clip import OpenCLIPEmbeddings
+```
+
+```python
+import os
+
+import requests
+
+# 要下载的图像 URL 列表
+image_urls = [
+    "https://github.com/raghavdixit99/assets/assets/34462078/abf47cc4-d979-4aaa-83be-53a2115bf318",
+    "https://github.com/raghavdixit99/assets/assets/34462078/93be928e-522b-4e37-889d-d4efd54b2112",
+]
+
+texts = ["bird", "dragon"]
+
+# 保存图像的目录
+dir_name = "./photos/"
+
+# 如果目录不存在则创建
+os.makedirs(dir_name, exist_ok=True)
+
+image_uris = []
+# 下载并保存每个图像
+for i, url in enumerate(image_urls, start=1):
+    response = requests.get(url)
+    path = os.path.join(dir_name, f"image{i}.jpg")
+    image_uris.append(path)
+    with open(path, "wb") as f:
+        f.write(response.content)
+```
+
+```python
+from langchain_community.vectorstores import LanceDB
+
+vec_store = LanceDB(
+    table_name="multimodal_test",
+    embedding=OpenCLIPEmbeddings(),
+)
+```
+
+```python
+vec_store.add_images(uris=image_uris)
+```
+
+```python
+['b673620b-01f0-42ca-a92e-d033bb92c0a6',
+ '99c3a5b0-b577-417a-8177-92f4a655dbfb']
+```
+
+```python
+vec_store.add_texts(texts)
+```
+
+```python
+['f7adde5d-a4a3-402b-9e73-088b230722c3',
+ 'cbed59da-0aec-4bff-8820-9e59d81a2140']
+```
+
+```python
+img_embed = vec_store._embedding.embed_query("bird")
+```
+
+```python
+vec_store.similarity_search_by_vector(img_embed)[0]
+```
+
+```python
+Document(page_content='bird', metadata={'id': 'f7adde5d-a4a3-402b-9e73-088b230722c3'})
+```
+
+```python
+vec_store._table
+```
+
+```text
+LanceTable(connection=LanceDBConnection(/tmp/lancedb), name="multimodal_test")
+```

@@ -11,7 +11,7 @@ title: GreenNodeEmbeddings
 
 | 提供商 | 包 |
 |:--------:|:-------:|
-| [GreenNode](/oss/integrations/providers/greennode/) | [langchain-greennode](https://python.langchain.com/v0.2/api_reference/langchain_greennode/embeddings/langchain_greennode.embeddingsGreenNodeEmbeddings.html) |
+| [GreenNode](/oss/python/integrations/providers/greennode/) | [langchain-greennode](https://python.langchain.com/v0.2/api_reference/langchain_greennode/embeddings/langchain_greennode.embeddingsGreenNodeEmbeddings.html) |
 
 ## 设置
 

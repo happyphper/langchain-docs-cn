@@ -16,7 +16,7 @@ LLM 可观测性功能目前处于公开测试阶段，其 API 可能会发生�
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/python/langchain/install)。
 
 </Tip>
 

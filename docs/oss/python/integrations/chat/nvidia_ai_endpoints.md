@@ -1,7 +1,7 @@
 ---
 title: ChatNVIDIA
 ---
-这将帮助您开始使用 NVIDIA [聊天模型](/oss/langchain/models)。有关 `ChatNVIDIA` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/nvidia_ai_endpoints/chat_models/langchain_nvidia_ai_endpoints.chat_models.ChatNVIDIA.html)。
+这将帮助您开始使用 NVIDIA [聊天模型](/oss/python/langchain/models)。有关 `ChatNVIDIA` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/nvidia_ai_endpoints/chat_models/langchain_nvidia_ai_endpoints.chat_models.ChatNVIDIA.html)。
 
 ## 概述
 
@@ -23,7 +23,7 @@ NIM 按模型打包为容器镜像，并通过 NVIDIA NGC 目录作为 NGC 容�
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/python/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/python/langchain/models#token-usage) | [对数概率](/oss/python/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ |
 
@@ -347,7 +347,7 @@ response = llm.invoke("What is the weather in Boston?")
 response.tool_calls
 ```
 
-有关更多示例，请参阅 [如何使用聊天模型调用工具](/oss/langchain/tools)。
+有关更多示例，请参阅 [如何使用聊天模型调用工具](/oss/python/langchain/tools)。
 
 ---
 

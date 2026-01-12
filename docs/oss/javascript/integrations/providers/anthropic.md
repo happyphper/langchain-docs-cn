@@ -21,7 +21,7 @@ Anthropic 模型要求任何系统消息必须是提示词中的第一条。
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -53,4 +53,4 @@ const chain = prompt.pipe(model);
 await chain.invoke({ topic: "bears" });
 ```
 
-更多示例，包括多模态输入，请参阅[聊天模型集成页面](/oss/integrations/chat/anthropic/)。
+更多示例，包括多模态输入，请参阅[聊天模型集成页面](/oss/javascript/integrations/chat/anthropic/)。

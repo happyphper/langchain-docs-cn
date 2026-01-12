@@ -20,7 +20,7 @@ uv add typesense openapi-schema-pydantic
 
 ## 向量存储
 
-查看[使用示例](/oss/integrations/vectorstores/typesense)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/typesense)。
 
 ```python
 from langchain_community.vectorstores import Typesense

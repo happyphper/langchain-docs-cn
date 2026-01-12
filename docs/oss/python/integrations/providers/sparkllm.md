@@ -7,7 +7,7 @@ title: SparkLLM
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/sparkllm)。
+查看[使用示例](/oss/python/integrations/chat/sparkllm)。
 
 ```python
 from langchain_community.chat_models import ChatSparkLLM
@@ -15,7 +15,7 @@ from langchain_community.chat_models import ChatSparkLLM
 
 ## 大语言模型
 
-查看[使用示例](/oss/integrations/llms/sparkllm)。
+查看[使用示例](/oss/python/integrations/llms/sparkllm)。
 
 ```python
 from langchain_community.llms import SparkLLM
@@ -23,7 +23,7 @@ from langchain_community.llms import SparkLLM
 
 ## 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/sparkllm)
+查看[使用示例](/oss/python/integrations/text_embedding/sparkllm)
 
 ```python
 from langchain_community.embeddings import SparkLLMTextEmbeddings

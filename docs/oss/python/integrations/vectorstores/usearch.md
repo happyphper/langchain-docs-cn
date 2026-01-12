@@ -1,73 +1,80 @@
 ---
 title: USearch
 ---
+>[USearch](https://unum-cloud.github.io/usearch/) 是一个更小、更快的单文件向量搜索引擎
 
-<Tip>
+>USearch 的基础功能与 FAISS 相同，如果您曾研究过近似最近邻搜索，其接口看起来会很熟悉。FAISS 是高性能向量搜索引擎的公认标准。USearch 和 FAISS 都采用相同的 HNSW 算法，但它们在设计理念上有显著差异。USearch 在保持性能的同时，追求紧凑性和广泛的兼容性，主要关注用户自定义的度量指标和更少的依赖。
 
-<strong>兼容性说明</strong>
-
-仅在 Node.js 环境中可用。
-
-</Tip>
-
-[USearch](https://github.com/unum-cloud/usearch) 是一个用于高效相似性搜索和稠密向量聚类的库。
-
-## 安装
-
-安装 [usearch](https://github.com/unum-cloud/usearch/tree/main/javascript) 包，它是 [USearch](https://github.com/unum-cloud/usearch) 的 Node.js 绑定。
-
-```bash [npm]
-npm install -S usearch
+```python
+pip install -qU  usearch langchain-community
 ```
 
-<Tip>
+我们希望使用 <a href="https://reference.langchain.com/python/integrations/langchain_openai/OpenAIEmbeddings" target="_blank" rel="noreferrer" class="link"><code>OpenAIEmbeddings</code></a>，因此需要获取 OpenAI API 密钥。
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+```python
+import getpass
+import os
 
-</Tip>
-
-```bash [npm]
-npm install @langchain/openai @langchain/community @langchain/core
+if "OPENAI_API_KEY" not in os.environ:
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("OpenAI API Key:")
 ```
 
-## 使用方法
-
-### 从文本创建新索引
-
-```typescript
-import { USearch } from "@langchain/community/vectorstores/usearch";
-import { OpenAIEmbeddings } from "@langchain/openai";
-
-const vectorStore = await USearch.fromTexts(
-  ["Hello world", "Bye bye", "hello nice world"],
-  [{ id: 2 }, { id: 1 }, { id: 3 }],
-  new OpenAIEmbeddings()
-);
-
-const resultOne = await vectorStore.similaritySearch("hello world", 1);
-console.log(resultOne);
+```python
+from langchain_community.document_loaders import TextLoader
+from langchain_community.vectorstores import USearch
+from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import CharacterTextSplitter
 ```
 
-### 从加载器创建新索引
+```python
+from langchain_community.document_loaders import TextLoader
 
-```typescript
-import { USearch } from "@langchain/community/vectorstores/usearch";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { TextLoader } from "@langchain/classic/document_loaders/fs/text";
+loader = TextLoader("../../../extras/modules/state_of_the_union.txt")
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
 
-// 使用加载器创建文档
-const loader = new TextLoader("src/document_loaders/example_data/example.txt");
-const docs = await loader.load();
-
-// 将文档加载到向量存储中
-const vectorStore = await USearch.fromDocuments(docs, new OpenAIEmbeddings());
-
-// 搜索最相似的文档
-const resultOne = await vectorStore.similaritySearch("hello world", 1);
-console.log(resultOne);
+embeddings = OpenAIEmbeddings()
 ```
 
-## 相关链接
+```python
+db = USearch.from_documents(docs, embeddings)
 
-- 向量存储[概念指南](/oss/integrations/vectorstores)
-- 向量存储[操作指南](/oss/integrations/vectorstores)
+query = "What did the president say about Ketanji Brown Jackson"
+docs = db.similarity_search(query)
+```
+
+```python
+print(docs[0].page_content)
+```
+
+```text
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
+
+Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
+
+One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
+
+And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
+```
+
+## 带分数的相似性搜索
+
+`similarity_search_with_score` 方法不仅允许您返回文档，还可以返回查询与它们之间的距离分数。返回的距离分数是 L2 距离。因此，分数越低越好。
+
+```python
+docs_and_scores = db.similarity_search_with_score(query)
+```
+
+```python
+docs_and_scores[0]
+```
+
+```text
+(Document(page_content='Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections. \n\nTonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service. \n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court. \n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.', metadata={'source': '../../../extras/modules/state_of_the_union.txt'}),
+ 0.1845687)
+```
+
+```python
+
+```

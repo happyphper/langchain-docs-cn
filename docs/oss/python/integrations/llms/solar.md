@@ -1,7 +1,7 @@
 ---
 title: Solar
 ---
-*此社区集成已弃用。您应改用 [`ChatUpstage`](/oss/integrations/chat/upstage) 通过聊天模型连接器访问 Solar LLM。*
+*此社区集成已弃用。您应改用 [`ChatUpstage`](/oss/python/integrations/chat/upstage) 通过聊天模型连接器访问 Solar LLM。*
 
 ```python
 import os

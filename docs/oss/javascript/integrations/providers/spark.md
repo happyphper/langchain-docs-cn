@@ -9,7 +9,7 @@ title: Spark
 
 它从 `PySpark` DataFrame 加载数据。
 
-查看[使用示例](/oss/integrations/document_loaders/pyspark_dataframe)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/pyspark_dataframe)。
 
 ```python
 from langchain_community.document_loaders import PySparkDataFrameLoader
@@ -21,7 +21,7 @@ from langchain_community.document_loaders import PySparkDataFrameLoader
 
 用于与 `Spark SQL` 交互的工具包。
 
-查看[使用示例](/oss/integrations/tools/spark_sql)。
+查看[使用示例](/oss/javascript/integrations/tools/spark_sql)。
 
 ```python
 from langchain_community.agent_toolkits import SparkSQLToolkit, create_spark_sql_agent

@@ -1,7 +1,7 @@
 ---
 title: WatsonxToolkit
 ---
-本文将帮助您开始使用 [WatsonxToolkit](/oss/concepts/#toolkits)。如需了解 WatsonxToolkit 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/modules/_langchain_community.agents_toolkits_ibm.html)。
+本文将帮助您开始使用 [WatsonxToolkit](/oss/python/concepts/#toolkits)。如需了解 WatsonxToolkit 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/modules/_langchain_community.agents_toolkits_ibm.html)。
 
 该工具包包含以下工具：
 
@@ -34,7 +34,7 @@ process.env.LANGSMITH_API_KEY="your-api-key"
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/python/langchain/install)。
 
 </Tip>
 

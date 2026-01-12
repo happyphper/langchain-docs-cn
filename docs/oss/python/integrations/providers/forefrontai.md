@@ -9,7 +9,7 @@ title: Forefront AI
 
 ## LLM
 
-查看[使用示例](/oss/integrations/llms/forefrontai)。
+查看[使用示例](/oss/python/integrations/llms/forefrontai)。
 
 ```python
 from langchain_community.llms import ForefrontAI

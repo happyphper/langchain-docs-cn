@@ -65,7 +65,7 @@ You can read more at http://books.google.ca/books?id=oE3YDwAAQBAJ&dq=ai&hl=&sour
 You can read more at https://play.google.com/store/books/details?id=eRmdDwAAQBAJ&source=gbs_api'
 ```
 
-### [直接使用参数调用](/oss/langchain/tools)
+### [直接使用参数调用](/oss/python/langchain/tools)
 
 查看下面的直接调用示例。
 
@@ -81,7 +81,7 @@ tool = GoogleBooksQueryRun(api_wrapper=GoogleBooksAPIWrapper())
 tool.run("ai")
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools)
+### [使用 ToolCall 调用](/oss/python/langchain/tools)
 
 查看下面的工具调用示例。
 

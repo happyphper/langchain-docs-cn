@@ -48,7 +48,7 @@ bun add langchain @langchain/core
 
 :::
 
-有关完整的变更列表，请参阅 [迁移指南](/oss/migrate/langchain-v1)。
+有关完整的变更列表，请参阅 [迁移指南](/oss/javascript/migrate/langchain-v1)。
 
 ## `createAgent`
 
@@ -76,17 +76,17 @@ console.log(result.content);
 
 <img src="/oss/images/core_agent_loop.png" alt="核心智能体循环示意图" />
 
-更多信息，请参阅 [智能体](/oss/langchain/agents)。
+更多信息，请参阅 [智能体](/oss/javascript/langchain/agents)。
 
 ### 中间件
 
 中间件是 `createAgent` 的定义性特性。它使 `createAgent` 高度可定制，提升了你能构建的功能上限。
 
-优秀的智能体需要 [上下文工程](/oss/langchain/context-engineering)：在正确的时间将正确的信息传递给模型。中间件通过一个可组合的抽象，帮助你控制动态提示、对话摘要、选择性工具访问、状态管理和防护栏。
+优秀的智能体需要 [上下文工程](/oss/javascript/langchain/context-engineering)：在正确的时间将正确的信息传递给模型。中间件通过一个可组合的抽象，帮助你控制动态提示、对话摘要、选择性工具访问、状态管理和防护栏。
 
 #### 预构建中间件
 
-LangChain 为常见模式提供了一些 [预构建中间件](/oss/langchain/middleware#built-in-middleware)，包括：
+LangChain 为常见模式提供了一些 [预构建中间件](/oss/javascript/langchain/middleware#built-in-middleware)，包括：
 
 - `summarizationMiddleware`：在对话历史过长时进行压缩
 - `humanInTheLoopMiddleware`：对敏感的工具调用要求人工批准
@@ -170,7 +170,7 @@ const agent = createAgent({
 });
 ```
 
-更多信息，请参阅 [完整的中间件指南](/oss/langchain/middleware)。
+更多信息，请参阅 [完整的中间件指南](/oss/javascript/langchain/middleware)。
 
 ### 基于 LangGraph 构建
 
@@ -263,9 +263,9 @@ console.log(result.structuredResponse);
 
 - **提供商无关**：无论使用哪个提供商，都可以使用相同的 API 访问推理轨迹、引用、内置工具（网络搜索、代码解释器等）以及其他功能
 - **类型安全**：所有内容块类型都有完整的类型提示
-- **向后兼容**：标准内容可以 [延迟加载](/oss/langchain/messages#standard-content-blocks)，因此没有相关的破坏性变更
+- **向后兼容**：标准内容可以 [延迟加载](/oss/javascript/langchain/messages#standard-content-blocks)，因此没有相关的破坏性变更
 
-更多信息，请参阅我们的 [内容块指南](/oss/langchain/messages#message-content)
+更多信息，请参阅我们的 [内容块指南](/oss/javascript/langchain/messages#message-content)
 
 ---
 

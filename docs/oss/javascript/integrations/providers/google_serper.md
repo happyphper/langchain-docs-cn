@@ -62,7 +62,7 @@ So the final answer is: El Palmar, Spain
 'El Palmar, Spain'
 ```
 
-有关此封装器的更详细说明，请参阅[此页面](/oss/integrations/tools/google_serper)。
+有关此封装器的更详细说明，请参阅[此页面](/oss/javascript/integrations/tools/google_serper)。
 
 ### 工具
 
@@ -74,4 +74,4 @@ from langchain_community.agent_toolkits.load_tools import load_tools
 tools = load_tools(["google-serper"])
 ```
 
-有关工具的更多信息，请参阅[此概述](/oss/integrations/tools)。
+有关工具的更多信息，请参阅[此概述](/oss/javascript/integrations/tools)。

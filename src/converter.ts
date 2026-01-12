@@ -48,8 +48,21 @@ export class MdxConverter {
       } else if (isIndex) {
         await this.processIndexFile(file);
       } else {
-        await this.processLanguageVersion(file, relativePath, 'python');
-        await this.processLanguageVersion(file, relativePath, 'javascript');
+        // 检查文件路径是否已经包含语言目录
+        const pathParts = relativePath.split('/');
+        const hasLangDir = pathParts.length > 1 &&
+          pathParts[0] === 'oss' &&
+          (pathParts[1] === 'python' || pathParts[1] === 'javascript');
+
+        if (hasLangDir) {
+          // 已经有语言目录，只生成对应语言的版本
+          const lang = pathParts[1] as 'python' | 'javascript';
+          await this.processLanguageSpecificFile(file, relativePath, lang);
+        } else {
+          // 没有语言目录，生成两个语言版本
+          await this.processLanguageVersion(file, relativePath, 'python');
+          await this.processLanguageVersion(file, relativePath, 'javascript');
+        }
       }
     }
 
@@ -86,6 +99,25 @@ export class MdxConverter {
     await fs.writeFile(targetPath, converted);
     this.convertedFiles.push(targetRelPath);
     console.log(`[LANGSMITH] 已转换: ${targetRelPath}`);
+  }
+
+  /**
+   * 处理已经包含语言目录的文件（如 oss/python/integrations/...）
+   * 这些文件不需要生成多个语言版本，直接按原路径输出
+   */
+  private async processLanguageSpecificFile(file: string, relativePath: string, lang: 'python' | 'javascript') {
+    const { output } = this.options;
+    const content = await fs.readFile(file, 'utf-8');
+
+    let targetRelPath = relativePath.replace(/\.mdx$/, '.md').replace(/\\/g, '/');
+    const targetPath = path.join(output, targetRelPath);
+    await fs.ensureDir(path.dirname(targetPath));
+
+    // 使用对应的语言进行转换，但不调整路径
+    const converted = MdxTransformer.transform(content, lang, relativePath);
+    await fs.writeFile(targetPath, converted);
+    this.convertedFiles.push(targetRelPath);
+    console.log(`[${lang.toUpperCase()}-SPECIFIC] 已转换: ${targetRelPath}`);
   }
 
   private async processLanguageVersion(file: string, relativePath: string, lang: 'python' | 'javascript') {

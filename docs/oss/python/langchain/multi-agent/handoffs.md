@@ -1,7 +1,7 @@
 ---
 title: 交接
 ---
-在**交接（handoffs）**架构中，行为会根据状态动态变化。其核心机制是：[工具](/oss/langchain/tools)更新一个在多个对话轮次中持久存在的状态变量（例如 `current_step` 或 `active_agent`），系统读取此变量以调整行为——要么应用不同的配置（系统提示词、工具），要么路由到不同的[智能体（agent）](/oss/langchain/agents)。此模式既支持不同智能体之间的交接，也支持单个智能体内部的动态配置变更。
+在**交接（handoffs）**架构中，行为会根据状态动态变化。其核心机制是：[工具](/oss/python/langchain/tools)更新一个在多个对话轮次中持久存在的状态变量（例如 `current_step` 或 `active_agent`），系统读取此变量以调整行为——要么应用不同的配置（系统提示词、工具），要么路由到不同的[智能体（agent）](/oss/python/langchain/agents)。此模式既支持不同智能体之间的交接，也支持单个智能体内部的动态配置变更。
 
 <Tip>
 
@@ -43,7 +43,7 @@ sequenceDiagram
 
 ## 基础实现
 
-核心机制是一个返回 [`Command`](/oss/langgraph/graph-api#command) 来更新状态的[工具](/oss/langchain/tools)，从而触发向新步骤或新智能体的转换：
+核心机制是一个返回 [`Command`](/oss/python/langgraph/graph-api#command) 来更新状态的[工具](/oss/python/langchain/tools)，从而触发向新步骤或新智能体的转换：
 
 ```python
 from langchain.tools import tool
@@ -199,7 +199,7 @@ agent = create_agent(
 
 <Warning>
 
-子图交接需要仔细的<strong>[上下文工程（context engineering）](/oss/langchain/context-engineering)</strong>。与单智能体中间件（消息历史自然流动）不同，你必须明确决定哪些消息在智能体之间传递。如果处理不当，智能体将收到格式错误的对话历史或臃肿的上下文。请参阅下面的[上下文工程](#context-engineering)。
+子图交接需要仔细的<strong>[上下文工程（context engineering）](/oss/python/langchain/context-engineering)</strong>。与单智能体中间件（消息历史自然流动）不同，你必须明确决定哪些消息在智能体之间传递。如果处理不当，智能体将收到格式错误的对话历史或臃肿的上下文。请参阅下面的[上下文工程](#context-engineering)。
 
 </Warning>
 

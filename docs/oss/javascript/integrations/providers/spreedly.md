@@ -5,11 +5,11 @@ title: Spreedly
 
 ## 安装与设置
 
-请参阅 [设置说明](/oss/integrations/document_loaders/spreedly)。
+请参阅 [设置说明](/oss/javascript/integrations/document_loaders/spreedly)。
 
 ## 文档加载器
 
-请参阅 [使用示例](/oss/integrations/document_loaders/spreedly)。
+请参阅 [使用示例](/oss/javascript/integrations/document_loaders/spreedly)。
 
 ```python
 from langchain_community.document_loaders import SpreedlyLoader

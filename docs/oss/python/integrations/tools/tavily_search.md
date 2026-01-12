@@ -1,178 +1,189 @@
 ---
 title: Tavily 搜索
 ---
-[Tavily](https://tavily.com/) 是一个专为 AI 智能体（LLMs）构建的搜索引擎，能够快速提供实时、准确且基于事实的结果。Tavily 提供两个关键端点，其中之一是搜索（Search）端点，该端点提供专为 LLMs 和 RAG 定制的搜索结果。
-
-本指南提供了快速入门 Tavily [工具](/oss/integrations/tools/) 的概述。关于 Tavily 工具的完整说明，您可以在 [API 参考](https://v03.api.js.langchain.com/modules/_langchain_tavily.html) 中找到更详细的文档。
+[Tavily 搜索 API](https://tavily.com) 是一个专为 AI 智能体（LLMs）构建的搜索引擎，能够快速提供实时、准确且基于事实的搜索结果。
 
 ## 概述
 
 ### 集成详情
 
-| 类 | 包 | [PY 支持](https://python.langchain.com/docs/integrations/tools/tavily_search/) | 版本 |
-| :--- | :--- | :---: | :---: |
-| [TavilySearch](https://api.js.langchain.com/classes/_langchain_tavily.TavilySearch.html) | [`@langchain/tavily`](https://www.npmjs.com/package/@langchain/tavily) | ✅ |  ![NPM - Version](https://img.shields.io/npm/v/@langchain/tavily?style=flat-square&label=%20&) |
+| 类                                                           | 包                                                              | 可序列化 | [JS 支持](https://js.langchain.com/docs/integrations/tools/tavily_search) | 版本 |
+|:------------------------------------------------------------|:----------------------------------------------------------------| :---: | :---: | :---: |
+| [TavilySearch](https://github.com/tavily-ai/langchain-tavily) | [langchain-tavily](https://pypi.org/project/langchain-tavily/) | ✅ | ✅  |  ![PyPI - Version](https://img.shields.io/pypi/v/langchain-tavily?style=flat-square&label=%20) |
+
+### 工具特性
+
+| [返回工件](/oss/python/langchain/tools) | 原生异步支持 |                       返回数据                        | 定价 |
+| :---: | :---: |:-----------------------------------------------------:| :---: |
+| ❌ | ✅ | 标题、URL、内容摘要、原始内容、答案、图片 | 每月 1,000 次免费搜索 |
 
 ## 设置
 
-该集成位于 `@langchain/tavily` 包中，您可以按如下所示安装：
+该集成位于 `langchain-tavily` 包中。
 
-::: code-group
-
-```bash [npm]
-npm install @langchain/tavily @langchain/core
+```python
+pip install -qU langchain-tavily
 ```
-
-```bash [yarn]
-yarn add @langchain/tavily @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @langchain/tavily @langchain/core
-```
-
-:::
 
 ### 凭证
 
-请在此处 [设置 API 密钥](https://app.tavily.com) 并将其设置为名为 `TAVILY_API_KEY` 的环境变量。
+我们还需要设置 Tavily API 密钥。你可以访问[此网站](https://app.tavily.com/sign-in)并创建账户来获取 API 密钥。
 
-```typescript
-process.env.TAVILY_API_KEY = "YOUR_API_KEY"
-```
+```python
+import getpass
+import os
 
-为了获得最佳的观测性，设置 [LangSmith](https://smith.langchain.com/) 也很有帮助（但不是必需的）：
-
-```typescript
-process.env.LANGSMITH_TRACING="true"
-process.env.LANGSMITH_API_KEY="your-api-key"
+if not os.environ.get("TAVILY_API_KEY"):
+    os.environ["TAVILY_API_KEY"] = getpass.getpass("Tavily API key:\n")
 ```
 
 ## 实例化
 
-您可以像这样导入并实例化 `TavilySearch` 工具：
+这里我们展示如何实例化一个 Tavily 搜索工具。该工具接受各种参数来自定义搜索。实例化后，我们用一个简单的查询来调用该工具。此工具允许你使用 Tavily 的搜索 API 端点来完成搜索查询。
 
-```typescript
-import { TavilySearch } from "@langchain/tavily";
+实例化
+该工具在实例化时接受各种参数：
 
-const tool = new TavilySearch({
-  maxResults: 5,
-  topic: "general",
-  // includeAnswer: false,
-  // includeRawContent: false,
-  // includeImages: false,
-  // includeImageDescriptions: false,
-  // searchDepth: "basic",
-  // timeRange: "day",
-  // includeDomains: [],
-  // excludeDomains: [],
-});
+- max_results (可选, int): 要返回的最大搜索结果数量。默认值为 5。
+- topic (可选, str): 搜索类别。可以是 "general"、"news" 或 "finance"。默认值为 "general"。
+- include_answer (可选, bool): 在结果中包含对原始查询的答案。默认值为 False。
+- include_raw_content (可选, bool): 包含每个搜索结果的已清理和解析的 HTML。默认值为 False。
+- include_images (可选, bool): 在响应中包含与查询相关的图片列表。默认值为 False。
+- include_image_descriptions (可选, bool): 为每张图片包含描述性文本。默认值为 False。
+- search_depth (可选, str): 搜索深度，可以是 "basic" 或 "advanced"。默认值为 "basic"。
+- time_range (可选, str): 从当前日期开始过滤结果的时间范围 - "day"、"week"、"month" 或 "year"。默认值为 None。
+- include_domains (可选, List[str]): 要特别包含的域名列表。默认值为 None。
+- exclude_domains (可选, List[str]): 要特别排除的域名列表。默认值为 None。
+
+有关可用参数的全面概述，请参阅 [Tavily 搜索 API 文档](https://docs.tavily.com/documentation/api-reference/endpoint/search)
+
+```python
+from langchain_tavily import TavilySearch
+
+tool = TavilySearch(
+    max_results=5,
+    topic="general",
+    # include_answer=False,
+    # include_raw_content=False,
+    # include_images=False,
+    # include_image_descriptions=False,
+    # search_depth="basic",
+    # time_range="day",
+    # include_domains=None,
+    # exclude_domains=None
+)
 ```
 
 ## 调用
 
-### [使用参数直接调用](/oss/langchain/tools)
+### [使用参数直接调用](/oss/python/langchain/tools)
 
 Tavily 搜索工具在调用时接受以下参数：
 
-* `query` (必需)：一个自然语言搜索查询
+- `query` (必需): 一个自然语言搜索查询
+- 以下参数也可以在调用时设置：`include_images`、`search_depth`、`time_range`、`include_domains`、`exclude_domains`、`include_images`
+- 出于可靠性和性能原因，某些影响响应大小的参数不能在调用时修改：`include_answer` 和 `include_raw_content`。这些限制可以防止意外的上下文窗口问题并确保结果的一致性。
 
-* 以下参数也可以在调用时设置：`includeImages`、`searchDepth`、`timeRange`、`includeDomains`、`excludeDomains`、`includeImages`。
+注意：可选参数可供智能体动态设置，如果你在实例化时设置了一个参数，然后在调用工具时使用了不同的值，工具将使用你在调用时传递的值。
 
-* 出于可靠性和性能原因，某些影响响应大小的参数无法在调用时修改：`includeAnswer` 和 `includeRawContent`。这些限制可以防止意外的上下文窗口问题并确保结果的一致性。
-
-```typescript
-await tool.invoke({
-  query: "what is the current weather in SF?"
-});
+```python
+tool.invoke({"query": "What happened at the last wimbledon"})
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools)
+### [使用 ToolCall 调用](/oss/python/langchain/tools)
 
-我们也可以使用模型生成的 `ToolCall` 来调用该工具，在这种情况下，将返回一个 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.ToolMessage" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a>：
+我们也可以使用模型生成的 ToolCall 来调用该工具，在这种情况下将返回一个 ToolMessage：
 
-```typescript
-// 这通常由模型生成，但为了演示目的，我们将直接创建一个工具调用。
-const modelGeneratedToolCall = {
-  args: {
-    query: "what is the current weather in SF?"
-  },
-  id: "1",
-  name: tool.name,
-  type: "tool_call",
+```python
+# 这通常由模型生成，但为了演示目的，我们将直接创建一个工具调用。
+model_generated_tool_call = {
+    "args": {"query": "euro 2024 host nation"},
+    "id": "1",
+    "name": "tavily",
+    "type": "tool_call",
 }
+tool_msg = tool.invoke(model_generated_tool_call)
 
-await tool.invoke(modelGeneratedToolCall)
+# 内容是一个 JSON 格式的结果字符串
+print(tool_msg.content[:400])
 ```
 
-## 链式调用
-
-我们可以通过首先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后在链中使用它：
-
-```typescript
-// @lc-docs-hide-cell
-
-import { ChatOpenAI } from "@langchain/openai"
-
-const llm = new ChatOpenAI({
-  model: "gpt-4o",
-  temperature: 0,
-})
+```json
+{"query": "euro 2024 host nation", "follow_up_questions": null, "answer": null, "images": [], "results": [{"title": "UEFA Euro 2024 - Wikipedia", "url": "https://en.wikipedia.org/wiki/UEFA_Euro_2024", "content": "Tournament details Host country Germany Dates 14 June – 14 July Teams 24 Venue(s) 10 (in 10 host cities) Final positions Champions Spain (4th title) Runners-up England Tournament statisti
 ```
 
-```typescript
-import { HumanMessage } from "@langchain/core/messages";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { RunnableLambda } from "@langchain/core/runnables";
+## 在智能体中使用
 
-const prompt = ChatPromptTemplate.fromMessages(
-  [
-    ["system", "You are a helpful assistant."],
-    ["placeholder", "{messages}"],
-  ]
+我们可以通过将工具绑定到智能体，直接在智能体执行器中使用我们的工具。这使智能体能够动态设置 Tavily 搜索工具的可用参数。
+
+在下面的示例中，当我们要求智能体查找“哪个国家主办了 2024 年欧洲杯？仅包含维基百科来源。”时，智能体将动态设置参数并调用 Tavily 搜索工具：使用 `{'query': 'Euro 2024 host nation', 'include_domains': ['wikipedia.org']` 调用 `tavily_search`
+
+<ChatModelTabs customVarName="llm" />
+
+```python
+if not os.environ.get("OPENAI_API_KEY"):
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("OPENAI_API_KEY:\n")
+```
+
+```python
+# | output: false
+# | echo: false
+
+# !pip install -qU langchain langchain-openai
+from langchain.chat_models import init_chat_model
+
+model = init_chat_model(model="gpt-4o", model_provider="openai", temperature=0)
+```
+
+我们需要安装 langgraph：
+
+```python
+pip install -qU langgraph
+```
+
+```python
+from langchain_tavily import TavilySearch
+from langchain.agents import create_agent
+
+# 初始化 Tavily 搜索工具
+tavily_search_tool = TavilySearch(
+    max_results=5,
+    topic="general",
 )
 
-const llmWithTools = llm.bindTools([tool]);
+agent = create_agent(model, [tavily_search_tool])
 
-const chain = prompt.pipe(llmWithTools);
+user_input = "What nation hosted the Euro 2024? Include only wikipedia sources."
 
-const toolChain = RunnableLambda.from(
-  async (userInput: string, config) => {
-    const humanMessage = new HumanMessage(userInput,);
-    const aiMsg = await chain.invoke({
-      messages: [new HumanMessage(userInput)],
-    }, config);
-    const toolMsgs = await tool.batch(aiMsg.tool_calls, config);
-    return chain.invoke({
-      messages: [humanMessage, aiMsg, ...toolMsgs],
-    }, config);
-  }
-);
-
-const toolChainResult = await toolChain.invoke("what is the current weather in sf?");
+for step in agent.stream(
+    {"messages": user_input},
+    stream_mode="values",
+):
+    step["messages"][-1].pretty_print()
 ```
 
-```typescript
-const { tool_calls, content } = toolChainResult;
+```text
+================================ Human Message =================================
 
-console.log("AIMessage", JSON.stringify({
-  tool_calls,
-  content,
-}, null, 2));
+What nation hosted the Euro 2024? Include only wikipedia sources.
+================================== Ai Message ==================================
+Tool Calls:
+  tavily_search (call_yxmR4K2uadsQ8LKoyi8JyoLD)
+ Call ID: call_yxmR4K2uadsQ8LKoyi8JyoLD
+  Args:
+    query: Euro 2024 host nation
+    include_domains: ['wikipedia.org']
+================================= Tool Message =================================
+Name: tavily_search
+
+{"query": "Euro 2024 host nation", "follow_up_questions": null, "answer": null, "images": [], "results": [{"title": "UEFA Euro 2024 - Wikipedia", "url": "https://en.wikipedia.org/wiki/UEFA_Euro_2024", "content": "Tournament details Host country Germany Dates 14 June – 14 July Teams 24 Venue(s) 10 (in 10 host cities) Final positions Champions Spain (4th title) Runners-up England Tournament statistics Matches played 51 Goals scored 117 (2.29 per match) Attendance 2,681,288 (52,574 per match) Top scorer(s) Harry Kane Georges Mikautadze Jamal Musiala Cody Gakpo Ivan Schranz Dani Olmo (3 goals each) Best player(s) Rodri Best young player Lamine Yamal ← 2020 2028 → The 2024 UEFA European Football Championship, commonly referred to as UEFA Euro 2024 (stylised as UEFA EURO 2024) or simply Euro 2024, was the 17th UEFA European Championship, the quadrennial international football championship organised by UEFA for the European men's national teams of their member associations. Germany hosted the tournament, which took place from 14 June to 14 July 2024. The tournament involved 24 teams, with Georgia making their European Championship debut. [4] Host nation Germany were eliminated by Spain in the quarter-finals; Spain went on to win the tournament for a record fourth time after defeating England 2–1 in the final.", "score": 0.9104262, "raw_content": null}, {"title": "UEFA Euro 2024 - Simple English Wikipedia, the free encyclopedia", "url": "https://simple.wikipedia.org/wiki/UEFA_Euro_2024", "content": "The 2024 UEFA European Football Championship, also known as UEFA Euro 2024 or simply Euro 2024, was the 17th edition of the UEFA European Championship. Germany was hosting the tournament. ... The UEFA Executive Committee voted for the host in a secret ballot, with only a simple majority (more than half of the valid votes) required to determine", "score": 0.81418616, "raw_content": null}, {"title": "Championnat d'Europe de football 2024 — Wikipédia", "url": "https://fr.wikipedia.org/wiki/Championnat_d'Europe_de_football_2024", "content": "Le Championnat d'Europe de l'UEFA de football 2024 est la 17 e édition du Championnat d'Europe de football, communément abrégé en Euro 2024, compétition organisée par l'UEFA et rassemblant les meilleures équipes nationales masculines européennes. L'Allemagne est désignée pays organisateur de la compétition le 27 septembre 2018. C'est la troisième fois que des matches du Championnat", "score": 0.8055255, "raw_content": null}, {"title": "UEFA Euro 2024 bids - Wikipedia", "url": "https://en.wikipedia.org/wiki/UEFA_Euro_2024_bids", "content": "The bidding process of UEFA Euro 2024 ended on 27 September 2018 in Nyon, Switzerland, when Germany was announced to be the host. [1] Two bids came before the deadline, 3 March 2017, which were Germany and Turkey as single bids. ... Press agencies revealed on 24 October 2013, that the European football governing body UEFA would have decided on", "score": 0.7882741, "raw_content": null}, {"title": "2024 UEFA European Under-19 Championship - Wikipedia", "url": "https://en.wikipedia.org/wiki/2024_UEFA_European_Under-19_Championship", "content": "The 2024 UEFA European Under-19 Championship (also known as UEFA Under-19 Euro 2024) was the 21st edition of the UEFA European Under-19 Championship (71st edition if the Under-18 and Junior eras are included), the annual international youth football championship organised by UEFA for the men's under-19 national teams of Europe. Northern Ireland hosted the tournament from 15 to 28 July 2024.", "score": 0.7783298, "raw_content": null}], "response_time": 1.67}
+================================== Ai Message ==================================
+
+The nation that hosted Euro 2024 was Germany. You can find more information on the [Wikipedia page for UEFA Euro 2024](https://en.wikipedia.org/wiki/UEFA_Euro_2024).
 ```
-
-## 智能体
-
-有关如何在智能体中使用 LangChain 工具的指南，请参阅 [LangGraph.js](https://langchain-ai.github.io/langgraphjs/how-tos/#tool-calling) 文档。
 
 ---
 
 ## API 参考
 
-有关所有 Tavily Search API 功能和配置的详细文档，请前往 API 参考：
-
-[docs.tavily.com/documentation/api-reference/endpoint/search](https://docs.tavily.com/documentation/api-reference/endpoint/search)
-
-## 相关
-
-[工具文档](/oss/langchain/tools)
+有关 Tavily 搜索 API 所有功能和配置的详细文档，请前往 API 参考：[docs.tavily.com/documentation/api-reference/endpoint/search](https://docs.tavily.com/documentation/api-reference/endpoint/search)

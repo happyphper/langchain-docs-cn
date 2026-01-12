@@ -24,4 +24,4 @@ from langchain_community.document_loaders import TiDBLoader
 ```python
 from langchain_community.vectorstores import TiDBVectorStore
 ```
-请参阅此处的详细信息 [here](/oss/integrations/vectorstores/tidb_vector)。
+请参阅此处的详细信息 [here](/oss/python/integrations/vectorstores/tidb_vector)。

@@ -79,7 +79,7 @@ TABLE = "doc_and_vectors"  # @param {type: "string"}
 
 您可能需要通过运行 `gcloud services enable aiplatform.googleapis.com --project {PROJECT_ID}` 在您的项目中启用 Vertex AI API（将 `{PROJECT_ID}` 替换为您的项目名称）。
 
-您可以使用任何 [LangChain 嵌入模型](/oss/integrations/text_embedding/)。
+您可以使用任何 [LangChain 嵌入模型](/oss/python/integrations/text_embedding/)。
 
 ```python
 from langchain_google_vertexai import VertexAIEmbeddings

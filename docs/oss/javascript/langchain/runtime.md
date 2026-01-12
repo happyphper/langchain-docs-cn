@@ -8,7 +8,7 @@ LangChain 的 `createAgent` 底层运行在 LangGraph 的运行时上。
 LangGraph 暴露了一个 <a href="https://reference.langchain.com/javascript/interfaces/_langchain_langgraph.index.Runtime.html" target="_blank" rel="noreferrer" class="link"><code>Runtime</code></a> 对象，包含以下信息：
 
 1.  **上下文**：静态信息，例如用户 ID、数据库连接或代理调用所需的其他依赖项。
-2.  **存储**：一个 <a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph-checkpoint.BaseStore.html" target="_blank" rel="noreferrer" class="link">BaseStore</a> 实例，用于[长期记忆](/oss/langchain/long-term-memory)。
+2.  **存储**：一个 <a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph-checkpoint.BaseStore.html" target="_blank" rel="noreferrer" class="link">BaseStore</a> 实例，用于[长期记忆](/oss/javascript/langchain/long-term-memory)。
 3.  **流写入器**：一个用于通过 `"custom"` 流模式流式传输信息的对象。
 
 <Tip>
@@ -53,7 +53,7 @@ const result = await agent.invoke(
 
 *   访问上下文
 *   读取或写入长期记忆
-*   写入[自定义流](/oss/langchain/streaming#custom-updates)（例如，工具进度/更新）
+*   写入[自定义流](/oss/javascript/langchain/streaming#custom-updates)（例如，工具进度/更新）
 
 使用 `runtime` 参数在工具内部访问 <a href="https://reference.langchain.com/javascript/interfaces/_langchain_langgraph.index.Runtime.html" target="_blank" rel="noreferrer" class="link"><code>Runtime</code></a> 对象。
 

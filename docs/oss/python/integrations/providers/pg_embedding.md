@@ -21,7 +21,7 @@ uv add psycopg2-binary
 
 ## 向量存储
 
-查看[使用示例](/oss/integrations/vectorstores/pgembedding)。
+查看[使用示例](/oss/python/integrations/vectorstores/pgembedding)。
 
 ```python
 from langchain_community.vectorstores import PGEmbedding

@@ -28,7 +28,7 @@ uv add "cassio>=0.1.6"
 from langchain_community.vectorstores import Cassandra
 ```
 
-了解更多信息，请参阅[示例笔记本](/oss/integrations/vectorstores/cassandra)。
+了解更多信息，请参阅[示例笔记本](/oss/javascript/integrations/vectorstores/cassandra)。
 
 ## LLM 缓存
 
@@ -55,7 +55,7 @@ set_llm_cache(CassandraSemanticCache(
 from langchain_community.document_loaders import CassandraLoader
 ```
 
-了解更多信息，请参阅[示例笔记本](/oss/integrations/document_loaders/cassandra)。
+了解更多信息，请参阅[示例笔记本](/oss/javascript/integrations/document_loaders/cassandra)。
 
 #### 归属声明
 
@@ -71,7 +71,7 @@ from langchain_community.agent_toolkits.cassandra_database.toolkit import (
 )
 ```
 
-了解更多信息，请参阅[示例笔记本](/oss/integrations/tools/cassandra_database)。
+了解更多信息，请参阅[示例笔记本](/oss/javascript/integrations/tools/cassandra_database)。
 
 Cassandra 数据库独立工具：
 

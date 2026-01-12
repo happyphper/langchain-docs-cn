@@ -1,9 +1,9 @@
 ---
 title: 工具与工具包
 ---
-[工具](/oss/langchain/tools) 是设计为由模型调用的实用程序：其输入设计为由模型生成，其输出设计为传回给模型。
+[工具](/oss/javascript/langchain/tools) 是设计为由模型调用的实用程序：其输入设计为由模型生成，其输出设计为传回给模型。
 
-一个 [工具包](/oss/langchain/tools#toolkits) 是一组旨在一起使用的工具的集合。
+一个 [工具包](/oss/javascript/langchain/tools#toolkits) 是一组旨在一起使用的工具的集合。
 
 ## 集成平台
 
@@ -11,7 +11,7 @@ title: 工具与工具包
 
 | 工具/工具包 | 集成数量 | 定价 | 主要特性 |
 |-------------|----------------------|---------|--------------|
-| [Composio](/oss/integrations/tools/composio) | 500+ | 提供免费层级 | OAuth 处理、事件驱动的工作流、多用户支持 |
+| [Composio](/oss/javascript/integrations/tools/composio) | 500+ | 提供免费层级 | OAuth 处理、事件驱动的工作流、多用户支持 |
 
 ## 所有工具和工具包
 
@@ -239,7 +239,7 @@ cta="查看指南"
 
 <Info>
 
-如果您想编写自己的工具，请参阅 [此操作指南](/oss/langchain/tools#customize-tool-properties)。如果您想贡献一个集成，请参阅 [贡献集成](/oss/contributing#add-a-new-integration)。
+如果您想编写自己的工具，请参阅 [此操作指南](/oss/javascript/langchain/tools#customize-tool-properties)。如果您想贡献一个集成，请参阅 [贡献集成](/oss/contributing#add-a-new-integration)。
 
 </Info>
 

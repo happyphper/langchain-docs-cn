@@ -1,7 +1,7 @@
 ---
 title: Baseten
 ---
-[Baseten](https://baseten.co) 是 LangChain 生态系统中的一个 [Provider](/oss/integrations/providers/baseten)，它实现了 LLMs 组件。
+[Baseten](https://baseten.co) 是 LangChain 生态系统中的一个 [Provider](/oss/javascript/integrations/providers/baseten)，它实现了 LLMs 组件。
 
 本示例演示了如何在 LangChain 中使用一个 LLM —— 托管在 Baseten 上的 Mistral 7B。
 

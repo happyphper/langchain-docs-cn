@@ -1,144 +1,84 @@
 ---
-title: InMemoryStore
+title: InMemoryByteStore
 ---
-这将帮助你开始使用 [InMemoryStore](/oss/integrations/stores)。关于 InMemoryStore 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/langchain_core.stores.InMemoryStore.html)。
-
-`InMemoryStore` 允许为存储中的值分配一个泛型类型。我们将分配 `BaseMessage` 类型作为值的类型，以符合聊天历史存储的主题。
+本指南将帮助您开始使用内存中的[键值存储](/oss/python/integrations/stores)。有关 `InMemoryByteStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/core/stores/langchain_core.stores.InMemoryByteStore.html)。
 
 ## 概述
 
+`InMemoryByteStore` 是 `ByteStore` 的一个非持久化实现，它将所有内容存储在一个 Python 字典中。它适用于演示以及不需要在 Python 进程生命周期之外进行持久化的场景。
+
 ### 集成详情
 
-| 类 | 包 | 本地 | [Python 支持](https://python.langchain.com/docs/integrations/stores/in_memory/) | 下载量 | 版本 |
+| 类 | 包 | 本地 | [JS 支持](https://js.langchain.com/docs/integrations/stores/in_memory/) | 下载量 | 版本 |
 | :--- | :--- | :---: | :---: |  :---: | :---: |
-| [InMemoryStore](https://api.js.langchain.com/classes/langchain_core.stores.InMemoryStore.html) | [@langchain/core](https://api.js.langchain.com/modules/langchain_core.stores.html) | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/core?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/core?style=flat-square&label=%20&) |
-
-## 设置
+| [InMemoryByteStore](https://python.langchain.com/api_reference/core/stores/langchain_core.stores.InMemoryByteStore.html) | [langchain-core](https://python.langchain.com/api_reference/core/index.html) | ✅ | ✅ | ![PyPI - Downloads](https://img.shields.io/pypi/dm/langchain_core?style=flat-square&label=%20) | ![PyPI - Version](https://img.shields.io/pypi/v/langchain_core?style=flat-square&label=%20) |
 
 ### 安装
 
-LangChain InMemoryStore 集成位于 `@langchain/core` 包中：
+LangChain 的 `InMemoryByteStore` 集成位于 `langchain-core` 包中：
 
-::: code-group
-
-```bash [npm]
-npm install @langchain/core
+```python
+pip install -qU langchain-core
 ```
-
-```bash [yarn]
-yarn add @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @langchain/core
-```
-
-:::
 
 ## 实例化
 
-现在我们可以实例化我们的字节存储：
+现在您可以实例化您的字节存储：
 
-```typescript
-import { InMemoryStore } from "@langchain/core/stores"
-import { BaseMessage } from "@langchain/core/messages";
+```python
+from langchain_core.stores import InMemoryByteStore
 
-const kvStore = new InMemoryStore<BaseMessage>();
+kv_store = InMemoryByteStore()
 ```
 
-## 用法
+## 使用
 
-你可以使用 `mset` 方法在键下设置数据，如下所示：
+您可以使用 `mset` 方法像这样在键下设置数据：
 
-```typescript
-import { AIMessage, HumanMessage } from "@langchain/core/messages";
-
-await kvStore.mset(
-  [
-    ["key1", new HumanMessage("value1")],
-    ["key2", new AIMessage("value2")],
-  ]
+```python
+kv_store.mset(
+    [
+        ["key1", b"value1"],
+        ["key2", b"value2"],
+    ]
 )
 
-await kvStore.mget(
-  [
-    "key1",
-    "key2",
-  ]
-)
-```
-
-```json
-[
-  HumanMessage {
-    "content": "value1",
-    "additional_kwargs": {},
-    "response_metadata": {}
-  },
-  AIMessage {
-    "content": "value2",
-    "additional_kwargs": {},
-    "response_metadata": {},
-    "tool_calls": [],
-    "invalid_tool_calls": []
-  }
-]
-```
-
-你可以使用 `mdelete` 方法删除数据：
-
-```typescript
-await kvStore.mdelete(
-  [
-    "key1",
-    "key2",
-  ]
-)
-
-await kvStore.mget(
-  [
-    "key1",
-    "key2",
-  ]
+kv_store.mget(
+    [
+        "key1",
+        "key2",
+    ]
 )
 ```
 
 ```text
-[ undefined, undefined ]
+[b'value1', b'value2']
 ```
 
-## 生成值
-
-如果你想获取所有键，可以调用 `yieldKeys` 方法。可选地，你可以传递一个键前缀，只获取匹配该前缀的键。
-
-```typescript
-import { InMemoryStore } from "@langchain/core/stores"
-import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
-
-const kvStoreForYield = new InMemoryStore<BaseMessage>();
-
-// 向存储中添加一些数据
-await kvStoreForYield.mset(
-  [
-    ["message:id:key1", new HumanMessage("value1")],
-    ["message:id:key2", new AIMessage("value2")],
-  ]
-)
-
-const yieldedKeys = [];
-for await (const key of kvStoreForYield.yieldKeys("message:id:")) {
-  yieldedKeys.push(key);
-}
-
-console.log(yieldedKeys);
-```
+您可以使用 `mdelete` 方法删除数据：
 
 ```python
-[ 'message:id:key1', 'message:id:key2' ]
+kv_store.mdelete(
+    [
+        "key1",
+        "key2",
+    ]
+)
+
+kv_store.mget(
+    [
+        "key1",
+        "key2",
+    ]
+)
+```
+
+```text
+[None, None]
 ```
 
 ---
 
 ## API 参考
 
-关于 InMemoryStore 所有功能和配置的详细文档，请查阅 [API 参考](https://api.js.langchain.com/classes/langchain_core.stores.InMemoryStore.html)
+有关 `InMemoryByteStore` 所有功能和配置的详细文档，请参阅 API 参考：[python.langchain.com/api_reference/core/stores/langchain_core.stores.InMemoryByteStore.html](https://python.langchain.com/api_reference/core/stores/langchain_core.stores.InMemoryByteStore.html)

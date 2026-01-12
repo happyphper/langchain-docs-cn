@@ -273,7 +273,7 @@ await CurrentWebPageTool(async_browser=async_browser).ainvoke({})
 
 ## 链式调用
 
-您可以在链中使用 AgentQL 工具，首先将其绑定到 [工具调用模型](/oss/langchain/tools/)，然后调用它：
+您可以在链中使用 AgentQL 工具，首先将其绑定到 [工具调用模型](/oss/javascript/langchain/tools/)，然后调用它：
 
 ### 实例化 LLM
 

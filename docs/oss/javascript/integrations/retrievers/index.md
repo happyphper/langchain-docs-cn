@@ -1,16 +1,16 @@
 ---
 title: 检索器
 ---
-[检索器（retriever）](/oss/langchain/retrieval) 是一种接口，它接收非结构化查询并返回文档。
+[检索器（retriever）](/oss/javascript/langchain/retrieval) 是一种接口，它接收非结构化查询并返回文档。
 它比向量存储（vector store）更通用。
 检索器不需要能够存储文档，只需要能够返回（或检索）它们。
 
 检索器接受一个字符串查询作为输入，并返回一个 `Document` 对象列表。
 
-关于如何使用检索器的具体细节，请参阅[相关的操作指南](/oss/langchain/retrieval)。
+关于如何使用检索器的具体细节，请参阅[相关的操作指南](/oss/javascript/langchain/retrieval)。
 
-请注意，所有[向量存储](/oss/integrations/vectorstores)都可以[转换为检索器](/oss/langchain/retrieval)。
-有关可用的向量存储检索器，请参阅向量存储的[集成文档](/oss/integrations/vectorstores/)。
+请注意，所有[向量存储](/oss/javascript/integrations/vectorstores)都可以[转换为检索器](/oss/javascript/langchain/retrieval)。
+有关可用的向量存储检索器，请参阅向量存储的[集成文档](/oss/javascript/integrations/vectorstores/)。
 
 ## 所有检索器
 

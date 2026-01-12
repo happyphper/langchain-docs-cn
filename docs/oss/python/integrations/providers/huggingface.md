@@ -9,7 +9,7 @@ title: Hugging Face
 
 我们可以使用 `Hugging Face` 的 LLM 类，或者直接使用 `ChatHuggingFace` 类。
 
-查看[使用示例](/oss/integrations/chat/huggingface)。
+查看[使用示例](/oss/python/integrations/chat/huggingface)。
 
 ```python
 from langchain_huggingface import ChatHuggingFace
@@ -21,7 +21,7 @@ from langchain_huggingface import ChatHuggingFace
 
 我们可以使用 `HuggingFaceEndpoint` 类，通过无服务器 [推理提供商](https://huggingface.co/docs/inference-providers) 或专用 [推理端点](https://huggingface.co/inference-endpoints/dedicated) 来运行开源模型。
 
-查看[使用示例](/oss/integrations/llms/huggingface_endpoint)。
+查看[使用示例](/oss/python/integrations/llms/huggingface_endpoint)。
 
 ```python
 from langchain_huggingface import HuggingFaceEndpoint
@@ -31,7 +31,7 @@ from langchain_huggingface import HuggingFaceEndpoint
 
 我们可以使用 `HuggingFacePipeline` 类在本地运行开源模型。
 
-查看[使用示例](/oss/integrations/llms/huggingface_pipelines)。
+查看[使用示例](/oss/python/integrations/llms/huggingface_pipelines)。
 
 ```python
 from langchain_huggingface import HuggingFacePipeline
@@ -43,7 +43,7 @@ from langchain_huggingface import HuggingFacePipeline
 
 我们可以使用 `HuggingFaceEmbeddings` 类在本地运行开源嵌入模型。
 
-查看[使用示例](/oss/integrations/text_embedding/huggingfacehub)。
+查看[使用示例](/oss/python/integrations/text_embedding/huggingfacehub)。
 
 ```python
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -53,7 +53,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 我们可以使用 `HuggingFaceEndpointEmbeddings` 类，通过专用 [推理端点](https://huggingface.co/inference-endpoints/dedicated) 来运行开源嵌入模型。
 
-查看[使用示例](/oss/integrations/text_embedding/huggingfacehub)。
+查看[使用示例](/oss/python/integrations/text_embedding/huggingfacehub)。
 
 ```python
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
@@ -63,7 +63,7 @@ from langchain_huggingface import HuggingFaceEndpointEmbeddings
 
 我们可以使用 `HuggingFaceInferenceAPIEmbeddings` 类，通过 [推理提供商](https://huggingface.co/docs/inference-providers) 来运行开源嵌入模型。
 
-查看[使用示例](/oss/integrations/text_embedding/huggingfacehub)。
+查看[使用示例](/oss/python/integrations/text_embedding/huggingfacehub)。
 
 ```python
 from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
@@ -73,7 +73,7 @@ from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 
 我们可以使用 `HuggingFaceInstructEmbeddings` 类在本地运行开源嵌入模型。
 
-查看[使用示例](/oss/integrations/text_embedding/instruct_embeddings)。
+查看[使用示例](/oss/python/integrations/text_embedding/instruct_embeddings)。
 
 ```python
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
@@ -84,7 +84,7 @@ from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 > [HuggingFace 上的 BGE 模型](https://huggingface.co/BAAI/bge-large-en-v1.5) 是 [最佳的开源嵌入模型之一](https://huggingface.co/spaces/mteb/leaderboard)。
 > BGE 模型由 [北京智源人工智能研究院 (BAAI)](https://en.wikipedia.org/wiki/Beijing_Academy_of_Artificial_Intelligence) 创建。`BAAI` 是一家从事人工智能研究和开发的私营非营利组织。
 
-查看[使用示例](/oss/integrations/text_embedding/bge_huggingface)。
+查看[使用示例](/oss/python/integrations/text_embedding/bge_huggingface)。
 
 ```python
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
@@ -111,7 +111,7 @@ uv add datasets
 
 :::
 
-查看[使用示例](/oss/integrations/document_loaders/hugging_face_dataset)。
+查看[使用示例](/oss/python/integrations/document_loaders/hugging_face_dataset)。
 
 ```python
 from langchain_community.document_loaders.hugging_face_dataset import HuggingFaceDatasetLoader
@@ -146,7 +146,7 @@ uv add transformers pillow
 
 :::
 
-查看[使用示例](/oss/integrations/document_loaders/image_captions)。
+查看[使用示例](/oss/python/integrations/document_loaders/image_captions)。
 
 ```python
 from langchain_community.document_loaders import ImageCaptionLoader
@@ -172,7 +172,7 @@ uv add transformers huggingface_hub
 
 :::
 
-查看[使用示例](/oss/integrations/tools/huggingface_tools)。
+查看[使用示例](/oss/python/integrations/tools/huggingface_tools)。
 
 ```python
 from langchain_community.agent_toolkits.load_tools import load_huggingface_tool

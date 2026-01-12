@@ -3,7 +3,7 @@ title: AzionVectorStore
 ---
 `AzionVectorStore` 用于通过向量嵌入管理和搜索文档集合，直接在 Azion 的 Edge 平台上使用 Edge SQL。
 
-本指南提供了快速入门 Azion EdgeSQL [向量存储](/oss/integrations/vectorstores) 的概述。有关 `AzionVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_community.vectorstores_azion_edgesql.AzionVectorStore.html)。
+本指南提供了快速入门 Azion EdgeSQL [向量存储](/oss/python/integrations/vectorstores) 的概述。有关 `AzionVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_community.vectorstores_azion_edgesql.AzionVectorStore.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ title: AzionVectorStore
 
 要使用 `AzionVectorStore` 向量存储，您需要安装 `@langchain/community` 包。此外，您还需要一个 [Azion 账户](https://www.azion.com/en/documentation/products/accounts/creating-account/) 和一个用于调用 Azion API 的 [令牌](https://www.azion.com/en/documentation/products/guides/personal-tokens/)，并将其配置为环境变量 `AZION_TOKEN`。有关此内容的更多信息，请参阅 [文档](https://www.azion.com/en/documentation/)。
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要您安装 `@langchain/openai` 集成包。您也可以根据需要选择使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+本指南还将使用 [OpenAI 嵌入](/oss/python/integrations/text_embedding/openai)，这需要您安装 `@langchain/openai` 集成包。您也可以根据需要选择使用 [其他支持的嵌入模型](/oss/python/integrations/text_embedding)。
 
 ::: code-group
 
@@ -167,7 +167,7 @@ Similarity Search Results
 
 ### 通过转换为检索器进行查询
 
-您也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在您的链中更轻松地使用。
+您也可以将向量存储转换为 [检索器](/oss/python/langchain/retrieval)，以便在您的链中更轻松地使用。
 
 ```typescript
 const retriever = vectorStore.asRetriever({
@@ -197,9 +197,9 @@ await retriever.invoke("biology");
 
 有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [代理式 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/python/langchain/rag)。
+- [代理式 RAG](/oss/python/langgraph/agentic-rag)
+- [检索文档](/oss/python/langchain/retrieval)
 
 ---
 

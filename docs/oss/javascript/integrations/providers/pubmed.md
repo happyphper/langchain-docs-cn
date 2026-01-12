@@ -22,7 +22,7 @@ uv add xmltodict
 
 ### 检索器
 
-查看[使用示例](/oss/integrations/retrievers/pubmed)。
+查看[使用示例](/oss/javascript/integrations/retrievers/pubmed)。
 
 ```python
 from langchain_classic.retrievers import PubMedRetriever
@@ -30,7 +30,7 @@ from langchain_classic.retrievers import PubMedRetriever
 
 ### 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/pubmed)。
+查看[使用示例](/oss/javascript/integrations/document_loaders/pubmed)。
 
 ```python
 from langchain_community.document_loaders import PubMedLoader

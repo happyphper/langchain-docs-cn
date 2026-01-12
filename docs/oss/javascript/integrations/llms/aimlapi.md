@@ -4,9 +4,9 @@ title: AimlapiLLM
 
 <Warning>
 
-<strong>您当前正在查阅的是关于将 AI/ML API 模型用作文本补全模型的文档。许多最新和最受欢迎的 AI/ML API 模型是 [聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查阅的是关于将 AI/ML API 模型用作文本补全模型的文档。许多最新和最受欢迎的 AI/ML API 模型是 [聊天补全模型](/oss/javascript/langchain/models)。</strong>
 
-您可能正在寻找 [这个页面](/oss/integrations/chat/aimlapi)。
+您可能正在寻找 [这个页面](/oss/javascript/integrations/chat/aimlapi)。
 
 </Warning>
 
@@ -22,7 +22,7 @@ title: AimlapiLLM
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/javascript/langchain/streaming/) | 原生异步 | [Token 使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 

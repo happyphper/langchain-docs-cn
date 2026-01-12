@@ -119,7 +119,7 @@ SpannerVectorStore.init_vector_store_table(
 
 ### 创建嵌入类实例
 
-您可以使用任何 [LangChain 嵌入模型](/oss/integrations/text_embedding/)。
+您可以使用任何 [LangChain 嵌入模型](/oss/javascript/integrations/text_embedding/)。
 您可能需要启用 Vertex AI API 才能使用 `VertexAIEmbeddings`。我们建议为生产环境设置嵌入模型的版本，了解更多关于[文本嵌入模型](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/text-embeddings)的信息。
 
 ```python

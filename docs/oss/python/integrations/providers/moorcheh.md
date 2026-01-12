@@ -29,7 +29,7 @@ export MOORCHEH_API_KEY="your-api-key-here"
 
 Moorcheh 提供了一个向量存储包装器，允许您高效地存储、搜索和检索文档嵌入。
 
-查看 [详细使用示例](/oss/integrations/vectorstores/moorcheh)。
+查看 [详细使用示例](/oss/python/integrations/vectorstores/moorcheh)。
 
 ```python
 from langchain_moorcheh import MoorchehVectorStore
@@ -71,4 +71,4 @@ print(answer)
 - **命名空间组织**：将数据组织到独立的命名空间中
 - **元数据支持**：存储和检索带有自定义元数据的文档
 
-有关更详细的示例和高级用法，请参阅 [Moorcheh 向量存储集成](/oss/integrations/vectorstores/moorcheh)。
+有关更详细的示例和高级用法，请参阅 [Moorcheh 向量存储集成](/oss/python/integrations/vectorstores/moorcheh)。

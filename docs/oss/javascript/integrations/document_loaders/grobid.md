@@ -10,7 +10,7 @@ GROBID 是一个用于提取、解析和重构原始文档的机器学习库。
 ---
 最佳方式是通过 Docker 安装 Grobid，请参阅 [grobid.readthedocs.io/en/latest/Grobid-docker/](https://grobid.readthedocs.io/en/latest/Grobid-docker/)。
 
-（注意：更多说明可在此处找到 [here](/oss/integrations/providers/grobid)。）
+（注意：更多说明可在此处找到 [here](/oss/javascript/integrations/providers/grobid)。）
 
 一旦 Grobid 启动并运行，您就可以按如下所述进行交互。
 

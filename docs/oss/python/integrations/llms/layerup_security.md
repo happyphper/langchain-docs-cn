@@ -6,86 +6,99 @@ title: Layerup 安全
 虽然 Layerup Security 对象被设计为一个 LLM，但它本身实际上并不是一个 LLM，它只是包装了一个 LLM，使其能够适配底层 LLM 的相同功能。
 
 ## 设置
-
-首先，您需要在 Layerup [网站](https://uselayerup.com) 上拥有一个 Layerup Security 账户。
+首先，您需要在 Layerup [网站](https://uselayerup.com) 上注册一个 Layerup Security 账户。
 
 接下来，通过 [仪表板](https://dashboard.uselayerup.com) 创建一个项目，并复制您的 API 密钥。我们建议将您的 API 密钥放在项目的环境变量中。
 
 安装 Layerup Security SDK：
 
-```bash [npm]
-npm install @layerup/layerup-security
+::: code-group
+
+```bash [pip]
+pip install LayerupSecurity
 ```
+
+```bash [uv]
+uv add LayerupSecurity
+```
+
+:::
+
 并安装 LangChain Community：
 
-```bash [npm]
-npm install @langchain/community @langchain/core
+::: code-group
+
+```bash [pip]
+pip install langchain-community
 ```
+
+```bash [uv]
+uv add langchain-community
+```
+
+:::
 
 现在，您就可以开始使用 Layerup Security 来保护您的 LLM 调用了！
 
-```typescript
-import {
-  LayerupSecurity,
-  LayerupSecurityOptions,
-} from "@langchain/community/llms/layerup_security";
-import { GuardrailResponse } from "@layerup/layerup-security";
-import { OpenAI } from "@langchain/openai";
+```python
+from langchain_community.llms.layerup_security import LayerupSecurity
+from langchain_openai import OpenAI
 
-// 创建您喜欢的 LLM 实例
-const openai = new OpenAI({
-  modelName: "gpt-3.5-turbo",
-  openAIApiKey: process.env.OPENAI_API_KEY,
-});
+# 创建您喜欢的 LLM 实例
+openai = OpenAI(
+    model_name="gpt-3.5-turbo",
+    openai_api_key="OPENAI_API_KEY",
+)
 
-// 配置 Layerup Security
-const layerupSecurityOptions: LayerupSecurityOptions = {
-  // 指定 Layerup Security 将要包装的 LLM
-  llm: openai,
+# 配置 Layerup Security
+layerup_security = LayerupSecurity(
+    # 指定 Layerup Security 将要包装的 LLM
+    llm=openai,
 
-  // 来自 Layerup 仪表板的 Layerup API 密钥
-  layerupApiKey: process.env.LAYERUP_API_KEY,
+    # Layerup API 密钥，来自 Layerup 仪表板
+    layerup_api_key="LAYERUP_API_KEY",
 
-  // 自定义基础 URL，如果是自托管
-  layerupApiBaseUrl: "https://api.uselayerup.com/v1",
+    # 自定义基础 URL，如果是自托管
+    layerup_api_base_url="https://api.uselayerup.com/v1",
 
-  // 在调用 LLM 之前，在提示词上运行的护栏列表
-  promptGuardrails: [],
+    # 在调用 LLM 之前对提示词运行的护栏列表
+    prompt_guardrails=[],
 
-  // 在 LLM 的响应上运行的护栏列表
-  responseGuardrails: ["layerup.hallucination"],
+    # 对来自 LLM 的响应运行的护栏列表
+    response_guardrails=["layerup.hallucination"],
 
-  // 是否在将提示词发送给 LLM 之前，对 PII 和敏感数据进行脱敏
-  mask: false,
+    # 是否在将提示词发送给 LLM 之前，对其中的 PII 和敏感数据进行脱敏
+    mask=False,
 
-  // 用于滥用跟踪、客户跟踪和范围跟踪的元数据。
-  metadata: { customer: "example@uselayerup.com" },
+    # 用于滥用追踪、客户追踪和范围追踪的元数据。
+    metadata={"customer": "example@uselayerup.com"},
 
-  // 针对提示词护栏违规的处理程序
-  handlePromptGuardrailViolation: (violation: GuardrailResponse) => {
-    if (violation.offending_guardrail === "layerup.sensitive_data") {
-      // 自定义逻辑放在这里
-    }
+    # 提示词护栏违规的处理程序
+    handle_prompt_guardrail_violation=(
+        lambda violation: {
+            "role": "assistant",
+            "content": (
+                "There was sensitive data! I cannot respond. "
+                "Here's a dynamic canned response. Current date: {}"
+            ).format(datetime.now())
+        }
+        if violation["offending_guardrail"] == "layerup.sensitive_data"
+        else None
+    ),
 
-    return {
-      role: "assistant",
-      content: `There was sensitive data! I cannot respond. Here's a dynamic canned response. Current date: ${Date.now()}`,
-    };
-  },
+    # 响应护栏违规的处理程序
+    handle_response_guardrail_violation=(
+        lambda violation: {
+            "role": "assistant",
+            "content": (
+                "Custom canned response with dynamic data! "
+                "The violation rule was {}."
+            ).format(violation["offending_guardrail"])
+        }
+    ),
+)
 
-  // 针对响应护栏违规的处理程序
-  handleResponseGuardrailViolation: (violation: GuardrailResponse) => ({
-    role: "assistant",
-    content: `Custom canned response with dynamic data! The violation rule was ${violation.offending_guardrail}.`,
-  }),
-};
-
-const layerupSecurity = new LayerupSecurity(layerupSecurityOptions);
-const response = await layerupSecurity.invoke(
-  "Summarize this message: my name is Bob Dylan. My SSN is 123-45-6789."
-);
+response = layerup_security.invoke(
+    "Summarize this message: my name is Bob Dylan. My SSN is 123-45-6789."
+)
 ```
-
-## 相关链接
-
-- [模型指南](/oss/langchain/models)

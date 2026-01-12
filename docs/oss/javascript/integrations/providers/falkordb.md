@@ -28,4 +28,4 @@ from langchain_community.vectorstores.falkordb_vector import FalkorDBVector
 from langchain_falkordb.vectorstore import FalkorDBVector
 ```
 
-查看 [使用示例](/oss/integrations/vectorstores/falkordbvector.ipynb)
+查看 [使用示例](/oss/javascript/integrations/vectorstores/falkordbvector.ipynb)

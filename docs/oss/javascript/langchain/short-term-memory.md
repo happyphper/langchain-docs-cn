@@ -17,7 +17,7 @@ title: 短期记忆
 
 即使你的模型支持完整的上下文长度，大多数 LLM 在处理长上下文时表现仍然不佳。它们会被过时或离题的内容“分散注意力”，同时还会遭受响应时间变慢和成本更高的困扰。
 
-聊天模型使用[消息（messages）](/oss/langchain/messages)来接受上下文，这些消息包括指令（系统消息）和输入（人类消息）。在聊天应用中，消息在人类输入和模型响应之间交替，导致消息列表随时间推移而变长。由于上下文窗口有限，许多应用可以通过使用技术来移除或“遗忘”过时信息而受益。
+聊天模型使用[消息（messages）](/oss/javascript/langchain/messages)来接受上下文，这些消息包括指令（系统消息）和输入（人类消息）。在聊天应用中，消息在人类输入和模型响应之间交替，导致消息列表随时间推移而变长。由于上下文窗口有限，许多应用可以通过使用技术来移除或“遗忘”过时信息而受益。
 
 ## 使用方法
 
@@ -184,7 +184,7 @@ const agent = createAgent({
 
 当你想删除特定消息或清除整个消息历史时，这很有用。
 
-要从图状态中删除消息，可以使用 `RemoveMessage`。要使 `RemoveMessage` 生效，你需要使用带有 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.messagesStateReducer.html" target="_blank" rel="noreferrer" class="link"><code>messagesStateReducer</code></a> [归约器（reducer）](/oss/langgraph/graph-api#reducers)的状态键，例如 `MessagesZodState`。
+要从图状态中删除消息，可以使用 `RemoveMessage`。要使 `RemoveMessage` 生效，你需要使用带有 <a href="https://reference.langchain.com/javascript/functions/_langchain_langgraph.index.messagesStateReducer.html" target="_blank" rel="noreferrer" class="link"><code>messagesStateReducer</code></a> [归约器（reducer）](/oss/javascript/langgraph/graph-api#reducers)的状态键，例如 `MessagesZodState`。
 
 要删除特定消息：
 

@@ -4,9 +4,9 @@ title: Azure OpenAI
 
 <Warning>
 
-<strong>您当前正在查阅的是关于 Azure OpenAI 文本补全模型的使用文档。最新且最受欢迎的 Azure OpenAI 模型是 [聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查阅的是关于 Azure OpenAI 文本补全模型的使用文档。最新且最受欢迎的 Azure OpenAI 模型是 [聊天补全模型](/oss/javascript/langchain/models)。</strong>
 
-除非您明确在使用 `gpt-3.5-turbo-instruct` 模型，否则您可能正在寻找 [这个页面](/oss/integrations/chat/azure_chat_openai/)。
+除非您明确在使用 `gpt-3.5-turbo-instruct` 模型，否则您可能正在寻找 [这个页面](/oss/javascript/integrations/chat/azure_chat_openai/)。
 
 </Warning>
 
@@ -79,7 +79,7 @@ credential = ChainedTokenCredential(
 
 使用 Azure OpenAI 时，您需要自行部署常见的 GPT-3 和 Codex 模型。调用 API 时，您需要指定要使用的部署。
 
-_**注意**：本文档适用于 Azure 文本补全模型。像 GPT-4 这样的模型是聊天模型。它们的接口略有不同，可以通过 <a href="https://reference.langchain.com/javascript/classes/_langchain_openai.AzureChatOpenAI.html" target="_blank" rel="noreferrer" class="link"><code>AzureChatOpenAI</code></a> 类访问。有关 Azure 聊天的文档，请参阅 [Azure Chat OpenAI 文档](/oss/integrations/chat/azure_chat_openai)。_
+_**注意**：本文档适用于 Azure 文本补全模型。像 GPT-4 这样的模型是聊天模型。它们的接口略有不同，可以通过 <a href="https://reference.langchain.com/javascript/classes/_langchain_openai.AzureChatOpenAI.html" target="_blank" rel="noreferrer" class="link"><code>AzureChatOpenAI</code></a> 类访问。有关 Azure 聊天的文档，请参阅 [Azure Chat OpenAI 文档](/oss/javascript/integrations/chat/azure_chat_openai)。_
 
 假设您的部署名称是 `gpt-35-turbo-instruct-prod`。在 `openai` Python API 中，您可以使用 `engine` 参数指定此部署。例如：
 

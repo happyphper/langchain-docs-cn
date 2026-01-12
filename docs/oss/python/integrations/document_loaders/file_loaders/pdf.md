@@ -8,7 +8,7 @@ title: PDFLoader
 
 </Tip>
 
-本笔记本提供了 `PDFLoader` [文档加载器](/oss/integrations/document_loaders) 的快速入门概述。有关 `PDFLoader` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_fs_pdf.PDFLoader.html)。
+本笔记本提供了 `PDFLoader` [文档加载器](/oss/python/integrations/document_loaders) 的快速入门概述。有关 `PDFLoader` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_fs_pdf.PDFLoader.html)。
 
 ## 概述
 

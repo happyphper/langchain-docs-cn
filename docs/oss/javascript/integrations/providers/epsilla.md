@@ -20,4 +20,4 @@ Epsilla 向量数据库提供了一个封装器，允许您将其用作向量存
 from langchain_community.vectorstores import Epsilla
 ```
 
-有关 Epsilla 封装器的更详细说明，请参阅 [此笔记本](/oss/integrations/vectorstores/epsilla)
+有关 Epsilla 封装器的更详细说明，请参阅 [此笔记本](/oss/javascript/integrations/vectorstores/epsilla)

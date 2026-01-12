@@ -1,156 +1,169 @@
 ---
-title: OpenAI 函数元数据标记器
+title: OpenAI 元数据标记器
 ---
-为已摄入的文档添加结构化元数据（如文档标题、语气或长度）通常非常有用，以便后续进行更有针对性的相似性搜索。然而，对于大量文档，手动执行此标记过程可能非常繁琐。
+为已摄入的文档添加结构化元数据（如文档标题、语气或长度）通常非常有用，这有助于后续进行更具针对性的相似性搜索。然而，对于大量文档而言，手动执行此标记过程可能非常繁琐。
 
-`MetadataTagger` 文档转换器通过根据提供的模式从每个文档中提取元数据来自动化此过程。它在底层使用了可配置的 OpenAI Functions 驱动的链，因此如果您传递自定义的 LLM 实例，它必须是支持 functions 的 OpenAI 模型。
+`OpenAIMetadataTagger` 文档转换器通过根据提供的模式从每个文档中提取元数据，自动化了这一过程。它在底层使用了可配置的基于 `OpenAI Functions` 的链，因此，如果您传递自定义的 LLM 实例，它必须是支持 Functions 的 OpenAI 模型。
 
-**注意：** 此文档转换器最适合处理完整的文档，因此最好先对整个文档运行它，然后再进行任何其他拆分或处理！
+**注意：** 此文档转换器在处理完整文档时效果最佳，因此最好先对整个文档运行此转换器，然后再进行任何其他拆分或处理！
 
-### 使用方法
+例如，假设您想要索引一组电影评论。您可以使用一个有效的 `JSON Schema` 对象来初始化文档转换器，如下所示：
 
-例如，假设您想要索引一组电影评论。您可以按如下方式初始化文档转换器：
-
-```typescript
-import * as z from "zod";
-import { createMetadataTaggerFromZod } from "@langchain/classic/document_transformers/openai_functions";
-import { ChatOpenAI } from "@langchain/openai";
-import { Document } from "@langchain/core/documents";
-
-const zodSchema = z.object({
-  movie_title: z.string(),
-  critic: z.string(),
-  tone: z.enum(["positive", "negative"]),
-  rating: z
-    .optional(z.number())
-    .describe("The number of stars the critic rated the movie"),
-});
-
-const metadataTagger = createMetadataTaggerFromZod(zodSchema, {
-  llm: new ChatOpenAI({ model: "gpt-3.5-turbo" }),
-});
-
-const documents = [
-  new Document({
-    pageContent:
-      "Review of The Bee Movie\nBy Roger Ebert\nThis is the greatest movie ever made. 4 out of 5 stars.",
-  }),
-  new Document({
-    pageContent:
-      "Review of The Godfather\nBy Anonymous\n\nThis movie was super boring. 1 out of 5 stars.",
-    metadata: { reliable: false },
-  }),
-];
-const taggedDocuments = await metadataTagger.transformDocuments(documents);
-
-console.log(taggedDocuments);
-
-/*
-  [
-    Document {
-      pageContent: 'Review of The Bee Movie\n' +
-        'By Roger Ebert\n' +
-        'This is the greatest movie ever made. 4 out of 5 stars.',
-      metadata: {
-        movie_title: 'The Bee Movie',
-        critic: 'Roger Ebert',
-        tone: 'positive',
-        rating: 4
-      }
-    },
-    Document {
-      pageContent: 'Review of The Godfather\n' +
-        'By Anonymous\n' +
-        '\n' +
-        'This movie was super boring. 1 out of 5 stars.',
-      metadata: {
-        movie_title: 'The Godfather',
-        critic: 'Anonymous',
-        tone: 'negative',
-        rating: 1,
-        reliable: false
-      }
-    }
-  ]
-*/
+```python
+from langchain_community.document_transformers.openai_functions import (
+    create_metadata_tagger,
+)
+from langchain_core.documents import Document
+from langchain_openai import ChatOpenAI
 ```
 
-还有一个额外的 `createMetadataTagger` 方法，它也接受有效的 JSON Schema 对象。
+```python
+schema = {
+    "properties": {
+        "movie_title": {"type": "string"},
+        "critic": {"type": "string"},
+        "tone": {"type": "string", "enum": ["positive", "negative"]},
+        "rating": {
+            "type": "integer",
+            "description": "The number of stars the critic rated the movie",
+        },
+    },
+    "required": ["movie_title", "critic", "tone"],
+}
 
-### 自定义
+# 必须是支持 functions 的 OpenAI 模型
+llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
 
-您可以在第二个选项参数中向底层的标记链传递标准的 LLMChain 参数。
-例如，如果您希望 LLM 关注输入文档中的特定细节，或以某种风格提取元数据，您可以传递一个自定义提示：
+document_transformer = create_metadata_tagger(metadata_schema=schema, llm=llm)
+```
 
-```typescript
-import * as z from "zod";
-import { createMetadataTaggerFromZod } from "@langchain/classic/document_transformers/openai_functions";
-import { ChatOpenAI } from "@langchain/openai";
-import { Document } from "@langchain/core/documents";
-import { PromptTemplate } from "@langchain/core/prompts";
+然后，您可以简单地将文档列表传递给文档转换器，它将从内容中提取元数据：
 
-const taggingChainTemplate = `Extract the desired information from the following passage.
+```python
+original_documents = [
+    Document(
+        page_content="Review of The Bee Movie\nBy Roger Ebert\n\nThis is the greatest movie ever made. 4 out of 5 stars."
+    ),
+    Document(
+        page_content="Review of The Godfather\nBy Anonymous\n\nThis movie was super boring. 1 out of 5 stars.",
+        metadata={"reliable": False},
+    ),
+]
+
+enhanced_documents = document_transformer.transform_documents(original_documents)
+```
+
+```python
+import json
+
+print(
+    *[d.page_content + "\n\n" + json.dumps(d.metadata) for d in enhanced_documents],
+    sep="\n\n---------------\n\n",
+)
+```
+
+```text
+Review of The Bee Movie
+By Roger Ebert
+
+This is the greatest movie ever made. 4 out of 5 stars.
+
+{"movie_title": "The Bee Movie", "critic": "Roger Ebert", "tone": "positive", "rating": 4}
+
+---------------
+
+Review of The Godfather
+By Anonymous
+
+This movie was super boring. 1 out of 5 stars.
+
+{"movie_title": "The Godfather", "critic": "Anonymous", "tone": "negative", "rating": 1, "reliable": false}
+```
+
+然后，这些新文档可以在加载到向量存储之前，由文本分割器进一步处理。提取的字段不会覆盖现有的元数据。
+
+您也可以使用 Pydantic 模式来初始化文档转换器：
+
+```python
+from typing import Literal
+
+from pydantic import BaseModel, Field
+
+class Properties(BaseModel):
+    movie_title: str
+    critic: str
+    tone: Literal["positive", "negative"]
+    rating: int = Field(description="Rating out of 5 stars")
+
+document_transformer = create_metadata_tagger(Properties, llm)
+enhanced_documents = document_transformer.transform_documents(original_documents)
+
+print(
+    *[d.page_content + "\n\n" + json.dumps(d.metadata) for d in enhanced_documents],
+    sep="\n\n---------------\n\n",
+)
+```
+
+```text
+Review of The Bee Movie
+By Roger Ebert
+
+This is the greatest movie ever made. 4 out of 5 stars.
+
+{"movie_title": "The Bee Movie", "critic": "Roger Ebert", "tone": "positive", "rating": 4}
+
+---------------
+
+Review of The Godfather
+By Anonymous
+
+This movie was super boring. 1 out of 5 stars.
+
+{"movie_title": "The Godfather", "critic": "Anonymous", "tone": "negative", "rating": 1, "reliable": false}
+```
+
+## 自定义
+
+您可以在文档转换器构造函数中，将标准的 LLMChain 参数传递给底层的标记链。例如，如果您希望 LLM 关注输入文档中的特定细节，或以特定风格提取元数据，您可以传入自定义提示：
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+
+prompt = ChatPromptTemplate.from_template(
+    """Extract relevant information from the following text.
 Anonymous critics are actually Roger Ebert.
 
-Passage:
 {input}
-*/
+"""
+)
 
-const zodSchema = z.object({
-  movie_title: z.string(),
-  critic: z.string(),
-  tone: z.enum(["positive", "negative"]),
-  rating: z
-    .optional(z.number())
-    .describe("The number of stars the critic rated the movie"),
-});
+document_transformer = create_metadata_tagger(schema, llm, prompt=prompt)
+enhanced_documents = document_transformer.transform_documents(original_documents)
 
-const metadataTagger = createMetadataTaggerFromZod(zodSchema, {
-  llm: new ChatOpenAI({ model: "gpt-3.5-turbo" }),
-  prompt: PromptTemplate.fromTemplate(taggingChainTemplate),
-});
+print(
+    *[d.page_content + "\n\n" + json.dumps(d.metadata) for d in enhanced_documents],
+    sep="\n\n---------------\n\n",
+)
+```
 
-const documents = [
-  new Document({
-    pageContent:
-      "Review of The Bee Movie\nBy Roger Ebert\nThis is the greatest movie ever made. 4 out of 5 stars.",
-  }),
-  new Document({
-    pageContent:
-      "Review of The Godfather\nBy Anonymous\n\nThis movie was super boring. 1 out of 5 stars.",
-    metadata: { reliable: false },
-  }),
-];
-const taggedDocuments = await metadataTagger.transformDocuments(documents);
+```text
+Review of The Bee Movie
+By Roger Ebert
 
-console.log(taggedDocuments);
+This is the greatest movie ever made. 4 out of 5 stars.
 
-/*
-  [
-    Document {
-      pageContent: 'Review of The Bee Movie\n' +
-        'By Roger Ebert\n' +
-        'This is the greatest movie ever made. 4 out of 5 stars.',
-      metadata: {
-        movie_title: 'The Bee Movie',
-        critic: 'Roger Ebert',
-        tone: 'positive',
-        rating: 4
-      }
-    },
-    Document {
-      pageContent: 'Review of The Godfather\n' +
-        'By Anonymous\n' +
-        '\n' +
-        'This movie was super boring. 1 out of 5 stars.',
-      metadata: {
-        movie_title: 'The Godfather',
-        critic: 'Roger Ebert',
-        tone: 'negative',
-        rating: 1,
-        reliable: false
-      }
-    }
-  ]
-*/
+{"movie_title": "The Bee Movie", "critic": "Roger Ebert", "tone": "positive", "rating": 4}
+
+---------------
+
+Review of The Godfather
+By Anonymous
+
+This movie was super boring. 1 out of 5 stars.
+
+{"movie_title": "The Godfather", "critic": "Roger Ebert", "tone": "negative", "rating": 1, "reliable": false}
+```
+
+```python
+
 ```

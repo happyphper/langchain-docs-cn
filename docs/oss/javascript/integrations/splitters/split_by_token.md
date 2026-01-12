@@ -1,7 +1,7 @@
 ---
 title: 按标记分割
 ---
-语言模型有令牌（token）限制。你不应超过令牌限制。因此，当你[将文本分割](/oss/integrations/splitters/)成块时，计算令牌数量是一个好主意。存在许多分词器（tokenizer）。在计算文本中的令牌时，你应该使用与语言模型相同的分词器。
+语言模型有令牌（token）限制。你不应超过令牌限制。因此，当你[将文本分割](/oss/javascript/integrations/splitters/)成块时，计算令牌数量是一个好主意。存在许多分词器（tokenizer）。在计算文本中的令牌时，你应该使用与语言模型相同的分词器。
 
 ## js-tiktoken
 

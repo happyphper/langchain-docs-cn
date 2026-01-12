@@ -30,7 +30,7 @@ LangGraph 底层的图算法使用[消息传递](https://en.wikipedia.org/wiki/w
 
 要构建您的图，您首先定义[状态](#state)，然后添加[节点](#nodes)和[边](#edges)，最后编译它。编译图到底是什么，为什么需要它？
 
-编译是一个相当简单的步骤。它对图的结构进行一些基本检查（没有孤立节点等）。这也是您可以指定运行时参数（如[检查点](/oss/langgraph/persistence)和断点）的地方。您只需调用 `.compile` 方法来编译您的图：
+编译是一个相当简单的步骤。它对图的结构进行一些基本检查（没有孤立节点等）。这也是您可以指定运行时参数（如[检查点](/oss/python/langgraph/persistence)和断点）的地方。您只需调用 `.compile` 方法来编译您的图：
 
 ```python
 graph = graph_builder.compile(...)
@@ -48,9 +48,9 @@ graph = graph_builder.compile(...)
 
 ### 模式
 
-指定图模式的主要文档化方法是使用 [`TypedDict`](https://docs.python.org/3/library/typing.html#typing.TypedDict)。如果您想在状态中提供默认值，请使用 [`dataclass`](https://docs.python.org/3/library/dataclasses.html)。如果您想要递归数据验证，我们也支持使用 Pydantic [`BaseModel`](/oss/langgraph/use-graph-api#use-pydantic-models-for-graph-state) 作为图状态（但请注意，Pydantic 的性能不如 `TypedDict` 或 `dataclass`）。
+指定图模式的主要文档化方法是使用 [`TypedDict`](https://docs.python.org/3/library/typing.html#typing.TypedDict)。如果您想在状态中提供默认值，请使用 [`dataclass`](https://docs.python.org/3/library/dataclasses.html)。如果您想要递归数据验证，我们也支持使用 Pydantic [`BaseModel`](/oss/python/langgraph/use-graph-api#use-pydantic-models-for-graph-state) 作为图状态（但请注意，Pydantic 的性能不如 `TypedDict` 或 `dataclass`）。
 
-默认情况下，图将具有相同的输入和输出模式。如果您想更改这一点，也可以直接指定显式的输入和输出模式。当您有很多键，并且其中一些明确用于输入，另一些用于输出时，这很有用。有关更多信息，请参阅[指南](/oss/langgraph/use-graph-api#define-input-and-output-schemas)。
+默认情况下，图将具有相同的输入和输出模式。如果您想更改这一点，也可以直接指定显式的输入和输出模式。当您有很多键，并且其中一些明确用于输入，另一些用于输出时，这很有用。有关更多信息，请参阅[指南](/oss/python/langgraph/use-graph-api#define-input-and-output-schemas)。
 
 #### 多个模式
 
@@ -61,7 +61,7 @@ graph = graph_builder.compile(...)
 
 可以让节点在图中写入私有状态通道，用于内部节点通信。我们可以简单地定义一个私有模式 `PrivateState`。
 
-也可以为图定义显式的输入和输出模式。在这些情况下，我们定义一个“内部”模式，其中包含与图操作相关的_所有_键。但是，我们还定义了 `input` 和 `output` 模式，它们是“内部”模式的子集，以约束图的输入和输出。有关更多详细信息，请参阅[本指南](/oss/langgraph/graph-api#define-input-and-output-schemas)。
+也可以为图定义显式的输入和输出模式。在这些情况下，我们定义一个“内部”模式，其中包含与图操作相关的_所有_键。但是，我们还定义了 `input` 和 `output` 模式，它们是“内部”模式的子集，以约束图的输入和输出。有关更多详细信息，请参阅[本指南](/oss/python/langgraph/graph-api#define-input-and-output-schemas)。
 
 让我们看一个例子：
 
@@ -162,7 +162,7 @@ class State(TypedDict):
 
 <Tip>
 
-在某些情况下，您可能希望绕过 reducer 并直接覆盖状态值。LangGraph 为此提供了 [`Overwrite`](https://reference.langchain.com/python/langgraph/types/) 类型。[在此了解如何使用 `Overwrite`](/oss/langgraph/use-graph-api#bypass-reducers-with-overwrite)。
+在某些情况下，您可能希望绕过 reducer 并直接覆盖状态值。LangGraph 为此提供了 [`Overwrite`](https://reference.langchain.com/python/langgraph/types/) 类型。[在此了解如何使用 `Overwrite`](/oss/python/langgraph/use-graph-api#bypass-reducers-with-overwrite)。
 
 </Tip>
 
@@ -170,9 +170,9 @@ class State(TypedDict):
 
 #### 为什么使用消息？
 
-大多数现代 LLM 提供商都有一个聊天模型接口，接受消息列表作为输入。特别是 LangChain 的[聊天模型接口](/oss/langchain/models)接受消息对象列表作为输入。这些消息有多种形式，例如 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.HumanMessage" target="_blank" rel="noreferrer" class="link"><code>HumanMessage</code></a>（用户输入）或 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.AIMessage" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a>（LLM 响应）。
+大多数现代 LLM 提供商都有一个聊天模型接口，接受消息列表作为输入。特别是 LangChain 的[聊天模型接口](/oss/python/langchain/models)接受消息对象列表作为输入。这些消息有多种形式，例如 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.HumanMessage" target="_blank" rel="noreferrer" class="link"><code>HumanMessage</code></a>（用户输入）或 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.AIMessage" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a>（LLM 响应）。
 
-要了解更多关于消息对象的信息，请参阅[消息概念指南](/oss/langchain/messages)。
+要了解更多关于消息对象的信息，请参阅[消息概念指南](/oss/python/langchain/messages)。
 
 #### 在您的图中使用消息
 
@@ -408,7 +408,7 @@ graph.add_conditional_edges(START, routing_function, {True: "node_b", False: "no
 
 ## `Send`
 
-默认情况下，`Nodes`和`Edges`是预先定义的，并在相同的共享状态上操作。然而，有些情况下，确切的边是事先未知的，和/或你可能希望同时存在不同版本的`State`。一个常见的例子是[map-reduce](/oss/langgraph/graph-api#map-reduce-and-the-send-api)设计模式。在这种设计模式中，第一个节点可能生成一个对象列表，你可能希望将其他节点应用于所有这些对象。对象的数量可能事先未知（意味着边的数量可能未知），并且下游`Node`的输入`State`应该不同（每个生成的对象一个）。
+默认情况下，`Nodes`和`Edges`是预先定义的，并在相同的共享状态上操作。然而，有些情况下，确切的边是事先未知的，和/或你可能希望同时存在不同版本的`State`。一个常见的例子是[map-reduce](/oss/python/langgraph/graph-api#map-reduce-and-the-send-api)设计模式。在这种设计模式中，第一个节点可能生成一个对象列表，你可能希望将其他节点应用于所有这些对象。对象的数量可能事先未知（意味着边的数量可能未知），并且下游`Node`的输入`State`应该不同（每个生成的对象一个）。
 
 为了支持这种设计模式，LangGraph支持从条件边返回<a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.Send" target="_blank" rel="noreferrer" class="link"><code>Send</code></a>对象。`Send`接受两个参数：第一个是节点名称，第二个是传递给该节点的状态。
 
@@ -447,16 +447,16 @@ def my_node(state: State) -> Command[Literal["my_other_node"]]:
 
 </Note>
 
-查看这个[操作指南](/oss/langgraph/use-graph-api#combine-control-flow-and-state-updates-with-command)，了解如何使用<a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.Command" target="_blank" rel="noreferrer" class="link"><code>Command</code></a>的端到端示例。
+查看这个[操作指南](/oss/python/langgraph/use-graph-api#combine-control-flow-and-state-updates-with-command)，了解如何使用<a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.Command" target="_blank" rel="noreferrer" class="link"><code>Command</code></a>的端到端示例。
 
 ### 我应该何时使用Command而不是条件边？
 
-- 当你需要**同时**更新图状态**并**路由到不同节点时，使用<a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.Command" target="_blank" rel="noreferrer" class="link"><code>Command</code></a>。例如，在实现[多代理交接](/oss/langchain/multi-agent/handoffs)时，路由到不同的代理并向该代理传递一些信息非常重要。
+- 当你需要**同时**更新图状态**并**路由到不同节点时，使用<a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.Command" target="_blank" rel="noreferrer" class="link"><code>Command</code></a>。例如，在实现[多代理交接](/oss/python/langchain/multi-agent/handoffs)时，路由到不同的代理并向该代理传递一些信息非常重要。
 - 使用[条件边](#conditional-edges)来有条件地在节点之间路由，而不更新状态。
 
 ### 导航到父图中的节点
 
-如果你正在使用[子图](/oss/langgraph/use-subgraphs)，你可能希望从子图内的节点导航到不同的子图（即父图中的不同节点）。为此，你可以在<a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.Command" target="_blank" rel="noreferrer" class="link"><code>Command</code></a>中指定`graph=Command.PARENT`：
+如果你正在使用[子图](/oss/python/langgraph/use-subgraphs)，你可能希望从子图内的节点导航到不同的子图（即父图中的不同节点）。为此，你可以在<a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.Command" target="_blank" rel="noreferrer" class="link"><code>Command</code></a>中指定`graph=Command.PARENT`：
 
 ```python
 def my_node(state: State) -> Command[Literal["other_subgraph"]]:
@@ -471,23 +471,23 @@ def my_node(state: State) -> Command[Literal["other_subgraph"]]:
 
 将`graph`设置为`Command.PARENT`将导航到最近的父图。
 
-当你从子图节点向父图节点发送更新，且更新的键由父图和子图[状态模式](#schema)共享时，你<strong>必须</strong>在父图状态中为你正在更新的键定义一个[归约器](#reducers)。请参阅此[示例](/oss/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)。
+当你从子图节点向父图节点发送更新，且更新的键由父图和子图[状态模式](#schema)共享时，你<strong>必须</strong>在父图状态中为你正在更新的键定义一个[归约器](#reducers)。请参阅此[示例](/oss/python/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)。
 
 </Note>
 
-这在实现[多代理交接](/oss/langchain/multi-agent/handoffs)时特别有用。
+这在实现[多代理交接](/oss/python/langchain/multi-agent/handoffs)时特别有用。
 
-查看[本指南](/oss/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)了解详情。
+查看[本指南](/oss/python/langgraph/use-graph-api#navigate-to-a-node-in-a-parent-graph)了解详情。
 
 ### 在工具内部使用
 
 一个常见的用例是从工具内部更新图状态。例如，在客户支持应用程序中，你可能希望在对话开始时根据客户的账号或ID查找客户信息。
 
-请参阅[本指南](/oss/langgraph/use-graph-api#use-inside-tools)了解详情。
+请参阅[本指南](/oss/python/langgraph/use-graph-api#use-inside-tools)了解详情。
 
 ### 人在回路中
 
-<a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.Command" target="_blank" rel="noreferrer" class="link"><code>Command</code></a> 是人机协同工作流的重要组成部分：当使用 `interrupt()` 收集用户输入时，<a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.Command" target="_blank" rel="noreferrer" class="link"><code>Command</code></a> 随后用于提供输入并通过 `Command(resume="用户输入")` 恢复执行。查看[此概念指南](/oss/langgraph/interrupts)了解更多信息。
+<a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.Command" target="_blank" rel="noreferrer" class="link"><code>Command</code></a> 是人机协同工作流的重要组成部分：当使用 `interrupt()` 收集用户输入时，<a href="https://reference.langchain.com/python/langgraph/types/#langgraph.types.Command" target="_blank" rel="noreferrer" class="link"><code>Command</code></a> 随后用于提供输入并通过 `Command(resume="用户输入")` 恢复执行。查看[此概念指南](/oss/python/langgraph/interrupts)了解更多信息。
 
 ## 图迁移
 
@@ -527,7 +527,7 @@ def node_a(state: State, runtime: Runtime[ContextSchema]):
     # ...
 ```
 
-查看[此指南](/oss/langgraph/use-graph-api#add-runtime-configuration)以获取关于配置的完整解析。
+查看[此指南](/oss/python/langgraph/use-graph-api#add-runtime-configuration)以获取关于配置的完整解析。
 
 ### 递归限制
 
@@ -537,7 +537,7 @@ def node_a(state: State, runtime: Runtime[ContextSchema]):
 graph.invoke(inputs, config={"recursion_limit": 5}, context={"llm": "anthropic"})
 ```
 
-阅读[此操作指南](/oss/langgraph/graph-api#impose-a-recursion-limit)以了解更多关于递归限制的工作原理。
+阅读[此操作指南](/oss/python/langgraph/graph-api#impose-a-recursion-limit)以了解更多关于递归限制的工作原理。
 
 ### 访问和处理递归计数器
 
@@ -699,5 +699,5 @@ def inspect_metadata(state: dict, config: RunnableConfig) -> dict:
 
 ## 可视化
 
-能够可视化图通常很有帮助，尤其是当它们变得更加复杂时。LangGraph 提供了几种内置的可视化图的方法。查看[此操作指南](/oss/langgraph/use-graph-api#visualize-your-graph)以获取更多信息。
+能够可视化图通常很有帮助，尤其是当它们变得更加复杂时。LangGraph 提供了几种内置的可视化图的方法。查看[此操作指南](/oss/python/langgraph/use-graph-api#visualize-your-graph)以获取更多信息。
 

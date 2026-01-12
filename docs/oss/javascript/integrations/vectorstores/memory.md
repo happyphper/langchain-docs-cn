@@ -5,7 +5,7 @@ LangChain 提供了一种内存中的临时向量存储（vectorstore），它�
 
 由于它主要用于演示，目前还不支持 ID 或删除操作。
 
-本指南提供了快速入门内存 [`向量存储`](/oss/integrations/vectorstores) 的概述。有关 `MemoryVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain.vectorstores_memory.MemoryVectorStore.html)。
+本指南提供了快速入门内存 [`向量存储`](/oss/javascript/integrations/vectorstores) 的概述。有关 `MemoryVectorStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain.vectorstores_memory.MemoryVectorStore.html)。
 
 ## 概述
 
@@ -19,7 +19,7 @@ LangChain 提供了一种内存中的临时向量存储（vectorstore），它�
 
 要使用内存向量存储，您需要安装 `langchain` 包：
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要您安装 `@langchain/openai` 集成包。您也可以根据需要选择使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+本指南还将使用 [OpenAI 嵌入](/oss/javascript/integrations/text_embedding/openai)，这需要您安装 `@langchain/openai` 集成包。您也可以根据需要选择使用 [其他支持的嵌入模型](/oss/javascript/integrations/text_embedding)。
 
 ::: code-group
 
@@ -136,7 +136,7 @@ for (const [doc, score] of similaritySearchWithScoreResults) {
 
 ### 转换为检索器进行查询
 
-您也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在您的链中更轻松地使用：
+您也可以将向量存储转换为 [检索器](/oss/javascript/langchain/retrieval)，以便在您的链中更轻松地使用：
 
 ```typescript
 const retriever = vectorStore.asRetriever({
@@ -200,9 +200,9 @@ await mmrRetriever.invoke("biology");
 
 有关如何使用此向量存储进行检索增强生成（RAG）的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [代理式 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/javascript/langchain/rag)。
+- [代理式 RAG](/oss/javascript/langgraph/agentic-rag)
+- [检索文档](/oss/javascript/langchain/retrieval)
 
 ---
 

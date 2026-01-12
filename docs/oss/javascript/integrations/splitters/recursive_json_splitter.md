@@ -1,7 +1,7 @@
 ---
 title: 拆分 JSON 数据
 ---
-这个 JSON 分割器在控制分块大小的同时，对 JSON 数据进行[分割](/oss/integrations/splitters/)。它采用深度优先的方式遍历 JSON 数据并构建更小的 JSON 块。它会尽量保持嵌套的 JSON 对象完整，但如果需要将块大小保持在 `min_chunk_size` 和 `max_chunk_size` 之间，也会对它们进行分割。
+这个 JSON 分割器在控制分块大小的同时，对 JSON 数据进行[分割](/oss/javascript/integrations/splitters/)。它采用深度优先的方式遍历 JSON 数据并构建更小的 JSON 块。它会尽量保持嵌套的 JSON 对象完整，但如果需要将块大小保持在 `min_chunk_size` 和 `max_chunk_size` 之间，也会对它们进行分割。
 
 如果某个值不是嵌套的 JSON，而是一个非常大的字符串，则该字符串不会被分割。如果你需要对块大小设置硬性上限，可以考虑在这些块上组合使用递归文本分割器。还有一个可选的预处理步骤来分割列表，方法是先将它们转换为 JSON（字典），然后再进行分割。
 

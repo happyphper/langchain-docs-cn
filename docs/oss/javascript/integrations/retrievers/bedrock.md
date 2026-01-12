@@ -1,7 +1,7 @@
 ---
 title: Bedrock（知识库）
 ---
-本指南将帮助您开始使用 AWS 知识库 [检索器](/oss/langchain/retrieval)。
+本指南将帮助您开始使用 AWS 知识库 [检索器](/oss/javascript/langchain/retrieval)。
 
 [Amazon Bedrock 知识库](https://aws.amazon.com/bedrock/knowledge-bases/) 是亚马逊云科技 (AWS) 提供的一项服务，它允许您使用私有数据定制 FM 响应，从而快速构建 RAG 应用程序。
 

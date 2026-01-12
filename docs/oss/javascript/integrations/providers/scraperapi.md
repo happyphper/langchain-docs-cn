@@ -30,7 +30,7 @@ os.environ["SCRAPERAPI_API_KEY"] = "your-api-key"
 该包提供了 3 个工具，分别用于抓取任何网站、获取结构化的 Google 搜索结果以及获取结构化的亚马逊搜索结果。
 
 查看每个工具的详细文档：
-- [ScraperAPITool](/oss/integrations/tools/scraperapi) - 浏览并抓取任何网站
+- [ScraperAPITool](/oss/javascript/integrations/tools/scraperapi) - 浏览并抓取任何网站
 - ScraperAPIGoogleSearchTool - 获取结构化的 Google 搜索 SERP 数据
 - ScraperAPIAmazonSearchTool - 获取结构化的亚马逊产品搜索数据
 

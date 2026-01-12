@@ -50,5 +50,5 @@ Connery Action 是一个结构化工具，因此您只能在支持结构化工�
 
 ## 相关链接
 
-- 工具 [概念指南](/oss/langchain/tools)
-- 工具 [操作指南](/oss/langchain/tools)
+- 工具 [概念指南](/oss/javascript/langchain/tools)
+- 工具 [操作指南](/oss/javascript/langchain/tools)

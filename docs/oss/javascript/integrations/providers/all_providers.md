@@ -63,7 +63,7 @@ icon="openai"
 
 ## LangGraph 集成 (LangGraph integrations)
 
-将 LangGraph 智能体连接到前端。更多详情请参阅 [LangGraph 集成](/oss/langgraph/integrations) 页面。
+将 LangGraph 智能体连接到前端。更多详情请参阅 [LangGraph 集成](/oss/javascript/langgraph/integrations) 页面。
 
 <Columns :cols="3">
 

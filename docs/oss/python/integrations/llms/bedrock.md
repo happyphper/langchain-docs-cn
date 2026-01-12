@@ -4,270 +4,64 @@ title: Bedrock
 
 <Warning>
 
-<strong>您当前正在查阅的是关于将 Amazon Bedrock 模型用作文本补全模型的文档。Bedrock 上提供的许多流行模型是 [聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查阅的是将 Amazon Bedrock 模型用作文本补全模型的文档。Bedrock 上许多流行的模型实际上是 [聊天补全模型](/oss/python/langchain/models)。</strong>
 
-您可能想查看的是 [这个页面](/oss/integrations/chat/bedrock/)。
+您可能正在寻找 [这个页面](/oss/python/integrations/chat/bedrock/)。
 
 </Warning>
 
-> [Amazon Bedrock](https://aws.amazon.com/bedrock/) 是一项完全托管的服务，通过 API 提供来自领先 AI 初创公司和亚马逊的基础模型 (FMs)。您可以从广泛的 FMs 中选择，找到最适合您用例的模型。
+>[Amazon Bedrock](https://aws.amazon.com/bedrock/) 是一项完全托管的服务，它通过单一 API 提供来自领先 AI 公司（如 `AI21 Labs`、`Anthropic`、`Cohere`、`Meta`、`Stability AI` 和 `Amazon`）的高性能基础模型（FMs）选择，并提供构建具有安全性、隐私性和负责任 AI 的生成式 AI 应用程序所需的一系列广泛功能。使用 `Amazon Bedrock`，您可以轻松地针对您的用例试验和评估顶级 FM，使用微调和 `检索增强生成`（`RAG`）等技术利用您的数据对其进行私有化定制，并构建利用您的企业系统和数据源执行任务的智能体。由于 `Amazon Bedrock` 是无服务器的，您无需管理任何基础设施，并且可以使用您已经熟悉的 AWS 服务，安全地将生成式 AI 功能集成并部署到您的应用程序中。
 
-本文将帮助您开始使用 LangChain 的 Bedrock 补全模型 (LLMs)。有关 `Bedrock` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_llms_bedrock.Bedrock.html)。
-
-## 概述
-
-### 集成详情
-
-| 类 | 包 | 本地 | 可序列化 | [PY 支持](https://python.langchain.com/docs/integrations/llms/bedrock) | 下载量 | 版本 |
-| :--- | :--- | :---: | :---: |  :---: | :---: | :---: |
-| [Bedrock](https://api.js.langchain.com/classes/langchain_community_llms_bedrock.Bedrock.html) | [@langchain/community](https://api.js.langchain.com/modules/langchain_community_llms_bedrock.html) | ❌ | ✅ | ✅ | ![NPM - Downloads](https://img.shields.io/npm/dm/@langchain/community?style=flat-square&label=%20&) | ![NPM - Version](https://img.shields.io/npm/v/@langchain/community?style=flat-square&label=%20&) |
-
-## 设置
-
-要访问 Bedrock 模型，您需要创建一个 AWS 账户，获取一个 API 密钥，并安装 `@langchain/community` 集成以及一些对等依赖项。
-
-### 凭证
-
-前往 [aws.amazon.com](https://aws.amazon.com) 注册 AWS Bedrock 并生成 API 密钥。完成后，设置以下环境变量：
-
-```bash
-export BEDROCK_AWS_REGION="your-region-url"
-export BEDROCK_AWS_ACCESS_KEY_ID="your-access-key-id"
-export BEDROCK_AWS_SECRET_ACCESS_KEY="your-secret-access-key"
+```python
+pip install -qU langchain-aws
 ```
 
-如果您希望自动追踪模型调用，也可以通过取消注释以下行来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+```python
+from langchain_aws import BedrockLLM
 
-```bash
-# export LANGSMITH_TRACING="true"
-# export LANGSMITH_API_KEY="your-api-key"
+llm = BedrockLLM(
+    credentials_profile_name="bedrock-admin", model_id="amazon.titan-text-express-v1"
+)
 ```
 
-### 安装
+### 自定义模型
 
-LangChain 的 Bedrock 集成位于 `@langchain/community` 包中：
+```python
+custom_llm = BedrockLLM(
+    credentials_profile_name="bedrock-admin",
+    provider="cohere",
+    model_id="<Custom model ARN>",  # 通过配置自定义模型获得的 ARN，如 'arn:aws:bedrock:...'
+    model_kwargs={"temperature": 1},
+    streaming=True,
+)
 
-::: code-group
-
-```bash [npm]
-npm install @langchain/community @langchain/core
+custom_llm.invoke(input="What is the recipe of mayonnaise?")
 ```
 
-```bash [yarn]
-yarn add @langchain/community @langchain/core
+## Amazon Bedrock 护栏
+
+[Amazon Bedrock 护栏](https://aws.amazon.com/bedrock/guardrails/) 根据特定用例的策略评估用户输入和模型响应，无论底层模型如何，都提供额外的安全保障层。护栏可以应用于多种模型，包括 Anthropic Claude、Meta Llama 2、Cohere Command、AI21 Labs Jurassic 和 Amazon Titan Text，以及经过微调的模型。
+在本节中，我们将设置一个具有特定护栏（包含追踪功能）的 Bedrock 语言模型。
+
+```python
+from typing import Any
+
+from langchain_core.callbacks import AsyncCallbackHandler
+
+class BedrockAsyncCallbackHandler(AsyncCallbackHandler):
+    # 可用于处理来自 langchain 回调的异步回调处理器。
+
+    async def on_llm_error(self, error: BaseException, **kwargs: Any) -> Any:
+        reason = kwargs.get("reason")
+        if reason == "GUARDRAIL_INTERVENED":
+            print(f"Guardrails: {kwargs}")
+
+# 具有追踪功能的 Amazon Bedrock 护栏
+llm = BedrockLLM(
+    credentials_profile_name="bedrock-admin",
+    model_id="<Model_ID>",
+    model_kwargs={},
+    guardrails={"id": "<Guardrail_ID>", "version": "<Version>", "trace": True},
+    callbacks=[BedrockAsyncCallbackHandler()],
+)
 ```
-
-```bash [pnpm]
-pnpm add @langchain/community @langchain/core
-```
-
-:::
-
-并安装对等依赖项：
-
-::: code-group
-
-```bash [npm]
-npm install @aws-crypto/sha256-js @aws-sdk/credential-provider-node @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [yarn]
-yarn add @aws-crypto/sha256-js @aws-sdk/credential-provider-node @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [pnpm]
-pnpm add @aws-crypto/sha256-js @aws-sdk/credential-provider-node @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-:::
-
-您也可以在 Web 环境（如 Edge 函数或 Cloudflare Workers）中使用 Bedrock，方法是省略 `@aws-sdk/credential-provider-node` 依赖项并使用 `web` 入口点：
-
-::: code-group
-
-```bash [npm]
-npm install @aws-crypto/sha256-js @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [yarn]
-yarn add @langchain/community @langchain/core
-```
-
-```bash [yarn]
-yarn add @aws-crypto/sha256-js @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [yarn]
-yarn add @langchain/community @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @aws-crypto/sha256-js @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [yarn]
-yarn add @langchain/community @langchain/core
-```
-
-:::
-
-并安装对等依赖项：
-
-::: code-group
-
-```bash [npm]
-npm install @aws-crypto/sha256-js @aws-sdk/credential-provider-node @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [yarn]
-yarn add @aws-crypto/sha256-js @aws-sdk/credential-provider-node @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [pnpm]
-pnpm add @aws-crypto/sha256-js @aws-sdk/credential-provider-node @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-:::
-
-您也可以在 Web 环境（如 Edge 函数或 Cloudflare Workers）中使用 Bedrock，方法是省略 `@aws-sdk/credential-provider-node` 依赖项并使用 `web` 入口点：
-
-::: code-group
-
-```bash [npm]
-npm install @aws-crypto/sha256-js @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [pnpm]
-pnpm add @langchain/community @langchain/core
-```
-
-```bash [yarn]
-yarn add @aws-crypto/sha256-js @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [pnpm]
-pnpm add @langchain/community @langchain/core
-```
-
-```bash [pnpm]
-pnpm add @aws-crypto/sha256-js @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [pnpm]
-pnpm add @langchain/community @langchain/core
-```
-
-:::
-
-并安装对等依赖项：
-
-::: code-group
-
-```bash [npm]
-npm install @aws-crypto/sha256-js @aws-sdk/credential-provider-node @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [yarn]
-yarn add @aws-crypto/sha256-js @aws-sdk/credential-provider-node @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [pnpm]
-pnpm add @aws-crypto/sha256-js @aws-sdk/credential-provider-node @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-:::
-
-您也可以在 Web 环境（如 Edge 函数或 Cloudflare Workers）中使用 Bedrock，方法是省略 `@aws-sdk/credential-provider-node` 依赖项并使用 `web` 入口点：
-
-::: code-group
-
-```bash [npm]
-npm install @aws-crypto/sha256-js @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [yarn]
-yarn add @aws-crypto/sha256-js @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-```bash [pnpm]
-pnpm add @aws-crypto/sha256-js @smithy/protocol-http @smithy/signature-v4 @smithy/eventstream-codec @smithy/util-utf8 @aws-sdk/types
-```
-
-:::
-
-## 实例化
-
-现在我们可以实例化我们的模型对象并生成聊天补全：
-
-```typescript
-// @lc-docs-hide-cell
-// Deno requires these imports, and way of loading env vars.
-// we don't want to expose in the docs.
-// Below this cell we have a typescript markdown codeblock with
-// the node code.
-import "@aws-sdk/credential-provider-node";
-import "@smithy/protocol-http";
-import "@aws-crypto/sha256-js";
-import "@smithy/protocol-http";
-import "@smithy/signature-v4";
-import "@smithy/eventstream-codec";
-import "@smithy/util-utf8";
-import "@aws-sdk/types";
-import { Bedrock } from "@langchain/community/llms/bedrock"
-import { getEnvironmentVariable } from "@langchain/core/utils/env";
-
-const llm = new Bedrock({
-  model: "anthropic.claude-v2",
-  region: "us-east-1",
-  // endpointUrl: "custom.amazonaws.com",
-  credentials: {
-    accessKeyId: getEnvironmentVariable("BEDROCK_AWS_ACCESS_KEY_ID"),
-    secretAccessKey: getEnvironmentVariable("BEDROCK_AWS_SECRET_ACCESS_KEY"),
-  },
-  temperature: 0,
-  maxTokens: undefined,
-  maxRetries: 2,
-  // other params...
-})
-```
-
-```typescript
-import { Bedrock } from "@langchain/community/llms/bedrock"
-
-const llm = new Bedrock({
-  model: "anthropic.claude-v2",
-  region: process.env.BEDROCK_AWS_REGION ?? "us-east-1",
-  // endpointUrl: "custom.amazonaws.com",
-  credentials: {
-    accessKeyId: process.env.BEDROCK_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.BEDROCK_AWS_SECRET_ACCESS_KEY,
-  },
-  temperature: 0,
-  maxTokens: undefined,
-  maxRetries: 2,
-  // other params...
-})
-```
-
-## 调用
-
-请注意，某些模型需要特定的提示技术。例如，Anthropic 的 Claude-v2 模型如果提示不以 `Human:` 开头，则会抛出错误。
-
-```typescript
-const inputText = "Human: Bedrock is an AI company that\nAssistant: "
-
-const completion = await llm.invoke(inputText)
-completion
-```
-
-```text
-" Here are a few key points about Bedrock AI:\n" +
-  "\n" +
-  "- Bedrock was founded in 2021 and is based in San Fran"... 116 more characters
-```
-
----
-
-## API 参考
-
-有关所有 Bedrock 功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_llms_bedrock.Bedrock.html)。

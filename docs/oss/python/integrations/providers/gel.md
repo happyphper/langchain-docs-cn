@@ -62,4 +62,4 @@ vector_store = GelVectorStore(
 )
 ```
 
-查看完整用法示例[请点击这里](/oss/integrations/vectorstores/gel)。
+查看完整用法示例[请点击这里](/oss/python/integrations/vectorstores/gel)。

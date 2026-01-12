@@ -7,7 +7,7 @@ title: Dappier
 
 # Dappier 工具
 
-本文将帮助您开始使用 Dappier [工具](/oss/langchain/tools)。有关 DappierRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/en/latest/tools/langchain_dappier.tools.Dappier.DappierRealTimeSearchTool.html)。
+本文将帮助您开始使用 Dappier [工具](/oss/python/langchain/tools)。有关 DappierRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/en/latest/tools/langchain_dappier.tools.Dappier.DappierRealTimeSearchTool.html)。
 
 ## 概述
 
@@ -67,7 +67,7 @@ tool = DappierRealTimeSearchTool(
 
 ### 调用
 
-#### [使用参数直接调用](/oss/langchain/tools)
+#### [使用参数直接调用](/oss/python/langchain/tools)
 
 `DappierRealTimeSearchTool` 接受一个 "query" 参数，该参数应为自然语言查询：
 
@@ -79,7 +79,7 @@ tool.invoke({"query": "What happened at the last wimbledon"})
 "At the last Wimbledon in 2024, Carlos Alcaraz won the title by defeating Novak Djokovic. This victory marked Alcaraz's fourth Grand Slam title at just 21 years old! 🎉🏆🎾"
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools)
+### [使用 ToolCall 调用](/oss/python/langchain/tools)
 
 我们也可以使用模型生成的 ToolCall 来调用该工具，在这种情况下，将返回一个 ToolMessage：
 
@@ -103,7 +103,7 @@ Euro 2024 is being hosted by Germany! 🇩🇪 The tournament runs from June 14 
 
 ### 链式调用
 
-我们可以通过先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后在链中使用它：
+我们可以通过先将工具绑定到一个 [工具调用模型](/oss/python/langchain/tools/)，然后在链中使用它：
 
 <ChatModelTabs customVarName="llm" />
 
@@ -190,7 +190,7 @@ tool = DappierAIRecommendationTool(
 
 ### 调用
 
-#### [使用参数直接调用](/oss/langchain/tools)
+#### [使用参数直接调用](/oss/python/langchain/tools)
 
 `DappierAIRecommendationTool` 接受一个 "query" 参数，该参数应为自然语言查询：
 
@@ -219,7 +219,7 @@ tool.invoke({"query": "latest sports news"})
   'title': 'Rangers score 3 times in 3rd period for stirring 5-3 comeback win against Utah to close road trip'}]
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools)
+### [使用 ToolCall 调用](/oss/python/langchain/tools)
 
 我们也可以使用模型生成的 ToolCall 来调用该工具，在这种情况下，将返回一个 ToolMessage：
 

@@ -3,7 +3,7 @@ title: IBM watsonx.ai
 ---
 ## 概述
 
-本文将帮助您开始使用 [Watsonx 文档压缩器](/oss/concepts/#document_compressors)。有关 Watsonx 文档压缩器所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/modules/_langchain_community.document_compressors_ibm.html)。
+本文将帮助您开始使用 [Watsonx 文档压缩器](/oss/javascript/concepts/#document_compressors)。有关 Watsonx 文档压缩器所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/modules/_langchain_community.document_compressors_ibm.html)。
 
 ### 集成详情
 

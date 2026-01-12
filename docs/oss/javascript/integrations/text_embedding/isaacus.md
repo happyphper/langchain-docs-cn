@@ -1,7 +1,7 @@
 ---
 title: 以撒
 ---
-本指南将引导您了解如何通过 [Isaacus](/oss/integrations/providers/isaacus) 的 LangChain 集成开始生成法律嵌入。
+本指南将引导您了解如何通过 [Isaacus](/oss/javascript/integrations/providers/isaacus) 的 LangChain 集成开始生成法律嵌入。
 
 ## 1. 设置您的账户
 

@@ -33,7 +33,7 @@ uv add langchain-apify
 from langchain_apify import ApifyActorsTool
 ```
 
-有关使用示例以及一个在 [Apify LangGraph 智能体 Actor 模板](https://apify.com/templates/python-langgraph) 中使用 LangGraph 的工具调用智能体的完整示例，请参阅 [此笔记本](/oss/integrations/tools/apify_actors)。
+有关使用示例以及一个在 [Apify LangGraph 智能体 Actor 模板](https://apify.com/templates/python-langgraph) 中使用 LangGraph 的工具调用智能体的完整示例，请参阅 [此笔记本](/oss/javascript/integrations/tools/apify_actors)。
 
 有关如何使用此工具的更多信息，请访问 [Apify 集成文档](https://docs.apify.com/platform/integrations/langgraph)。
 
@@ -55,6 +55,6 @@ from langchain_apify import ApifyWrapper
 from langchain_apify import ApifyDatasetLoader
 ```
 
-有关此加载器的更详细演练，请参阅 [此笔记本](/oss/integrations/document_loaders/apify_dataset)。
+有关此加载器的更详细演练，请参阅 [此笔记本](/oss/javascript/integrations/document_loaders/apify_dataset)。
 
 此集成的源代码可在 [LangChain Apify 仓库](https://github.com/apify/langchain-apify) 中找到。

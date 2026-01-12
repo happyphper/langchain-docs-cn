@@ -23,7 +23,7 @@ uv add clickhouse-connect
 
 ## 向量存储
 
-查看[使用示例](/oss/integrations/vectorstores/clickhouse)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/clickhouse)。
 
 ```python
 from langchain_community.vectorstores import Clickhouse, ClickhouseSettings

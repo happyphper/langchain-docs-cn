@@ -32,7 +32,7 @@ RAG = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 
 ## 检索器
 
-我们可以将 RAGatouille 用作检索器。有关此功能的更多信息，请参阅 [RAGatouille 检索器](/oss/integrations/retrievers/ragatouille)。
+我们可以将 RAGatouille 用作检索器。有关此功能的更多信息，请参阅 [RAGatouille 检索器](/oss/python/integrations/retrievers/ragatouille)。
 
 ## 文档压缩器
 

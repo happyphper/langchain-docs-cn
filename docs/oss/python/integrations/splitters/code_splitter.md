@@ -1,7 +1,7 @@
 ---
 title: 代码分割
 ---
-<a href="https://reference.langchain.com/python/langchain_text_splitters/#langchain_text_splitters.RecursiveCharacterTextSplitter" target="_blank" rel="noreferrer" class="link">RecursiveCharacterTextSplitter</a> 包含预定义的分隔符列表，这些列表对于在特定编程语言中[分割文本](/oss/integrations/splitters/)非常有用。
+<a href="https://reference.langchain.com/python/langchain_text_splitters/#langchain_text_splitters.RecursiveCharacterTextSplitter" target="_blank" rel="noreferrer" class="link">RecursiveCharacterTextSplitter</a> 包含预定义的分隔符列表，这些列表对于在特定编程语言中[分割文本](/oss/python/integrations/splitters/)非常有用。
 
 支持的语言存储在 `langchain_text_splitters.Language` 枚举中。它们包括：
 

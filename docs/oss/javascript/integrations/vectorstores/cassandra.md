@@ -16,7 +16,7 @@ Apache Cassandra 的[最新版本](<https://cwiki.apache.org/confluence/display/
 首先，安装 Cassandra Node.js 驱动程序：
 
 <提示>
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/javascript/langchain/install)。
 </提示>
 
 ```bash [npm]
@@ -190,5 +190,5 @@ withClause: "",
 
 ## 相关链接
 
-- 向量存储[概念指南](/oss/integrations/vectorstores)
-- 向量存储[操作指南](/oss/integrations/vectorstores)
+- 向量存储[概念指南](/oss/javascript/integrations/vectorstores)
+- 向量存储[操作指南](/oss/javascript/integrations/vectorstores)

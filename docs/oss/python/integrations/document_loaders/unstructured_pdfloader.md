@@ -3,7 +3,7 @@ title: 非结构化PDF加载器
 ---
 [Unstructured](https://unstructured-io.github.io/unstructured/) 支持一个通用接口，用于处理非结构化或半结构化的文件格式，例如 Markdown 或 PDF。LangChain 的 [UnstructuredPDFLoader](https://python.langchain.com/api_reference/community/document_loaders/langchain_community.document_loaders.pdf.UnstructuredPDFLoader.html) 与 Unstructured 集成，将 PDF 文档解析为 LangChain 的 [Document](https://python.langchain.com/api_reference/core/documents/langchain_core.documents.base.Document.html) 对象。
 
-有关安装系统要求的更多信息，请参阅[此页面](/oss/integrations/providers/unstructured/)。
+有关安装系统要求的更多信息，请参阅[此页面](/oss/python/integrations/providers/unstructured/)。
 
 ### 集成详情
 

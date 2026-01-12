@@ -50,7 +50,7 @@ Hyperbrowser 提供了多种浏览器代理工具。目前我们支持：
  - OpenAI CUA
  - Browser Use
 
-您可以在[此处](/oss/integrations/tools/hyperbrowser_browser_agent_tools)查看更多详细信息。
+您可以在[此处](/oss/javascript/integrations/tools/hyperbrowser_browser_agent_tools)查看更多详细信息。
 
 #### Browser Use 工具
 一个通用的浏览器自动化工具，可以通过自然语言指令处理各种网络任务。
@@ -93,7 +93,7 @@ print(result)
 
 ### 网页抓取工具
 
-以下是 Hyperbrowser 提供的网页抓取工具的简要说明。您可以在[此处](/oss/integrations/tools/hyperbrowser_web_scraping_tools)查看更多详细信息。
+以下是 Hyperbrowser 提供的网页抓取工具的简要说明。您可以在[此处](/oss/javascript/integrations/tools/hyperbrowser_web_scraping_tools)查看更多详细信息。
 
 #### Scrape 工具
 Scrape 工具允许您以 Markdown、HTML 或链接格式从单个网页提取内容。

@@ -3,7 +3,7 @@ title: ChatAnthropic
 ---
 [Anthropic](https://www.anthropic.com/) 是一家专注于 AI 安全与研究的公司，也是 Claude 的创造者。
 
-本文将帮助您开始使用 Anthropic 的[聊天模型](/oss/langchain/models)。有关 `ChatAnthropic` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_anthropic.ChatAnthropic.html)。
+本文将帮助您开始使用 Anthropic 的[聊天模型](/oss/javascript/langchain/models)。有关 `ChatAnthropic` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_anthropic.ChatAnthropic.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ title: ChatAnthropic
 
 有关如何使用特定功能的指南，请参阅下表标题中的链接。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/javascript/langchain/streaming/) | [Token 使用量](/oss/javascript/langchain/models#token-usage) | [Logprobs](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
 
@@ -139,7 +139,7 @@ J'adore la programmation.
 
 ## 内容块
 
-Anthropic 模型与大多数其他模型的一个关键区别是，单个 Anthropic <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.AIMessage.html" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a> 的内容可以是单个字符串，也可以是**内容块列表**。例如，当 Anthropic 模型[调用工具](/oss/langchain/tools)时，工具调用是消息内容的一部分（同时也在标准化的 `AIMessage.tool_calls` 字段中公开）：
+Anthropic 模型与大多数其他模型的一个关键区别是，单个 Anthropic <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.AIMessage.html" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a> 的内容可以是单个字符串，也可以是**内容块列表**。例如，当 Anthropic 模型[调用工具](/oss/javascript/langchain/tools)时，工具调用是消息内容的一部分（同时也在标准化的 `AIMessage.tool_calls` 字段中公开）：
 
 ```typescript
 import { ChatAnthropic } from "@langchain/anthropic";
@@ -317,7 +317,7 @@ Anthropic 支持[缓存部分提示词](https://platform.claude.com/docs/en/buil
 
 目前还存在一个可缓存提示词的最小长度，该长度因模型而异。您可以在此处查看此信息。
 
-这目前要求您使用测试版请求头初始化模型。以下是一个缓存包含 LangChain [概念文档](/oss/concepts/) 的部分系统消息的示例：
+这目前要求您使用测试版请求头初始化模型。以下是一个缓存包含 LangChain [概念文档](/oss/javascript/concepts/) 的部分系统消息的示例：
 
 ```typescript
 let CACHED_TEXT = "...";
@@ -356,11 +356,11 @@ Chat Models also accept other parameters that are specific to that integration.
 <strong>Some chat models have been fine-tuned for </strong>tool calling<strong> and provide a dedicated API for it.</strong>
 
 Generally, such models are better at tool calling than non-fine-tuned models, and are recommended for use cases that require tool calling.
-Please see the [tool calling section](/oss/langchain/tools) for more information.
+Please see the [tool calling section](/oss/javascript/langchain/tools) for more information.
 
 </Warning>
 
-For specifics on how to use chat models, see the [relevant how-to guides here](/oss/langchain/models).
+For specifics on how to use chat models, see the [relevant how-to guides here](/oss/javascript/langchain/models).
 
 #### Multimodality
 
@@ -372,7 +372,7 @@ and plan to further solidify the multimodal APIs and interaction patterns as the
 In LangChain, most chat models that support multimodal inputs also accept those values in OpenAI's content blocks format.
 So far this is restricted to image inputs. For models like Gemini which support video and other bytes input, the APIs also support the native, model-specific representations.
 
-For specifics on how to use multimodal models, see the [relevant how-to guides here](/oss/how-to/#multimodal).
+For specifics on how to use multimodal models, see the [relevant how-to guides here](/oss/javascript/how-to/#multimodal).
 
 ### LLMs
 
@@ -380,24 +380,24 @@ For specifics on how to use multimodal models, see the [relevant how-to guides h
 
 <Warning>
 
-<strong>Pure text-in/text-out LLMs tend to be older or lower-level. Many popular models are best used as [chat completion models](/oss/langchain/models),</strong>
+<strong>Pure text-in/text-out LLMs tend to be older or lower-level. Many popular models are best used as [chat completion models](/oss/javascript/langchain/models),</strong>
 
 even for non-chat use cases.
 
-You are probably looking for [the section above instead](/oss/langchain/models).
+You are probably looking for [the section above instead](/oss/javascript/langchain/models).
 
 </Warning>
 
 Language models that takes a string as input and returns a string.
-These are traditionally older models (newer models generally are [Chat Models](/oss/langchain/models), see above).
+These are traditionally older models (newer models generally are [Chat Models](/oss/javascript/langchain/models), see above).
 
 Although the underlying models are string in, string out, the LangChain wrappers also allow these models to take messages as input.
-This gives them the same interface as [Chat Models](/oss/langchain/models).
+This gives them the same interface as [Chat Models](/oss/javascript/langchain/models).
 When messages are passed in as input, they will be formatted into a string under the hood before being passed to the underlying model.
 
 LangChain does not host any LLMs, rather we rely on third party integrations.
 
-For specifics on how to use LLMs, see the [relevant how-to guides here](/oss/langchain/models).
+For specifics on how to use LLMs, see the [relevant how-to guides here](/oss/javascript/langchain/models).
 
 ### Message types
 

@@ -22,7 +22,7 @@ os.environ["AIMLAPI_API_KEY"] = "aimlapi_..."
 
 ## 聊天模型
 
-查看[使用示例](/oss/integrations/chat/aimlapi)。
+查看[使用示例](/oss/javascript/integrations/chat/aimlapi)。
 
 ```python
 from langchain_aimlapi import ChatAimlapi
@@ -30,7 +30,7 @@ from langchain_aimlapi import ChatAimlapi
 
 ## 大语言模型 (LLMs)
 
-查看[使用示例](/oss/integrations/llms/aimlapi)。
+查看[使用示例](/oss/javascript/integrations/llms/aimlapi)。
 
 ```python
 from langchain_aimlapi import AimlapiLLM
@@ -38,7 +38,7 @@ from langchain_aimlapi import AimlapiLLM
 
 ## 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/aimlapi)。
+查看[使用示例](/oss/javascript/integrations/text_embedding/aimlapi)。
 
 ```python
 from langchain_aimlapi import AimlapiEmbeddings

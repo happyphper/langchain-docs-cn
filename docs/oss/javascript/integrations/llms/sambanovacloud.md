@@ -4,9 +4,9 @@ title: SambaNovaCloud
 
 <Warning>
 
-<strong>您当前正在查看的是关于将 SambaNovaCloud 模型用作文本补全模型的文档页面。我们建议您使用 [聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查看的是关于将 SambaNovaCloud 模型用作文本补全模型的文档页面。我们建议您使用 [聊天补全模型](/oss/javascript/langchain/models)。</strong>
 
-您可能正在寻找 [SambaNova 聊天模型](/oss/integrations/chat/sambanova/)。
+您可能正在寻找 [SambaNova 聊天模型](/oss/javascript/integrations/chat/sambanova/)。
 
 </Warning>
 

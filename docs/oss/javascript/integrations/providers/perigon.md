@@ -21,7 +21,7 @@ Perigon 提供两种检索器：
 
 此检索器根据给定的查询和可选过滤器检索文章。
 
-查看[完整使用示例](/oss/integrations/retrievers/perigon#using-articlesretriever)。
+查看[完整使用示例](/oss/javascript/integrations/retrievers/perigon#using-articlesretriever)。
 
 ```python
 # 确保 PERIGON_API_KEY 环境变量已设置为您的 Perigon API 密钥
@@ -54,7 +54,7 @@ except Exception as e:
 
 此检索器根据给定的查询和可选过滤器检索维基百科页面。
 
-查看[完整使用示例](/oss/integrations/retrievers/perigon#using-wikipediaretriever)。
+查看[完整使用示例](/oss/javascript/integrations/retrievers/perigon#using-wikipediaretriever)。
 
 ```python
 # 确保 PERIGON_API_KEY 环境变量已设置为您的 Perigon API 密钥

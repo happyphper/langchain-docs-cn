@@ -3,7 +3,7 @@ title: BedrockEmbeddings
 ---
 [Amazon Bedrock](https://aws.amazon.com/bedrock/) 是一项完全托管的服务，它通过单一 API 提供来自领先 AI 公司（如 AI21 Labs、Anthropic、Cohere、Meta、Stability AI 和 Amazon）的高性能基础模型（FMs）选择，并提供构建具有安全性、隐私性和负责任 AI 的生成式 AI 应用程序所需的一系列广泛功能。
 
-本文将帮助您开始使用 LangChain 集成 Amazon Bedrock 的[嵌入模型](/oss/integrations/text_embedding)。有关 `Bedrock` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_aws.BedrockEmbeddings.html)。
+本文将帮助您开始使用 LangChain 集成 Amazon Bedrock 的[嵌入模型](/oss/javascript/integrations/text_embedding)。有关 `Bedrock` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_aws.BedrockEmbeddings.html)。
 
 ## 概述
 
@@ -69,9 +69,9 @@ const embeddings = new BedrockEmbeddings({
 
 ## 索引与检索
 
-嵌入模型通常用于检索增强生成（RAG）流程中，既作为索引数据的一部分，也用于后续检索。更详细的说明，请参阅 [**学习** 标签页](/oss/learn/)下的 RAG 教程。
+嵌入模型通常用于检索增强生成（RAG）流程中，既作为索引数据的一部分，也用于后续检索。更详细的说明，请参阅 [**学习** 标签页](/oss/javascript/learn/)下的 RAG 教程。
 
-下面，看看如何使用我们上面初始化的 `embeddings` 对象来索引和检索数据。在这个例子中，我们将使用演示用的 [`MemoryVectorStore`](/oss/integrations/vectorstores/memory) 来索引和检索一个示例文档。
+下面，看看如何使用我们上面初始化的 `embeddings` 对象来索引和检索数据。在这个例子中，我们将使用演示用的 [`MemoryVectorStore`](/oss/javascript/integrations/vectorstores/memory) 来索引和检索一个示例文档。
 
 ```typescript
 // 使用示例文本创建向量存储

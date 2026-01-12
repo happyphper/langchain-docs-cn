@@ -1,7 +1,7 @@
 ---
 title: Jina 搜索
 ---
-本指南提供了快速入门 Jina [工具](/oss/integrations/tools/) 的概述。有关 Jina 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.jina_search.tool.JinaSearch.html)。
+本指南提供了快速入门 Jina [工具](/oss/python/integrations/tools/) 的概述。有关 Jina 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.jina_search.tool.JinaSearch.html)。
 
 ## 概述
 
@@ -13,7 +13,7 @@ title: Jina 搜索
 
 ### 工具特性
 
-| [返回产物](/oss/langchain/tools) | 原生异步 | 返回数据 | 定价 |
+| [返回产物](/oss/python/langchain/tools) | 原生异步 | 返回数据 | 定价 |
 | :---: | :---: | :---: | :---: |
 | ❌ | ❌ | URL、摘要、标题、页面内容 | 前 100 万响应 token 免费 |
 
@@ -56,7 +56,7 @@ tool = JinaSearch()
 
 ## 调用
 
-### [直接使用参数调用](/oss/langchain/tools)
+### [直接使用参数调用](/oss/python/langchain/tools)
 
 ```python
 print(tool.invoke({"query": "what is langgraph"})[:1000])
@@ -66,7 +66,7 @@ print(tool.invoke({"query": "what is langgraph"})[:1000])
 [{"title": "LangGraph", "link": "https://www.langchain.com/langgraph", "snippet": "<strong>LangGraph</strong> helps teams of all sizes, across all industries, from ambitious startups to established enterprises. \u201cLangChain is streets ahead with what they&#x27;ve put forward with <strong>LangGraph</strong>.", "content": "![Image 1](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/667b080e4b3ca12dc5d5d439_Langgraph%20UI-2.webp)\n\nControllable cognitive architecture for any task\n------------------------------------------------\n\nLangGraph's flexible API supports diverse control flows \u2013 single agent, multi-agent, hierarchical, sequential \u2013 and robustly handles realistic, complex scenarios.\n\nEnsure reliability with easy-to-add moderation and quality loops that prevent agents from veering off course.\n\n[See the docs](https://langchain-ai.github.io/langgraph/)\n\nDesigned for human-agent collaboration\n--------------------------------------\n\nWith built-in stat
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools)
+### [使用 ToolCall 调用](/oss/python/langchain/tools)
 
 我们也可以使用模型生成的 ToolCall 来调用该工具，在这种情况下将返回一个 ToolMessage：
 
@@ -88,7 +88,7 @@ print(tool_msg.content[:1000])
 
 ## 链式调用
 
-我们可以通过先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后调用它来在链中使用我们的工具：
+我们可以通过先将工具绑定到一个 [工具调用模型](/oss/python/langchain/tools/)，然后调用它来在链中使用我们的工具：
 
 <ChatModelTabs customVarName="llm" />
 

@@ -21,4 +21,4 @@ uv add langchain-oxylabs
 
 ## 工具
 
-有关可用工具的详细信息，请参见[此处](/oss/integrations/tools/oxylabs/)。
+有关可用工具的详细信息，请参见[此处](/oss/python/integrations/tools/oxylabs/)。

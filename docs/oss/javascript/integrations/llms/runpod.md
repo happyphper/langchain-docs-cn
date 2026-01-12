@@ -15,7 +15,7 @@ title: RunPod
 pip install -qU langchain-runpod
 ```
 
-2. **部署 LLM 端点：** 按照 [RunPod 提供商指南](/oss/integrations/providers/runpod#setup) 中的设置步骤，在 RunPod Serverless 上部署一个兼容的文本生成端点并获取其端点 ID。
+2. **部署 LLM 端点：** 按照 [RunPod 提供商指南](/oss/javascript/integrations/providers/runpod#setup) 中的设置步骤，在 RunPod Serverless 上部署一个兼容的文本生成端点并获取其端点 ID。
 3. **设置环境变量：** 确保已设置 `RUNPOD_API_KEY` 和 `RUNPOD_ENDPOINT_ID`。
 
 ```python

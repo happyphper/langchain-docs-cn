@@ -41,4 +41,4 @@ OpenGradientToolkit 使开发者能够基于部署在 OpenGradient 去中心化�
 * 🔧 **完全自定义** - 通过 [OpenGradient SDK](https://docs.opengradient.ai/developers/sdk/model_management.html) 创建和部署你自己的特定模型，然后基于它们构建自定义工具
 * 🔐 **可验证推理** - 所有推理都在去中心化的 OpenGradient 网络上运行，允许用户选择各种安全方案，如 ZKML 和 TEE，以实现无需信任、可验证的模型执行
 
-有关详细示例和实现指南，请查看我们的 [综合教程](/oss/integrations/tools/opengradient_toolkit.ipynb)。
+有关详细示例和实现指南，请查看我们的 [综合教程](/oss/javascript/integrations/tools/opengradient_toolkit.ipynb)。

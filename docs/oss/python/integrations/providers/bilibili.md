@@ -19,7 +19,7 @@ uv add bilibili-api-python
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/bilibili)。
+查看[使用示例](/oss/python/integrations/document_loaders/bilibili)。
 
 ```python
 from langchain_community.document_loaders import BiliBiliLoader

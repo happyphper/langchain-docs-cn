@@ -10,7 +10,7 @@ sidebarTitle: Voice agent
 
 ### 什么是语音智能体？
 
-语音智能体是能够与用户进行自然口语对话的[智能体](/oss/langchain/agents)。这些智能体结合了语音识别、自然语言处理、生成式 AI 和文本转语音技术，以创建无缝、自然的对话。
+语音智能体是能够与用户进行自然口语对话的[智能体](/oss/python/langchain/agents)。这些智能体结合了语音识别、自然语言处理、生成式 AI 和文本转语音技术，以创建无缝、自然的对话。
 
 它们适用于多种用例，包括：
 
@@ -209,13 +209,13 @@ class AssemblyAISTT:
 
 ## 2. LangChain 智能体
 
-智能体阶段通过 LangChain [智能体](/oss/langchain/agents)处理文本转录，并流式传输响应令牌。在本例中，我们流式传输智能体生成的所有[文本内容块](/oss/langchain/messages#textcontentblock)。
+智能体阶段通过 LangChain [智能体](/oss/python/langchain/agents)处理文本转录，并流式传输响应令牌。在本例中，我们流式传输智能体生成的所有[文本内容块](/oss/python/langchain/messages#textcontentblock)。
 
 ### 关键概念
 
-**流式响应**：智能体使用 [`stream_mode="messages"`](/oss/langchain/streaming#llm-tokens) 在生成时发出响应令牌，而不是等待完整响应。这使得 TTS 阶段可以立即开始合成。
+**流式响应**：智能体使用 [`stream_mode="messages"`](/oss/python/langchain/streaming#llm-tokens) 在生成时发出响应令牌，而不是等待完整响应。这使得 TTS 阶段可以立即开始合成。
 
-**对话记忆**：[检查点器](/oss/langchain/short-term-memory)使用唯一的线程 ID 在多个轮次中维护对话状态。这使得智能体能够引用对话中先前的交流。
+**对话记忆**：[检查点器](/oss/python/langchain/short-term-memory)使用唯一的线程 ID 在多个轮次中维护对话状态。这使得智能体能够引用对话中先前的交流。
 
 ### 实现
 

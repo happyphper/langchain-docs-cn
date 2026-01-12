@@ -23,7 +23,7 @@ uv add embedchain
 
 ## 检索器
 
-查看 [使用示例](/oss/integrations/retrievers/embedchain)。
+查看 [使用示例](/oss/javascript/integrations/retrievers/embedchain)。
 
 ```python
 from langchain_community.retrievers import EmbedchainRetriever

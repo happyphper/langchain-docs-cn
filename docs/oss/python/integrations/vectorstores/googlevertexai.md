@@ -164,5 +164,5 @@ await engine.delete({ids: oldIds});
 
 ## 相关链接
 
-- 向量存储 [概念指南](/oss/integrations/vectorstores)
-- 向量存储 [操作指南](/oss/integrations/vectorstores)
+- 向量存储 [概念指南](/oss/python/integrations/vectorstores)
+- 向量存储 [操作指南](/oss/python/integrations/vectorstores)

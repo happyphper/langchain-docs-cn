@@ -23,18 +23,18 @@ npm install @langchain/langgraph
 
 ## 定义和更新状态
 
-这里我们将展示如何在 LangGraph 中定义和更新[状态](/oss/langgraph/graph-api#state)。我们将演示：
+这里我们将展示如何在 LangGraph 中定义和更新[状态](/oss/javascript/langgraph/graph-api#state)。我们将演示：
 
-1. 如何使用状态定义图的[模式](/oss/langgraph/graph-api#schema)
-2. 如何使用[归约器](/oss/langgraph/graph-api#reducers)来控制状态更新的处理方式。
+1. 如何使用状态定义图的[模式](/oss/javascript/langgraph/graph-api#schema)
+2. 如何使用[归约器](/oss/javascript/langgraph/graph-api#reducers)来控制状态更新的处理方式。
 
 ### 定义状态
 
-LangGraph 中的[状态](/oss/langgraph/graph-api#state)可以使用 Zod 模式定义。下面我们将使用 Zod。有关使用替代方法的详细信息，请参阅[此部分](#alternative-state-definitions)。
+LangGraph 中的[状态](/oss/javascript/langgraph/graph-api#state)可以使用 Zod 模式定义。下面我们将使用 Zod。有关使用替代方法的详细信息，请参阅[此部分](#alternative-state-definitions)。
 
 默认情况下，图将具有相同的输入和输出模式，状态决定了该模式。有关如何定义不同的输入和输出模式，请参阅[此部分](#define-input-and-output-schemas)。
 
-让我们考虑一个使用[消息](/oss/langgraph/graph-api#messagesstate)的简单示例。这代表了许多 LLM 应用状态的通用表示形式。更多细节请参阅我们的[概念页面](/oss/langgraph/graph-api#working-with-messages-in-graph-state)。
+让我们考虑一个使用[消息](/oss/javascript/langgraph/graph-api#messagesstate)的简单示例。这代表了许多 LLM 应用状态的通用表示形式。更多细节请参阅我们的[概念页面](/oss/javascript/langgraph/graph-api#working-with-messages-in-graph-state)。
 
 ```typescript
 import { BaseMessage } from "@langchain/core/messages";
@@ -52,7 +52,7 @@ const State = z.object({
 
 ### 更新状态
 
-让我们构建一个包含单个节点的示例图。我们的[节点](/oss/langgraph/graph-api#nodes)只是一个 TypeScript 函数，它读取图的状态并对其进行更新。此函数的第一个参数始终是状态：
+让我们构建一个包含单个节点的示例图。我们的[节点](/oss/javascript/langgraph/graph-api#nodes)只是一个 TypeScript 函数，它读取图的状态并对其进行更新。此函数的第一个参数始终是状态：
 
 ```typescript
 import { AIMessage } from "@langchain/core/messages";
@@ -72,7 +72,7 @@ const node = (state: z.infer<typeof State>) => {
 
 </Warning>
 
-接下来让我们定义一个包含此节点的简单图。我们使用 [`StateGraph`](/oss/langgraph/graph-api#stategraph) 来定义一个在此状态上操作的图。然后我们使用 [`addNode`](/oss/langgraph/graph-api#nodes) 来填充我们的图。
+接下来让我们定义一个包含此节点的简单图。我们使用 [`StateGraph`](/oss/javascript/langgraph/graph-api#stategraph) 来定义一个在此状态上操作的图。然后我们使用 [`addNode`](/oss/javascript/langgraph/graph-api#nodes) 来填充我们的图。
 
 ```typescript
 import { StateGraph } from "@langchain/langgraph";
@@ -128,7 +128,7 @@ ai: Hello!
 
 ### 使用归约器处理状态更新
 
-状态中的每个键都可以有自己的独立[归约器](/oss/langgraph/graph-api#reducers)函数，它控制如何应用来自节点的更新。如果没有明确指定归约器函数，则假定对该键的所有更新都应覆盖它。
+状态中的每个键都可以有自己的独立[归约器](/oss/javascript/langgraph/graph-api#reducers)函数，它控制如何应用来自节点的更新。如果没有明确指定归约器函数，则假定对该键的所有更新都应覆盖它。
 
 对于 Zod 状态模式，我们可以通过在模式字段上使用特殊的 `.langgraph.reducer()` 方法来定义归约器。
 
@@ -177,7 +177,7 @@ ai: Hello!
 实际上，更新消息列表还有其他考虑因素：
 
 * 我们可能希望更新状态中的现有消息。
-* 我们可能希望接受[消息格式](/oss/langgraph/graph-api#using-messages-in-your-graph)的简写，例如 [OpenAI 格式](https://python.langchain.com/docs/concepts/messages/#openai-format)。
+* 我们可能希望接受[消息格式](/oss/javascript/langgraph/graph-api#using-messages-in-your-graph)的简写，例如 [OpenAI 格式](https://python.langchain.com/docs/concepts/messages/#openai-format)。
 
 LangGraph 包含一个内置的 `MessagesZodMeta` 来处理这些考虑因素：
 
@@ -678,11 +678,11 @@ const builder = new StateGraph(State)
 LangGraph 使得为您的应用程序添加底层持久层变得容易。
 这允许在节点执行之间对状态进行检查点保存，因此您的 LangGraph 节点控制着：
 
-* 状态更新如何[检查点保存](/oss/langgraph/persistence)
-* 在[人机交互](/oss/langgraph/interrupts)工作流中如何恢复中断
-* 如何使用 LangGraph 的[时间旅行](/oss/langgraph/use-time-travel)功能"回滚"和分支执行
+* 状态更新如何[检查点保存](/oss/javascript/langgraph/persistence)
+* 在[人机交互](/oss/javascript/langgraph/interrupts)工作流中如何恢复中断
+* 如何使用 LangGraph 的[时间旅行](/oss/javascript/langgraph/use-time-travel)功能"回滚"和分支执行
 
-它们还决定了执行步骤如何[流式传输](/oss/langgraph/streaming)，以及如何使用 [Studio](/langsmith/studio) 可视化和调试您的应用程序。
+它们还决定了执行步骤如何[流式传输](/oss/javascript/langgraph/streaming)，以及如何使用 [Studio](/langsmith/studio) 可视化和调试您的应用程序。
 
 让我们演示一个端到端的示例。我们将创建一个包含三个步骤的序列：
 
@@ -690,7 +690,7 @@ LangGraph 使得为您的应用程序添加底层持久层变得容易。
 2. 更新相同的值
 3. 填充一个不同的值
 
-首先定义我们的[状态](/oss/langgraph/graph-api#state)。这控制着[图的模式](/oss/langgraph/graph-api#schema)，并且还可以指定如何应用更新。更多细节请参见[本节](#process-state-updates-with-reducers)。
+首先定义我们的[状态](/oss/javascript/langgraph/graph-api#state)。这控制着[图的模式](/oss/javascript/langgraph/graph-api#schema)，并且还可以指定如何应用更新。更多细节请参见[本节](#process-state-updates-with-reducers)。
 
 在我们的例子中，我们将只跟踪两个值：
 
@@ -703,7 +703,7 @@ const State = z.object({
 });
 ```
 
-我们的[节点](/oss/langgraph/graph-api#nodes)只是读取图状态并对其进行更新的 TypeScript 函数。该函数的第一个参数始终是状态：
+我们的[节点](/oss/javascript/langgraph/graph-api#nodes)只是读取图状态并对其进行更新的 TypeScript 函数。该函数的第一个参数始终是状态：
 
 ```typescript
 const step1 = (state: z.infer<typeof State>) => {
@@ -724,13 +724,13 @@ const step3 = (state: z.infer<typeof State>) => {
 
 请注意，当向状态发出更新时，每个节点只需指定它希望更新的键的值。
 
-默认情况下，这将<strong>覆盖</strong>相应键的值。您也可以使用[归约器](/oss/langgraph/graph-api#reducers)来控制如何处理更新——例如，您可以向键追加连续的更新而不是覆盖。更多细节请参见[本节](#process-state-updates-with-reducers)。
+默认情况下，这将<strong>覆盖</strong>相应键的值。您也可以使用[归约器](/oss/javascript/langgraph/graph-api#reducers)来控制如何处理更新——例如，您可以向键追加连续的更新而不是覆盖。更多细节请参见[本节](#process-state-updates-with-reducers)。
 
 </Note>
 
-最后，我们定义图。我们使用 [StateGraph](/oss/langgraph/graph-api#stategraph) 来定义一个在此状态上操作的图。
+最后，我们定义图。我们使用 [StateGraph](/oss/javascript/langgraph/graph-api#stategraph) 来定义一个在此状态上操作的图。
 
-然后我们将使用 [addNode](/oss/langgraph/graph-api#nodes) 和 [addEdge](/oss/langgraph/graph-api#edges) 来填充我们的图并定义其控制流。
+然后我们将使用 [addNode](/oss/javascript/langgraph/graph-api#nodes) 和 [addEdge](/oss/javascript/langgraph/graph-api#edges) 来填充我们的图并定义其控制流。
 
 ```typescript
 import { START, StateGraph } from "@langchain/langgraph";
@@ -761,10 +761,10 @@ const graph = new StateGraph(State)
 请注意：
 
 * `.addEdge` 接受节点名称，对于函数，默认使用 `node.name`。
-* 我们必须指定图的入口点。为此，我们添加一条与 [START 节点](/oss/langgraph/graph-api#start-node) 的边。
+* 我们必须指定图的入口点。为此，我们添加一条与 [START 节点](/oss/javascript/langgraph/graph-api#start-node) 的边。
 * 当没有更多节点要执行时，图停止。
 
-接下来我们[编译](/oss/langgraph/graph-api#compiling-your-graph)我们的图。这提供了对图结构的一些基本检查（例如，识别孤立节点）。如果我们通过[检查点保存器](/oss/langgraph/persistence)向应用程序添加持久性，它也会在这里传递。
+接下来我们[编译](/oss/javascript/langgraph/graph-api#compiling-your-graph)我们的图。这提供了对图结构的一些基本检查（例如，识别孤立节点）。如果我们通过[检查点保存器](/oss/javascript/langgraph/persistence)向应用程序添加持久性，它也会在这里传递。
 
 LangGraph 提供了内置工具来可视化您的图。让我们检查我们的序列。有关可视化的详细信息，请参见[本指南](#visualize-your-graph)。
 
@@ -804,7 +804,7 @@ console.log(result);
 
 ### 并行运行图节点
 
-在这个示例中，我们从 `Node A` 扇出到 `B 和 C`，然后扇入到 `D`。对于我们的状态，[我们指定归约器 add 操作](/oss/langgraph/graph-api#reducers)。这将组合或累积状态中特定键的值，而不是简单地覆盖现有值。对于列表，这意味着将新列表与现有列表连接起来。有关使用归约器更新状态的更多详细信息，请参见上面关于[状态归约器](#process-state-updates-with-reducers)的部分。
+在这个示例中，我们从 `Node A` 扇出到 `B 和 C`，然后扇入到 `D`。对于我们的状态，[我们指定归约器 add 操作](/oss/javascript/langgraph/graph-api#reducers)。这将组合或累积状态中特定键的值，而不是简单地覆盖现有值。对于列表，这意味着将新列表与现有列表连接起来。有关使用归约器更新状态的更多详细信息，请参见上面关于[状态归约器](#process-state-updates-with-reducers)的部分。
 
 ```typescript
 import { StateGraph, START, END } from "@langchain/langgraph";
@@ -884,7 +884,7 @@ Adding "D" to ['A', 'B', 'C']
 
 <Note>
 
-在上面的示例中，节点 `"b"` 和 `"c"` 在同一个[超步](/oss/langgraph/graph-api#graphs)中并发执行。因为它们在同一个步骤中，节点 `"d"` 在 `"b"` 和 `"c"` 都完成后执行。
+在上面的示例中，节点 `"b"` 和 `"c"` 在同一个[超步](/oss/javascript/langgraph/graph-api#graphs)中并发执行。因为它们在同一个步骤中，节点 `"d"` 在 `"b"` 和 `"c"` 都完成后执行。
 
 重要的是，来自并行超步的更新可能不会保持一致的顺序。如果您需要并行超步的更新具有一致的、预定的顺序，您应该将输出写入状态中的一个单独字段，并附带一个用于排序的值。
 
@@ -892,9 +892,9 @@ Adding "D" to ['A', 'B', 'C']
 
 :::: details 异常处理？
 
-LangGraph 在[超步](/oss/langgraph/graph-api#graphs)内执行节点，这意味着虽然并行分支是并行执行的，但整个超步是<strong>事务性的</strong>。如果这些分支中的任何一个引发异常，<strong>所有</strong>更新都不会应用到状态（整个超步出错）。
+LangGraph 在[超步](/oss/javascript/langgraph/graph-api#graphs)内执行节点，这意味着虽然并行分支是并行执行的，但整个超步是<strong>事务性的</strong>。如果这些分支中的任何一个引发异常，<strong>所有</strong>更新都不会应用到状态（整个超步出错）。
 
-重要的是，当使用[检查点保存器](/oss/langgraph/persistence)时，超步内成功节点的结果会被保存，并且在恢复时不会重复。
+重要的是，当使用[检查点保存器](/oss/javascript/langgraph/persistence)时，超步内成功节点的结果会被保存，并且在恢复时不会重复。
 
 如果您有容易出错的节点（可能希望处理不稳定的 API 调用），LangGraph 提供了两种方法来解决这个问题：
 
@@ -1088,9 +1088,9 @@ for await (const step of await graph.stream({ topic: "animals" })) {
 
 ## 创建和控制循环
 
-当创建带有循环的图时，我们需要一种终止执行的机制。这通常通过添加一个[条件边](/oss/langgraph/graph-api#conditional-edges)来实现，该边在达到某个终止条件时路由到 [END](/oss/langgraph/graph-api#end-node) 节点。
+当创建带有循环的图时，我们需要一种终止执行的机制。这通常通过添加一个[条件边](/oss/javascript/langgraph/graph-api#conditional-edges)来实现，该边在达到某个终止条件时路由到 [END](/oss/javascript/langgraph/graph-api#end-node) 节点。
 
-您还可以在调用或流式传输图时设置图递归限制。递归限制设置了图在执行引发错误之前允许执行的[超步](/oss/langgraph/graph-api#graphs)数。有关递归限制概念的更多信息，请参见[此处](/oss/langgraph/graph-api#recursion-limit)。
+您还可以在调用或流式传输图时设置图递归限制。递归限制设置了图在执行引发错误之前允许执行的[超步](/oss/javascript/langgraph/graph-api#graphs)数。有关递归限制概念的更多信息，请参见[此处](/oss/javascript/langgraph/graph-api#recursion-limit)。
 
 让我们考虑一个带有循环的简单图，以更好地理解这些机制的工作原理。
 
@@ -1189,7 +1189,7 @@ const imageBuffer = new Uint8Array(await image.arrayBuffer());
 await fs.writeFile("graph.png", imageBuffer);
 ```
 
-这种架构类似于 [ReAct 智能体](/oss/langgraph/workflows-agents)，其中节点 `"a"` 是一个工具调用模型，节点 `"b"` 代表工具。
+这种架构类似于 [ReAct 智能体](/oss/javascript/langgraph/workflows-agents)，其中节点 `"a"` 是一个工具调用模型，节点 `"b"` 代表工具。
 
 在我们的 `route` 条件边中，我们指定当状态中的 `"aggregate"` 列表长度超过阈值后应该结束。
 
@@ -1213,7 +1213,7 @@ Node A sees ['A', 'B', 'A', 'B', 'A', 'B']
 
 ### 强制递归限制
 
-在某些应用中，我们可能无法保证会达到给定的终止条件。在这些情况下，我们可以设置图的 [递归限制](/oss/langgraph/graph-api#recursion-limit)。这将在给定数量的 [超步](/oss/langgraph/graph-api#graphs) 后引发 `GraphRecursionError`。然后我们可以捕获并处理这个异常：
+在某些应用中，我们可能无法保证会达到给定的终止条件。在这些情况下，我们可以设置图的 [递归限制](/oss/javascript/langgraph/graph-api#recursion-limit)。这将在给定数量的 [超步](/oss/javascript/langgraph/graph-api#graphs) 后引发 `GraphRecursionError`。然后我们可以捕获并处理这个异常：
 
 ```typescript
 import { GraphRecursionError } from "@langchain/langgraph";
@@ -1292,7 +1292,7 @@ const nodeC = (state: z.infer<typeof State>) => {
 };
 ```
 
-现在我们可以用上面的节点创建 `StateGraph`。注意，该图没有用于路由的 [条件边](/oss/langgraph/graph-api#conditional-edges)！这是因为控制流是在 `nodeA` 内部用 `Command` 定义的。
+现在我们可以用上面的节点创建 `StateGraph`。注意，该图没有用于路由的 [条件边](/oss/javascript/langgraph/graph-api#conditional-edges)！这是因为控制流是在 `nodeA` 内部用 `Command` 定义的。
 
 ```typescript
 const graph = new StateGraph(State)
@@ -1336,7 +1336,7 @@ Called C
 
 ### 导航到父图中的节点
 
-如果您正在使用 [子图](/oss/langgraph/use-subgraphs)，您可能希望从子图内的节点导航到不同的子图（即父图中的不同节点）。为此，您可以在 `Command` 中指定 `graph=Command.PARENT`：
+如果您正在使用 [子图](/oss/javascript/langgraph/use-subgraphs)，您可能希望从子图内的节点导航到不同的子图（即父图中的不同节点）。为此，您可以在 `Command` 中指定 `graph=Command.PARENT`：
 
 ```typescript
 const myNode = (state: State): Command => {
@@ -1353,7 +1353,7 @@ const myNode = (state: State): Command => {
 <Warning>
 
 <strong>使用 `Command.PARENT` 进行状态更新</strong>
-当您从子图节点向父图节点发送更新，且该键由父图和子图的 [状态模式](/oss/langgraph/graph-api#schema) 共享时，您<strong>必须</strong>在父图状态中为您正在更新的键定义一个 [归约器](/oss/langgraph/graph-api#reducers)。请参见下面的示例。
+当您从子图节点向父图节点发送更新，且该键由父图和子图的 [状态模式](/oss/javascript/langgraph/graph-api#schema) 共享时，您<strong>必须</strong>在父图状态中为您正在更新的键定义一个 [归约器](/oss/javascript/langgraph/graph-api#reducers)。请参见下面的示例。
 
 </Warning>
 

@@ -88,4 +88,4 @@ search.invoke("Obama")
 
 ## 相关链接
 
-- [如何使用聊天模型调用工具](/oss/langchain/tools)
+- [如何使用聊天模型调用工具](/oss/javascript/langchain/tools)

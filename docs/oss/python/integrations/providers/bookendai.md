@@ -9,7 +9,7 @@ LangChain 实现了与 [bookend.ai](https://bookend.ai/) 提供的嵌入模型�
 
 ## 嵌入模型
 
-查看[使用示例](/oss/integrations/text_embedding/bookend)。
+查看[使用示例](/oss/python/integrations/text_embedding/bookend)。
 
 ```python
 from langchain_community.embeddings import BookendEmbeddings

@@ -8,11 +8,11 @@ title: PuppeteerWebBaseLoader
 
 </Tip>
 
-本笔记本提供了快速入门 [PuppeteerWebBaseLoader](/oss/integrations/document_loaders/) 的概述。有关 PuppeteerWebBaseLoader 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_puppeteer.PuppeteerWebBaseLoader.html)。
+本笔记本提供了快速入门 [PuppeteerWebBaseLoader](/oss/python/integrations/document_loaders/) 的概述。有关 PuppeteerWebBaseLoader 所有功能和配置的详细文档，请前往 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_puppeteer.PuppeteerWebBaseLoader.html)。
 
 Puppeteer 是一个 Node.js 库，提供了用于控制无头 Chrome 或 Chromium 的高级 API。您可以使用 Puppeteer 来自动化网页交互，包括从需要 JavaScript 渲染的动态网页中提取数据。
 
-如果您需要一个更轻量级的解决方案，并且您想要加载的网页不需要 JavaScript 渲染，可以使用 [CheerioWebBaseLoader](/oss/integrations/document_loaders/web_loaders/web_cheerio) 替代。
+如果您需要一个更轻量级的解决方案，并且您想要加载的网页不需要 JavaScript 渲染，可以使用 [CheerioWebBaseLoader](/oss/python/integrations/document_loaders/web_loaders/web_cheerio) 替代。
 
 ## 概述
 

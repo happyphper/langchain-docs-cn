@@ -30,4 +30,4 @@ Timbr 提供了一个围绕其语义层的包装器，该包装器根据自然�
 from langchain_timbr import create_timbr_sql_agent, ExecuteTimbrQueryChain, GenerateTimbrSqlChain
 ```
 
-查看 [使用示例](/oss/integrations/graphs/timbr)
+查看 [使用示例](/oss/python/integrations/graphs/timbr)

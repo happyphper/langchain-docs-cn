@@ -31,7 +31,7 @@ uv add langchain-writer
 ```python
 from langchain_writer import ChatWriter
 ```
-查看[详情](/oss/integrations/chat/writer)。
+查看[详情](/oss/python/integrations/chat/writer)。
 
 ## PDF 解析器
 
@@ -47,7 +47,7 @@ from langchain_writer.pdf_parser import PDFParser
 
 </Warning>
 
-查看[详情](/oss/integrations/document_loaders/parsers/writer_pdf_parser)。
+查看[详情](/oss/python/integrations/document_loaders/parsers/writer_pdf_parser)。
 
 ## 工具调用
 
@@ -60,18 +60,18 @@ from langchain_writer.pdf_parser import PDFParser
 ```python
 from langchain_writer.tools import GraphTool
 ```
-查看[详情](/oss/integrations/tools/writer)。
+查看[详情](/oss/python/integrations/tools/writer)。
 
 ### 网络搜索工具
 
 ```python
 from langchain_writer.tools import WebSearchTool
 ```
-查看[详情](/oss/integrations/tools/writer)。
+查看[详情](/oss/python/integrations/tools/writer)。
 
 ### 翻译工具
 
 ```python
 from langchain_writer.tools import TranslationTool
 ```
-查看[详情](/oss/integrations/tools/writer)。
+查看[详情](/oss/python/integrations/tools/writer)。

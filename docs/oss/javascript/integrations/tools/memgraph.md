@@ -1,7 +1,7 @@
 ---
 title: MemgraphToolkit
 ---
-这将帮助您开始使用 Memgraph [工具包](/oss/langchain/tools#toolkits)。
+这将帮助您开始使用 Memgraph [工具包](/oss/javascript/langchain/tools#toolkits)。
 
 `MemgraphToolkit` 中的工具设计用于与 `Memgraph` 数据库进行交互。
 

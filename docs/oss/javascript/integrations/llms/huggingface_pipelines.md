@@ -196,4 +196,4 @@ ov_config = {
 }
 ```
 
-更多信息请参考 [OpenVINO LLM 指南](https://docs.openvino.ai/2024/learn-openvino/llm_inference_guide.html) 和 [OpenVINO 本地管道笔记本](/oss/integrations/llms/openvino/)。
+更多信息请参考 [OpenVINO LLM 指南](https://docs.openvino.ai/2024/learn-openvino/llm_inference_guide.html) 和 [OpenVINO 本地管道笔记本](/oss/javascript/integrations/llms/openvino/)。

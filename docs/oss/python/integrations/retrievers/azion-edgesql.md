@@ -3,7 +3,7 @@ title: AzionRetriever
 ---
 ## 概述
 
-本文将帮助您开始使用 [AzionRetriever](/oss/langchain/retrieval)。有关 AzionRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_community.retrievers_azion_edgesql.AzionRetriever.html)。
+本文将帮助您开始使用 [AzionRetriever](/oss/python/langchain/retrieval)。有关 AzionRetriever 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/_langchain_community.retrievers_azion_edgesql.AzionRetriever.html)。
 
 ### 集成详情
 

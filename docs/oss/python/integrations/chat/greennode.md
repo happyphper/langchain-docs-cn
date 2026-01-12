@@ -3,7 +3,7 @@ title: ChatGreenNode
 ---
 >[GreenNode](https://greennode.ai/) 是一家全球 AI 解决方案提供商，也是 **NVIDIA 首选合作伙伴**，为美国、中东和北非以及亚太地区的企业提供从基础设施到应用的全栈 AI 能力。GreenNode 基于 **世界级的基础设施**（LEED 金级认证、TIA‑942、Uptime Tier III）运营，为企业、初创公司和研究人员提供全面的 AI 服务套件。
 
-本页面将帮助您开始使用 GreenNode Serverless AI [聊天模型](/oss/langchain/models)。有关 ChatGreenNode 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/greennode/chat_models/langchain_greennode.chat_models.ChatGreenNode.html)。
+本页面将帮助您开始使用 GreenNode Serverless AI [聊天模型](/oss/python/langchain/models)。有关 ChatGreenNode 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/greennode/chat_models/langchain_greennode.chat_models.ChatGreenNode.html)。
 
 [GreenNode AI](https://greennode.ai/) 提供了一个 API 来查询 [20 多个领先的开源模型](https://aiplatform.console.greennode.ai/models)。
 
@@ -17,7 +17,7 @@ title: ChatGreenNode
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming#llm-tokens) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/python/langchain/streaming#llm-tokens) | 原生异步 | [令牌使用量](/oss/python/langchain/models#token-usage) | [对数概率](/oss/python/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ |
 

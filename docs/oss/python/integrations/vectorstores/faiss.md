@@ -1,288 +1,314 @@
 ---
-title: FaissStore
+title: Faiss
 ---
+>[Facebook AI Similarity Search (FAISS)](https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/) 是一个用于高效相似性搜索和稠密向量聚类的库。它包含的算法可以搜索任意大小的向量集合，甚至包括那些可能无法放入 RAM 的集合。它还包含用于评估和参数调优的支持代码。
 
-<Tip>
+请参阅 [FAISS 库](https://arxiv.org/pdf/2401.08281) 论文。
 
-<strong>兼容性</strong>：仅在 Node.js 环境中可用。
+您可以在 [此页面](https://faiss.ai/) 找到 FAISS 的文档。
 
-</Tip>
-
-[Faiss](https://github.com/facebookresearch/faiss) 是一个用于高效相似性搜索和稠密向量聚类的库。
-
-LangChain.js 支持将 Faiss 用作本地运行的向量存储，并可保存到文件。它还提供了从 [LangChain Python 实现](https://python.langchain.com/docs/integrations/vectorstores/faiss#saving-and-loading) 读取已保存文件的能力。
-
-本指南提供了 Faiss [向量存储](/oss/integrations/vectorstores) 的快速入门概述。有关所有 `FaissStore` 功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_faiss.FaissStore.html)。
-
-## 概述
-
-### 集成详情
-
-| 类 | 包 | [Python 支持](https://python.langchain.com/docs/integrations/vectorstores/faiss) | 版本 |
-| :--- | :--- | :---: | :---: |
-| [`FaissStore`](https://api.js.langchain.com/classes/langchain_community_vectorstores_faiss.FaissStore.html) | [`@langchain/community`](https://npmjs.com/@langchain/community) | ✅ |  ![NPM - Version](https://img.shields.io/npm/v/@langchain/community?style=flat-square&label=%20&) |
+本笔记本展示了如何使用与 `FAISS` 向量数据库相关的功能。它将展示此集成特有的功能。在阅读之后，探索 [相关的用例页面](/oss/python/langchain/rag) 可能会有所帮助，以了解如何将此向量存储用作更大链条的一部分。
 
 ## 设置
 
-要使用 Faiss 向量存储，你需要安装 `@langchain/community` 集成包以及作为对等依赖项的 [`faiss-node`](https://github.com/ewfian/faiss-node) 包。
+该集成位于 `langchain-community` 包中。我们还需要安装 `faiss` 包本身。我们可以使用以下命令安装它们：
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+请注意，如果您想使用 GPU 加速版本，也可以安装 `faiss-gpu`
 
-::: code-group
-
-```bash [npm]
-npm install @langchain/community faiss-node @langchain/openai @langchain/core
+```python
+pip install -qU langchain-community faiss-cpu
 ```
 
-```bash [yarn]
-yarn add @langchain/community faiss-node @langchain/openai @langchain/core
+如果您想获得最佳的模型调用自动化追踪体验，您也可以通过取消注释以下内容来设置您的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
+
+```python
+os.environ["LANGSMITH_TRACING"] = "true"
+# os.environ["LANGSMITH_API_KEY"] = getpass.getpass()
 ```
 
-```bash [pnpm]
-pnpm add @langchain/community faiss-node @langchain/openai @langchain/core
+## 初始化
+
+<EmbeddingTabs/>
+
+```python
+# | output: false
+# | echo: false
+from langchain_openai import OpenAIEmbeddings
+
+embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
 ```
 
-:::
+```python
+import faiss
+from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_community.vectorstores import FAISS
 
-### 凭证
+index = faiss.IndexFlatL2(len(embeddings.embed_query("hello world")))
 
-由于 Faiss 在本地运行，你不需要任何凭证即可使用它。
-
-如果你在本指南中使用 OpenAI 嵌入，你还需要设置你的 OpenAI 密钥：
-
-```typescript
-OPENAI_API_KEY = "YOUR_API_KEY";
-```
-
-如果你想获取模型调用的自动化追踪，也可以通过取消注释以下代码来设置你的 [LangSmith](https://docs.langchain.com/langsmith/home) API 密钥：
-
-```typescript
-// LANGSMITH_TRACING="true"
-// LANGSMITH_API_KEY="your-api-key"
-```
-
-## 实例化
-
-```typescript
-import { FaissStore } from "@langchain/community/vectorstores/faiss";
-import { OpenAIEmbeddings } from "@langchain/openai";
-
-const embeddings = new OpenAIEmbeddings({
-  model: "text-embedding-3-small",
-});
-
-const vectorStore = new FaissStore(embeddings, {});
+vector_store = FAISS(
+    embedding_function=embeddings,
+    index=index,
+    docstore=InMemoryDocstore(),
+    index_to_docstore_id={},
+)
 ```
 
 ## 管理向量存储
 
 ### 向向量存储添加项目
 
-```typescript
-import type { Document } from "@langchain/core/documents";
+```python
+from uuid import uuid4
 
-const document1: Document = {
-  pageContent: "The powerhouse of the cell is the mitochondria",
-  metadata: { source: "https://example.com" }
-};
+from langchain_core.documents import Document
 
-const document2: Document = {
-  pageContent: "Buildings are made out of brick",
-  metadata: { source: "https://example.com" }
-};
+document_1 = Document(
+    page_content="I had chocolate chip pancakes and scrambled eggs for breakfast this morning.",
+    metadata={"source": "tweet"},
+)
 
-const document3: Document = {
-  pageContent: "Mitochondria are made out of lipids",
-  metadata: { source: "https://example.com" }
-};
+document_2 = Document(
+    page_content="The weather forecast for tomorrow is cloudy and overcast, with a high of 62 degrees.",
+    metadata={"source": "news"},
+)
 
-const document4: Document = {
-  pageContent: "The 2024 Olympics are in Paris",
-  metadata: { source: "https://example.com" }
-}
+document_3 = Document(
+    page_content="Building an exciting new project with LangChain - come check it out!",
+    metadata={"source": "tweet"},
+)
 
-const documents = [document1, document2, document3, document4];
+document_4 = Document(
+    page_content="Robbers broke into the city bank and stole $1 million in cash.",
+    metadata={"source": "news"},
+)
 
-await vectorStore.addDocuments(documents, { ids: ["1", "2", "3", "4"] });
+document_5 = Document(
+    page_content="Wow! That was an amazing movie. I can't wait to see it again.",
+    metadata={"source": "tweet"},
+)
+
+document_6 = Document(
+    page_content="Is the new iPhone worth the price? Read this review to find out.",
+    metadata={"source": "website"},
+)
+
+document_7 = Document(
+    page_content="The top 10 soccer players in the world right now.",
+    metadata={"source": "website"},
+)
+
+document_8 = Document(
+    page_content="LangGraph is the best framework for building stateful, agentic applications!",
+    metadata={"source": "tweet"},
+)
+
+document_9 = Document(
+    page_content="The stock market is down 500 points today due to fears of a recession.",
+    metadata={"source": "news"},
+)
+
+document_10 = Document(
+    page_content="I have a bad feeling I am going to get deleted :(",
+    metadata={"source": "tweet"},
+)
+
+documents = [
+    document_1,
+    document_2,
+    document_3,
+    document_4,
+    document_5,
+    document_6,
+    document_7,
+    document_8,
+    document_9,
+    document_10,
+]
+uuids = [str(uuid4()) for _ in range(len(documents))]
+
+vector_store.add_documents(documents=documents, ids=uuids)
 ```
 
 ```python
-[ '1', '2', '3', '4' ]
+['22f5ce99-cd6f-4e0c-8dab-664128307c72',
+ 'dc3f061b-5f88-4fa1-a966-413550c51891',
+ 'd33d890b-baad-47f7-b7c1-175f5f7b4e59',
+ '6e6c01d2-6020-4a7b-95da-ef43d43f01b5',
+ 'e677223d-ad75-4c1a-bef6-b5912bd1de03',
+ '47e2a168-6462-4ed2-b1d9-d9edfd7391d6',
+ '1e4d66d6-e155-4891-9212-f7be97f36c6a',
+ 'c0663096-e1a5-4665-b245-1c2e6c4fb653',
+ '8297474a-7f7c-4006-9865-398c1781b1bc',
+ '44e4be03-0a8d-4316-b3c4-f35f4bb2b532']
 ```
 
 ### 从向量存储中删除项目
 
-```typescript
-await vectorStore.delete({ ids: ["4"] });
+```python
+vector_store.delete(ids=[uuids[-1]])
+```
+
+```text
+True
 ```
 
 ## 查询向量存储
 
-一旦你的向量存储创建完成并添加了相关文档，你很可能会希望在运行链或代理时查询它。
+一旦您的向量存储被创建并且相关文档已添加，您很可能希望在运行您的链或代理时查询它。
 
 ### 直接查询
 
-执行简单的相似性搜索可以按如下方式进行：
+#### 相似性搜索
 
-```typescript
-const similaritySearchResults = await vectorStore.similaritySearch("biology", 2);
+可以通过以下方式执行带有元数据过滤的简单相似性搜索：
 
-for (const doc of similaritySearchResults) {
-  console.log(`* ${doc.pageContent} [${JSON.stringify(doc.metadata, null)}]`);
-}
+```python
+results = vector_store.similarity_search(
+    "LangChain provides abstractions to make working with LLMs easy",
+    k=2,
+    filter={"source": "tweet"},
+)
+for res in results:
+    print(f"* {res.page_content} [{res.metadata}]")
 ```
 
 ```text
-* The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
-* Mitochondria are made out of lipids [{"source":"https://example.com"}]
+* Building an exciting new project with LangChain - come check it out! [{'source': 'tweet'}]
+* LangGraph is the best framework for building stateful, agentic applications! [{'source': 'tweet'}]
 ```
 
-目前不支持按元数据过滤。
+支持一些 [MongoDB 查询和投影操作符](https://www.mongodb.com/docs/manual/reference/mql/query-predicates/#alphabetical-list-of-operators) 用于更高级的元数据过滤。当前支持的操作符列表如下：
 
-如果你想执行相似性搜索并获取相应的分数，可以运行：
+- `$eq` (等于)
+- `$neq` (不等于)
+- `$gt` (大于)
+- `$lt` (小于)
+- `$gte` (大于或等于)
+- `$lte` (小于或等于)
+- `$in` (在列表中)
+- `$nin` (不在列表中)
+- `$and` (所有条件必须匹配)
+- `$or` (任何条件必须匹配)
+- `$not` (条件取反)
 
-```typescript
-const similaritySearchWithScoreResults = await vectorStore.similaritySearchWithScore("biology", 2);
+可以通过以下方式使用高级元数据过滤执行上述相同的相似性搜索：
 
-for (const [doc, score] of similaritySearchWithScoreResults) {
-  console.log(`* [SIM=${score.toFixed(3)}] ${doc.pageContent} [${JSON.stringify(doc.metadata)}]`);
-}
+```python
+results = vector_store.similarity_search(
+    "LangChain provides abstractions to make working with LLMs easy",
+    k=2,
+    filter={"source": {"$eq": "tweet"}},
+)
+for res in results:
+    print(f"* {res.page_content} [{res.metadata}]")
 ```
 
 ```text
-* [SIM=1.671] The powerhouse of the cell is the mitochondria [{"source":"https://example.com"}]
-* [SIM=1.705] Mitochondria are made out of lipids [{"source":"https://example.com"}]
+* Building an exciting new project with LangChain - come check it out! [{'source': 'tweet'}]
+* LangGraph is the best framework for building stateful, agentic applications! [{'source': 'tweet'}]
 ```
 
-### 转换为检索器进行查询
+#### 带分数的相似性搜索
 
-你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+您也可以进行带分数的搜索：
 
-```typescript
-const retriever = vectorStore.asRetriever({
-  k: 2,
-});
-await retriever.invoke("biology");
+```python
+results = vector_store.similarity_search_with_score(
+    "Will it be hot tomorrow?", k=1, filter={"source": "news"}
+)
+for res, score in results:
+    print(f"* [SIM={score:3f}] {res.page_content} [{res.metadata}]")
 ```
 
-```javascript
-[
-  {
-    pageContent: 'The powerhouse of the cell is the mitochondria',
-    metadata: { source: 'https://example.com' }
-  },
-  {
-    pageContent: 'Mitochondria are made out of lipids',
-    metadata: { source: 'https://example.com' }
-  }
-]
+```text
+* [SIM=0.893688] The weather forecast for tomorrow is cloudy and overcast, with a high of 62 degrees. [{'source': 'news'}]
 ```
 
-### 用于检索增强生成
+#### 其他搜索方法
 
-关于如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
+有多种其他方式可以搜索 FAISS 向量存储。有关这些方法的完整列表，请参阅 [API 参考](https://python.langchain.com/api_reference/community/vectorstores/langchain_community.vectorstores.faiss.FAISS.html)
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [代理式 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+### 通过转换为检索器进行查询
 
-## 合并索引
+您也可以将向量存储转换为检索器，以便在您的链中更轻松地使用。
 
-Faiss 还支持合并现有索引：
-
-```typescript
-// 创建初始向量存储
-const initialStore = await FaissStore.fromTexts(
-  ["Hello world", "Bye bye", "hello nice world"],
-  [{ id: 2 }, { id: 1 }, { id: 3 }],
-  new OpenAIEmbeddings()
-);
-
-// 从文本创建另一个向量存储
-const newStore = await FaissStore.fromTexts(
-  ["Some text"],
-  [{ id: 1 }],
-  new OpenAIEmbeddings()
-);
-
-// 将第一个向量存储合并到 vectorStore2 中
-await newStore.mergeFrom(initialStore);
-
-// 你也可以从另一个 FaissStore 索引创建新的向量存储
-const newStore2 = await FaissStore.fromIndex(
-  newStore,
-  new OpenAIEmbeddings()
-);
-
-await newStore2.similaritySearch("Bye bye", 1);
+```python
+retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 1})
+retriever.invoke("Stealing from the bank is a crime", filter={"source": "news"})
 ```
 
-## 将索引保存到文件并重新加载
-
-要将索引持久化到磁盘，请使用 `.save` 和静态 `.load` 方法：
-
-```typescript
-// 通过任何方法创建向量存储，这里以从文本创建为例
-const persistentStore = await FaissStore.fromTexts(
-  ["Hello world", "Bye bye", "hello nice world"],
-  [{ id: 2 }, { id: 1 }, { id: 3 }],
-  new OpenAIEmbeddings()
-);
-
-// 将向量存储保存到目录
-const directory = "your/directory/here";
-
-await persistentStore.save(directory);
-
-// 从同一目录加载向量存储
-const loadedVectorStore = await FaissStore.load(
-  directory,
-  new OpenAIEmbeddings()
-);
-
-// vectorStore 和 loadedVectorStore 是相同的
-const result = await loadedVectorStore.similaritySearch("hello world", 1);
-console.log(result);
+```text
+[Document(metadata={'source': 'news'}, page_content='Robbers broke into the city bank and stole $1 million in cash.')]
 ```
 
-## 从 Python 读取已保存的文件
+## 用于检索增强生成
 
-要启用从 [LangChain Python 实现](https://python.langchain.com/docs/integrations/vectorstores/faiss#saving-and-loading) 读取已保存文件的能力，你需要安装 [`pickleparser`](https://github.com/ewfian/pickleparser) 包。
+有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-::: code-group
+- [教程](/oss/python/langchain/rag)
+- [操作指南：使用 RAG 进行问答](https://python.langchain.com/docs/how_to/#qa-with-rag)
+- [检索概念文档](https://python.langchain.com/docs/concepts/retrieval)
 
-```bash [npm]
-npm install pickleparser
+## 保存和加载
+
+您也可以保存和加载 FAISS 索引。这很有用，这样您就不必每次使用时都重新创建它。
+
+```python
+vector_store.save_local("faiss_index")
+
+new_vector_store = FAISS.load_local(
+    "faiss_index", embeddings, allow_dangerous_deserialization=True
+)
+
+docs = new_vector_store.similarity_search("qux")
 ```
 
-```bash [yarn]
-yarn add pickleparser
+```python
+docs[0]
 ```
 
-```bash [pnpm]
-pnpm add pickleparser
+```text
+Document(metadata={'source': 'tweet'}, page_content='Building an exciting new project with LangChain - come check it out!')
 ```
 
-:::
+## 合并
 
-然后你可以使用静态方法 `.loadFromPython`：
+您也可以合并两个 FAISS 向量存储
 
-```typescript
-// 从 Python 保存的数据目录
-const directoryWithSavedPythonStore = "your/directory/here";
+```python
+db1 = FAISS.from_texts(["foo"], embeddings)
+db2 = FAISS.from_texts(["bar"], embeddings)
 
-// 从目录加载向量存储
-const pythonLoadedStore = await FaissStore.loadFromPython(
-  directoryWithSavedPythonStore,
-  new OpenAIEmbeddings()
-);
+db1.docstore._dict
+```
 
-// 搜索最相似的文档
-await pythonLoadedStore.similaritySearch("test", 2);
+```python
+{'b752e805-350e-4cf5-ba54-0883d46a3a44': Document(page_content='foo')}
+```
+
+```python
+db2.docstore._dict
+```
+
+```python
+{'08192d92-746d-4cd1-b681-bdfba411f459': Document(page_content='bar')}
+```
+
+```python
+db1.merge_from(db2)
+```
+
+```python
+db1.docstore._dict
+```
+
+```text
+{'b752e805-350e-4cf5-ba54-0883d46a3a44': Document(page_content='foo'),
+ '08192d92-746d-4cd1-b681-bdfba411f459': Document(page_content='bar')}
 ```
 
 ---
 
 ## API 参考
 
-有关所有 `FaissStore` 功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_vectorstores_faiss.FaissStore.html)
+有关 `FAISS` 向量存储所有功能和配置的详细文档，请访问 API 参考：[python.langchain.com/api_reference/community/vectorstores/langchain_community.vectorstores.faiss.FAISS.html](https://python.langchain.com/api_reference/community/vectorstores/langchain_community.vectorstores.faiss.FAISS.html)

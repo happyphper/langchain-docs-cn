@@ -5,7 +5,7 @@ title: Dropbox
 
 ## 安装与设置
 
-请参阅详细的[安装指南](/oss/integrations/document_loaders/dropbox#prerequisites)。
+请参阅详细的[安装指南](/oss/javascript/integrations/document_loaders/dropbox#prerequisites)。
 
 ::: code-group
 
@@ -21,7 +21,7 @@ uv add dropbox
 
 ## 文档加载器
 
-请参阅[使用示例](/oss/integrations/document_loaders/dropbox)。
+请参阅[使用示例](/oss/javascript/integrations/document_loaders/dropbox)。
 
 ```python
 from langchain_community.document_loaders import DropboxLoader

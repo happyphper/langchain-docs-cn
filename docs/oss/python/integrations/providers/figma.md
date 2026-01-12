@@ -15,7 +15,7 @@ Figma API 需要一个 `access token`、`node_ids` 和一个 `file key`。
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/figma)。
+查看[使用示例](/oss/python/integrations/document_loaders/figma)。
 
 ```python
 from langchain_community.document_loaders import FigmaFileLoader

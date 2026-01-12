@@ -4,9 +4,9 @@ title: Bedrock
 
 <Warning>
 
-<strong>您当前正在查阅的是关于将 Amazon Bedrock 模型用作文本补全模型的文档。Bedrock 上提供的许多流行模型是 [聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查阅的是关于将 Amazon Bedrock 模型用作文本补全模型的文档。Bedrock 上提供的许多流行模型是 [聊天补全模型](/oss/javascript/langchain/models)。</strong>
 
-您可能想查看的是 [这个页面](/oss/integrations/chat/bedrock/)。
+您可能想查看的是 [这个页面](/oss/javascript/integrations/chat/bedrock/)。
 
 </Warning>
 

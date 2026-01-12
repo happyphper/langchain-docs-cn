@@ -14,7 +14,7 @@ title: 网页，使用 Playwright
 
 Playwright 是一个 Node.js 库，提供用于控制多种浏览器引擎（包括 Chromium、Firefox 和 WebKit）的高级 API。您可以使用 Playwright 自动化网页交互，包括从需要 JavaScript 渲染的动态网页中提取数据。
 
-如果您需要一个更轻量的解决方案，并且要加载的网页不需要 JavaScript 渲染，可以使用 [`CheerioWebBaseLoader`](/oss/integrations/document_loaders/web_loaders/web_cheerio) 替代。
+如果您需要一个更轻量的解决方案，并且要加载的网页不需要 JavaScript 渲染，可以使用 [`CheerioWebBaseLoader`](/oss/javascript/integrations/document_loaders/web_loaders/web_cheerio) 替代。
 
 ## 安装
 

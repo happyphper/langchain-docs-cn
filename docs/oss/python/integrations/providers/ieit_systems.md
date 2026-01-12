@@ -5,7 +5,7 @@ title: IEIT Systems
 
 ## 大语言模型
 
-查看[使用示例](/oss/integrations/llms/yuan2)。
+查看[使用示例](/oss/python/integrations/llms/yuan2)。
 
 ```python
 from langchain_community.llms.yuan2 import Yuan2
@@ -13,7 +13,7 @@ from langchain_community.llms.yuan2 import Yuan2
 
 ## 聊天模型
 
-查看[安装说明](/oss/integrations/chat/yuan2/#setting-up-your-api-server)。
+查看[安装说明](/oss/python/integrations/chat/yuan2/#setting-up-your-api-server)。
 
 Yuan2.0 提供了与 OpenAI 兼容的 API，ChatYuan2 通过使用 `OpenAI client` 集成到 LangChain 中。因此，请确保已安装 `openai` 包。
 
@@ -29,7 +29,7 @@ uv add openai
 
 :::
 
-查看[使用示例](/oss/integrations/chat/yuan2)。
+查看[使用示例](/oss/python/integrations/chat/yuan2)。
 
 ```python
 from langchain_community.chat_models import ChatYuan2

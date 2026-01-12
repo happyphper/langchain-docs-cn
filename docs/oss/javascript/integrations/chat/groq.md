@@ -3,7 +3,7 @@ title: ChatGroq
 ---
 [Groq](https://groq.com/) 是一家提供快速 AI 推理服务的公司，其核心是 LPU™ AI 推理技术，该技术能够提供快速、经济且节能的 AI 推理。
 
-本文将帮助您开始使用 ChatGroq [聊天模型](/oss/langchain/models)。有关 ChatGroq 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_groq.ChatGroq.html)。
+本文将帮助您开始使用 ChatGroq [聊天模型](/oss/javascript/langchain/models)。有关 ChatGroq 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_groq.ChatGroq.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ title: ChatGroq
 
 有关如何使用特定功能的指南，请参阅下表标题中的链接。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | [图像输入](/oss/javascript/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | [令牌使用量](/oss/javascript/langchain/models#token-usage) | [对数概率](/oss/javascript/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
 

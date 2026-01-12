@@ -9,7 +9,7 @@ title: SAP HANA Cloud 向量引擎
 
 <Tip>
 
-关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/langchain/install)。
+关于安装 LangChain 包的通用说明，请参阅[此章节](/oss/python/langchain/install)。
 
 </Tip>
 

@@ -23,7 +23,7 @@ uv add label-studio label-studio-sdk
 
 ## 回调函数
 
-请参阅 [使用示例](/oss/integrations/callbacks/labelstudio)。
+请参阅 [使用示例](/oss/python/integrations/callbacks/labelstudio)。
 
 ```python
 from langchain.callbacks import LabelStudioCallbackHandler

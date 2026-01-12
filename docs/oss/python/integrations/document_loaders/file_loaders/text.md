@@ -8,7 +8,7 @@ title: 文本加载器
 
 </Tip>
 
-本笔记本提供了快速入门 `TextLoader` [文档加载器](/oss/integrations/document_loaders) 的概述。有关 `TextLoader` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain.document_loaders_fs_text.TextLoader.html)。
+本笔记本提供了快速入门 `TextLoader` [文档加载器](/oss/python/integrations/document_loaders) 的概述。有关 `TextLoader` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain.document_loaders_fs_text.TextLoader.html)。
 
 ## 概述
 

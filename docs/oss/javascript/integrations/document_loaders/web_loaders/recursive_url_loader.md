@@ -8,7 +8,7 @@ title: 递归 URL 加载器
 
 </Tip>
 
-本笔记本提供了快速入门 [RecursiveUrlLoader](/oss/integrations/document_loaders/) 的概述。有关 RecursiveUrlLoader 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_recursive_url.RecursiveUrlLoader.html)。
+本笔记本提供了快速入门 [RecursiveUrlLoader](/oss/javascript/integrations/document_loaders/) 的概述。有关 RecursiveUrlLoader 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_community_document_loaders_web_recursive_url.RecursiveUrlLoader.html)。
 
 ## 概述
 

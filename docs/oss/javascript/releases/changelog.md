@@ -15,16 +15,16 @@ rss: true
 
 ## v1.2.0
 ### `langchain`
-* [结构化输出](/oss/langchain/structured-output)：在使用 `providerStrategy` 进行结构化输出时，增加了手动设置 `strict` 模式的能力。
+* [结构化输出](/oss/javascript/langchain/structured-output)：在使用 `providerStrategy` 进行结构化输出时，增加了手动设置 `strict` 模式的能力。
 
 ### `@langchain/openai`
-* **新增提供商内置工具：** 支持[文件搜索](/oss/langchain/tools#file-search)、[网络搜索](/oss/langchain/tools#web-search)、[代码解释器](/oss/langchain/tools#code-interpreter)、[图像生成](/oss/langchain/tools#image-generation)、[计算机使用](/oss/langchain/tools#computer-use)、[Shell](/oss/langchain/tools#shell) 和 [MCP 连接器](/oss/langchain/tools#mcp) 工具。
+* **新增提供商内置工具：** 支持[文件搜索](/oss/javascript/langchain/tools#file-search)、[网络搜索](/oss/javascript/langchain/tools#web-search)、[代码解释器](/oss/javascript/langchain/tools#code-interpreter)、[图像生成](/oss/javascript/langchain/tools#image-generation)、[计算机使用](/oss/javascript/langchain/tools#computer-use)、[Shell](/oss/javascript/langchain/tools#shell) 和 [MCP 连接器](/oss/javascript/langchain/tools#mcp) 工具。
 * **内容审核：** `ChatOpenAI` 新增 `moderateContent` 选项，用于检测和处理不安全内容。
 * 对于 GPT-5.2 Pro 模型，优先使用 responses API。
 
 ## v1.3.0
 ### `@langchain/anthropic`
-* **新增提供商内置工具：** 支持[文本编辑器](/oss/langchain/tools#text-editor)、[网页抓取](/oss/langchain/tools#web-fetch)、[计算机使用](/oss/langchain/tools#computer-use-1)、[工具搜索](/oss/langchain/tools#tool-search) 和 [MCP 工具集](/oss/langchain/tools#mcp-toolset) 工具。
+* **新增提供商内置工具：** 支持[文本编辑器](/oss/javascript/langchain/tools#text-editor)、[网页抓取](/oss/javascript/langchain/tools#web-fetch)、[计算机使用](/oss/javascript/langchain/tools#computer-use-1)、[工具搜索](/oss/javascript/langchain/tools#tool-search) 和 [MCP 工具集](/oss/javascript/langchain/tools#mcp-toolset) 工具。
 * 公开了 `ChatAnthropicInput` 类型，以提升类型安全性。
 
 ## v1.1.0
@@ -54,13 +54,13 @@ rss: true
 
 ## v1.1.0
 
-* [模型配置文件](/oss/langchain/models#model-profiles)：聊天模型现在通过 `.profile` getter 公开支持的功能和特性。这些数据来源于 [models.dev](https://models.dev)，这是一个提供模型能力数据的开源项目。
-* [模型重试中间件](/oss/langchain/middleware/built-in#model-retry)：新的中间件，用于自动重试失败的模型调用，并支持可配置的指数退避，提高了智能体的可靠性。
-* [内容审核中间件](/oss/langchain/middleware/built-in#content-moderation)：OpenAI 内容审核中间件，用于检测和处理智能体交互中的不安全内容。支持检查用户输入、模型输出和工具结果。
-* [摘要中间件](/oss/langchain/middleware/built-in#summarization)：更新后支持使用模型配置文件进行灵活的触发点设置，实现上下文感知的摘要生成。
-* [结构化输出](/oss/langchain/structured-output)：`ProviderStrategy` 支持（原生结构化输出）现在可以从模型配置文件中推断。
-* [`createAgent` 的 `SystemMessage`](/oss/langchain/middleware/custom#working-with-system-messages)：支持将 `SystemMessage` 实例直接传递给 `createAgent` 的 `systemPrompt` 参数，并新增了用于扩展系统消息的 `concat` 方法。支持缓存控制和结构化内容块等高级功能。
-* [动态系统提示中间件](/oss/langchain/agents#dynamic-system-prompt)：`dynamicSystemPromptMiddleware` 的返回值现在完全是附加性的。当返回 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.SystemMessage.html" target="_blank" rel="noreferrer" class="link"><code>SystemMessage</code></a> 或 `string` 时，它们会与现有的系统消息合并，而不是替换它们，这使得组合多个修改提示的中间件变得更加容易。
+* [模型配置文件](/oss/javascript/langchain/models#model-profiles)：聊天模型现在通过 `.profile` getter 公开支持的功能和特性。这些数据来源于 [models.dev](https://models.dev)，这是一个提供模型能力数据的开源项目。
+* [模型重试中间件](/oss/javascript/langchain/middleware/built-in#model-retry)：新的中间件，用于自动重试失败的模型调用，并支持可配置的指数退避，提高了智能体的可靠性。
+* [内容审核中间件](/oss/javascript/langchain/middleware/built-in#content-moderation)：OpenAI 内容审核中间件，用于检测和处理智能体交互中的不安全内容。支持检查用户输入、模型输出和工具结果。
+* [摘要中间件](/oss/javascript/langchain/middleware/built-in#summarization)：更新后支持使用模型配置文件进行灵活的触发点设置，实现上下文感知的摘要生成。
+* [结构化输出](/oss/javascript/langchain/structured-output)：`ProviderStrategy` 支持（原生结构化输出）现在可以从模型配置文件中推断。
+* [`createAgent` 的 `SystemMessage`](/oss/javascript/langchain/middleware/custom#working-with-system-messages)：支持将 `SystemMessage` 实例直接传递给 `createAgent` 的 `systemPrompt` 参数，并新增了用于扩展系统消息的 `concat` 方法。支持缓存控制和结构化内容块等高级功能。
+* [动态系统提示中间件](/oss/javascript/langchain/agents#dynamic-system-prompt)：`dynamicSystemPromptMiddleware` 的返回值现在完全是附加性的。当返回 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.SystemMessage.html" target="_blank" rel="noreferrer" class="link"><code>SystemMessage</code></a> 或 `string` 时，它们会与现有的系统消息合并，而不是替换它们，这使得组合多个修改提示的中间件变得更加容易。
 * **兼容性改进：** 修复了结构化输出和工具模式中 Zod v4 验证错误的处理，确保正确显示详细的错误信息。
 
 </Update>
@@ -70,12 +70,12 @@ rss: true
 ## v1.0.0
 
 ### `langchain`
-* [发布说明](/oss/releases/langchain-v1)
-* [迁移指南](/oss/migrate/langchain-v1)
+* [发布说明](/oss/javascript/releases/langchain-v1)
+* [迁移指南](/oss/javascript/migrate/langchain-v1)
 
 ### `langgraph`
-* [发布说明](/oss/releases/langgraph-v1)
-* [迁移指南](/oss/migrate/langgraph-v1)
+* [发布说明](/oss/javascript/releases/langgraph-v1)
+* [迁移指南](/oss/javascript/migrate/langgraph-v1)
 
 <Callout icon="bullhorn" color="#DFC5FE" iconType="regular">
 

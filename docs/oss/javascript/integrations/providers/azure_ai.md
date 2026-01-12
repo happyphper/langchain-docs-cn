@@ -113,7 +113,7 @@ vector_search = AzureCosmosDBNoSqlVectorSearch.from_documents(
 )
 ```
 
-查看[使用示例](/oss/integrations/vectorstores/azure_cosmos_db_no_sql)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/azure_cosmos_db_no_sql)。
 
 ### Azure CosmosDB Mongo vCore 向量搜索
 
@@ -146,4 +146,4 @@ vectorstore = AzureCosmosDBMongoVCoreVectorSearch.from_documents(
 )
 ```
 
-查看[使用示例](/oss/integrations/vectorstores/azure_cosmos_db_mongo_vcore)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/azure_cosmos_db_mongo_vcore)。

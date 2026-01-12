@@ -20,7 +20,7 @@ title: MyScale
 
 <Tip>
 
-有关安装 LangChain 包的通用说明，请参阅 [此章节](/oss/langchain/install)。
+有关安装 LangChain 包的通用说明，请参阅 [此章节](/oss/javascript/langchain/install)。
 
 </Tip>
 
@@ -90,5 +90,5 @@ console.log(filteredResults);
 
 ## 相关链接
 
--   向量存储 [概念指南](/oss/integrations/vectorstores)
--   向量存储 [操作指南](/oss/integrations/vectorstores)
+-   向量存储 [概念指南](/oss/javascript/integrations/vectorstores)
+-   向量存储 [操作指南](/oss/javascript/integrations/vectorstores)

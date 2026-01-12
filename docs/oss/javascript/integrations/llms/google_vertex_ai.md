@@ -4,9 +4,9 @@ title: Google Vertex AI
 
 <Warning>
 
-<strong>您当前正在查阅的是关于将 Google Vertex 模型用作文本补全模型的文档。Google Vertex 上提供的许多流行模型是[聊天补全模型](/oss/langchain/models)。</strong>
+<strong>您当前正在查阅的是关于将 Google Vertex 模型用作文本补全模型的文档。Google Vertex 上提供的许多流行模型是[聊天补全模型](/oss/javascript/langchain/models)。</strong>
 
-您可能想查看的是[这个页面](/oss/integrations/chat/google_vertex_ai/)。
+您可能想查看的是[这个页面](/oss/javascript/integrations/chat/google_vertex_ai/)。
 
 </Warning>
 

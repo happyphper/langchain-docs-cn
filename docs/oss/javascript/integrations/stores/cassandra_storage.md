@@ -134,4 +134,4 @@ await store.mdelete(yieldedKeys);
 
 ## 相关
 
-- [键值存储概念指南](/oss/integrations/stores)
+- [键值存储概念指南](/oss/javascript/integrations/stores)

@@ -5,11 +5,11 @@ title: Telegram
 
 ## 安装与设置
 
-请参阅[设置说明](/oss/integrations/document_loaders/telegram)。
+请参阅[设置说明](/oss/python/integrations/document_loaders/telegram)。
 
 ## 文档加载器
 
-请参阅[使用示例](/oss/integrations/document_loaders/telegram)。
+请参阅[使用示例](/oss/python/integrations/document_loaders/telegram)。
 
 ```python
 from langchain_community.document_loaders import TelegramChatFileLoader

@@ -3,7 +3,7 @@ title: WeaviateStore
 ---
 [Weaviate](https://weaviate.io/) 是一个开源的向量数据库，它同时存储对象和向量，允许将向量搜索与结构化过滤相结合。LangChain 通过 weaviate-client 包（Weaviate 官方的 TypeScript 客户端）连接到 Weaviate。
 
-本指南提供了快速入门 Weaviate [向量存储](/oss/integrations/vectorstores) 的概述。有关 `WeaviateStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_weaviate.WeaviateStore.html)。
+本指南提供了快速入门 Weaviate [向量存储](/oss/javascript/integrations/vectorstores) 的概述。有关 `WeaviateStore` 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_weaviate.WeaviateStore.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ title: WeaviateStore
 
 要使用 Weaviate 向量存储，你需要设置一个 Weaviate 实例并安装 `@langchain/weaviate` 集成包。你还应该安装 `weaviate-client` 包来初始化一个客户端以连接到你的实例，并且如果你希望为索引文档分配 ID，还需要安装 `uuid` 包。
 
-本指南还将使用 [OpenAI 嵌入](/oss/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/integrations/text_embedding)。
+本指南还将使用 [OpenAI 嵌入](/oss/javascript/integrations/text_embedding/openai)，这需要你安装 `@langchain/openai` 集成包。你也可以根据需要使用 [其他支持的嵌入模型](/oss/javascript/integrations/text_embedding)。
 
 ::: code-group
 
@@ -280,7 +280,7 @@ const results = await vectorStore.generate("hello world",
 
 ### 通过转换为检索器进行查询
 
-你也可以将向量存储转换为 [检索器](/oss/langchain/retrieval)，以便在你的链中更轻松地使用。
+你也可以将向量存储转换为 [检索器](/oss/javascript/langchain/retrieval)，以便在你的链中更轻松地使用。
 
 ```typescript
 const retriever = vectorStore.asRetriever({
@@ -310,9 +310,9 @@ await retriever.invoke("biology");
 
 关于如何使用此向量存储进行检索增强生成的指南，请参阅以下部分：
 
-- [使用 LangChain 构建 RAG 应用](/oss/langchain/rag)。
-- [智能体 RAG](/oss/langgraph/agentic-rag)
-- [检索文档](/oss/langchain/retrieval)
+- [使用 LangChain 构建 RAG 应用](/oss/javascript/langchain/rag)。
+- [智能体 RAG](/oss/javascript/langgraph/agentic-rag)
+- [检索文档](/oss/javascript/langchain/retrieval)
 
 ---
 

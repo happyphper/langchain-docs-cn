@@ -25,12 +25,12 @@ uv add docarray
 
 LangChain 提供了对 `DocArray` 库中 `In-memory` 和 `HNSW` 向量存储的访问。
 
-查看[使用示例](/oss/integrations/vectorstores/docarray_hnsw)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/docarray_hnsw)。
 
 ```python
 from langchain_community.vectorstores import DocArrayHnswSearch
 ```
-查看[使用示例](/oss/integrations/vectorstores/docarray_in_memory)。
+查看[使用示例](/oss/javascript/integrations/vectorstores/docarray_in_memory)。
 
 ```python
 from langchain_community.vectorstores DocArrayInMemorySearch
@@ -38,7 +38,7 @@ from langchain_community.vectorstores DocArrayInMemorySearch
 
 ## 检索器
 
-查看[使用示例](/oss/integrations/retrievers/docarray_retriever)。
+查看[使用示例](/oss/javascript/integrations/retrievers/docarray_retriever)。
 
 ```python
 from langchain_community.retrievers import DocArrayRetriever

@@ -11,7 +11,7 @@ title: GitLab
 
 该工具包是 `python-gitlab` 库的包装器。
 
-查看[使用示例](/oss/integrations/tools/gitlab)。
+查看[使用示例](/oss/python/integrations/tools/gitlab)。
 
 ```python
 from langchain_community.agent_toolkits.gitlab.toolkit import GitLabToolkit

@@ -28,4 +28,4 @@ def workflow(messages: list[str]) -> str:
 
 ## 相关链接
 
--   阅读更多关于[持久化](/oss/langgraph/persistence)的信息。
+-   阅读更多关于[持久化](/oss/python/langgraph/persistence)的信息。

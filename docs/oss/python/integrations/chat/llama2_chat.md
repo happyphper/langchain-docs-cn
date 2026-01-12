@@ -1,9 +1,9 @@
 ---
 title: Llama2Chat
 ---
-本笔记展示了如何使用 `Llama2Chat` 包装器增强 Llama-2 `LLM`，以支持 [Llama-2 聊天提示格式](https://huggingface.co/blog/llama2#how-to-prompt-llama-2)。LangChain 中的多种 `LLM` 实现可以用作 Llama-2 聊天模型的接口。这包括 [ChatHuggingFace](/oss/integrations/chat/huggingface)、[LlamaCpp](/oss/integrations/chat/llamacpp/)、[GPT4All](/oss/integrations/llms/gpt4all) 等，仅举几例。
+本笔记展示了如何使用 `Llama2Chat` 包装器增强 Llama-2 `LLM`，以支持 [Llama-2 聊天提示格式](https://huggingface.co/blog/llama2#how-to-prompt-llama-2)。LangChain 中的多种 `LLM` 实现可以用作 Llama-2 聊天模型的接口。这包括 [ChatHuggingFace](/oss/python/integrations/chat/huggingface)、[LlamaCpp](/oss/python/integrations/chat/llamacpp/)、[GPT4All](/oss/python/integrations/llms/gpt4all) 等，仅举几例。
 
-`Llama2Chat` 是一个实现了 `BaseChatModel` 的通用包装器，因此可以在应用程序中作为[聊天模型](/oss/langchain/models)使用。`Llama2Chat` 将消息列表转换为[所需的聊天提示格式](https://huggingface.co/blog/llama2#how-to-prompt-llama-2)，并将格式化后的提示作为 `str` 转发给被包装的 `LLM`。
+`Llama2Chat` 是一个实现了 `BaseChatModel` 的通用包装器，因此可以在应用程序中作为[聊天模型](/oss/python/langchain/models)使用。`Llama2Chat` 将消息列表转换为[所需的聊天提示格式](https://huggingface.co/blog/llama2#how-to-prompt-llama-2)，并将格式化后的提示作为 `str` 转发给被包装的 `LLM`。
 
 ```python
 from langchain_classic.chains import LLMChain
@@ -112,7 +112,7 @@ The cathedral was built in the 12th century and has been the site of many import
 
 ## 通过 `LlamaCPP` LLM 与 Llama-2 聊天
 
-要将 Llama-2 聊天模型与 [LlamaCPP](/oss/integrations/providers/llamacpp) `LMM` 一起使用，请按照[这些安装说明](/oss/integrations/providers/llamacpp#installation-and-setup)安装 `llama-cpp-python` 库。以下示例使用存储在本地 `~/Models/llama-2-7b-chat.Q4_0.gguf` 的量化模型 [llama-2-7b-chat.Q4_0.gguf](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF/resolve/main/llama-2-7b-chat.Q4_0.gguf)。
+要将 Llama-2 聊天模型与 [LlamaCPP](/oss/python/integrations/providers/llamacpp) `LMM` 一起使用，请按照[这些安装说明](/oss/python/integrations/providers/llamacpp#installation-and-setup)安装 `llama-cpp-python` 库。以下示例使用存储在本地 `~/Models/llama-2-7b-chat.Q4_0.gguf` 的量化模型 [llama-2-7b-chat.Q4_0.gguf](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF/resolve/main/llama-2-7b-chat.Q4_0.gguf)。
 
 创建 `LlamaCpp` 实例后，再次将 `llm` 包装到 `Llama2Chat` 中。
 

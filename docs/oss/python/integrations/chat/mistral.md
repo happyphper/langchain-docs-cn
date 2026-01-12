@@ -3,7 +3,7 @@ title: ChatMistralAI
 ---
 [Mistral AI](https://mistral.ai/) 是一个提供其强大[开源模型](https://docs.mistral.ai/getting-started/models/)托管服务的平台。
 
-本文将帮助你开始使用 ChatMistralAI [聊天模型](/oss/langchain/models)。有关 ChatMistralAI 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_mistralai.ChatMistralAI.html)。
+本文将帮助你开始使用 ChatMistralAI [聊天模型](/oss/python/langchain/models)。有关 ChatMistralAI 所有功能和配置的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_mistralai.ChatMistralAI.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ title: ChatMistralAI
 
 请参阅下表标题中的链接，了解如何使用特定功能的指南。
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/langchain/streaming/) | [Token 使用量](/oss/langchain/models#token-usage) | [Logprobs](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/python/langchain/tools) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [Token 级流式传输](/oss/python/langchain/streaming/) | [Token 使用量](/oss/python/langchain/models#token-usage) | [Logprobs](/oss/python/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
 
@@ -126,7 +126,7 @@ J'adore la programmation.
 
 ## 工具调用
 
-Mistral 的 API 支持其部分模型的[工具调用](/oss/langchain/tools)。你可以在[此页面](https://docs.mistral.ai/capabilities/function_calling/)查看哪些模型支持工具调用。
+Mistral 的 API 支持其部分模型的[工具调用](/oss/python/langchain/tools)。你可以在[此页面](https://docs.mistral.ai/capabilities/function_calling/)查看哪些模型支持工具调用。
 
 以下示例演示了如何使用它：
 

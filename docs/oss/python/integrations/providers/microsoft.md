@@ -1,160 +1,207 @@
 ---
-title: 概述
+title: 微软
 ---
-所有与 `Microsoft Azure` 及其他 `Microsoft` 产品相关的功能。
+本页面涵盖了 LangChain 与 [Microsoft Azure](https://portal.azure.com) 及其他 [Microsoft](https://www.microsoft.com) 产品的所有集成。
 
 ## 聊天模型
 
+Microsoft 通过 Azure 提供了三种主要的聊天模型访问选项：
+
+1. [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/) - 通过 Microsoft Azure 安全的企业平台，提供对 OpenAI 强大模型（如 o3、4.1 及其他模型）的访问。
+2. [Azure AI](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/deploy-models) - 通过统一的 API，提供对来自不同供应商（包括 Anthropic、DeepSeek、Cohere、Phi 和 Mistral）的各种模型的访问。
+3. [Azure ML](https://learn.microsoft.com/en-us/azure/machine-learning/) - 允许使用 Azure 机器学习部署和管理您自己的自定义模型或微调的开源模型。
+
 ### Azure OpenAI
 
-查看[使用示例](/oss/integrations/chat/azure)
+>[Microsoft Azure](https://en.wikipedia.org/wiki/Microsoft_Azure)，通常称为 `Azure`，是由 `Microsoft` 运营的云计算平台，它通过全球数据中心提供对应用程序和服务的访问、管理和开发。它提供了一系列功能，包括软件即服务 (SaaS)、平台即服务 (PaaS) 和基础设施即服务 (IaaS)。`Microsoft Azure` 支持多种编程语言、工具和框架，包括 Microsoft 特有的以及第三方的软件和系统。
 
-```typescript
-import { AzureChatOpenAI } from "@langchain/openai";
+>[Azure OpenAI](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/) 是一项 `Azure` 服务，提供来自 OpenAI 的强大语言模型，包括用于内容生成、摘要、语义搜索和自然语言到代码翻译的 `GPT-3`、`Codex` 和 Embeddings 模型系列。
 
-const model = new AzureChatOpenAI({
-  temperature: 0.9,
-  azureOpenAIApiKey: "<your_key>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_KEY
-  azureOpenAIApiInstanceName: "<your_instance_name>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_INSTANCE_NAME
-  azureOpenAIApiDeploymentName: "<your_deployment_name>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME
-  azureOpenAIApiVersion: "<api_version>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_VERSION
-});
+::: code-group
+
+```bash [pip]
+pip install langchain-openai
 ```
 
-## 大语言模型 (LLM)
+```bash [uv]
+uv add langchain-openai
+```
 
-### Azure OpenAI
+:::
 
-> [Microsoft Azure](https://en.wikipedia.org/wiki/Microsoft_Azure)，通常简称为 `Azure`，是由 `Microsoft` 运营的云计算平台，它通过全球数据中心提供对应用程序和服务的访问、管理和开发。它提供了一系列功能，包括软件即服务 (SaaS)、平台即服务 (PaaS) 和基础设施即服务 (IaaS)。`Microsoft Azure` 支持多种编程语言、工具和框架，包括 Microsoft 特定以及第三方的软件和系统。
+设置环境变量以获取对 `Azure OpenAI` 服务的访问权限。
 
-> [Azure OpenAI](https://azure.microsoft.com/products/ai-services/openai-service/) 是一项云服务，可帮助您利用来自 OpenAI、Meta 及其他公司的多样化预构建和精选模型，快速开发生成式 AI 体验。
+```python
+import os
 
-LangChain.js 通过 [OpenAI SDK](https://github.com/openai/openai-node) 中的新 Azure 集成，支持与 [Azure OpenAI](https://azure.microsoft.com/products/ai-services/openai-service/) 的集成。
+os.environ["AZURE_OPENAI_ENDPOINT"] = "https://<your-endpoint.openai.azure.com/"
+os.environ["AZURE_OPENAI_API_KEY"] = "your AzureOpenAI key"
+```
 
-您可以在[此页面](https://learn.microsoft.com/azure/ai-services/openai/overview)上了解更多关于 Azure OpenAI 及其与 OpenAI API 的区别。如果您没有 Azure 账户，可以[创建一个免费账户](https://azure.microsoft.com/free/)开始使用。
+查看[使用示例](/oss/python/integrations/chat/azure_chat_openai)
 
-您需要部署一个 Azure OpenAI 实例。您可以按照[本指南](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal)在 Azure 门户上部署一个版本。
+```python
+from langchain_openai import AzureChatOpenAI
+```
 
-一旦您的实例运行起来，请确保您拥有实例的名称和密钥。您可以在 Azure 门户中，在实例的“密钥和终结点”部分找到密钥。
+### Azure AI
 
-如果您使用 Node.js，可以定义以下环境变量来使用该服务：
+>[Azure AI Foundry](https://learn.microsoft.com/en-us/azure/developer/python/get-started) 通过 `AzureAIChatCompletionsModel` 类，提供对来自各种供应商（包括 Azure OpenAI、DeepSeek R1、Cohere、Phi 和 Mistral）的广泛模型的访问。
+
+::: code-group
+
+```bash [pip]
+pip install -U langchain-azure-ai
+```
+
+```bash [uv]
+uv add langchain-azure-ai
+```
+
+:::
+
+配置您的 API 密钥和端点。
 
 ```bash
-AZURE_OPENAI_API_INSTANCE_NAME=<YOUR_INSTANCE_NAME>
-AZURE_OPENAI_API_DEPLOYMENT_NAME=<YOUR_DEPLOYMENT_NAME>
-AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME=<YOUR_EMBEDDINGS_DEPLOYMENT_NAME>
-AZURE_OPENAI_API_KEY=<YOUR_KEY>
-AZURE_OPENAI_API_VERSION="2024-02-01"
+export AZURE_AI_CREDENTIAL=your-api-key
+export AZURE_AI_ENDPOINT=your-endpoint
 ```
 
-<Info>
+```python
+from langchain_azure_ai.chat_models import AzureAIChatCompletionsModel
 
-<strong>您可以在 [Azure OpenAI 文档](https://learn.microsoft.com/azure/ai-services/openai/reference) 中找到支持的 API 版本列表。</strong>
-
-</Info>
-
-<Tip>
-
-有关安装 LangChain 包的通用说明，请参阅[此部分](/oss/langchain/install)。
-
-</Tip>
-
-```bash [npm]
-npm install @langchain/openai @langchain/core
-```
-查看[使用示例](/oss/integrations/llms/azure)。
-
-```typescript
-import { AzureOpenAI } from "@langchain/openai";
-
-const model = new AzureOpenAI({
-  azureOpenAIApiKey: "<your_key>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_KEY
-  azureOpenAIApiInstanceName: "<your_instance_name>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_INSTANCE_NAME
-  azureOpenAIApiDeploymentName: "<your_deployment_name>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME
-  azureOpenAIApiVersion: "<api_version>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_VERSION
-});
+llm = AzureAIChatCompletionsModel(
+    model_name="gpt-4o",
+    api_version="2024-05-01-preview",
+)
 ```
 
-## 文本嵌入模型
+查看[使用示例](/oss/python/integrations/chat/azure_ai)
+
+### Azure ML 聊天在线端点
+
+有关访问托管在 [Azure 机器学习](https://azure.microsoft.com/en-us/products/machine-learning/) 上的聊天模型，请参阅[此处](/oss/python/integrations/chat/azureml_chat_endpoint)的文档。
+
+## 大语言模型
+
+### Azure ML
+
+查看[使用示例](/oss/python/integrations/llms/azure_ml)。
+
+```python
+from langchain_community.llms.azureml_endpoint import AzureMLOnlineEndpoint
+```
 
 ### Azure OpenAI
 
-查看[使用示例](/oss/integrations/text_embedding/azure_openai)
+查看[使用示例](/oss/python/integrations/llms/azure_openai)。
 
-```typescript
-import { AzureOpenAIEmbeddings } from "@langchain/openai";
-
-const model = new AzureOpenAIEmbeddings({
-  azureOpenAIApiKey: "<your_key>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_KEY
-  azureOpenAIApiInstanceName: "<your_instance_name>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_INSTANCE_NAME
-  azureOpenAIApiEmbeddingsDeploymentName: "<your_embeddings_deployment_name>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME
-  azureOpenAIApiVersion: "<api_version>", // 在 Node.js 中默认为 process.env.AZURE_OPENAI_API_VERSION
-});
+```python
+from langchain_openai import AzureOpenAI
 ```
 
-## 向量存储
+## 嵌入模型
 
-### Azure AI Search
+Microsoft 通过 Azure 提供了两种主要的嵌入模型访问选项：
 
-> [Azure AI Search](https://azure.microsoft.com/products/ai-services/ai-search)（以前称为 Azure Search 和 Azure Cognitive Search）是一个分布式、RESTful 搜索引擎，针对 Azure 上生产规模工作负载的速度和相关性进行了优化。它还支持使用 [k-最近邻](https://en.wikipedia.org/wiki/Nearest_neighbor_search) (kNN) 算法进行向量搜索，以及[语义搜索](https://learn.microsoft.com/azure/search/semantic-search-overview)。
+### Azure OpenAI
 
-```bash [npm]
-npm install -S @langchain/community @langchain/core @azure/search-documents
+查看[使用示例](/oss/python/integrations/text_embedding/azure_openai)
+
+```python
+from langchain_openai import AzureOpenAIEmbeddings
 ```
-查看[使用示例](/oss/integrations/vectorstores/azure_aisearch)。
 
-```typescript
-import { AzureAISearchVectorStore } from "@langchain/community/vectorstores/azure_aisearch";
+### Azure AI
+
+::: code-group
+
+```bash [pip]
+pip install -U langchain-azure-ai
 ```
-### Azure Cosmos DB for NoSQL
 
-> [Azure Cosmos DB for NoSQL](https://learn.microsoft.com/azure/cosmos-db/nosql/) 支持查询具有灵活架构的项目，并原生支持 JSON。它现在提供向量索引和搜索功能。此功能旨在处理高维向量，实现任何规模下高效、准确的向量搜索。您现在可以直接将向量与数据一起存储在文档中。数据库中的每个文档不仅可以包含传统的无模式数据，还可以包含高维向量作为文档的其他属性。
-
-```bash [npm]
-npm install @langchain/azure-cosmosdb @langchain/core
+```bash [uv]
+uv add langchain-azure-ai
 ```
-查看[使用示例](/oss/integrations/vectorstores/azure_cosmosdb_nosql)。
 
-```typescript
-import { AzureCosmosDBNoSQLVectorStore } from "@langchain/azure-cosmosdb";
+:::
+
+配置您的 API 密钥和端点。
+
+```bash
+export AZURE_AI_CREDENTIAL=your-api-key
+export AZURE_AI_ENDPOINT=your-endpoint
 ```
-### Azure Cosmos DB for MongoDB vCore
 
-> [Azure Cosmos DB for MongoDB vCore](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/) 可以轻松创建具有完整原生 MongoDB 支持的数据库。您可以将应用程序指向 API for MongoDB vCore 账户的连接字符串，从而应用您的 MongoDB 经验并继续使用您喜欢的 MongoDB 驱动程序、SDK 和工具。使用 Azure Cosmos DB for MongoDB vCore 中的向量搜索，可以将基于 AI 的应用程序与存储在 Azure Cosmos DB 中的数据无缝集成。
+```python
+from langchain_azure_ai.embeddings import AzureAIEmbeddingsModel
 
-```bash [npm]
-npm install @langchain/azure-cosmosdb @langchain/core
-```
-查看[使用示例](/oss/integrations/vectorstores/azure_cosmosdb_mongodb)。
-
-```typescript
-import { AzureCosmosDBMongoDBVectorStore } from "@langchain/azure-cosmosdb";
-```
-## 语义缓存
-
-### Azure Cosmos DB NoSQL 语义缓存
-
-> 语义缓存功能通过 Azure Cosmos DB for NoSQL 集成得到支持，使用户能够基于用户输入与先前缓存结果之间的语义相似性来检索缓存的响应。它利用了 [AzureCosmosDBNoSQLVectorStore](/oss/integrations/vectorstores/azure_cosmosdb_nosql)，该存储用于存储缓存提示的向量嵌入。这些嵌入支持基于相似性的搜索，使系统能够检索相关的缓存结果。
-
-```bash [npm]
-npm install @langchain/azure-cosmosdb @langchain/core
-```
-查看[使用示例](/oss/integrations/llm_caching/azure_cosmosdb_nosql)。
-
-```typescript
-import { AzureCosmosDBNoSQLSemanticCache } from "@langchain/azure-cosmosdb";
+embed_model = AzureAIEmbeddingsModel(
+    model_name="text-embedding-ada-002"
+)
 ```
 
 ## 文档加载器
 
-### Azure Blob Storage
+### Azure AI 数据
 
-> [Azure Blob Storage](https://learn.microsoft.com/azure/storage/blobs/storage-blobs-introduction) 是 Microsoft 面向云的对象存储解决方案。Blob Storage 针对存储海量非结构化数据进行了优化。非结构化数据是指不遵循特定数据模型或定义的数据，例如文本或二进制数据。
+>[Azure AI Foundry（原 Azure AI Studio）](https://ai.azure.com/) 提供了将数据资产上传到云存储以及从以下来源注册现有数据资产的能力：
+>
+>- `Microsoft OneLake`
+>- `Azure Blob Storage`
+>- `Azure Data Lake gen 2`
 
-> [Azure Files](https://learn.microsoft.com/azure/storage/files/storage-files-introduction) 在云中提供完全托管的文件共享，可通过行业标准服务器消息块 (`SMB`) 协议、网络文件系统 (`NFS`) 协议和 `Azure Files REST API` 进行访问。`Azure Files` 基于 `Azure Blob Storage`。
+首先，您需要安装几个 Python 包。
 
-`Azure Blob Storage` 设计用于：
+::: code-group
 
+```bash [pip]
+pip install azureml-fsspec, azure-ai-generative
+```
+
+```bash [uv]
+uv add azureml-fsspec, azure-ai-generative
+```
+
+:::
+
+查看[使用示例](/oss/python/integrations/document_loaders/azure_ai_data)。
+
+```python
+from langchain.document_loaders import AzureAIDataLoader
+```
+
+### Azure AI 文档智能
+
+>[Azure AI 文档智能](https://aka.ms/doc-intelligence)（原名 `Azure Form Recognizer`）是一项基于机器学习的服务，可从数字或扫描的 PDF、图像、Office 和 HTML 文件中提取文本（包括手写）、表格、文档结构和键值对。
+>
+> 文档智能支持 `PDF`、`JPEG/JPG`、`PNG`、`BMP`、`TIFF`、`HEIF`、`DOCX`、`XLSX`、`PPTX` 和 `HTML`。
+
+首先，您需要安装一个 Python 包。
+
+::: code-group
+
+```bash [pip]
+pip install azure-ai-documentintelligence
+```
+
+```bash [uv]
+uv add azure-ai-documentintelligence
+```
+
+:::
+
+查看[使用示例](/oss/python/integrations/document_loaders/azure_document_intelligence)。
+
+```python
+from langchain.document_loaders import AzureAIDocumentIntelligenceLoader
+```
+
+### Azure Blob 存储
+
+>[Azure Blob 存储](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction) 是 Microsoft 面向云的对象存储解决方案。Blob 存储针对存储海量非结构化数据进行了优化。非结构化数据是指不遵循特定数据模型或定义的数据，例如文本或二进制数据。
+
+`Azure Blob 存储` 设计用于：
 - 直接向浏览器提供图像或文档。
 - 存储文件以供分布式访问。
 - 流式传输视频和音频。
@@ -162,30 +209,283 @@ import { AzureCosmosDBNoSQLSemanticCache } from "@langchain/azure-cosmosdb";
 - 存储用于备份和还原、灾难恢复及归档的数据。
 - 存储用于本地或 Azure 托管服务分析的数据。
 
-```bash [npm]
-npm install @langchain/community @langchain/core @azure/storage-blob
+::: code-group
+
+```bash [pip]
+pip install langchain-azure-storage
 ```
-查看 [Azure Blob Storage 的使用示例](/oss/integrations/document_loaders/web_loaders/azure_blob_storage_container)。
 
-```typescript
-import { AzureBlobStorageContainerLoader } from "@langchain/community/document_loaders/web/azure_blob_storage_container";
+```bash [uv]
+uv add langchain-azure-storage
 ```
-查看 [Azure Files 的使用示例](/oss/integrations/document_loaders/web_loaders/azure_blob_storage_file)。
 
-```typescript
-import { AzureBlobStorageFileLoader } from "@langchain/community/document_loaders/web/azure_blob_storage_file";
+:::
+
+查看 [Azure Blob 存储加载器的使用示例](/oss/python/integrations/document_loaders/azure_blob_storage)。
+
+```python
+from langchain_azure_storage.document_loaders import AzureBlobStorageLoader
 ```
-## 工具
 
-### Azure Container Apps 动态会话
+### Microsoft OneDrive
 
-> [Azure Container Apps 动态会话](https://learn.microsoft.com/azure/container-apps/sessions) 提供对安全沙盒环境的快速访问，非常适合运行需要与其他工作负载强隔离的代码或应用程序。
+>[Microsoft OneDrive](https://en.wikipedia.org/wiki/OneDrive)（原名 `SkyDrive`）是由 Microsoft 运营的文件托管服务。
 
-```bash [npm]
-npm install @langchain/azure-dynamic-sessions @langchain/core
+首先，您需要安装一个 Python 包。
+
+::: code-group
+
+```bash [pip]
+pip install o365
 ```
-查看[使用示例](/oss/integrations/tools/azure_dynamic_sessions)。
 
-```typescript
-import { SessionsPythonREPLTool } from "@langchain/azure-dynamic-sessions";
+```bash [uv]
+uv add o365
 ```
+
+:::
+
+查看[使用示例](/oss/python/integrations/document_loaders/microsoft_onedrive)。
+
+```python
+from langchain_community.document_loaders import OneDriveLoader
+```
+
+### Microsoft OneDrive 文件
+
+>[Microsoft OneDrive](https://en.wikipedia.org/wiki/OneDrive)（原名 `SkyDrive`）是由 Microsoft 运营的文件托管服务。
+
+首先，您需要安装一个 Python 包。
+
+::: code-group
+
+```bash [pip]
+pip install o365
+```
+
+```bash [uv]
+uv add o365
+```
+
+:::
+
+```python
+from langchain_community.document_loaders import OneDriveFileLoader
+```
+
+### Microsoft Word
+
+>[Microsoft Word](https://www.microsoft.com/en-us/microsoft-365/word) 是 Microsoft 开发的一款文字处理器。
+
+查看[使用示例](/oss/python/integrations/document_loaders/microsoft_word)。
+
+```python
+from langchain_community.document_loaders import UnstructuredWordDocumentLoader
+```
+
+### Microsoft Excel
+
+>[Microsoft Excel](https://en.wikipedia.org/wiki/Microsoft_Excel) 是 Microsoft 为 Windows、macOS、Android、iOS 和 iPadOS 开发的电子表格编辑器。
+> 它具有计算或运算能力、图表工具、数据透视表以及一种名为 Visual Basic for Applications (VBA) 的宏编程语言。Excel 是 Microsoft 365 软件套件的一部分。
+
+`UnstructuredExcelLoader` 用于加载 `Microsoft Excel` 文件。该加载器适用于 `.xlsx` 和 `.xls` 文件。
+页面内容将是 Excel 文件的原始文本。如果您在 `"elements"` 模式下使用加载器，Excel 文件的 HTML 表示形式将在文档元数据中的 `text_as_html` 键下可用。
+
+查看[使用示例](/oss/python/integrations/document_loaders/microsoft_excel)。
+
+```python
+from langchain_community.document_loaders import UnstructuredExcelLoader
+```
+
+### Microsoft SharePoint
+
+>[Microsoft SharePoint](https://en.wikipedia.org/wiki/SharePoint) 是一个基于网站的协作系统，它使用工作流应用程序、“列表”数据库以及其他 Web 部件和安全功能来赋能业务团队协同工作，由 Microsoft 开发。
+
+查看[使用示例](/oss/python/integrations/document_loaders/microsoft_sharepoint)。
+
+```python
+from langchain_community.document_loaders.sharepoint import SharePointLoader
+```
+
+### Microsoft PowerPoint
+
+>[Microsoft PowerPoint](https://en.wikipedia.org/wiki/Microsoft_PowerPoint) 是 Microsoft 的演示文稿程序。
+
+查看[使用示例](/oss/python/integrations/document_loaders/microsoft_powerpoint)。
+
+```python
+from langchain_community.document_loaders import UnstructuredPowerPointLoader
+```
+
+### Microsoft OneNote
+
+首先，让我们安装依赖项：
+
+::: code-group
+
+```bash [pip]
+pip install bs4 msal
+```
+
+```bash [uv]
+uv add bs4 msal
+```
+
+:::
+
+查看[使用示例](/oss/python/integrations/document_loaders/microsoft_onenote)。
+
+```python
+from langchain_community.document_loaders.onenote import OneNoteLoader
+```
+
+### Playwright URL 加载器
+
+>[Playwright](https://github.com/microsoft/playwright) 是 `Microsoft` 开发的开源自动化工具，允许您以编程方式控制和自动化 Web 浏览器。它专为跨各种 Web 浏览器（如 `Chromium`、`Firefox` 和 `WebKit`）的端到端测试、抓取和自动化任务而设计。
+
+首先，让我们安装依赖项：
+
+::: code-group
+
+```bash [pip]
+pip install playwright unstructured
+```
+
+```bash [uv]
+uv add playwright unstructured
+```
+
+:::
+
+查看[使用示例](/oss/python/integrations/document_loaders/url/#playwright-url-loader)。
+
+```python
+from langchain_community.document_loaders.onenote import OneNoteLoader
+```
+
+## 记忆
+
+### Azure Cosmos DB 聊天消息历史记录
+
+>[Azure Cosmos DB](https://learn.microsoft.com/azure/cosmos-db/) 为对话式 AI 应用程序提供聊天消息历史记录存储，使您能够以低延迟和高可用性持久化和检索对话历史记录。
+
+::: code-group
+
+```bash [pip]
+pip install langchain-azure-ai
+```
+
+```bash [uv]
+uv add langchain-azure-ai
+```
+
+:::
+
+配置您的 Azure Cosmos DB 连接：
+
+```python
+from langchain_azure_ai.chat_message_histories import CosmosDBChatMessageHistory
+
+history = CosmosDBChatMessageHistory(
+    cosmos_endpoint="https://<your-account>.documents.azure.com:443/",
+    cosmos_database="<your-database>",
+    cosmos_container="<your-container>",
+    session_id="<session-id>",
+    user_id="<user-id>",
+    credential="<your-credential>"  # 或使用 connection_string
+)
+```
+
+## 向量存储
+
+### Azure Cosmos DB
+AI 智能体可以依赖 Azure Cosmos DB 作为统一的[记忆系统](https://learn.microsoft.com/en-us/azure/cosmos-db/ai-agents#memory-can-make-or-break-agents)解决方案，享受速度、规模和简单性。该服务成功[支持了 OpenAI 的 ChatGPT 服务](https://www.youtube.com/watch?v=6IIUtEFKJec&t)动态扩展，具有高可靠性和低维护性。它由原子记录序列引擎驱动，是世界上第一个全局分布的 [NoSQL](https://learn.microsoft.com/en-us/azure/cosmos-db/distributed-nosql)、[关系型](https://learn.microsoft.com/en-us/azure/cosmos-db/distributed-relational)和[向量数据库](https://learn.microsoft.com/en-us/azure/cosmos-db/vector-database)服务，并提供无服务器模式。
+
+以下是两个可用的 Azure Cosmos DB API，它们可以提供向量存储功能。
+
+#### Azure Cosmos DB for MongoDB (vCore)
+
+>[Azure Cosmos DB for MongoDB vCore](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/) 使得创建具有完整原生 MongoDB 支持的数据库变得容易。
+> 您可以应用您的 MongoDB 经验，并通过将应用程序指向 API for MongoDB vCore 帐户的连接字符串，继续使用您喜欢的 MongoDB 驱动程序、SDK 和工具。
+> 使用 Azure Cosmos DB for MongoDB vCore 中的向量搜索，将您基于 AI 的应用程序与存储在 Azure Cosmos DB 中的数据无缝集成。
+
+##### 安装与设置
+
+查看[详细配置说明](/oss/python/integrations/vectorstores/azure_cosmos_db_mongo_vcore)。
+
+我们需要安装 `langchain-azure-ai` 和 `pymongo` Python 包。
+
+::: code-group
+
+```bash [pip]
+pip install langchain-azure-ai pymongo
+```
+
+```bash [uv]
+uv add langchain-azure-ai pymongo
+```
+
+:::
+
+##### 在 Microsoft Azure 上部署 Azure Cosmos DB
+
+Azure Cosmos DB for MongoDB vCore 为开发人员提供了一个完全托管的、与 MongoDB 兼容的数据库服务，用于使用熟悉的架构构建现代应用程序。
+
+借助 Cosmos DB for MongoDB vCore，开发人员在迁移现有应用程序或构建新应用程序时，可以享受原生 Azure 集成、低总拥有成本 (TCO) 以及熟悉的 vCore 架构带来的好处。
+
+[免费注册](https://azure.microsoft.com/en-us/free/)即可立即开始。
+
+查看[使用示例](/oss/python/integrations/vectorstores/azure_cosmos_db_mongo_vcore)。
+
+```python
+from langchain_azure_ai.vectorstores import AzureCosmosDBMongoVCoreVectorSearch
+```
+
+#### Azure Cosmos DB NoSQL
+
+>[Azure Cosmos DB for NoSQL](https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/vector-search) 现在提供预览版的向量索引和搜索功能。
+此功能旨在处理高维向量，实现任何规模下高效且准确的向量搜索。您现在可以将向量直接存储在文档中，与您的数据放在一起。这意味着数据库中的每个文档不仅可以包含传统的无模式数据，还可以包含作为文档其他属性的高维向量。数据和向量的这种共置允许高效的索引和搜索，因为向量与它们所代表的数据存储在相同的逻辑单元中。这简化了数据管理、AI 应用程序架构以及基于向量的操作效率。
+
+##### 安装与设置
+
+查看[详细配置说明](/oss/python/integrations/vectorstores/azure_cosmos_db_no_sql)。
+
+我们需要安装 `langchain-azure-ai` 和 `azure-cosmos` Python 包。
+
+::: code-group
+
+```bash [pip]
+pip install langchain-azure-ai azure-cosmos
+```
+
+```bash [uv]
+uv add langchain-azure-ai azure-cosmos
+```
+
+:::
+
+##### 在 Microsoft Azure 上部署 Azure Cosmos DB
+
+Azure Cosmos DB 通过动态和弹性的自动缩放实现快速响应，为现代应用程序和智能工作负载提供了解决方案。它在每个 Azure 区域都可用，并且可以自动将数据复制到更靠近用户的位置。它具有 SLA 保证的低延迟和高可用性。
+
+[免费注册](https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/quickstart-python?pivots=devcontainer-codespace)即可立即开始。
+
+查看[使用示例](/oss/python/integrations/vectorstores/azure_cosmos_db_no_sql)。
+
+```python
+from langchain_azure_ai.vectorstores import AzureCosmosDBNoSqlVectorSearch
+```
+
+### Azure Database for PostgreSQL
+
+>[Azure Database for PostgreSQL - 灵活服务器](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/service-overview) 是基于开源 Postgres 数据库引擎的关系型数据库服务。它是一个完全托管的数据库即服务，可以处理具有可预测性能、安全性、高可用性和动态可扩展性的关键任务工作负载。
+
+查看 Azure Database for PostgreSQL 的[设置说明](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/quickstart-create-server-portal)。
+
+只需使用来自 Azure 门户的[连接字符串](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/connect-python?tabs=cmd%2Cpassword#add-authentication-code)。
+
+由于 Azure Database for PostgreSQL 是开源的 Postgres，您可以使用 [LangChain 的 Postgres 支持](/oss/python/integrations/vectorstores/pgvector/) 连接到 Azure Database for PostgreSQL。
+
+### Azure SQL 数据库
+
+>[Azure SQL 数据库](https://learn.microsoft.com/azure/azure-sql/database/sql-database-paas-overview?view=azuresql) 是一项强大的服务，结合了可扩展性、安全性和高可用性，提供了

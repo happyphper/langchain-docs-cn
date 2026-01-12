@@ -21,7 +21,7 @@ uv add rockset
 
 ## 向量存储
 
-查看[使用示例](/oss/integrations/vectorstores/rockset)。
+查看[使用示例](/oss/python/integrations/vectorstores/rockset)。
 
 ```python
 from langchain_community.vectorstores import Rockset
@@ -29,7 +29,7 @@ from langchain_community.vectorstores import Rockset
 
 ## 文档加载器
 
-查看[使用示例](/oss/integrations/document_loaders/rockset)。
+查看[使用示例](/oss/python/integrations/document_loaders/rockset)。
 
 ```python
 from langchain_community.document_loaders import RocksetLoader

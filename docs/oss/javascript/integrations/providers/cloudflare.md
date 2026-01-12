@@ -7,7 +7,7 @@ title: Cloudflare
 
 ## 聊天模型
 
-请参阅[安装说明和使用示例](/oss/integrations/chat/cloudflare_workersai)。
+请参阅[安装说明和使用示例](/oss/javascript/integrations/chat/cloudflare_workersai)。
 
 ```python
 from langchain_cloudflare import ChatCloudflareWorkersAI
@@ -15,7 +15,7 @@ from langchain_cloudflare import ChatCloudflareWorkersAI
 
 ## 嵌入模型
 
-请参阅[安装说明和使用示例](/oss/integrations/text_embedding/cloudflare_workersai)。
+请参阅[安装说明和使用示例](/oss/javascript/integrations/text_embedding/cloudflare_workersai)。
 
 ```python
 from langchain_cloudflare import CloudflareWorkersAIEmbeddings
@@ -23,7 +23,7 @@ from langchain_cloudflare import CloudflareWorkersAIEmbeddings
 
 ## 大语言模型
 
-请参阅[安装说明和使用示例](/oss/integrations/llms/cloudflare_workersai)。
+请参阅[安装说明和使用示例](/oss/javascript/integrations/llms/cloudflare_workersai)。
 
 ```python
 from langchain_community.llms.cloudflare_workersai import CloudflareWorkersAI

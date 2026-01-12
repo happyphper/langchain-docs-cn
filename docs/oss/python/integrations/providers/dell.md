@@ -23,4 +23,4 @@ uv add powerscale-rag-connector
 
 ### 文档加载器
 
-有关可用加载器的详细信息，请参见[此处](/oss/integrations/document_loaders/powerscale)。
+有关可用加载器的详细信息，请参见[此处](/oss/python/integrations/document_loaders/powerscale)。

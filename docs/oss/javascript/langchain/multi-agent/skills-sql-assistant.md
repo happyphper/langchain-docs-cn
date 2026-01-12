@@ -12,7 +12,7 @@ sidebarTitle: 'Skills: SQL assistant'
 
 <Note>
 
-有关包含查询执行、错误纠正和验证的更完整 SQL 代理示例，请参阅我们的 [SQL 代理教程](/oss/langchain/sql-agent)。本教程重点介绍可应用于任何领域的渐进式披露模式。
+有关包含查询执行、错误纠正和验证的更完整 SQL 代理示例，请参阅我们的 [SQL 代理教程](/oss/javascript/langchain/sql-agent)。本教程重点介绍可应用于任何领域的渐进式披露模式。
 
 </Note>
 
@@ -63,7 +63,7 @@ flowchart TD
 
 <Tip>
 
-具有渐进式披露的技能可以看作是一种 [RAG（检索增强生成）](/oss/langchain/rag) 形式，其中每个技能都是一个检索单元——尽管不一定由嵌入或关键词搜索支持，而是由用于浏览内容的工具支持（如文件操作，或在本教程中，直接查找）。
+具有渐进式披露的技能可以看作是一种 [RAG（检索增强生成）](/oss/javascript/langchain/rag) 形式，其中每个技能都是一个检索单元——尽管不一定由嵌入或关键词搜索支持，而是由用于浏览内容的工具支持（如文件操作，或在本教程中，直接查找）。
 
 </Tip>
 
@@ -108,7 +108,7 @@ pnpm add langchain
 
 :::
 
-更多详情，请参阅我们的 [安装指南](/oss/langchain/install)。
+更多详情，请参阅我们的 [安装指南](/oss/javascript/langchain/install)。
 
 ### LangSmith
 
@@ -310,7 +310,7 @@ def load_skill(skill_name: str) -> str:
     return f"Skill '{skill_name}' not found. Available skills: {available}"
 ```
 
-`load_skill` 工具将完整的技能内容作为字符串返回，该字符串作为 ToolMessage 成为对话的一部分。有关创建和使用工具的更多详细信息，请参阅 [工具指南](/oss/langchain/tools)。
+`load_skill` 工具将完整的技能内容作为字符串返回，该字符串作为 ToolMessage 成为对话的一部分。有关创建和使用工具的更多详细信息，请参阅 [工具指南](/oss/javascript/langchain/tools)。
 
 ## 3. 构建技能中间件
 
@@ -318,7 +318,7 @@ def load_skill(skill_name: str) -> str:
 
 <Note>
 
-本指南演示了如何创建自定义中间件。有关中间件概念和模式的全面指南，请参阅 [自定义中间件文档](/oss/langchain/middleware/custom)。
+本指南演示了如何创建自定义中间件。有关中间件概念和模式的全面指南，请参阅 [自定义中间件文档](/oss/javascript/langchain/middleware/custom)。
 
 </Note>
 
@@ -369,7 +369,7 @@ class SkillMiddleware(AgentMiddleware):  # [!code highlight]
 
 <Note>
 
-<strong>生产环境考虑</strong>：本教程为了简单起见，在 `__init__` 中加载技能列表。在生产系统中，您可能希望在 `before_agent` 钩子中加载技能，从而允许定期刷新技能以反映最新的更改（例如，当添加新技能或修改现有技能时）。详情请参阅 [before_agent 钩子文档](/oss/langchain/middleware/custom#before_agent)。
+<strong>生产环境考虑</strong>：本教程为了简单起见，在 `__init__` 中加载技能列表。在生产系统中，您可能希望在 `before_agent` 钩子中加载技能，从而允许定期刷新技能以反映最新的更改（例如，当添加新技能或修改现有技能时）。详情请参阅 [before_agent 钩子文档](/oss/javascript/langchain/middleware/custom#before_agent)。
 
 </Note>
 

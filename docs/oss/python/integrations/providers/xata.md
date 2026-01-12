@@ -23,7 +23,7 @@ uv add "xata==1.0.0a7"
 
 ## 向量存储
 
-查看[使用示例](/oss/integrations/vectorstores/xata)。
+查看[使用示例](/oss/python/integrations/vectorstores/xata)。
 
 ```python
 from langchain_community.vectorstores import XataVectorStore

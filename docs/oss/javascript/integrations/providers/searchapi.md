@@ -78,4 +78,4 @@ from langchain_community.agent_toolkits.load_tools import load_tools
 tools = load_tools(["searchapi"])
 ```
 
-有关工具的更多信息，请参阅[此页面](/oss/integrations/tools)。
+有关工具的更多信息，请参阅[此页面](/oss/javascript/integrations/tools)。

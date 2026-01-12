@@ -5,7 +5,7 @@ title: Clova
 
 ## 嵌入模型
 
-请参阅[安装说明和使用示例](/oss/integrations/text_embedding/clova)。
+请参阅[安装说明和使用示例](/oss/python/integrations/text_embedding/clova)。
 
 ```python
 from langchain_community.embeddings import ClovaEmbeddings

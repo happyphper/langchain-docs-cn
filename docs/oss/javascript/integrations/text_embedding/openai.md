@@ -1,7 +1,7 @@
 ---
 title: OpenAIEmbeddings
 ---
-本文将帮助您开始使用 LangChain 的 OpenAIEmbeddings [嵌入模型](/oss/integrations/text_embedding)。有关 `OpenAIEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_openai.OpenAIEmbeddings.html)。
+本文将帮助您开始使用 LangChain 的 OpenAIEmbeddings [嵌入模型](/oss/javascript/integrations/text_embedding)。有关 `OpenAIEmbeddings` 功能和配置选项的详细文档，请参阅 [API 参考](https://api.js.langchain.com/classes/langchain_openai.OpenAIEmbeddings.html)。
 
 ## 概述
 
@@ -68,9 +68,9 @@ const embeddings = new OpenAIEmbeddings({
 
 ## 索引与检索
 
-嵌入模型通常用于检索增强生成 (RAG) 流程中，既用于索引数据，也用于后续检索。更详细的说明，请参阅 [**学习** 标签页](/oss/learn/)下的 RAG 教程。
+嵌入模型通常用于检索增强生成 (RAG) 流程中，既用于索引数据，也用于后续检索。更详细的说明，请参阅 [**学习** 标签页](/oss/javascript/learn/)下的 RAG 教程。
 
-下面，我们将使用上面初始化的 `embeddings` 对象来演示如何索引和检索数据。在此示例中，我们将使用演示版 [`MemoryVectorStore`](/oss/integrations/vectorstores/memory) 来索引和检索一个示例文档。
+下面，我们将使用上面初始化的 `embeddings` 对象来演示如何索引和检索数据。在此示例中，我们将使用演示版 [`MemoryVectorStore`](/oss/javascript/integrations/vectorstores/memory) 来索引和检索一个示例文档。
 
 ```typescript
 // 使用示例文本创建向量存储
@@ -250,7 +250,7 @@ const model = new OpenAIEmbeddings({
 
 您也可以传递官方 SDK 接受的其他 `ClientOptions` 参数。
 
-如果您在 Azure OpenAI 上托管，请参阅 [专用页面](/oss/integrations/text_embedding/azure_openai)。
+如果您在 Azure OpenAI 上托管，请参阅 [专用页面](/oss/javascript/integrations/text_embedding/azure_openai)。
 
 ---
 

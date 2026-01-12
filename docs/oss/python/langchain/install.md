@@ -41,8 +41,8 @@ uv add langchain-anthropic
 
 <Tip>
 
-请查看 [集成页面](/oss/integrations/providers/overview) 以获取完整的可用集成列表。
+请查看 [集成页面](/oss/python/integrations/providers/overview) 以获取完整的可用集成列表。
 
 </Tip>
 
-现在你已经安装了 LangChain，可以按照 [快速入门指南](/oss/langchain/quickstart) 开始使用。
+现在你已经安装了 LangChain，可以按照 [快速入门指南](/oss/python/langchain/quickstart) 开始使用。

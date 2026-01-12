@@ -40,7 +40,7 @@ uv add pyowm
 from langchain_community.utilities.openweathermap import OpenWeatherMapAPIWrapper
 ```
 
-关于此包装器的更详细教程，请参阅 [此笔记本](/oss/integrations/tools/openweathermap)。
+关于此包装器的更详细教程，请参阅 [此笔记本](/oss/python/integrations/tools/openweathermap)。
 
 ### 工具
 
@@ -56,4 +56,4 @@ weather = OpenWeatherMapAPIWrapper()
 tools = [weather.run]
 ```
 
-有关工具的更多信息，请参阅 [此页面](/oss/integrations/tools)。
+有关工具的更多信息，请参阅 [此页面](/oss/python/integrations/tools)。

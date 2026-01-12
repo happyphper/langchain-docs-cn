@@ -1,109 +1,84 @@
 ---
 title: AnalyticDB
 ---
-[AnalyticDB for PostgreSQL](https://www.alibabacloud.com/help/en/analyticdb-for-postgresql/latest/product-introduction-overview) 是一种大规模并行处理（MPP）数据仓库服务，专为在线分析海量数据而设计。
+>[AnalyticDB for PostgreSQL](https://www.alibabacloud.com/help/en/analyticdb-for-postgresql/latest/product-introduction-overview) 是一种大规模并行处理（MPP）数据仓库服务，专为在线分析海量数据而设计。
 
-`AnalyticDB for PostgreSQL` 基于开源的 `Greenplum Database` 项目开发，并由 `阿里云` 进行了深度扩展增强。AnalyticDB for PostgreSQL 兼容 ANSI SQL 2003 语法以及 PostgreSQL 和 Oracle 数据库生态系统。AnalyticDB for PostgreSQL 还支持行存储和列存储。AnalyticDB for PostgreSQL 能够高性能地离线处理 PB 级数据，并支持高并发的在线查询。
+>`AnalyticDB for PostgreSQL` 基于开源的 `Greenplum Database` 项目开发，并由 `阿里云` 进行了深度扩展增强。AnalyticDB for PostgreSQL 兼容 ANSI SQL 2003 语法以及 PostgreSQL 和 Oracle 数据库生态系统。AnalyticDB for PostgreSQL 还支持行存储和列存储。AnalyticDB for PostgreSQL 能够高性能地离线处理 PB 级数据，并支持高并发的在线查询。
+
+您需要安装 `langchain-community` 包才能使用此集成功能，使用命令 `pip install -qU langchain-community`。
 
 本笔记本展示了如何使用与 `AnalyticDB` 向量数据库相关的功能。
+要运行此示例，您需要有一个正在运行的 [AnalyticDB](https://www.alibabacloud.com/help/en/analyticdb-for-postgresql/latest/product-introduction-overview) 实例：
 
-要运行，您需要有一个已启动并运行的 [AnalyticDB](https://www.alibabacloud.com/help/en/analyticdb-for-postgresql/latest/product-introduction-overview) 实例：
+- 使用 [AnalyticDB 云向量数据库](https://www.alibabacloud.com/product/hybriddb-postgresql)。点击此处快速部署。
 
-- 使用 [AnalyticDB 云向量数据库](https://www.alibabacloud.com/product/hybriddb-postgresql)。
-
-<Tip>
-
-<strong>兼容性</strong>
-
-仅在 Node.js 上可用。
-
-</Tip>
-
-## 设置
-
-LangChain.js 接受 [node-postgres](https://node-postgres.com/) 作为 AnalyticDB 向量存储的连接池。
-
-```bash [npm]
-npm install -S pg
-```
-并且我们需要 [pg-copy-streams](https://github.com/brianc/node-pg-copy-streams) 来快速批量添加向量。
-
-```bash [npm]
-npm install -S pg-copy-streams
+```python
+from langchain_community.vectorstores import AnalyticDB
+from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import CharacterTextSplitter
 ```
 
-<Tip>
+分割文档并通过调用 OpenAI API 获取嵌入向量
 
-有关安装 LangChain 包的通用说明，请参阅 [此部分](/oss/langchain/install)。
+```python
+from langchain_community.document_loaders import TextLoader
 
-</Tip>
+loader = TextLoader("../../how_to/state_of_the_union.txt")
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
 
-```bash [npm]
-npm install @langchain/openai @langchain/community @langchain/core
+embeddings = OpenAIEmbeddings()
 ```
 
-## 用法
+通过设置相关的环境变量连接到 AnalyticDB。
 
-<Warning>
-
-<strong>安全提示</strong>
-
-用户生成的数据（如用户名）不应作为集合名称的输入。
-<strong>这可能导致 SQL 注入！</strong>
-
-</Warning>
-
-```typescript
-import { AnalyticDBVectorStore } from "@langchain/community/vectorstores/analyticdb";
-import { OpenAIEmbeddings } from "@langchain/openai";
-
-const connectionOptions = {
-  host: process.env.ANALYTICDB_HOST || "localhost",
-  port: Number(process.env.ANALYTICDB_PORT) || 5432,
-  database: process.env.ANALYTICDB_DATABASE || "your_database",
-  user: process.env.ANALYTICDB_USERNAME || "username",
-  password: process.env.ANALYTICDB_PASSWORD || "password",
-};
-
-const vectorStore = await AnalyticDBVectorStore.fromTexts(
-  ["foo", "bar", "baz"],
-  [{ page: 1 }, { page: 2 }, { page: 3 }],
-  new OpenAIEmbeddings(),
-  { connectionOptions }
-);
-const result = await vectorStore.similaritySearch("foo", 1);
-console.log(JSON.stringify(result));
-// [{"pageContent":"foo","metadata":{"page":1}}]
-
-await vectorStore.addDocuments([{ pageContent: "foo", metadata: { page: 4 } }]);
-
-const filterResult = await vectorStore.similaritySearch("foo", 1, {
-  page: 4,
-});
-console.log(JSON.stringify(filterResult));
-// [{"pageContent":"foo","metadata":{"page":4}}]
-
-const filterWithScoreResult = await vectorStore.similaritySearchWithScore(
-  "foo",
-  1,
-  { page: 3 }
-);
-console.log(JSON.stringify(filterWithScoreResult));
-// [[{"pageContent":"baz","metadata":{"page":3}},0.26075905561447144]]
-
-const filterNoMatchResult = await vectorStore.similaritySearchWithScore(
-  "foo",
-  1,
-  { page: 5 }
-);
-console.log(JSON.stringify(filterNoMatchResult));
-// []
-
-// 需要手动关闭连接池
-await vectorStore.end();
+```
+export PG_HOST={your_analyticdb_hostname}
+export PG_PORT={your_analyticdb_port} # 可选，默认为 5432
+export PG_DATABASE={your_database} # 可选，默认为 postgres
+export PG_USER={database_username}
+export PG_PASSWORD={database_password}
 ```
 
-## 相关链接
+然后将您的嵌入向量和文档存储到 AnalyticDB
 
-- 向量存储 [概念指南](/oss/integrations/vectorstores)
-- 向量存储 [操作指南](/oss/integrations/vectorstores)
+```python
+import os
+
+connection_string = AnalyticDB.connection_string_from_db_params(
+    driver=os.environ.get("PG_DRIVER", "psycopg2cffi"),
+    host=os.environ.get("PG_HOST", "localhost"),
+    port=int(os.environ.get("PG_PORT", "5432")),
+    database=os.environ.get("PG_DATABASE", "postgres"),
+    user=os.environ.get("PG_USER", "postgres"),
+    password=os.environ.get("PG_PASSWORD", "postgres"),
+)
+
+vector_db = AnalyticDB.from_documents(
+    docs,
+    embeddings,
+    connection_string=connection_string,
+)
+```
+
+查询和检索数据
+
+```python
+query = "What did the president say about Ketanji Brown Jackson"
+docs = vector_db.similarity_search(query)
+```
+
+```python
+print(docs[0].page_content)
+```
+
+```text
+Tonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you’re at it, pass the Disclose Act so Americans can know who is funding our elections.
+
+Tonight, I’d like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer—an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.
+
+One of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.
+
+And I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation’s top legal minds, who will continue Justice Breyer’s legacy of excellence.
+```

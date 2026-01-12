@@ -3,7 +3,7 @@ title: ChatSeekrFlow
 ---
 > [Seekr](https://www.seekr.com/) 提供 AI 驱动的解决方案，旨在实现结构化、可解释且透明的 AI 交互。
 
-本指南提供了使用 Seekr [聊天模型](/oss/langchain/models) 的快速入门概览。有关 `ChatSeekrFlow` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.seekrflow.ChatSeekrFlow.html)。
+本指南提供了使用 Seekr [聊天模型](/oss/python/langchain/models) 的快速入门概览。有关 `ChatSeekrFlow` 所有功能和配置的详细文档，请参阅 [API 参考](https://python.langchain.com/api_reference/community/chat_models/langchain_community.chat_models.seekrflow.ChatSeekrFlow.html)。
 
 ## 概述
 
@@ -17,7 +17,7 @@ title: ChatSeekrFlow
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools/) | [结构化输出](/oss/langchain/structured-output) | [图像输入](/oss/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/langchain/models#token-usage) | [对数概率](/oss/langchain/models#log-probabilities) |
+| [工具调用](/oss/python/langchain/tools/) | [结构化输出](/oss/python/langchain/structured-output) | [图像输入](/oss/python/langchain/messages#multimodal) | 音频输入 | 视频输入 | [令牌级流式传输](/oss/python/langchain/streaming/) | 原生异步 | [令牌使用量](/oss/python/langchain/models#token-usage) | [对数概率](/oss/python/langchain/models#log-probabilities) |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: |
 | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ |
 

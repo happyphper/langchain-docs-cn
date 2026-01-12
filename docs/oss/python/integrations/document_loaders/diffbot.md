@@ -21,7 +21,7 @@ title: Diffbot
 pip install -qU langchain-community
 ```
 
-Diffbot 的 Extract API 需要一个 API 令牌。请按照以下说明 [获取免费 API 令牌](/oss/integrations/providers/diffbot#installation-and-setup)，然后设置一个环境变量。
+Diffbot 的 Extract API 需要一个 API 令牌。请按照以下说明 [获取免费 API 令牌](/oss/python/integrations/providers/diffbot#installation-and-setup)，然后设置一个环境变量。
 
 ```python
 %env DIFFBOT_API_TOKEN REPLACE_WITH_YOUR_TOKEN
@@ -70,4 +70,4 @@ diffbot_nlp = DiffbotGraphTransformer(
 graph_documents = diffbot_nlp.convert_to_graph_documents(loader.load())
 ```
 
-要继续将数据加载到知识图谱中，请遵循 [`DiffbotGraphTransformer` 指南](/oss/integrations/graphs/diffbot/#loading-the-data-into-a-knowledge-graph)。
+要继续将数据加载到知识图谱中，请遵循 [`DiffbotGraphTransformer` 指南](/oss/python/integrations/graphs/diffbot/#loading-the-data-into-a-knowledge-graph)。

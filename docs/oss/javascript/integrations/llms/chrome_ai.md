@@ -113,4 +113,4 @@ for await (const chunk of await model.stream("How are you?")) {
 
 ## 相关链接
 
-- [模型指南](/oss/langchain/models)
+- [模型指南](/oss/javascript/langchain/models)

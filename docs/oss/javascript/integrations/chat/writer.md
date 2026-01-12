@@ -1,7 +1,7 @@
 ---
 title: 聊天写手
 ---
-本指南提供了快速入门 WRITER [聊天](/oss/langchain/models/) 模型的概览。
+本指南提供了快速入门 WRITER [聊天](/oss/javascript/langchain/models/) 模型的概览。
 
 WRITER 提供了多种聊天模型。您可以在 [WRITER 文档](https://dev.writer.com/home) 中找到关于其最新模型、成本、上下文窗口和支持的输入类型的信息。
 
@@ -15,7 +15,7 @@ WRITER 提供了多种聊天模型。您可以在 [WRITER 文档](https://dev.wr
 
 ### 模型特性
 
-| [工具调用](/oss/langchain/tools) | [结构化输出](/oss/langchain/structured-output) | 图像输入 | 音频输入 | 视频输入 | [令牌级流式传输](/oss/langchain/streaming/) | 原生异步 |         [令牌使用量](/oss/langchain/models#token-usage)          | Logprobs |
+| [工具调用](/oss/javascript/langchain/tools) | [结构化输出](/oss/javascript/langchain/structured-output) | 图像输入 | 音频输入 | 视频输入 | [令牌级流式传输](/oss/javascript/langchain/streaming/) | 原生异步 |         [令牌使用量](/oss/javascript/langchain/models#token-usage)          | Logprobs |
 | :---: |:-----------------:| :---: |  :---: | :---: | :---: | :---: |:--------------------------------:|:--------:|
 | ✅ |         ✅         | ❌ | ❌ | ❌ | ✅ | ✅ |                ✅                 |    ❌     |
 

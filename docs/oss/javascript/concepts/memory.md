@@ -2,18 +2,18 @@
 title: 内存概览
 sidebarTitle: Memory
 ---
-[记忆](/oss/langgraph/add-memory) 是一个能记住先前交互信息的系统。对于 AI 智能体而言，记忆至关重要，因为它能让智能体记住之前的交互、从反馈中学习并适应用户偏好。随着智能体处理涉及大量用户交互的复杂任务，这种能力对于效率和用户满意度都变得至关重要。
+[记忆](/oss/javascript/langgraph/add-memory) 是一个能记住先前交互信息的系统。对于 AI 智能体而言，记忆至关重要，因为它能让智能体记住之前的交互、从反馈中学习并适应用户偏好。随着智能体处理涉及大量用户交互的复杂任务，这种能力对于效率和用户满意度都变得至关重要。
 
 本概念指南根据其回忆范围，涵盖两种类型的记忆：
 
-*   **[短期记忆](#短期记忆)**，或称 **[线程](/oss/langgraph/persistence#线程)** 范围内的记忆，通过维护会话内的消息历史来跟踪正在进行的对话。LangGraph 将短期记忆作为智能体 **[状态](/oss/langgraph/graph-api#状态)** 的一部分进行管理。状态通过 **[检查点](/oss/langgraph/persistence#检查点)** 持久化到数据库中，因此线程可以在任何时候恢复。短期记忆在图被调用或步骤完成时更新，并且在每个步骤开始时读取状态。
-*   **[长期记忆](#长期记忆)** 存储跨会话的用户特定或应用程序级别的数据，并在对话线程之间共享。它可以在任何时间、任何线程中被回忆。记忆的作用域可以是任何自定义的命名空间，而不仅仅局限于单个线程 ID。LangGraph 提供了 **[存储](/oss/langgraph/persistence#记忆存储)** ([参考文档](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.BaseStore)) 来让你保存和回忆长期记忆。
+*   **[短期记忆](#短期记忆)**，或称 **[线程](/oss/javascript/langgraph/persistence#线程)** 范围内的记忆，通过维护会话内的消息历史来跟踪正在进行的对话。LangGraph 将短期记忆作为智能体 **[状态](/oss/javascript/langgraph/graph-api#状态)** 的一部分进行管理。状态通过 **[检查点](/oss/javascript/langgraph/persistence#检查点)** 持久化到数据库中，因此线程可以在任何时候恢复。短期记忆在图被调用或步骤完成时更新，并且在每个步骤开始时读取状态。
+*   **[长期记忆](#长期记忆)** 存储跨会话的用户特定或应用程序级别的数据，并在对话线程之间共享。它可以在任何时间、任何线程中被回忆。记忆的作用域可以是任何自定义的命名空间，而不仅仅局限于单个线程 ID。LangGraph 提供了 **[存储](/oss/javascript/langgraph/persistence#记忆存储)** ([参考文档](https://langchain-ai.github.io/langgraph/reference/store/#langgraph.store.base.BaseStore)) 来让你保存和回忆长期记忆。
 
-![短期 vs 长期](/oss/images/short-vs-long.png)
+![短期 vs 长期](/oss/javascript/images/short-vs-long.png)
 
 ## 短期记忆
 
-[短期记忆](/oss/langgraph/add-memory#添加短期记忆) 让你的应用程序能够记住单个 **[线程](/oss/langgraph/persistence#线程)** 或对话内的先前交互。一个 **[线程](/oss/langgraph/persistence#线程)** 组织会话中的多次交互，类似于电子邮件将消息分组到单个对话中的方式。
+[短期记忆](/oss/javascript/langgraph/add-memory#添加短期记忆) 让你的应用程序能够记住单个 **[线程](/oss/javascript/langgraph/persistence#线程)** 或对话内的先前交互。一个 **[线程](/oss/javascript/langgraph/persistence#线程)** 组织会话中的多次交互，类似于电子邮件将消息分组到单个对话中的方式。
 
 LangGraph 将短期记忆作为智能体状态的一部分进行管理，通过线程范围的检查点进行持久化。这个状态通常可以包括对话历史以及其他有状态的数据，例如上传的文件、检索到的文档或生成的工件。通过将这些存储在图的 state 中，机器人可以访问给定对话的完整上下文，同时保持不同线程之间的分离。
 
@@ -23,13 +23,13 @@ LangGraph 将短期记忆作为智能体状态的一部分进行管理，通过�
 
 聊天模型使用消息来接受上下文，这些消息包括开发者提供的指令（系统消息）和用户输入（人类消息）。在聊天应用程序中，消息在人类输入和模型响应之间交替，导致消息列表随着时间的推移而变长。由于上下文窗口有限且包含大量 token 的消息列表成本高昂，许多应用程序可以通过使用技术手动删除或遗忘过时信息而受益。
 
-![过滤](/oss/images/filter.png)
+![过滤](/oss/javascript/images/filter.png)
 
-有关管理消息的常用技术的更多信息，请参阅 [添加和管理记忆](/oss/langgraph/add-memory#管理短期记忆) 指南。
+有关管理消息的常用技术的更多信息，请参阅 [添加和管理记忆](/oss/javascript/langgraph/add-memory#管理短期记忆) 指南。
 
 ## 长期记忆
 
-LangGraph 中的 **[长期记忆](/oss/langgraph/add-memory#添加长期记忆)** 允许系统在不同的对话或会话之间保留信息。与 **线程范围** 的短期记忆不同，长期记忆保存在自定义的“命名空间”中。
+LangGraph 中的 **[长期记忆](/oss/javascript/langgraph/add-memory#添加长期记忆)** 允许系统在不同的对话或会话之间保留信息。与 **线程范围** 的短期记忆不同，长期记忆保存在自定义的“命名空间”中。
 
 长期记忆是一个复杂的挑战，没有一刀切的解决方案。然而，以下问题提供了一个框架来帮助你驾驭不同的技术：
 
@@ -62,7 +62,7 @@ LangGraph 中的 **[长期记忆](/oss/langgraph/add-memory#添加长期记忆)*
 
 当记住一个个人资料时，你需要确保每次都在 **更新** 该个人资料。因此，你需要传入之前的个人资料，并 **[要求模型生成一个新的个人资料](https://github.com/langchain-ai/memory-template)**（或一些要应用于旧个人资料的 **[JSON 补丁](https://github.com/hinthornw/trustcall)**）。随着个人资料变得越来越大，这可能会变得容易出错，并且可能受益于将个人资料拆分为多个文档，或者在生成文档时进行 **严格** 解码，以确保记忆模式保持有效。
 
-![更新个人资料](/oss/images/update-profile.png)
+![更新个人资料](/oss/javascript/images/update-profile.png)
 
 #### 集合
 
@@ -74,9 +74,9 @@ LangGraph 中的 **[长期记忆](/oss/langgraph/add-memory#添加长期记忆)*
 
 最后，使用记忆集合可能会给模型提供全面的上下文带来挑战。虽然单个记忆可能遵循特定的模式，但这种结构可能无法捕捉记忆之间的完整上下文或关系。因此，当使用这些记忆生成响应时，模型可能缺乏重要的上下文信息，而这些信息在统一的个人资料方法中更容易获得。
 
-![更新列表](/oss/images/update-list.png)
+![更新列表](/oss/javascript/images/update-list.png)
 
-无论采用哪种记忆管理方法，核心点是智能体将使用语义记忆来 **[支撑其响应](/oss/langchain/retrieval)**，这通常会导致更个性化和相关的交互。
+无论采用哪种记忆管理方法，核心点是智能体将使用语义记忆来 **[支撑其响应](/oss/javascript/langchain/retrieval)**，这通常会导致更个性化和相关的交互。
 
 ### 情景记忆
 
@@ -84,7 +84,7 @@ LangGraph 中的 **[长期记忆](/oss/langgraph/add-memory#添加长期记忆)*
 
 在实践中，情景记忆通常通过少样本示例提示来实现，智能体从过去的序列中学习以正确执行任务。有时“展示”比“讲述”更容易，LLM 从例子中学得很好。少样本学习让你可以通过在提示词中添加输入-输出示例来 **[“编程”](https://x.com/karpathy/status/1627366413840322562)** 你的 LLM，以说明预期的行为。虽然可以使用各种最佳实践来生成少样本示例，但挑战往往在于根据用户输入选择最相关的示例。
 
-请注意，记忆 **[存储](/oss/langgraph/persistence#记忆存储)** 只是将数据存储为少样本示例的一种方式。如果你希望有更多的开发者参与，或者将少样本示例与你的评估工具更紧密地结合，你也可以使用 LangSmith 数据集来存储你的数据。然后，动态少样本示例选择器可以开箱即用地实现相同的目标。LangSmith 将为你索引数据集，并能够基于关键词相似度检索与用户输入最相关的少样本示例。
+请注意，记忆 **[存储](/oss/javascript/langgraph/persistence#记忆存储)** 只是将数据存储为少样本示例的一种方式。如果你希望有更多的开发者参与，或者将少样本示例与你的评估工具更紧密地结合，你也可以使用 LangSmith 数据集来存储你的数据。然后，动态少样本示例选择器可以开箱即用地实现相同的目标。LangSmith 将为你索引数据集，并能够基于关键词相似度检索与用户输入最相关的少样本示例。
 
 请参阅此操作 **[视频](https://www.youtube.com/watch?v=37VaU7e7t5o)**，了解在 LangSmith 中使用动态少样本示例选择的示例。此外，请参阅这篇 **[博客文章](https://blog.langchain.dev/few-shot-prompting-to-improve-tool-calling-performance/)**，展示如何使用少样本提示来提高工具调用性能，以及这篇 **[博客文章](https://blog.langchain.dev/aligning-llm-as-a-judge-with-human-preferences/)**，使用少样本示例来使 LLM 与人类偏好保持一致。
 
@@ -98,7 +98,7 @@ LangGraph 中的 **[长期记忆](/oss/langgraph/add-memory#添加长期记忆)*
 
 例如，我们构建了一个 **[推文生成器](https://www.youtube.com/watch?v=Vn8A3BxfplE)**，使用外部反馈和提示词重写来为 Twitter 生成高质量的论文摘要。在这种情况下，具体的摘要提示词很难 *先验地* 指定，但用户很容易批评生成的推文，并就如何改进摘要过程提供反馈。
 
-下面的伪代码展示了如何使用 LangGraph 记忆 **[存储](/oss/langgraph/persistence#记忆存储)** 来实现这一点，使用存储来保存提示词，`update_instructions` 节点获取当前提示词（以及从与用户的对话中捕获的反馈，保存在 `state["messages"]` 中），更新提示词，并将新提示词保存回存储。然后，`call_model` 从存储中获取更新后的提示词，并使用它来生成响应。
+下面的伪代码展示了如何使用 LangGraph 记忆 **[存储](/oss/javascript/langgraph/persistence#记忆存储)** 来实现这一点，使用存储来保存提示词，`update_instructions` 节点获取当前提示词（以及从与用户的对话中捕获的反馈，保存在 `state["messages"]` 中），更新提示词，并将新提示词保存回存储。然后，`call_model` 从存储中获取更新后的提示词，并使用它来生成响应。
 
 ```typescript
 // 使用指令的节点
@@ -130,13 +130,13 @@ const updateInstructions = async (state: State, store: BaseStore) => {
 };
 ```
 
-![更新指令](/oss/images/update-instructions.png)
+![更新指令](/oss/javascript/images/update-instructions.png)
 
 ### 写入记忆
 
 智能体写入记忆主要有两种方法：**[“在热路径上”](#在热路径上)** 和 **[“在后台”](#在后台)**。
 
-![热路径 vs 后台](/oss/images/hot_path_vs_background.png)
+![热路径 vs 后台](/oss/javascript/images/hot_path_vs_background.png)
 
 #### 在热路径上
 
@@ -156,7 +156,7 @@ const updateInstructions = async (state: State, store: BaseStore) => {
 
 ### 记忆存储
 
-LangGraph 将长期记忆作为 JSON 文档存储在 **[存储](/oss/langgraph/persistence#记忆存储)** 中。每个记忆都组织在一个自定义的 `namespace`（类似于文件夹）和一个唯一的 `key`（类似于文件名）下。命名空间通常包括用户或组织 ID 或其他标签，以便于组织信息。这种结构支持记忆的层次化组织。然后通过内容过滤器支持跨命名空间的搜索。
+LangGraph 将长期记忆作为 JSON 文档存储在 **[存储](/oss/javascript/langgraph/persistence#记忆存储)** 中。每个记忆都组织在一个自定义的 `namespace`（类似于文件夹）和一个唯一的 `key`（类似于文件名）下。命名空间通常包括用户或组织 ID 或其他标签，以便于组织信息。这种结构支持记忆的层次化组织。然后通过内容过滤器支持跨命名空间的搜索。
 
 :::python
 

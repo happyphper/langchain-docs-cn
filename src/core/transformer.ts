@@ -56,6 +56,7 @@ export class MdxTransformer {
         // 5. 链接与图片 (现在安全了，因为代码块被占位符替代了)
         transformedBody = LinkProcessor.processImages(transformedBody, filePath);
         transformedBody = LinkProcessor.processApiLinks(transformedBody, targetLang);
+        transformedBody = LinkProcessor.processInternalLinks(transformedBody, targetLang);
 
         // 6. 语法处理
         transformedBody = SyntaxProcessor.removeImportsExports(transformedBody);

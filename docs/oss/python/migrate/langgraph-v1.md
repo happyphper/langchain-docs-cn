@@ -2,155 +2,78 @@
 title: LangGraph v1 迁移指南
 sidebarTitle: LangGraph v1
 ---
-本指南概述了 LangGraph v1 中的变更以及如何从先前版本迁移。关于新功能的高层概述，请参阅[发布说明](/oss/releases/langgraph-v1)。
+本指南概述了 LangGraph v1 中的变更以及如何从先前版本迁移。有关变更的高层概述，请参阅[新功能](/oss/python/releases/langgraph-v1)页面。
 
 升级方法：
 
 ::: code-group
 
-```bash [npm]
-npm install @langchain/langgraph@latest @langchain/core@latest
+```bash [pip]
+pip install -U langgraph langchain-core
 ```
 
-```bash [pnpm]
-pnpm add @langchain/langgraph@latest @langchain/core@latest
-```
-
-```bash [yarn]
-yarn add @langchain/langgraph@latest @langchain/core@latest
-```
-
-```bash [bun]
-bun add @langchain/langgraph@latest @langchain/core@latest
+```bash [uv]
+uv add langgraph langchain-core
 ```
 
 :::
 
 ## 变更摘要
 
-| 领域 | 变更内容 |
-|------|--------------|
-| React 预构建 | `createReactAgent` 已弃用；请使用 LangChain 的 `createAgent` |
-| 中断 (Interrupts) | 通过 `interrupts` 配置支持类型化中断 |
-| `toLangGraphEventStream` 已移除 | 使用 `graph.stream` 并指定所需的 `encoding` 格式 |
-| `useStream` | 支持自定义传输方式 |
+LangGraph v1 在很大程度上与先前版本向后兼容。主要变化是弃用了 <a href="https://reference.langchain.com/python/langgraph/agents/#langgraph.prebuilt.chat_agent_executor.create_react_agent" target="_blank" rel="noreferrer" class="link"><code>create_react_agent</code></a>，转而使用 LangChain 的新 <a href="https://reference.langchain.com/python/langchain/agents/#langchain.agents.create_agent" target="_blank" rel="noreferrer" class="link"><code>create_agent</code></a> 函数。
 
----
+## 已弃用项
 
-## 弃用：`createReactAgent` → `createAgent`
+下表列出了 LangGraph v1 中所有已弃用的项目：
 
-LangGraph v1 弃用了 `createReactAgent` 预构建功能。请使用 LangChain 的 `createAgent`，它运行在 LangGraph 上并增加了灵活的中间件系统。
+| 已弃用项目 | 替代方案 |
+|----------------|-------------|
+| `create_react_agent` | <a href="https://reference.langchain.com/python/langchain/agents/#langchain.agents.create_agent" target="_blank" rel="noreferrer" class="link"><code>langchain.agents.create_agent</code></a> |
+| `AgentState` | <a href="https://reference.langchain.com/python/langchain/agents/#langchain.agents.AgentState" target="_blank" rel="noreferrer" class="link"><code>langchain.agents.AgentState</code></a> |
+| `AgentStatePydantic` | `langchain.agents.AgentState` (不再使用 pydantic 状态) |
+| `AgentStateWithStructuredResponse` | `langchain.agents.AgentState` |
+| `AgentStateWithStructuredResponsePydantic` | `langchain.agents.AgentState` (不再使用 pydantic 状态) |
+| `HumanInterruptConfig` | `langchain.agents.middleware.human_in_the_loop.InterruptOnConfig` |
+| `ActionRequest` | `langchain.agents.middleware.human_in_the_loop.InterruptOnConfig` |
+| `HumanInterrupt` | `langchain.agents.middleware.human_in_the_loop.HITLRequest` |
+| `ValidationNode` | 使用 <a href="https://reference.langchain.com/python/langchain/agents/#langchain.agents.create_agent" target="_blank" rel="noreferrer" class="link"><code>create_agent</code></a> 时工具会自动验证输入 |
+| `MessageGraph` | 带有 `messages` 键的 <a href="https://reference.langchain.com/python/langgraph/graphs/#langgraph.graph.state.StateGraph" target="_blank" rel="noreferrer" class="link"><code>StateGraph</code></a>，例如 <a href="https://reference.langchain.com/python/langchain/agents/#langchain.agents.create_agent" target="_blank" rel="noreferrer" class="link"><code>create_agent</code></a> 提供的 |
+
+## `create_react_agent` → `create_agent`
+
+LangGraph v1 弃用了预构建的 <a href="https://reference.langchain.com/python/langgraph/agents/#langgraph.prebuilt.chat_agent_executor.create_react_agent" target="_blank" rel="noreferrer" class="link"><code>create_react_agent</code></a>。请使用 LangChain 的 <a href="https://reference.langchain.com/python/langchain/agents/#langchain.agents.create_agent" target="_blank" rel="noreferrer" class="link"><code>create_agent</code></a>，它运行在 LangGraph 上并添加了灵活的中间件系统。
 
 详情请参阅 LangChain v1 文档：
 
-- [发布说明](/oss/releases/langchain-v1#createagent)
-- [迁移指南](/oss/migrate/langchain-v1#createagent)
+- [发布说明](/oss/python/releases/langchain-v1#createagent)
+- [迁移指南](/oss/python/migrate/langchain-v1#migrate-to-create_agent)
 
 ::: code-group
 
-```typescript [v1 (新)]
-import { createAgent } from "langchain";
+```python [v1 (新)]
+from langchain.agents import create_agent
 
-const agent = createAgent({
-  model,
-  tools,
-  systemPrompt: "You are a helpful assistant.", // [!code highlight]
-});
+agent = create_agent(  # [!code highlight]
+    model,
+    tools,
+    system_prompt="You are a helpful assistant.",
+)
 ```
 
-```typescript [v0 (旧)]
-import { createReactAgent } from "@langchain/langgraph/prebuilts";
+```python [v0 (旧)]
+from langgraph.prebuilt import create_react_agent
 
-const agent = createReactAgent({
-  model,
-  tools,
-  prompt: "You are a helpful assistant.", // [!code highlight]
-});
-```
-
-:::
-
----
-
-## 类型化中断 (Typed interrupts)
-
-现在可以在图构建时定义中断类型，以严格类型化传递给中断和从中断接收的值。
-
-::: code-group
-
-```typescript [v1 (新)]
-import { StateGraph, interrupt } from "@langchain/langgraph";
-import * as z from "zod";
-
-const State = z.object({ foo: z.string() });
-
-const graphConfig = {
-  interrupts: {
-    approve: interrupt<{ reason: string }, { messages: string[] }>(),
-  },
-}
-
-const graph = new StateGraph(State, graphConfig)
-  .addNode("node", async (state, runtime) => {
-    const value = runtime.interrupt.approve({ reason: "review" }); // [!code highlight]
-    return { foo: value };
-  })
-  .compile();
-```
-
-```typescript [v0 (旧)]
-import { StateGraph } from "@langchain/langgraph";
-
-const graph = new StateGraph(State)
-  .addNode("node", async (state, runtime) => {
-    const value = runtime.interrupt.approve({ reason: "review" }); // [!code highlight]
-    return state;
-  })
-  .compile();
+agent = create_react_agent(  # [!code highlight]
+    model,
+    tools,
+    prompt="You are a helpful assistant.",  # [!code highlight]
+)
 ```
 
 :::
-
-了解更多，请参阅[中断](/oss/langgraph/interrupts)。
-
----
-
-## 事件流编码 (Event stream encoding)
-
-底层的 `toLangGraphEventStream` 辅助函数已被移除。流式响应由 SDK 处理；当使用底层客户端时，通过传递给 `graph.stream` 的 `encoding` 选项选择线格式。
-
-::: code-group
-
-```typescript [v1 (新)]
-const stream = await graph.stream(input, {
-  encoding: "text/event-stream",
-  streamMode: ["values", "messages"],
-});
-
-return new Response(stream, {
-  headers: { "Content-Type": "text/event-stream" }, // [!code highlight]
-});
-```
-
-```typescript [v0 (旧)]
-return toLangGraphEventStreamResponse({
-  stream: graph.streamEvents(input, {
-    version: "v2",
-    streamMode: ["values", "messages"],
-  }),
-});
-```
-
-:::
-
----
 
 ## 破坏性变更
 
-### 放弃对 Node 18 的支持
+### 放弃对 Python 3.9 的支持
 
-所有 LangGraph 包现在要求 **Node.js 20 或更高版本**。Node.js 18 已于 2025 年 3 月[终止支持](https://nodejs.org/en/about/releases/)。
-
-### 新的构建输出
-
-所有 langgraph 包的构建现在采用基于打包器的方法，而不是使用原始的 TypeScript 输出。如果您之前从 `dist/` 目录导入文件（这不推荐），则需要更新导入以使用新的模块系统。
+所有 LangChain 包现在要求 **Python 3.10 或更高版本**。Python 3.9 已于 2025 年 10 月[终止支持](https://devguide.python.org/versions/)。

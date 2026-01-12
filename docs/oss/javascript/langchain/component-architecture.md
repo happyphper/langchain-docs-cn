@@ -66,13 +66,13 @@ LangChain 将组件组织到以下几个主要类别中：
 
 | 类别 | 目的 | 关键组件 | 使用场景 |
 |----------|---------|---------------|-----------|
-| **[模型](/oss/langchain/models)** | AI 推理与生成 | 聊天模型、LLMs、嵌入模型 | 文本生成、推理、语义理解 |
-| **[工具](/oss/langchain/tools)** | 外部能力 | API、数据库等 | 网络搜索、数据访问、计算 |
-| **[智能体](/oss/langchain/agents)** | 编排与推理 | ReAct 智能体、工具调用智能体 | 非确定性工作流、决策制定 |
-| **[记忆](/oss/langchain/short-term-memory)** | 上下文保持 | 消息历史、自定义状态 | 对话、有状态的交互 |
-| **[检索器](/oss/integrations/retrievers)** | 信息访问 | 向量检索器、网络检索器 | RAG、知识库搜索 |
-| **[文档处理](/oss/integrations/document_loaders)** | 数据摄取 | 加载器、分割器、转换器 | PDF 处理、网络抓取 |
-| **[向量存储](/oss/integrations/vectorstores)** | 语义搜索 | Chroma、Pinecone、FAISS | 相似性搜索、嵌入存储 |
+| **[模型](/oss/javascript/langchain/models)** | AI 推理与生成 | 聊天模型、LLMs、嵌入模型 | 文本生成、推理、语义理解 |
+| **[工具](/oss/javascript/langchain/tools)** | 外部能力 | API、数据库等 | 网络搜索、数据访问、计算 |
+| **[智能体](/oss/javascript/langchain/agents)** | 编排与推理 | ReAct 智能体、工具调用智能体 | 非确定性工作流、决策制定 |
+| **[记忆](/oss/javascript/langchain/short-term-memory)** | 上下文保持 | 消息历史、自定义状态 | 对话、有状态的交互 |
+| **[检索器](/oss/javascript/integrations/retrievers)** | 信息访问 | 向量检索器、网络检索器 | RAG、知识库搜索 |
+| **[文档处理](/oss/javascript/integrations/document_loaders)** | 数据摄取 | 加载器、分割器、转换器 | PDF 处理、网络抓取 |
+| **[向量存储](/oss/javascript/integrations/vectorstores)** | 语义搜索 | Chroma、Pinecone、FAISS | 相似性搜索、嵌入存储 |
 
 ## 常见模式
 
@@ -116,8 +116,8 @@ graph LR
 
 现在您已经了解了组件之间的关系，可以探索具体领域：
 
--   [构建您的第一个 RAG 系统](/oss/langchain/knowledge-base)
--   [创建智能体](/oss/langchain/agents)
--   [使用工具](/oss/langchain/tools)
--   [设置记忆](/oss/langchain/short-term-memory)
--   [浏览集成](/oss/integrations/providers/overview)
+-   [构建您的第一个 RAG 系统](/oss/javascript/langchain/knowledge-base)
+-   [创建智能体](/oss/javascript/langchain/agents)
+-   [使用工具](/oss/javascript/langchain/tools)
+-   [设置记忆](/oss/javascript/langchain/short-term-memory)
+-   [浏览集成](/oss/javascript/integrations/providers/overview)

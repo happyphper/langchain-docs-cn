@@ -1,7 +1,7 @@
 ---
 title: 智能体
 ---
-智能体（Agents）将语言模型与[工具](/oss/langchain/tools)相结合，构建出能够推理任务、决定使用哪些工具，并迭代式地寻找解决方案的系统。
+智能体（Agents）将语言模型与[工具](/oss/javascript/langchain/tools)相结合，构建出能够推理任务、决定使用哪些工具，并迭代式地寻找解决方案的系统。
 
 `createAgent()` 提供了一个可用于生产环境的智能体实现。
 
@@ -39,9 +39,9 @@ graph TD
 
 <Info>
 
-`createAgent()` 使用 [LangGraph](/oss/langgraph/overview) 构建一个基于<strong>图</strong>的智能体运行时。图由节点（步骤）和边（连接）组成，定义了智能体处理信息的方式。智能体在这个图中移动，执行诸如模型节点（调用模型）、工具节点（执行工具）或中间件等节点。
+`createAgent()` 使用 [LangGraph](/oss/javascript/langgraph/overview) 构建一个基于<strong>图</strong>的智能体运行时。图由节点（步骤）和边（连接）组成，定义了智能体处理信息的方式。智能体在这个图中移动，执行诸如模型节点（调用模型）、工具节点（执行工具）或中间件等节点。
 
-了解更多关于 [Graph API](/oss/langgraph/graph-api) 的信息。
+了解更多关于 [Graph API](/oss/javascript/langgraph/graph-api) 的信息。
 
 </Info>
 
@@ -49,7 +49,7 @@ graph TD
 
 ### 模型
 
-[模型](/oss/langchain/models) 是智能体的推理引擎。可以通过多种方式指定，支持静态和动态模型选择。
+[模型](/oss/javascript/langchain/models) 是智能体的推理引擎。可以通过多种方式指定，支持静态和动态模型选择。
 
 #### 静态模型
 
@@ -85,7 +85,7 @@ const agent = createAgent({
 });
 ```
 
-模型实例让您可以完全控制配置。当您需要设置特定参数（如 `temperature`、`max_tokens`、`timeouts`）或配置 API 密钥、`base_url` 以及其他提供者特定的设置时，请使用它们。请参阅 [API 参考](/oss/integrations/providers/)以查看模型上可用的参数和方法。
+模型实例让您可以完全控制配置。当您需要设置特定参数（如 `temperature`、`max_tokens`、`timeouts`）或配置 API 密钥、`base_url` 以及其他提供者特定的设置时，请使用它们。请参阅 [API 参考](/oss/javascript/integrations/providers/)以查看模型上可用的参数和方法。
 
 #### 动态模型
 
@@ -120,11 +120,11 @@ const agent = createAgent({
 });
 ```
 
-有关中间件和高级模式的更多详细信息，请参阅 [中间件文档](/oss/langchain/middleware)。
+有关中间件和高级模式的更多详细信息，请参阅 [中间件文档](/oss/javascript/langchain/middleware)。
 
 <Tip>
 
-有关模型配置的详细信息，请参阅 [模型](/oss/langchain/models)。有关动态模型选择模式，请参阅 [中间件中的动态模型](/oss/langchain/middleware#dynamic-model)。
+有关模型配置的详细信息，请参阅 [模型](/oss/javascript/langchain/models)。有关动态模型选择模式，请参阅 [中间件中的动态模型](/oss/javascript/langchain/middleware#dynamic-model)。
 
 </Tip>
 
@@ -138,7 +138,7 @@ const agent = createAgent({
 - 工具重试逻辑和错误处理
 - 跨工具调用的状态持久性
 
-更多信息，请参阅 [工具](/oss/langchain/tools)。
+更多信息，请参阅 [工具](/oss/javascript/langchain/tools)。
 
 #### 定义工具
 
@@ -272,7 +272,7 @@ I found wireless headphones (model WH-1000XM5) with 10 units in stock...
 
 <Tip>
 
-要了解更多关于工具的信息，请参阅 [工具](/oss/langchain/tools)。
+要了解更多关于工具的信息，请参阅 [工具](/oss/javascript/langchain/tools)。
 
 </Tip>
 
@@ -290,7 +290,7 @@ const agent = createAgent({
 
 当未提供 `systemPrompt` 时，智能体将直接从消息推断其任务。
 
-`systemPrompt` 参数接受 `string` 或 `SystemMessage`。使用 `SystemMessage` 可以让您更好地控制提示结构，这对于特定提供者的功能（如 [Anthropic 的提示缓存](/oss/integrations/chat/anthropic#prompt-caching)）非常有用：
+`systemPrompt` 参数接受 `string` 或 `SystemMessage`。使用 `SystemMessage` 可以让您更好地控制提示结构，这对于特定提供者的功能（如 [Anthropic 的提示缓存](/oss/javascript/integrations/chat/anthropic#prompt-caching)）非常有用：
 
 ```ts [wrap]
 import { createAgent } from "langchain";
@@ -322,7 +322,7 @@ const result = await literaryAgent.invoke({
 
 #### 动态系统提示
 
-对于需要根据运行时上下文或智能体状态修改系统提示的更高级用例，您可以使用 [中间件](/oss/langchain/middleware)。
+对于需要根据运行时上下文或智能体状态修改系统提示的更高级用例，您可以使用 [中间件](/oss/javascript/langchain/middleware)。
 
 :::python
 

@@ -21,7 +21,7 @@ title: 金色
 from langchain_community.utilities.golden_query import GoldenQueryAPIWrapper
 ```
 
-关于此封装器的更详细演练，请参阅 [此笔记本](/oss/integrations/tools/golden_query)。
+关于此封装器的更详细演练，请参阅 [此笔记本](/oss/python/integrations/tools/golden_query)。
 
 ### 工具
 
@@ -33,4 +33,4 @@ from langchain_community.agent_toolkits.load_tools import load_tools
 tools = load_tools(["golden-query"])
 ```
 
-有关工具的更多信息，请参阅 [此页面](/oss/integrations/tools)。
+有关工具的更多信息，请参阅 [此页面](/oss/python/integrations/tools)。

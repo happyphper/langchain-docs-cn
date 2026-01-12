@@ -33,7 +33,7 @@ Zep 让您能够更有意识地构建提示：
 ## Zep 开源版
 Zep 提供了一个开源版本，支持自托管选项。
 更多信息请参考 [Zep 开源版](https://github.com/getzep/zep) 仓库。
-您还可以找到与 Zep 开源版兼容的 [检索器](/oss/integrations/retrievers/zep_memorystore) 和 [向量存储](/oss/integrations/vectorstores/zep) 示例。
+您还可以找到与 Zep 开源版兼容的 [检索器](/oss/python/integrations/retrievers/zep_memorystore) 和 [向量存储](/oss/python/integrations/vectorstores/zep) 示例。
 
 ## Zep Cloud 安装与设置
 
@@ -67,7 +67,7 @@ Zep 的记忆检索器是一个 LangChain 检索器，它使您能够从 Zep 会
 
 Zep 的记忆检索器同时支持相似性搜索和 [最大边际相关性 (MMR) 重排序](https://help.getzep.com/working-with-search#how-zeps-mmr-re-ranking-works)。MMR 搜索有助于确保检索到的消息具有多样性，彼此之间不会过于相似。
 
-查看 [使用示例](/oss/integrations/retrievers/zep_cloud_memorystore)。
+查看 [使用示例](/oss/python/integrations/retrievers/zep_cloud_memorystore)。
 
 ```python
 from langchain_community.retrievers import ZepCloudRetriever
@@ -85,4 +85,4 @@ MMR 搜索有助于确保检索到的文档具有多样性，彼此之间不会�
 from langchain_community.vectorstores import ZepCloudVectorStore
 ```
 
-查看 [使用示例](/oss/integrations/vectorstores/zep_cloud)。
+查看 [使用示例](/oss/python/integrations/vectorstores/zep_cloud)。

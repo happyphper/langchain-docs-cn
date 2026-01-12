@@ -3,7 +3,7 @@ title: LangChain v1 迁移指南
 sidebarTitle: LangChain v1
 ---
 
-本迁移指南概述了 LangChain v1 中的主要变更。要了解更多关于 v1 新特性的信息,请参阅[介绍文章](/oss/releases/langchain-v1)。
+本迁移指南概述了 LangChain v1 中的主要变更。要了解更多关于 v1 新特性的信息,请参阅[介绍文章](/oss/javascript/releases/langchain-v1)。
 
 要升级,请执行以下操作:
 
@@ -677,7 +677,7 @@ const imageBlock: ContentBlock.Multimodal.Image = {
 };
 ```
 
-查看内容块[参考文档](/oss/langchain/messages#content-block-reference)了解更多详情。
+查看内容块[参考文档](/oss/javascript/langchain/messages#content-block-reference)了解更多详情。
 
 ### 序列化标准内容
 
@@ -701,7 +701,7 @@ const model = await initChatModel("gpt-5-nano", {
 
 <Note>
 
-了解更多:[消息](/oss/langchain/messages#message-content)和[标准内容块](/oss/langchain/messages#standard-content-blocks)。查看[多模态](/oss/langchain/messages#multimodal)了解输入示例。
+了解更多:[消息](/oss/javascript/langchain/messages#message-content)和[标准内容块](/oss/javascript/langchain/messages#standard-content-blocks)。查看[多模态](/oss/javascript/langchain/messages#multimodal)了解输入示例。
 
 </Note>
 

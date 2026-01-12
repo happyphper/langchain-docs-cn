@@ -27,6 +27,6 @@ uv add langchain-prolog
 from langchain_prolog import PrologConfig, PrologTool
 ```
 
-查看[使用示例](/oss/integrations/tools/prolog_tool)。
+查看[使用示例](/oss/javascript/integrations/tools/prolog_tool)。
 
 同一指南中也包含了 `PrologRunnable` 的使用示例，它允许生成使用 Prolog 规则来生成答案的 LangChain 可运行对象。

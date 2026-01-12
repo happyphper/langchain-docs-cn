@@ -33,7 +33,7 @@ from langchain_community.llms import Clarifai
 llm = Clarifai(pat=CLARIFAI_PAT, user_id=USER_ID, app_id=APP_ID, model_id=MODEL_ID)
 ```
 
-更多详细信息，Clarifai LLM 包装器的文档提供了[详细演练](/oss/integrations/llms/clarifai)。
+更多详细信息，Clarifai LLM 包装器的文档提供了[详细演练](/oss/python/integrations/llms/clarifai)。
 
 ## 嵌入模型
 
@@ -46,7 +46,7 @@ from langchain_community.embeddings import ClarifaiEmbeddings
 embeddings = ClarifaiEmbeddings(pat=CLARIFAI_PAT, user_id=USER_ID, app_id=APP_ID, model_id=MODEL_ID)
 ```
 
-查看[使用示例](/oss/integrations/document_loaders/couchbase)。
+查看[使用示例](/oss/python/integrations/document_loaders/couchbase)。
 
 ## 向量存储
 
@@ -58,4 +58,4 @@ Clarifai 的向量数据库于 2016 年推出，并经过优化以支持实时�
 from langchain_community.vectorstores import Clarifai
 clarifai_vector_db = Clarifai.from_texts(user_id=USER_ID, app_id=APP_ID, texts=texts, pat=CLARIFAI_PAT, number_of_docs=NUMBER_OF_DOCS, metadatas = metadatas)
 ```
-更多详细信息，Clarifai 向量存储的文档提供了[详细演练](/oss/integrations/vectorstores/clarifai)。
+更多详细信息，Clarifai 向量存储的文档提供了[详细演练](/oss/python/integrations/vectorstores/clarifai)。

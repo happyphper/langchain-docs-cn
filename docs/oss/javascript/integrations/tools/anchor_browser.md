@@ -70,7 +70,7 @@ anchor_advanced_web_task_tool = AdvancedAnchorWebTaskTool()
 
 ## 调用
 
-### [直接使用参数调用](/oss/langchain/tools#use-the-tool-directly)
+### [直接使用参数调用](/oss/javascript/langchain/tools#use-the-tool-directly)
 
 完整的可用参数列表出现在上方的工具特性表中。
 
@@ -110,7 +110,7 @@ anchor_advanced_web_task_tool.invoke(
 )
 ```
 
-### [使用 ToolCall 调用](/oss/langchain/tools/#tool-execution)
+### [使用 ToolCall 调用](/oss/javascript/langchain/tools/#tool-execution)
 
 我们也可以使用模型生成的 ToolCall 来调用工具，在这种情况下，将返回一个 ToolMessage：
 
@@ -127,7 +127,7 @@ anchor_content_tool.invoke(model_generated_tool_call)
 
 ## 链式调用
 
-我们可以通过首先将工具绑定到一个 [工具调用模型](/oss/langchain/tools/)，然后调用它，从而在链中使用我们的工具：
+我们可以通过首先将工具绑定到一个 [工具调用模型](/oss/javascript/langchain/tools/)，然后调用它，从而在链中使用我们的工具：
 
 ## 在智能体中使用
 

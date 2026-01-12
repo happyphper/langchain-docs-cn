@@ -461,7 +461,7 @@ await pg_engine.adrop_table(TABLE_NAME)
 
 有关如何使用此向量存储进行检索增强生成 (RAG) 的指南，请参阅以下部分：
 
-*   [教程](/oss/langchain/rag)
+*   [教程](/oss/javascript/langchain/rag)
 *   [操作指南：使用 RAG 进行问答](https://python.langchain.com/docs/how_to/#qa-with-rag)
 *   [检索概念文档](https://python.langchain.com/docs/concepts/retrieval)
 

@@ -1,7 +1,7 @@
 
 <Tabs>
 
-<Tab title="Memory">
+<Tab title="内存 (Memory)">
 
 ::: code-group
 

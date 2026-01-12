@@ -12,7 +12,7 @@ import getpass
 import os
 
 if not os.environ.get("OPENAI_API_KEY"):
-    os.environ["OPENAI_API_KEY"] = getpass.getpass("Enter API key for OpenAI: ")
+    os.environ["OPENAI_API_KEY"] = getpass.getpass("请输入 OpenAI 的 API 密钥: ")
 
 from langchain_openai import OpenAIEmbeddings
 
@@ -32,7 +32,7 @@ import getpass
 import os
 
 if not os.environ.get("AZURE_OPENAI_API_KEY"):
-    os.environ["AZURE_OPENAI_API_KEY"] = getpass.getpass("Enter API key for Azure: ")
+    os.environ["AZURE_OPENAI_API_KEY"] = getpass.getpass("请输入 Azure 的 API 密钥: ")
 
 from langchain_openai import AzureOpenAIEmbeddings
 
@@ -56,7 +56,7 @@ import getpass
 import os
 
 if not os.environ.get("GOOGLE_API_KEY"):
-    os.environ["GOOGLE_API_KEY"] = getpass.getpass("Enter API key for Google Gemini: ")
+    os.environ["GOOGLE_API_KEY"] = getpass.getpass("请输入 Google Gemini 的 API 密钥: ")
 
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
@@ -132,7 +132,7 @@ import getpass
 import os
 
 if not os.environ.get("COHERE_API_KEY"):
-    os.environ["COHERE_API_KEY"] = getpass.getpass("Enter API key for Cohere: ")
+    os.environ["COHERE_API_KEY"] = getpass.getpass("请输入 Cohere 的 API 密钥: ")
 
 from langchain_cohere import CohereEmbeddings
 
@@ -152,7 +152,7 @@ import getpass
 import os
 
 if not os.environ.get("MISTRALAI_API_KEY"):
-    os.environ["MISTRALAI_API_KEY"] = getpass.getpass("Enter API key for MistralAI: ")
+    os.environ["MISTRALAI_API_KEY"] = getpass.getpass("请输入 MistralAI 的 API 密钥: ")
 
 from langchain_mistralai import MistralAIEmbeddings
 
@@ -172,7 +172,7 @@ import getpass
 import os
 
 if not os.environ.get("NOMIC_API_KEY"):
-    os.environ["NOMIC_API_KEY"] = getpass.getpass("Enter API key for Nomic: ")
+    os.environ["NOMIC_API_KEY"] = getpass.getpass("请输入 Nomic 的 API 密钥: ")
 
 from langchain_nomic import NomicEmbeddings
 
@@ -188,13 +188,13 @@ pip install -qU langchain-nvidia-ai-endpoints
 ```
 
 ```python
-    import getpass
-    import os
+import getpass
+import os
 
-    if not os.environ.get("NVIDIA_API_KEY"):
-        os.environ["NVIDIA_API_KEY"] = getpass.getpass("Enter API key for NVIDIA: ")
+if not os.environ.get("NVIDIA_API_KEY"):
+    os.environ["NVIDIA_API_KEY"] = getpass.getpass("请输入 NVIDIA 的 API 密钥: ")
 
-    from langchain_nvidia_ai_endpoints import NVIDIAEmbeddings
+from langchain_nvidia_ai_endpoints import NVIDIAEmbeddings
 
 embeddings = NVIDIAEmbeddings(model="NV-Embed-QA")
 ```
@@ -212,9 +212,9 @@ import getpass
 import os
 
 if not os.environ.get("VOYAGE_API_KEY"):
-    os.environ["VOYAGE_API_KEY"] = getpass.getpass("Enter API key for Voyage AI: ")
+    os.environ["VOYAGE_API_KEY"] = getpass.getpass("请输入 Voyage AI 的 API 密钥: ")
 
-from langchain-voyageai import VoyageAIEmbeddings
+from langchain_voyageai import VoyageAIEmbeddings
 
 embeddings = VoyageAIEmbeddings(model="voyage-3")
 ```
@@ -232,7 +232,7 @@ import getpass
 import os
 
 if not os.environ.get("WATSONX_APIKEY"):
-    os.environ["WATSONX_APIKEY"] = getpass.getpass("Enter API key for IBM watsonx: ")
+    os.environ["WATSONX_APIKEY"] = getpass.getpass("请输入 IBM watsonx 的 API 密钥: ")
 
 from langchain_ibm import WatsonxEmbeddings
 
@@ -270,7 +270,7 @@ import getpass
 import os
 
 if not os.environ.get("ISAACUS_API_KEY"):
-os.environ["ISAACUS_API_KEY"] = getpass.getpass("Enter API key for Isaacus: ")
+    os.environ["ISAACUS_API_KEY"] = getpass.getpass("请输入 Isaacus 的 API 密钥: ")
 
 from langchain_isaacus import IsaacusEmbeddings
 

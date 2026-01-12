@@ -1,52 +1,52 @@
 ---
-title: Build an agent from a template
-sidebarTitle: Quickstart
+title: 从模板构建智能体 (Build an agent from a template)
+sidebarTitle: 快速入门 (Quickstart)
 ---
 
-Create your first AI agent step-by-step. No coding required. In this quickstart, you'll use the pre-defined **Email Assistant** [template](/langsmith/agent-builder-templates) that organizes and manages your inbox for you.
+循序渐进地创建您的第一个 AI 智能体（agent）。无需编程。在本快速入门中，您将使用预定义的 **邮件助手 (Email Assistant)** [模板](/langsmith/agent-builder-templates)，它可以为您组织和管理收件箱。
 
-Feel free to follow along with this example or you can:
+您可以跟随本示例进行操作，也可以：
 
-- Customize the instructions and tools for your own agent needs.
-- Select a different template.
+- 根据您自己的智能体需求自定义指令和工具。
+- 选择不同的模板。
 
 <Callout icon="comment" color="#8B5CF6" iconType="regular">
 
-You'll interact with your agent through chat, just like texting a helpful assistant.
+您将通过聊天与智能体互动，就像给乐于助人的助手发短信一样。
 
 </Callout>
 
-## Before you start
+## 在您开始之前 (Before you start)
 
-You'll need:
-- A LangSmith account ([sign up here](https://smith.langchain.com)).
-- A Gmail account.
-- A Google calendar.
-- An OpenAI or Anthropic API key (Step 1 will show you how to get one).
+您需要：
+- 一个 LangSmith 账号 ([在此注册](https://smith.langchain.com))。
+- 一个 Gmail 账号。
+- 一个 Google 日历。
+- 一个 OpenAI 或 Anthropic 的 API 密钥（步骤 1 将向您展示如何获取）。
 
-## 1. Get your API key
+## 1. 获取您的 API 密钥 (Get your API key)
 
-Your agent needs an API key to connect to an AI model. The AI model is what allows your agent to understand and respond to your requests.
+您的智能体需要一个 API 密钥来连接到 AI 模型。AI 模型是让您的智能体理解并响应您的请求的核心。
 
 <Tabs>
 
 <Tab title="OpenAI (ChatGPT)">
 
-1. Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
-1. Click **Create new secret key**.
-1. Give it a name like "Agent Builder".
-1. Copy the key (it starts with `sk-`).
-1. Save it somewhere safe, you'll need it in Step 2.
+1. 前往 [platform.openai.com/api-keys](https://platform.openai.com/api-keys)。
+1. 点击 **Create new secret key**。
+1. 给它起个名字，比如 "Agent Builder"。
+1. 复制密钥（以 `sk-` 开头）。
+1. 将其保存到安全的地方，您在步骤 2 中会用到它。
 
 </Tab>
 
 <Tab title="Anthropic (Claude)">
 
-1. Go to [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys).
-2. Click **Create Key**.
-3. Give it a name like "Agent Builder".
-4. Copy the key (it starts with `sk-ant-`).
-5. Save it somewhere safe, you'll need it in Step 2.
+1. 前往 [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)。
+2. 点击 **Create Key**。
+3. 给它起个名字，比如 "Agent Builder"。
+4. 复制密钥（以 `sk-ant-` 开头）。
+5. 将其保存到安全的地方，您在步骤 2 中会用到它。
 
 </Tab>
 
@@ -54,37 +54,37 @@ Your agent needs an API key to connect to an AI model. The AI model is what allo
 
 <Info>
 
-<strong>Cost:</strong> Both services charge based on use.
+<strong>费用 (Cost):</strong> 两个服务都根据使用量收费。
 
 </Info>
 
-## 2. Add your API key to LangSmith
+## 2. 将您的 API 密钥添加到 LangSmith (Add your API key to LangSmith)
 
-Now you'll add your API key to LangSmith so your agents can use it:
+现在，您将 API 密钥添加到 LangSmith，以便您的智能体可以使用它：
 
 <Steps>
 
-<Step title="Open Settings">
+<Step title="打开设置 (Open Settings)">
 
-1. Go to [smith.langchain.com](https://smith.langchain.com).
-2. Click the <Icon icon="gear" /> <strong>Settings</strong> icon in the bottom left.
-
-</Step>
-
-<Step title="Go to Secrets">
-
-Click the <strong>Secrets</strong> tab at the top.
+1. 前往 [smith.langchain.com](https://smith.langchain.com)。
+2. 点击左下角的 <Icon icon="gear" /> <strong>Settings</strong> 图标。
 
 </Step>
 
-<Step title="Add your key">
+<Step title="进入机密管理 (Go to Secrets)">
 
-1. Click <strong>Add secret</strong>.
-2. For <strong>Key</strong>, enter:
-   - `OPENAI_API_KEY` (if using OpenAI)
-   - `ANTHROPIC_API_KEY` (if using Anthropic)
-3. For <strong>Value</strong>, paste the API key you copied in Step 1.
-4. Click <strong>Save secret</strong>.
+点击顶部的 <strong>Secrets</strong> 选项卡。
+
+</Step>
+
+<Step title="添加您的密钥 (Add your key)">
+
+1. 点击 <strong>Add secret</strong>。
+2. 对于 <strong>Key</strong>，输入：
+   - `OPENAI_API_KEY` (如果使用 OpenAI)
+   - `ANTHROPIC_API_KEY` (如果使用 Anthropic)
+3. 对于 <strong>Value</strong>，粘贴您在步骤 1 中复制的 API 密钥。
+4. 点击 <strong>Save secret</strong>。
 
 </Step>
 
@@ -92,44 +92,44 @@ Click the <strong>Secrets</strong> tab at the top.
 
 <Callout type="success" icon="check" color="#10B981" iconType="regular">
 
-Your agent now has access to an AI model to understand and respond to your requests. Next, you'll create your agent.
+您的智能体现已获得 AI 模型的访问权限，可以理解并响应您的请求。接下来，您将创建您的智能体。
 
 </Callout>
 
-## 3. Create your agent
+## 3. 创建您的智能体 (Create your agent)
 
 <Steps>
 
-<Step title="Navigate to Agent Builder">
+<Step title="导航到智能体构建器 (Navigate to Agent Builder)">
 
-1. In the [LangSmith UI](https://smith.langchain.com), click <Icon icon="mouse-pointer"/> <strong>Switch to Agent Builder</strong> at the top of the left-hand navigation.
+1. 在 [LangSmith UI](https://smith.langchain.com) 中，点击左侧导航栏顶部的 <Icon icon="mouse-pointer"/> <strong>Switch to Agent Builder</strong>。
 
 </Step>
 
-<Step title="Choose a template">
+<Step title="选择模板 (Choose a template)">
 
-1. Select <strong>Templates</strong> in the left-hand navigation.
-1. Select <strong>Email Assistant</strong> template.
-1. Click <strong>Use this template</strong>.
+1. 在左侧导航栏中选择 <strong>Templates</strong>。
+1. 选择 <strong>Email Assistant</strong> 模板。
+1. 点击 <strong>Use this template</strong>。
 
 <Tip>
 
-If you don't want to start with a template, you have two other options. From the <strong>+ New Agent</strong> page:
-- <strong>Chat</strong>: Use the chat interface to describe your agent, and it will help you create it step-by-step.
-- <strong>Manually</strong>: Select <strong>Create manually instead</strong> to build your agent without any pre-filled responses on the configuration page.
+如果您不想从模板开始，还有另外两个选择。在 <strong>+ New Agent</strong> 页面：
+- <strong>聊天 (Chat)</strong>：使用聊天界面描述您的智能体，它将帮助您逐步创建。
+- <strong>手动 (Manually)</strong>：选择 <strong>Create manually instead</strong>，在没有预填响应的情况下从头构建您的智能体。
 
 </Tip>
 
 </Step>
 
-<Step title="Authorize accounts">
+<Step title="授权账号 (Authorize accounts)">
 
-Your agent will ask you to connect your Google accounts:
+您的智能体会要求您连接您的 Google 账号：
 
-1. Click <strong>Connect</strong>.
-2. Sign in with your Google account.
-3. Review permissions and click <strong>Allow</strong>.
-4. You'll be redirected back to LangSmith where your agent will be created.
+1. 点击 <strong>Connect</strong>。
+2. 使用您的 Google 账号登录。
+3. 查看权限并点击 <strong>Allow</strong>。
+4. 您将被重定向回 LangSmith，您的智能体将在那里创建。
 
 </Step>
 
@@ -137,87 +137,87 @@ Your agent will ask you to connect your Google accounts:
 
 <Info>
 
-Your agent only accesses your accounts when working on tasks you give it. You can revoke access anytime in your Google account settings.
+您的智能体仅在执行您给它的任务时才会访问您的账号。您可以随时在 Google 账号设置中撤销访问权限。
 
 </Info>
 
-## 4. View the agent template
+## 4. 查看智能体模板 (View the agent template)
 
 <Steps>
 
-<Step title="View and customize the template">
+<Step title="查看并自定义模板 (View and customize the template)">
 
-At this point, you can review the template instructions for the email assistant. If needed, you can make adjustments to the instructions.
+此时，您可以查看邮件助手的模板指令。如果需要，您可以对指令进行调整。
 
-If you made any changes, click <strong>Save changes</strong>.
-
-</Step>
-
-<Step title="Start a test chat">
-
-1. In the right-hand panel of the configuration page, select the <strong>Test Chat</strong> tab.
-2. Try out the email assistant in the chat interface, for example:
-
-> _Apply a "Review" label to emails that I receive, which require some kind of review from me_
+如果您进行了任何更改，请点击 <strong>Save changes</strong>。
 
 </Step>
 
-<Step title="Agent starts working">
+<Step title="开始测试聊天 (Start a test chat)">
 
-Your agent will start work and provide a <strong>Continue</strong> option for each step that requires your approval.
+1. 在配置页面的右侧面板中，选择 <strong>Test Chat</strong> 选项卡。
+2. 在聊天界面中尝试使用邮件助手，例如：
 
-<img src="/langsmith/images/agent-builder-response.png" alt="Test chat output view with response including approvals for Gmail tool." />
+> _为我收到的、需要我进行某种审核的邮件添加 "Review" 标签_
 
-<img src="/langsmith/images/agent-builder-response-dark.png" alt="Test chat output view with response including approvals for Gmail tool." />
+</Step>
 
-3. As you test out the agent, you can make edits to the instructions, or add tools that you may need. Click <strong>Save changes</strong> when you're happy with the results.
+<Step title="智能体开始工作 (Agent starts working)">
+
+您的智能体将开始工作，并为每个需要您批准的步骤提供 <strong>Continue</strong> 选项。
+
+<img src="/langsmith/images/agent-builder-response.png" alt="包含 Gmail 工具批准响应的测试聊天输出视图。" />
+
+<img src="/langsmith/images/agent-builder-response-dark.png" alt="包含 Gmail 工具批准响应的测试聊天输出视图。" />
+
+3. 当您测试智能体时，您可以修改指令或添加您可能需要的工具。当您对结果满意时，点击 <strong>Save changes</strong>。
 
 </Step>
 
 </Steps>
 
-## Edit your agent
+## 编辑您的智能体 (Edit your agent)
 
-You may want to update your agent's instructions or include more tools. You can directly chat with your agent to ask for updates, or you can:
+您可能希望更新智能体的指令或包含更多工具。您可以直接通过聊天要求智能体进行更新，或者：
 
-1. From **My Agents** in the left-hand navigation, select the agent you want to edit.
-1. Select <Icon icon="pencil"/> **Edit Agent**.
+1. 从左侧导航栏的 **My Agents** 中，选择您想要编辑的智能体。
+1. 选择 <Icon icon="pencil"/> **Edit Agent**。
 
-From the agent's edit page, you can:
+在智能体的编辑页面，您可以：
 
-- Add tools with **+ Add tool** to connect more apps and services like Slack, GitHub, or Linear.
-- Add further helpers with **+ Add sub-agent** to break complex tasks into specialized sub-tasks.
-- Request pauses for reviews on existing tools.
-- Modify existing tools.
-- Explore features that can trigger your agent to start a task.
+- 通过 **+ Add tool** 添加工具，连接更多应用和服务，如 Slack、GitHub 或 Linear。
+- 通过 **+ Add sub-agent** 添加更多辅助智能体，将复杂任务拆分为专门的子任务。
+- 对现有工具请求通过暂停来进行审核。
+- 修改现有工具。
+- 探索可以触发智能体开始任务的功能。
 
-## Next steps
+## 后续步骤 (Next steps)
 
-Now that you've created your first agent, here's what to explore:
+既然您已经创建了第一个智能体，可以探索以下内容：
 
 <CardGroup :cols="2">
 
-<Card title="Try more templates" icon="shapes" href="/langsmith/agent-builder-templates">
+<Card title="尝试更多模板" icon="shapes" href="/langsmith/agent-builder-templates">
 
-Explore pre-built agents for common tasks
-
-</Card>
-
-<Card title="Add automation" icon="bolt" href="/langsmith/agent-builder-essentials#triggers">
-
-Run your agent automatically with triggers (Slack, email, schedules)
+探索适用于常见任务的预建智能体
 
 </Card>
 
-<Card title="Connect more tools" icon="puzzle-piece" href="/langsmith/agent-builder-tools">
+<Card title="添加自动化" icon="bolt" href="/langsmith/agent-builder-essentials#triggers">
 
-Add Slack, GitHub, Linear, and more
+使用触发器（Slack、邮件、定时任务）自动运行您的智能体
 
 </Card>
 
-<Card title="Build complex agents" icon="sitemap" href="/langsmith/agent-builder-essentials#sub-agents">
+<Card title="连接更多工具" icon="puzzle-piece" href="/langsmith/agent-builder-tools">
 
-Use sub-agents to break down big tasks
+添加 Slack、GitHub、Linear 等
+
+</Card>
+
+<Card title="构建复杂的智能体" icon="sitemap" href="/langsmith/agent-builder-essentials#sub-agents">
+
+使用子智能体拆分大型任务
 
 </Card>
 

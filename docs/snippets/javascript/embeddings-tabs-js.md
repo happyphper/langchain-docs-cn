@@ -44,8 +44,8 @@ pnpm add @langchain/openai
 :::
 
 ```bash
-AZURE_OPENAI_API_INSTANCE_NAME=<YOUR_INSTANCE_NAME>
-AZURE_OPENAI_API_KEY=<YOUR_KEY>
+AZURE_OPENAI_API_INSTANCE_NAME=<你的实例名称>
+AZURE_OPENAI_API_KEY=<你的密钥>
 AZURE_OPENAI_API_VERSION="2024-02-01"
 ```
 ```typescript
@@ -75,7 +75,7 @@ pnpm add @langchain/aws
 :::
 
 ```bash
-BEDROCK_AWS_REGION=your-region
+BEDROCK_AWS_REGION=你的区域
 ```
 ```typescript
 import { BedrockEmbeddings } from "@langchain/aws";
@@ -133,7 +133,7 @@ pnpm add @langchain/mistralai
 :::
 
 ```bash
-MISTRAL_API_KEY=your-api-key
+MISTRAL_API_KEY=你的密钥
 ```
 ```typescript
 import { MistralAIEmbeddings } from "@langchain/mistralai";
@@ -162,7 +162,7 @@ pnpm add @langchain/cohere
 :::
 
 ```bash
-COHERE_API_KEY=your-api-key
+COHERE_API_KEY=你的密钥
 ```
 ```typescript
 import { CohereEmbeddings } from "@langchain/cohere";

@@ -66,7 +66,6 @@ sidebarTitle: Overview
 
 一个主智能体将子智能体作为工具进行协调。所有路由都通过主智能体。
 
-    
 <Frame>
 
 <img src="/oss/langchain/multi-agent/images/pattern-subagents.png" alt="子智能体模式：主智能体将子智能体作为工具进行协调" />
@@ -79,7 +78,6 @@ sidebarTitle: Overview
 
 智能体通过工具调用相互转移控制权。每个智能体可以交接给其他智能体，或直接响应用户。
 
-    
 <Frame>
 
 <img src="/oss/langchain/multi-agent/images/pattern-handoffs.png" alt="交接模式：智能体通过工具调用转移控制权" />
@@ -92,7 +90,6 @@ sidebarTitle: Overview
 
 单个智能体在保持控制的同时，按需加载专用提示和知识。
 
-    
 <Frame>
 
 <img src="/oss/langchain/multi-agent/images/pattern-skills.png" alt="技能模式：单个智能体按需加载专用上下文" />
@@ -105,7 +102,6 @@ sidebarTitle: Overview
 
 路由步骤对输入进行分类，并将其定向到专用智能体。结果被合成。
 
-    
 <Frame>
 
 <img src="/oss/langchain/multi-agent/images/pattern-router.png" alt="路由器模式：路由步骤将输入分类到专用智能体" />

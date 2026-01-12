@@ -68,10 +68,10 @@ class ProviderStrategy(Generic[SchemaT]):
 <ParamField path="schema" required>
 
 定义结构化输出格式的模式。支持：
-    - <strong>Pydantic 模型</strong>：具有字段验证的 `BaseModel` 子类。返回经过验证的 Pydantic 实例。
-    - <strong>数据类</strong>：带有类型注解的 Python 数据类。返回字典。
-    - <strong>TypedDict</strong>：类型化字典类。返回字典。
-    - <strong>JSON 模式</strong>：包含 JSON 模式规范的字典。返回字典。
+- <strong>Pydantic 模型</strong>：具有字段验证的 `BaseModel` 子类。返回经过验证的 Pydantic 实例。
+- <strong>数据类</strong>：带有类型注解的 Python 数据类。返回字典。
+- <strong>TypedDict</strong>：类型化字典类。返回字典。
+- <strong>JSON 模式</strong>：包含 JSON 模式规范的字典。返回字典。
 
 </ParamField>
 
@@ -219,11 +219,11 @@ class ToolStrategy(Generic[SchemaT]):
 <ParamField path="schema" required>
 
 定义结构化输出格式的模式。支持：
-    - <strong>Pydantic 模型</strong>：具有字段验证的 `BaseModel` 子类。返回经过验证的 Pydantic 实例。
-    - <strong>数据类</strong>：带有类型注解的 Python 数据类。返回字典。
-    - <strong>TypedDict</strong>：类型化字典类。返回字典。
-    - <strong>JSON 模式</strong>：包含 JSON 模式规范的字典。返回字典。
-    - <strong>联合类型</strong>：多个模式选项。模型将根据上下文选择最合适的模式。
+- <strong>Pydantic 模型</strong>：具有字段验证的 `BaseModel` 子类。返回经过验证的 Pydantic 实例。
+- <strong>数据类</strong>：带有类型注解的 Python 数据类。返回字典。
+- <strong>TypedDict</strong>：类型化字典类。返回字典。
+- <strong>JSON 模式</strong>：包含 JSON 模式规范的字典。返回字典。
+- <strong>联合类型</strong>：多个模式选项。模型将根据上下文选择最合适的模式。
 
 </ParamField>
 
@@ -238,12 +238,12 @@ class ToolStrategy(Generic[SchemaT]):
 
 结构化输出验证失败时的错误处理策略。默认为 `True`。
 
-    - <strong>`True`</strong>：捕获所有错误并使用默认错误模板
-    - <strong>`str`</strong>：捕获所有错误并使用此自定义消息
-    - <strong>`type[Exception]`</strong>：仅捕获此异常类型并使用默认消息
-    - <strong>`tuple[type[Exception], ...]`</strong>：仅捕获这些异常类型并使用默认消息
-    - <strong>`Callable[[Exception], str]`</strong>：返回错误消息的自定义函数
-    - <strong>`False`</strong>：不重试，让异常传播
+- <strong>`True`</strong>：捕获所有错误并使用默认错误模板
+- <strong>`str`</strong>：捕获所有错误并使用此自定义消息
+- <strong>`type[Exception]`</strong>：仅捕获此异常类型并使用默认消息
+- <strong>`tuple[type[Exception], ...]`</strong>：仅捕获这些异常类型并使用默认消息
+- <strong>`Callable[[Exception], str]`</strong>：返回错误消息的自定义函数
+- <strong>`False`</strong>：不重试，让异常传播
 
 </ParamField>
 

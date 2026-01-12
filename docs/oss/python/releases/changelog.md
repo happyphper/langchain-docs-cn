@@ -16,8 +16,8 @@ rss: true
 ## `langchain` v1.2.0
 
 * [`create_agent`](/oss/python/langchain/agents)：通过工具上的新 [`extras`](https://reference.langchain.com/python/langchain/tools/#langchain.tools.BaseTool.extras) 属性，简化了对特定提供商工具参数和定义的支持。示例：
-* 特定于提供商的配置，例如 Anthropic 的[编程式工具调用](/oss/python/integrations/chat/anthropic#programmatic-tool-calling)和[工具搜索](/oss/python/integrations/chat/anthropic#tool-search)。
-* 由 [Anthropic](/oss/python/integrations/chat/anthropic#built-in-tools)、[OpenAI](/oss/python/integrations/chat/openai#responses-api) 和其他提供商支持的在客户端执行的[内置工具](/oss/python/integrations/chat/anthropic#built-in-tools)。
+  * 特定于提供商的配置，例如 Anthropic 的[编程式工具调用](/oss/python/integrations/chat/anthropic#programmatic-tool-calling)和[工具搜索](/oss/python/integrations/chat/anthropic#tool-search)。
+  * 由 [Anthropic](/oss/python/integrations/chat/anthropic#built-in-tools)、[OpenAI](/oss/python/integrations/chat/openai#responses-api) 和其他提供商支持的在客户端执行的[内置工具](/oss/python/integrations/chat/anthropic#built-in-tools)。
 * 支持在智能体 `response_format` 中严格遵守模式（参见 [`ProviderStrategy`](/oss/python/langchain/structured-output#provider-strategy) 文档）。
 
 </Update>

@@ -2750,9 +2750,9 @@ AI 驱动的内容审核平台。
 </Card>
 
 <Card
-title="PolarisAIDataInsight"
-href="/oss/integrations/providers/polaris_ai_datainsight"
-icon="link"
+  title="PolarisAIDataInsight"
+  href="/oss/integrations/providers/polaris_ai_datainsight"
+  icon="link"
 >
 
 面向多种文件格式的文档加载器。

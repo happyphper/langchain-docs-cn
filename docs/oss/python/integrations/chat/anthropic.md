@@ -305,8 +305,8 @@ ai_msg.tool_calls
 
 严格工具使用需要：
 
-    - Claude Sonnet 4.5 或 Opus 4.1。
-    - `langchain-anthropic>=1.1.0`
+- Claude Sonnet 4.5 或 Opus 4.1。
+- `langchain-anthropic>=1.1.0`
 
 </Info>
 
@@ -546,8 +546,8 @@ Complete args: {'title': 'Artificial Intelligence: An Overview', 'content': '# A
 
 编程式工具调用需要：
 
-    - Claude Sonnet 4.5 或 Opus 4.5。
-    - `langchain-anthropic>=1.3.0`
+- Claude Sonnet 4.5 或 Opus 4.5。
+- `langchain-anthropic>=1.3.0`
 
 您必须指定 `advanced-tool-use-2025-11-20` beta 头来启用编程式工具调用。
 
@@ -1531,8 +1531,8 @@ response = model.invoke(messages)
 
 结构化输出需要：
 
-    - Claude Sonnet 4.5 或 Opus 4.1。
-    - `langchain-anthropic>=1.1.0`
+- Claude Sonnet 4.5 或 Opus 4.1。
+- `langchain-anthropic>=1.1.0`
 
 </Info>
 

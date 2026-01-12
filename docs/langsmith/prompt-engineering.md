@@ -9,10 +9,10 @@ mode: wide
 <Columns :cols="3">
 
 <Card
-title="回顾核心概念"
-icon="circle-info"
-href="/langsmith/prompt-engineering-concepts"
-arrow="true"
+  title="回顾核心概念"
+  icon="circle-info"
+  href="/langsmith/prompt-engineering-concepts"
+  arrow="true"
 >
 
 阅读 LangSmith 中提示工程的定义和关键术语。
@@ -20,10 +20,10 @@ arrow="true"
 </Card>
 
 <Card
-title="创建和更新提示词"
-icon="pen-to-square"
-href="/langsmith/create-a-prompt"
-arrow="true"
+  title="创建和更新提示词"
+  icon="pen-to-square"
+  href="/langsmith/create-a-prompt"
+  arrow="true"
 >
 
 通过 UI 或 SDK 构建提示词，配置设置，使用工具，添加多模态输入，并连接模型提供商。
@@ -31,10 +31,10 @@ arrow="true"
 </Card>
 
 <Card
-title="管理提示词"
-icon="tags"
-href="/langsmith/manage-prompts"
-arrow="true"
+  title="管理提示词"
+  icon="tags"
+  href="/langsmith/manage-prompts"
+  arrow="true"
 >
 
 使用标签进行组织，提交更改，触发 Webhook，并通过公共提示中心分享。
@@ -42,10 +42,10 @@ arrow="true"
 </Card>
 
 <Card
-title="探索提示中心"
-icon="folder-tree"
-href="/langsmith/manage-prompts#public-prompt-hub"
-arrow="true"
+  title="探索提示中心"
+  icon="folder-tree"
+  href="/langsmith/manage-prompts#public-prompt-hub"
+  arrow="true"
 >
 
 浏览和管理提示标签，并从 LangChain Hub 发现社区提示词。
@@ -53,10 +53,10 @@ arrow="true"
 </Card>
 
 <Card
-title="打开提示词游乐场"
-icon="vial"
-href="/langsmith/prompt-engineering-concepts#prompt-playground"
-arrow="true"
+  title="打开提示词游乐场"
+  icon="vial"
+  href="/langsmith/prompt-engineering-concepts#prompt-playground"
+  arrow="true"
 >
 
 使用自定义端点和模型配置来测试和试验提示词。
@@ -64,10 +64,10 @@ arrow="true"
 </Card>
 
 <Card
-title="跟随教程"
-icon="book-open"
-href="/langsmith/optimize-classifier"
-arrow="true"
+  title="跟随教程"
+  icon="book-open"
+  href="/langsmith/optimize-classifier"
+  arrow="true"
 >
 
 学习分步技术，例如优化分类器和高级提示工程。

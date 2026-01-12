@@ -811,12 +811,12 @@ await graph.invoke(inputs, config);# [!code highlight]
 await graph.invoke(null, config);  # [!code highlight]
 ```
 
- 1. 断点在 `compile` 时设置。
- 2. `interruptBefore` 指定在节点执行之前应暂停执行的节点。
- 3. `interruptAfter` 指定在节点执行之后应暂停执行的节点。
- 4. 需要检查点器才能启用断点。
- 5. 图运行直到遇到第一个断点。
- 6. 通过传入 `null` 作为输入来恢复图。这将运行图直到遇到下一个断点。
+1. 断点在 `compile` 时设置。
+2. `interruptBefore` 指定在节点执行之前应暂停执行的节点。
+3. `interruptAfter` 指定在节点执行之后应暂停执行的节点。
+4. 需要检查点器才能启用断点。
+5. 图运行直到遇到第一个断点。
+6. 通过传入 `null` 作为输入来恢复图。这将运行图直到遇到下一个断点。
 
 </Tab>
 

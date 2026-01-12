@@ -106,13 +106,13 @@ arrow
 <Warning>
 
 在以下情况下，我们可能会拒绝 PR 或要求修改：
-    - CI 检查失败
-    - 存在严重的语法错误或拼写错误
-    - [Mintlify 组件](/oss/python/contributing/documentation#mintlify-components) 使用不正确
-    - 页面缺少 [frontmatter](/oss/python/contributing/documentation#page-structure)
-    - 缺少 [本地化](/oss/python/contributing/documentation#localization)（如适用）
-    - [代码示例](/oss/python/contributing/documentation#in-code-documentation) 无法运行或有错误
-    - 未达到 [质量标准](/oss/python/contributing/documentation#quality-standards)
+- CI 检查失败
+- 存在严重的语法错误或拼写错误
+- [Mintlify 组件](/oss/python/contributing/documentation#mintlify-components) 使用不正确
+- 页面缺少 [frontmatter](/oss/python/contributing/documentation#page-structure)
+- 缺少 [本地化](/oss/python/contributing/documentation#localization)（如适用）
+- [代码示例](/oss/python/contributing/documentation#in-code-documentation) 无法运行或有错误
+- 未达到 [质量标准](/oss/python/contributing/documentation#quality-standards)
 
 </Warning>
 

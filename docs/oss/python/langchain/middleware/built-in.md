@@ -587,10 +587,10 @@ def detector(content: str) -> list[dict[str, str | int]]:
 
 对于自定义检测器：
 
-    - 使用正则表达式字符串处理简单模式
-    - 当您需要标志时使用 RegExp 对象（例如，不区分大小写的匹配）
-    - 当您需要超出模式匹配的验证逻辑时使用自定义函数
-    - 自定义函数让您完全控制检测逻辑，并可以实现复杂的验证规则
+- 使用正则表达式字符串处理简单模式
+- 当您需要标志时使用 RegExp 对象（例如，不区分大小写的匹配）
+- 当您需要超出模式匹配的验证逻辑时使用自定义函数
+- 自定义函数让您完全控制检测逻辑，并可以实现复杂的验证规则
 
 </Tip>
 
@@ -1491,7 +1491,6 @@ result = agent.invoke({
 
 </Card>
 
-    
 <Card title="OpenAI" href="/oss/integrations/middleware/openai" icon="openai" arrow>
 
 适用于 OpenAI 模型的内容审核中间件。

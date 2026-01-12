@@ -61,10 +61,10 @@ mode: wide
 <Columns :cols="1">
 
 <Card
-title="开始部署"
-icon="robot"
-href="/langsmith/application-structure"
-cta="配置你的应用"
+  title="开始部署"
+  icon="robot"
+  href="/langsmith/application-structure"
+  cta="配置你的应用"
 >
 
 将你的智能体和图（graphs）打包、构建并部署到 Agent Server。

@@ -26,8 +26,8 @@ LangChain 组件是 [`langchain-core`](https://github.com/langchain-ai/langchain
 
 工具主要有两种使用方式：
 
- 1.  定义一个“输入模式”或“参数模式”，与文本请求一起传递给聊天模型的工具调用功能，以便聊天模型可以生成一个“工具调用”，或调用工具所需的参数。
- 2.  接收如上生成的“工具调用”，执行某些操作并返回一个响应，该响应可以作为 ToolMessage 传递回聊天模型。
+1.  定义一个“输入模式”或“参数模式”，与文本请求一起传递给聊天模型的工具调用功能，以便聊天模型可以生成一个“工具调用”，或调用工具所需的参数。
+2.  接收如上生成的“工具调用”，执行某些操作并返回一个响应，该响应可以作为 ToolMessage 传递回聊天模型。
 
 Tools 类必须继承自 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.tools.StructuredTool.html" target="_blank" rel="noreferrer" class="link"><code>BaseTool</code></a> 基类。此接口包含 3 个属性和 2 个方法，应在子类中实现。
 

@@ -8,7 +8,7 @@ sidebarTitle: Feedback data format
 
 在深入了解此内容之前，阅读以下内容可能会有所帮助：
 
-    * [关于追踪与反馈的概念指南](/langsmith/observability-concepts)
+* [关于追踪与反馈的概念指南](/langsmith/observability-concepts)
 
 </Check>
 

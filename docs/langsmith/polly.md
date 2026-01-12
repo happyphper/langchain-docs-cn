@@ -87,9 +87,9 @@ Polly 帮助您从追踪记录、对话线程和提示中获取洞察，而无�
 <CardGroup :cols="2">
 
 <Card
-title="可观测性"
-icon="magnifying-glass"
-href="/langsmith/observability"
+  title="可观测性"
+  icon="magnifying-glass"
+  href="/langsmith/observability"
 >
 
 了解更多关于追踪和监控您的 LLM 应用程序的信息
@@ -97,9 +97,9 @@ href="/langsmith/observability"
 </Card>
 
 <Card
-title="线程"
-icon="comments"
-href="/langsmith/threads"
+  title="线程"
+  icon="comments"
+  href="/langsmith/threads"
 >
 
 了解线程在 LangSmith 中如何工作
@@ -107,9 +107,9 @@ href="/langsmith/threads"
 </Card>
 
 <Card
-title="提示词工程"
-icon="wand-magic-sparkles"
-href="/langsmith/prompt-engineering"
+  title="提示词工程"
+  icon="wand-magic-sparkles"
+  href="/langsmith/prompt-engineering"
 >
 
 在游乐场中创建和迭代提示词
@@ -117,9 +117,9 @@ href="/langsmith/prompt-engineering"
 </Card>
 
 <Card
-title="评估"
-icon="clipboard-check"
-href="/langsmith/evaluation"
+  title="评估"
+  icon="clipboard-check"
+  href="/langsmith/evaluation"
 >
 
 系统地评估和测试您的应用程序

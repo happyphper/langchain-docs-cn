@@ -250,10 +250,10 @@ console.log(result.structuredResponse);
 
 大多数包已发布 1.0 版本。目前只有以下包支持新的内容块：
 
-    - `langchain`
-    - `@langchain/core`
-    - `@langchain/anthropic`
-    - `@langchain/openai`
+- `langchain`
+- `@langchain/core`
+- `@langchain/anthropic`
+- `@langchain/openai`
 
 计划未来更广泛地支持内容块。
 

@@ -19,9 +19,9 @@ sidebarTitle: Overview
 <Columns :cols="1">
 
 <Card
-title="LangSmith 可观测性与评估"
-icon="chart-line"
-href="#langsmith"
+  title="LangSmith 可观测性与评估"
+  icon="chart-line"
+  href="#langsmith"
 >
 
 托管一个包含 UI 和 API 中可观测性、追踪和评估功能的 LangSmith 实例。最适合那些希望拥有自托管监控和评估功能，但无需部署代理的团队。
@@ -29,9 +29,9 @@ href="#langsmith"
 </Card>
 
 <Card
-title="LangSmith 可观测性、评估与部署"
-icon="layer-group"
-href="#enable-langsmith-deployment"
+  title="LangSmith 可观测性、评估与部署"
+  icon="layer-group"
+  href="#enable-langsmith-deployment"
 >
 
 支持通过控制平面将图（graph）部署到代理服务器（Agent Server）。控制平面和数据平面提供了完整的 LangSmith 平台，用于运行和监控代理。这包括可观测性、评估和部署。
@@ -39,9 +39,9 @@ href="#enable-langsmith-deployment"
 </Card>
 
 <Card
-title="独立服务器"
-icon="server"
-href="#standalone-server"
+  title="独立服务器"
+  icon="server"
+  href="#standalone-server"
 >
 
 直接托管代理服务器，无需控制平面 UI。这是一个轻量级选项，用于将一个或少数几个代理作为独立服务运行，并完全控制扩展和集成。

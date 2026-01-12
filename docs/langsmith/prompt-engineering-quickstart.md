@@ -52,7 +52,6 @@ LangSmith 提供了用于创建、版本控制、测试和协作处理提示词�
 1.  在 **Prompts** 标题下，选择模型名称旁边的齿轮 <Icon icon="gear" iconType="solid" /> 图标，这将在 **Model Configuration** 标签页中启动 **Prompt Settings** 窗口。
 2.  设置你想要使用的 [模型配置](/langsmith/managing-model-configurations)。你选择的 **Provider** 和 **Model** 将决定此配置页面上可配置的参数。设置完成后，点击 **Save as**。
 
-    
 <div :style="{ textAlign: 'center' }">
 
 <img src="/langsmith/images/model-config-light.png" alt="Model Configuration window in the LangSmith UI, settings for Provider, Model, Temperature, Max Output Tokens, Top P, Presence Penalty, Frequency Penalty, Reasoning Effort, etc." />
@@ -63,7 +62,6 @@ LangSmith 提供了用于创建、版本控制、测试和协作处理提示词�
 
 3.  在 **Inputs** 框中指定你想要测试的输入变量，然后点击 <Icon icon="circle-play" iconType="solid" /> **Start**。
 
-    
 <div :style="{ textAlign: 'center' }">
 
 <img src="/langsmith/images/set-input-start-light.png" alt="The input box with a question entered. The output box contains the response to the prompt." />
@@ -90,7 +88,6 @@ LangSmith 支持基于团队的提示词迭代。[工作区](/langsmith/administ
     1.  要创建提交，请导航到 **Playground** 并选择 **Commit**。选择要提交更改的提示词，然后点击 **Commit**。
     2.  导航到左侧菜单中的 **Prompts**。选择提示词。进入提示词详情页面后，切换到 **Commits** 标签页。找到标签图标 <Icon icon="tag" iconType="solid" /> 以 **Add a Commit Tag**。
 
-    
 <div :style="{ textAlign: 'center' }">
 
 <img src="/langsmith/images/add-commit-tag-light.png" alt="The tag, the commit tag box with the commit label, and the commit tag name box to create the tag." />

@@ -40,9 +40,6 @@ export class MdxTransformer {
         // 【修复表格缩进】规范化 Markdown 表格的缩进，确保表格能被正确解析
         transformedBody = SyntaxProcessor.normalizeMarkdownTableIndents(transformedBody);
 
-        // 【修复文本缩进】移除普通文本的过度缩进，防止被识别为代码块
-        transformedBody = SyntaxProcessor.normalizeTextIndents(transformedBody);
-
         // 2. 处理组件 (这里会处理 Step 等)
         transformedBody = ComponentProcessor.processStepComponent(transformedBody);
 
@@ -70,6 +67,9 @@ export class MdxTransformer {
 
         // 9. 递归处理组件嵌套
         transformedBody = ComponentProcessor.processNestedComponents(transformedBody);
+
+        // 【修复文本缩进】移除普通文本的过度缩进，防止被识别为代码块
+        transformedBody = SyntaxProcessor.normalizeTextIndents(transformedBody);
 
         // 9.5 处理 details 标签 (HTML <details> -> ::: details)
         transformedBody = ComponentProcessor.processDetailsTag(transformedBody);

@@ -269,11 +269,11 @@ print(repr(result["structured_response"]))
 
 内容块支持目前仅适用于以下集成：
 
-    - [`langchain-anthropic`](https://pypi.org/project/langchain-anthropic/)
-    - [`langchain-aws`](https://pypi.org/project/langchain-aws/)
-    - [`langchain-openai`](https://pypi.org/project/langchain-openai/)
-    - [`langchain-google-genai`](https://pypi.org/project/langchain-google-genai/)
-    - [`langchain-ollama`](https://pypi.org/project/langchain-ollama/)
+- [`langchain-anthropic`](https://pypi.org/project/langchain-anthropic/)
+- [`langchain-aws`](https://pypi.org/project/langchain-aws/)
+- [`langchain-openai`](https://pypi.org/project/langchain-openai/)
+- [`langchain-google-genai`](https://pypi.org/project/langchain-google-genai/)
+- [`langchain-ollama`](https://pypi.org/project/langchain-ollama/)
 
 对内容块的更广泛支持将逐步扩展到更多供应商。
 

@@ -18,7 +18,7 @@ Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylo
 <Card title="Gmail" icon="google">
 
 读取和发送电子邮件
-  <ul>
+<ul>
 <li>读取电子邮件（可选包含正文，使用搜索过滤）</li>
 <li>发送电子邮件或回复现有邮件</li>
 <li>创建草稿邮件</li>
@@ -26,59 +26,59 @@ Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylo
 <li>获取对话线程</li>
 <li>应用或创建标签</li>
 <li>列出邮箱标签</li>
-  </ul>
+</ul>
 
 </Card>
 
 <Card title="Google Calendar" icon="google">
 
 管理日程事件
-  <ul>
+<ul>
 <li>列出指定日期的事件</li>
 <li>获取事件详情</li>
 <li>创建新事件</li>
-  </ul>
+</ul>
 
 </Card>
 
 <Card title="Google Sheets" icon="google">
 
 电子表格
-  <ul>
+<ul>
 <li>创建电子表格</li>
 <li>读取数据范围</li>
-  </ul>
+</ul>
 
 </Card>
 
 <Card title="BigQuery" icon="database">
 
 数据分析
-  <ul>
+<ul>
 <li>执行 SQL 查询</li>
-  </ul>
+</ul>
 
 </Card>
 
 <Card title="Slack" icon="slack">
 
 发送和读取消息
-  <ul>
+<ul>
 <li>向用户发送私信</li>
 <li>向频道发布消息</li>
 <li>在主题中回复</li>
 <li>读取频道历史记录</li>
 <li>读取主题消息</li>
-  </ul>
+</ul>
 
 </Card>
 
 <Card title="LinkedIn" icon="linkedin">
 
 发布到个人资料
-  <ul>
+<ul>
 <li>发布带有可选图片或链接的帖子</li>
-  </ul>
+</ul>
 
 </Card>
 
@@ -103,36 +103,36 @@ Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylo
 <Card title="GitHub" icon="github">
 
 拉取请求、议题和内容
-  <ul>
+<ul>
 <li>列出拉取请求</li>
 <li>获取拉取请求详情</li>
 <li>创建议题和拉取请求</li>
 <li>对议题和拉取请求发表评论</li>
 <li>读取仓库文件并列出目录</li>
-  </ul>
+</ul>
 
 </Card>
 
 <Card title="Linear" icon="list-check">
 
 管理议题和团队
-  <ul>
+<ul>
 <li>列出团队和团队成员</li>
 <li>使用过滤器列出议题</li>
 <li>获取议题详情</li>
 <li>创建、更新或删除议题</li>
-  </ul>
+</ul>
 
 </Card>
 
 <Card title="Pylon" icon="list-check">
 
 议题管理
-  <ul>
+<ul>
 <li>列出议题</li>
 <li>获取议题详情</li>
 <li>更新议题</li>
-  </ul>
+</ul>
 
 </Card>
 

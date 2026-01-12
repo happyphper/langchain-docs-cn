@@ -91,8 +91,8 @@ class TestChatParrotLinkStandard(ChatModelIntegrationTests):
 <Note>
 
 您应该将这些测试组织在相对于包根目录的以下子目录中：
-    - `tests/unit_tests` 用于单元测试
-    - `tests/integration_tests` 用于集成测试
+- `tests/unit_tests` 用于单元测试
+- `tests/integration_tests` 用于集成测试
 
 </Note>
 

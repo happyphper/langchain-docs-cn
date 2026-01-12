@@ -40,32 +40,32 @@ LangChain 提供了一个键值存储接口，用于通过键存储和检索数�
 <Columns :cols="3">
 
 <Card
-title="Cassandra KV"
-icon="link"
-href="/oss/integrations/stores/cassandra_storage"
-arrow="true"
-cta="查看指南"
+  title="Cassandra KV"
+  icon="link"
+  href="/oss/integrations/stores/cassandra_storage"
+  arrow="true"
+  cta="查看指南"
 />
 <Card
-title="IORedis"
-icon="link"
-href="/oss/integrations/stores/ioredis_storage"
-arrow="true"
-cta="查看指南"
+  title="IORedis"
+  icon="link"
+  href="/oss/integrations/stores/ioredis_storage"
+  arrow="true"
+  cta="查看指南"
 />
 <Card
-title="Upstash Redis"
-icon="link"
-href="/oss/integrations/stores/upstash_redis_storage"
-arrow="true"
-cta="查看指南"
+  title="Upstash Redis"
+  icon="link"
+  href="/oss/integrations/stores/upstash_redis_storage"
+  arrow="true"
+  cta="查看指南"
 />
 <Card
-title="Vercel KV"
-icon="link"
-href="/oss/integrations/stores/vercel_kv_storage"
-arrow="true"
-cta="查看指南"
+  title="Vercel KV"
+  icon="link"
+  href="/oss/integrations/stores/vercel_kv_storage"
+  arrow="true"
+  cta="查看指南"
 />
 
 </Columns>

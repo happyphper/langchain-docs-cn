@@ -9,8 +9,8 @@ LangSmith 支持两种类型的评估，根据其运行的时间和地点进行�
 <CardGroup :cols="2">
 
 <Card
-title="离线评估"
-icon="flask"
+  title="离线评估"
+  icon="flask"
 >
 
 **发布前测试**
@@ -20,8 +20,8 @@ icon="flask"
 </Card>
 
 <Card
-title="在线评估"
-icon="radar"
+  title="在线评估"
+  icon="radar"
 >
 
 **生产环境监控**
@@ -49,10 +49,10 @@ icon="radar"
 <Step title="定义评估器">
 
 创建 <Tooltip tip="用于为应用程序性能评分的函数">[评估器](/langsmith/evaluation-concepts#evaluators)</Tooltip> 来对性能进行评分：
-    - [人工](/langsmith/evaluation-concepts#human) 评审
-    - [代码](/langsmith/evaluation-concepts#code) 规则
-    - [LLM 作为裁判](/langsmith/llm-as-judge)
-    - [成对](/langsmith/evaluate-pairwise) 比较
+- [人工](/langsmith/evaluation-concepts#human) 评审
+- [代码](/langsmith/evaluation-concepts#code) 规则
+- [LLM 作为裁判](/langsmith/llm-as-judge)
+- [成对](/langsmith/evaluate-pairwise) 比较
 
 </Step>
 
@@ -117,10 +117,10 @@ icon="radar"
 <Columns :cols="3">
 
 <Card
-title="评估快速入门"
-icon="rocket"
-href="/langsmith/evaluation-quickstart"
-arrow="true"
+  title="评估快速入门"
+  icon="rocket"
+  href="/langsmith/evaluation-quickstart"
+  arrow="true"
 >
 
 开始使用离线评估。
@@ -128,10 +128,10 @@ arrow="true"
 </Card>
 
 <Card
-title="管理数据集"
-icon="database"
-href="/langsmith/manage-datasets"
-arrow="true"
+  title="管理数据集"
+  icon="database"
+  href="/langsmith/manage-datasets"
+  arrow="true"
 >
 
 通过 UI 或 SDK 创建和管理用于评估的数据集。
@@ -139,10 +139,10 @@ arrow="true"
 </Card>
 
 <Card
-title="运行离线评估"
-icon="microscope"
-href="/langsmith/evaluate-llm-application"
-arrow="true"
+  title="运行离线评估"
+  icon="microscope"
+  href="/langsmith/evaluate-llm-application"
+  arrow="true"
 >
 
 探索评估类型、技术和框架，进行全面的测试。
@@ -150,10 +150,10 @@ arrow="true"
 </Card>
 
 <Card
-title="分析结果"
-icon="chart-bar"
-href="/langsmith/analyze-an-experiment"
-arrow="true"
+  title="分析结果"
+  icon="chart-bar"
+  href="/langsmith/analyze-an-experiment"
+  arrow="true"
 >
 
 查看和分析评估结果，比较实验，过滤数据并导出发现。
@@ -161,10 +161,10 @@ arrow="true"
 </Card>
 
 <Card
-title="运行在线评估"
-icon="radar"
-href="/langsmith/online-evaluations"
-arrow="true"
+  title="运行在线评估"
+  icon="radar"
+  href="/langsmith/online-evaluations"
+  arrow="true"
 >
 
 从“可观测性”选项卡实时监控生产质量。
@@ -172,10 +172,10 @@ arrow="true"
 </Card>
 
 <Card
-title="跟随教程"
-icon="book"
-href="/langsmith/evaluate-chatbot-tutorial"
-arrow="true"
+  title="跟随教程"
+  icon="book"
+  href="/langsmith/evaluate-chatbot-tutorial"
+  arrow="true"
 >
 
 通过逐步教程学习，从简单的聊天机器人到复杂的智能体评估。

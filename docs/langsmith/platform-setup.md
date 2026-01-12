@@ -23,11 +23,11 @@ mode: wide
 <Columns :cols="3">
 
 <Card
-title="云托管"
-icon="cloud"
-iconType="solid"
-href="/langsmith/cloud"
-cta="开始使用"
+  title="云托管"
+  icon="cloud"
+  iconType="solid"
+  href="/langsmith/cloud"
+  cta="开始使用"
 >
 
 完全托管的可观测性、评估、提示工程和应用程序部署。通过自动化的 CI/CD 从 GitHub 部署。
@@ -35,10 +35,10 @@ cta="开始使用"
 </Card>
 
 <Card
-title="混合模式"
-icon="cloud"
-href="/langsmith/hybrid"
-cta="设置混合模式"
+  title="混合模式"
+  icon="cloud"
+  href="/langsmith/hybrid"
+  cta="设置混合模式"
 >
 
 **(企业版)** 可观测性、评估、提示工程和应用程序部署，您的应用程序在您的基础设施中运行。
@@ -46,11 +46,11 @@ cta="设置混合模式"
 </Card>
 
 <Card
-title="自托管"
-icon="server"
-iconType="solid"
-href="/langsmith/self-hosted"
-cta="运行自托管"
+  title="自托管"
+  icon="server"
+  iconType="solid"
+  href="/langsmith/self-hosted"
+  cta="运行自托管"
 >
 
 **(企业版)** 完全控制，包含可观测性、评估和提示工程。通过启用 LangSmith 部署获得完整的平台体验，或运行独立的服务器。

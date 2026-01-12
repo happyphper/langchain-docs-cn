@@ -672,9 +672,9 @@ print(response)  # {'title': 'Inception', 'year': 2010, ...}
 <strong>结构化输出的关键注意事项</strong>
 
 - <strong>方法参数</strong>：一些提供商支持不同的结构化输出方法：
-- `'json_schema'`：使用提供商提供的专用结构化输出功能。
-- `'function_calling'`：通过强制遵循给定模式的 [工具调用](#tool-calling) 来派生结构化输出。
-- `'json_mode'`：某些提供商提供的 `'json_schema'` 的前身。生成有效的 JSON，但模式必须在提示中描述。
+    - `'json_schema'`：使用提供商提供的专用结构化输出功能。
+    - `'function_calling'`：通过强制遵循给定模式的 [工具调用](#tool-calling) 来派生结构化输出。
+    - `'json_mode'`：某些提供商提供的 `'json_schema'` 的前身。生成有效的 JSON，但模式必须在提示中描述。
 - <strong>包含原始数据</strong>：设置 `include_raw=True` 以同时获取解析后的输出和原始的 AI 消息。
 - <strong>验证</strong>：Pydantic 模型提供自动验证。`TypedDict` 和 JSON 模式需要手动验证。
 
@@ -857,9 +857,9 @@ uv run --with langchain-model-profiles --provider anthropic --data-dir langchain
 
 所有具有底层多模态功能的 LangChain 聊天模型都支持：
 
-    1. 跨提供商标准格式的数据（请参阅 [我们的消息指南](/oss/python/langchain/messages)）
-    2. OpenAI [聊天补全](https://platform.openai.com/docs/api-reference/chat) 格式
-    3. 该特定提供商原生的任何格式（例如，Anthropic 模型接受 Anthropic 原生格式）
+1. 跨提供商标准格式的数据（请参阅 [我们的消息指南](/oss/python/langchain/messages)）
+2. OpenAI [聊天补全](https://platform.openai.com/docs/api-reference/chat) 格式
+3. 该特定提供商原生的任何格式（例如，Anthropic 模型接受 Anthropic 原生格式）
 
 </Tip>
 

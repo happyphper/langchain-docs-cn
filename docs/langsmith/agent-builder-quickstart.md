@@ -81,8 +81,8 @@ Click the <strong>Secrets</strong> tab at the top.
 
 1. Click <strong>Add secret</strong>.
 2. For <strong>Key</strong>, enter:
-- `OPENAI_API_KEY` (if using OpenAI)
-- `ANTHROPIC_API_KEY` (if using Anthropic)
+   - `OPENAI_API_KEY` (if using OpenAI)
+   - `ANTHROPIC_API_KEY` (if using Anthropic)
 3. For <strong>Value</strong>, paste the API key you copied in Step 1.
 4. Click <strong>Save secret</strong>.
 
@@ -126,10 +126,10 @@ If you don't want to start with a template, you have two other options. From the
 
 Your agent will ask you to connect your Google accounts:
 
-    1. Click <strong>Connect</strong>.
-    2. Sign in with your Google account.
-    3. Review permissions and click <strong>Allow</strong>.
-    4. You'll be redirected back to LangSmith where your agent will be created.
+1. Click <strong>Connect</strong>.
+2. Sign in with your Google account.
+3. Review permissions and click <strong>Allow</strong>.
+4. You'll be redirected back to LangSmith where your agent will be created.
 
 </Step>
 
@@ -166,11 +166,11 @@ If you made any changes, click <strong>Save changes</strong>.
 
 Your agent will start work and provide a <strong>Continue</strong> option for each step that requires your approval.
 
-    <img src="/langsmith/images/agent-builder-response.png" alt="Test chat output view with response including approvals for Gmail tool." />
+<img src="/langsmith/images/agent-builder-response.png" alt="Test chat output view with response including approvals for Gmail tool." />
 
-    <img src="/langsmith/images/agent-builder-response-dark.png" alt="Test chat output view with response including approvals for Gmail tool." />
+<img src="/langsmith/images/agent-builder-response-dark.png" alt="Test chat output view with response including approvals for Gmail tool." />
 
-    3. As you test out the agent, you can make edits to the instructions, or add tools that you may need. Click <strong>Save changes</strong> when you're happy with the results.
+3. As you test out the agent, you can make edits to the instructions, or add tools that you may need. Click <strong>Save changes</strong> when you're happy with the results.
 
 </Step>
 

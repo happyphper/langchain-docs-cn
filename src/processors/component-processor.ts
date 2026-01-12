@@ -10,7 +10,7 @@ export class ComponentProcessor {
 
         // 处理常见的 MDX 组件标签（包括自闭合和配对标签）
         // 匹配行首的空格 + 组件标签
-        const componentTagPattern = /^[ \t]+(<\/?(?:Tab|Tabs|CodeGroup|Accordion|AccordionGroup|Note|Warning|Tip|Info|Step|ParamField|Callout)(?:\s+[^>]*)?>)/gm;
+        const componentTagPattern = /^[ \t]+(<\/?(?:Tab|Tabs|CodeGroup|Accordion|AccordionGroup|Note|Warning|Tip|Info|Step|Steps|ParamField|Callout)(?:\s+[^>]*)?>)/gm;
 
         result = result.replace(componentTagPattern, '$1');
 
@@ -287,9 +287,21 @@ export class ComponentProcessor {
                         const cleanedInner = lines
                             .map(line => {
                                 if (line.trim().length === 0) return '';
-                                // 仅移除 baseIndent 长度的空格，绝不做 trimStart
+                                // 如果行起始就是 HTML 标签，或者是剥离基准缩进后的内容，
+                                // 确保它们被正确剥离。
                                 if (line.startsWith(' '.repeat(baseIndent))) {
-                                    return line.substring(baseIndent);
+                                    const stripped = line.substring(baseIndent);
+                                    // 针对以 < 开头的标签行，执行 trimStart 确保完全顶格
+                                    if (stripped.trimStart().startsWith('<')) {
+                                        return stripped.trimStart();
+                                    }
+                                    return stripped;
+                                }
+
+                                // 对于没有匹配基准缩进但仍有前导空格的行（可能是格式混乱），
+                                // 如果是 HTML 标签则强制顶格
+                                if (line.trimStart().startsWith('<')) {
+                                    return line.trimStart();
                                 }
                                 return line.trimStart();
                             })

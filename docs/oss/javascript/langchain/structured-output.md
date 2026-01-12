@@ -67,8 +67,8 @@ function providerStrategy<StructuredResponseT>(
 <ParamField path="schema" required>
 
 定义结构化输出格式的模式。支持：
-    - <strong>Zod 模式</strong>：一个 Zod 模式
-    - <strong>JSON 模式</strong>：一个 JSON 模式对象
+- <strong>Zod 模式</strong>：一个 Zod 模式
+- <strong>JSON 模式</strong>：一个 JSON 模式对象
 
 </ParamField>
 
@@ -159,8 +159,8 @@ function toolStrategy<StructuredResponseT>(
 <ParamField path="schema" required>
 
 定义结构化输出格式的模式。支持：
-    - <strong>Zod 模式</strong>：一个 Zod 模式
-    - <strong>JSON 模式</strong>：一个 JSON 模式对象
+- <strong>Zod 模式</strong>：一个 Zod 模式
+- <strong>JSON 模式</strong>：一个 JSON 模式对象
 
 </ParamField>
 
@@ -175,9 +175,9 @@ function toolStrategy<StructuredResponseT>(
 
 包含可选 `handleError` 参数的选项对象，用于自定义错误处理策略。
 
-    - <strong>`true`</strong>：捕获所有错误并使用默认错误模板（默认）
-    - <strong>`False`</strong>：不重试，让异常传播
-    - <strong>`(error: ToolStrategyError) => string | Promise<string>`</strong>：使用提供的消息进行重试或抛出错误
+- <strong>`true`</strong>：捕获所有错误并使用默认错误模板（默认）
+- <strong>`False`</strong>：不重试，让异常传播
+- <strong>`(error: ToolStrategyError) => string | Promise<string>`</strong>：使用提供的消息进行重试或抛出错误
 
 </ParamField>
 

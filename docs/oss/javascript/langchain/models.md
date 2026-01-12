@@ -788,9 +788,9 @@ const model = initChatModel("...", { profile: customProfile });
 
 所有具有底层多模态功能的 LangChain 聊天模型都支持：
 
-    1. 跨提供商标准格式的数据（请参阅 [我们的消息指南](/oss/javascript/langchain/messages)）
-    2. OpenAI [聊天补全](https://platform.openai.com/docs/api-reference/chat) 格式
-    3. 该特定提供商原生的任何格式（例如，Anthropic 模型接受 Anthropic 原生格式）
+1. 跨提供商标准格式的数据（请参阅 [我们的消息指南](/oss/javascript/langchain/messages)）
+2. OpenAI [聊天补全](https://platform.openai.com/docs/api-reference/chat) 格式
+3. 该特定提供商原生的任何格式（例如，Anthropic 模型接受 Anthropic 原生格式）
 
 </Tip>
 

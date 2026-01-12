@@ -8,11 +8,11 @@ title: 模型缓存
 <Columns :cols="3">
 
 <Card
-title="Azure Cosmos DB NoSQL 语义缓存"
-icon="link"
-href="/oss/integrations/llm_caching/azure_cosmosdb_nosql"
-arrow="true"
-cta="查看指南"
+  title="Azure Cosmos DB NoSQL 语义缓存"
+  icon="link"
+  href="/oss/integrations/llm_caching/azure_cosmosdb_nosql"
+  arrow="true"
+  cta="查看指南"
 >
 
 </Card>

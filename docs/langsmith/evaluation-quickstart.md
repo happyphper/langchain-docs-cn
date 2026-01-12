@@ -55,7 +55,6 @@ Answer the following question accurately:
 1. 点击 **Set up Evaluation**，这将在页面底部打开一个 **New Experiment**（新实验）表格。
 1. 在 **Select or create a new dataset** 下拉菜单中，点击 **+ New** 按钮创建一个新数据集。
 
-    
 <div :style="{ textAlign: 'center' }">
 
 <img src="/langsmith/images/playground-system-prompt-light.png" alt="游乐场中已编辑的系统提示词和带有用于创建新数据集下拉菜单的新实验。" />
@@ -82,7 +81,6 @@ Answer the following question accurately:
 
 1. 选择右上角的 <Icon icon="circle-play" /> **Start** 来运行您的评估。这将在 **New Experiment** 表格中创建一个带有预览的[_实验_](/langsmith/evaluation-concepts#experiment)。您可以通过点击实验名称查看完整视图。
 
-    
 <div :style="{ textAlign: 'center' }">
 
 <img src="/langsmith/images/full-experiment-view-light.png" alt="使用示例数据集的结果的完整实验视图。" />
@@ -568,7 +566,6 @@ View the evaluation results for experiment: 'first-eval-in-langsmith-00000000' a
 
 1. 按照评估运行输出中的链接访问 [LangSmith UI](https://smith.langchain.com) 中的 **Datasets & Experiments**（数据集与实验）页面，并探索该实验的结果。这将引导您进入创建的实验，其中包含显示 **Inputs**（输入）、**Reference Output**（参考输出）和 **Outputs**（输出）的表格。您可以选择一个数据集来打开结果的展开视图。
 
-    
 <div :style="{ textAlign: 'center' }">
 
 <img src="/langsmith/images/experiment-results-link-light.png" alt="点击链接后 UI 中的实验结果。" />

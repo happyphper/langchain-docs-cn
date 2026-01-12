@@ -37,13 +37,13 @@ LangSmith 为 LLM 跟踪提供以下优势：
 
 消息内容。类型化字典的列表。
 
- <Expandable title="内容选项">
+<Expandable title="内容选项">
 <ParamField path="type" type="string" required>
 取值为：<code>text</code> | <code>image</code> | <code>file</code> | <code>audio</code> | <code>video</code> | <code>tool_call</code> | <code>server_tool_call</code> | <code>server_tool_result</code>。
 
 </ParamField>
 
- <Expandable title="text">
+<Expandable title="text">
 
 <ParamField path="type" type="literal('text')" required />
 

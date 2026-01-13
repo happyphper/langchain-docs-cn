@@ -40,7 +40,7 @@ LangChain 的标准模型接口让您可以访问许多不同的提供商集成�
 <!--@include: @/snippets/javascript/chat-model-tabs-js.md-->
 
 ```typescript
-const response = await model.invoke("Why do parrots talk?");
+const response = await model.invoke("为什么鹦鹉会说话？");
 ```
 
 有关更多详细信息，包括如何传递模型[参数](#parameters)的信息，请参阅 <a href="https://reference.langchain.com/javascript/functions/langchain.chat_models_universal.initChatModel.html" target="_blank" rel="noreferrer" class="link"><code>initChatModel</code></a>。
@@ -144,8 +144,8 @@ const model = await initChatModel(
 
 调用模型最直接的方法是使用 <a href="https://reference.langchain.com/javascript/classes/_langchain_core_language_models_chat_models.BaseChatModel.html#invoke" target="_blank" rel="noreferrer" class="link"><code>invoke()</code></a> 并传入单个消息或消息列表。
 
-```typescript [Single message]
-const response = await model.invoke("Why do parrots have colorful feathers?");
+```typescript [单条消息]
+const response = await model.invoke("为什么鹦鹉有彩色的羽毛？");
 console.log(response);
 ```
 
@@ -153,30 +153,30 @@ console.log(response);
 
 有关角色、类型和内容的更多详细信息，请参阅[消息](/oss/javascript/langchain/messages)指南。
 
-```typescript [Object format]
+```typescript [对象格式]
 const conversation = [
-  { role: "system", content: "You are a helpful assistant that translates English to French." },
-  { role: "user", content: "Translate: I love programming." },
-  { role: "assistant", content: "J'adore la programmation." },
-  { role: "user", content: "Translate: I love building applications." },
+  { role: "system", content: "你是一个得力的助手，负责将英文翻译成中文。" },
+  { role: "user", content: "翻译：I love programming." },
+  { role: "assistant", content: "我热爱编程。" },
+  { role: "user", content: "翻译：I love building applications." },
 ];
 
 const response = await model.invoke(conversation);
-console.log(response);  // AIMessage("J'adore créer des applications.")
+console.log(response);  // AIMessage("我热爱构建应用程序。")
 ```
 
-```typescript [Message objects]
+```typescript [消息对象]
 import { HumanMessage, AIMessage, SystemMessage } from "langchain";
 
 const conversation = [
-  new SystemMessage("You are a helpful assistant that translates English to French."),
-  new HumanMessage("Translate: I love programming."),
-  new AIMessage("J'adore la programmation."),
-  new HumanMessage("Translate: I love building applications."),
+  new SystemMessage("你是一个得力的助手，负责将英文翻译成中文。"),
+  new HumanMessage("翻译：I love programming."),
+  new AIMessage("我热爱编程。"),
+  new HumanMessage("翻译：I love building applications."),
 ];
 
 const response = await model.invoke(conversation);
-console.log(response);  // AIMessage("J'adore créer des applications.")
+console.log(response);  // AIMessage("我热爱构建应用程序。")
 ```
 
 <Info>
@@ -193,21 +193,21 @@ console.log(response);  // AIMessage("J'adore créer des applications.")
 
 ::: code-group
 
-```typescript [Basic text streaming]
-const stream = await model.stream("Why do parrots have colorful feathers?");
+```typescript [基础文本流]
+const stream = await model.stream("为什么鹦鹉有彩色的羽毛？");
 for await (const chunk of stream) {
   console.log(chunk.text)
 }
 ```
 
-```typescript [Stream tool calls, reasoning, and other content]
-const stream = await model.stream("What color is the sky?");
+```typescript [流式传输工具调用、推理及其他内容]
+const stream = await model.stream("天空是什么颜色的？");
 for await (const chunk of stream) {
   for (const block of chunk.contentBlocks) {
     if (block.type === "reasoning") {
-      console.log(`Reasoning: ${block.reasoning}`);
+      console.log(`推理：${block.reasoning}`);
     } else if (block.type === "tool_call_chunk") {
-      console.log(`Tool call chunk: ${block}`);
+      console.log(`工具调用块：${block}`);
     } else if (block.type === "text") {
       console.log(block.text);
     } else {
@@ -221,22 +221,22 @@ for await (const chunk of stream) {
 
 与返回单个 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.AIMessage.html" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a>（在模型完成生成其完整响应后）的 [`invoke()`](#invoke) 不同，`stream()` 返回多个 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.AIMessageChunk.html" target="_blank" rel="noreferrer" class="link"><code>AIMessageChunk</code></a> 对象，每个对象包含输出文本的一部分。重要的是，流中的每个块都设计为可以通过求和聚合成完整的消息：
 
-```typescript [Construct AIMessage]
+```typescript [构建 AIMessage]
 let full: AIMessageChunk | null = null;
 for await (const chunk of stream) {
   full = full ? full.concat(chunk) : chunk;
   console.log(full.text);
 }
 
-// The
-// The sky
-// The sky is
-// The sky is typically
-// The sky is typically blue
+// 天
+// 天空
+// 天空是
+// 天空通常
+// 天空通常是蓝色
 // ...
 
 console.log(full.contentBlocks);
-// [{"type": "text", "text": "The sky is typically blue..."}]
+// [{"type": "text", "text": "天空通常是蓝色的..."}]
 ```
 
 生成的消息可以像使用 [`invoke()`](#invoke) 生成的消息一样处理——例如，它可以聚合到消息历史记录中，并作为对话上下文传递回模型。
@@ -257,30 +257,26 @@ LangChain 聊天模型也可以使用
 这简化了基于事件类型和其他元数据的过滤，并将在后台聚合完整的消息。请参阅下面的示例。
 
 ```typescript
-const stream = await model.streamEvents("Hello");
+const stream = await model.streamEvents("你好");
 for await (const event of stream) {
     if (event.event === "on_chat_model_start") {
-        console.log(`Input: ${event.data.input}`);
+        console.log(`输入：${event.data.input}`);
     }
     if (event.event === "on_chat_model_stream") {
-        console.log(`Token: ${event.data.chunk.text}`);
+        console.log(`令牌：${event.data.chunk.text}`);
     }
     if (event.event === "on_chat_model_end") {
-        console.log(`Full message: ${event.data.output.text}`);
+        console.log(`全文：${event.data.output.text}`);
     }
 }
 ```
 
 ```txt
-Input: Hello
-Token: Hi
-Token:  there
-Token: !
-Token:  How
-Token:  can
-Token:  I
-...
-Full message: Hi there! How can I help today?
+输入：你好
+令牌：你
+令牌：好
+令牌：！
+全文：你好！今天有什么我可以帮你的吗？
 ```
 
 有关事件类型和其他详细信息，请参阅 <a href="https://reference.langchain.com/javascript/classes/_langchain_core_language_models_chat_models.BaseChatModel.html#streamEvents" target="_blank" rel="noreferrer" class="link"><code>streamEvents()</code></a> 参考。
@@ -307,14 +303,14 @@ LangChain 通过在某些情况下自动启用流式传输模式来简化从聊�
 
 将一组独立的请求批量发送到模型可以显著提高性能并降低成本，因为处理可以并行完成：
 
-```typescript [Batch]
+```typescript [批量处理]
 const responses = await model.batch([
-  "Why do parrots have colorful feathers?",
-  "How do airplanes fly?",
-  "What is quantum computing?",
-  "Why do parrots have colorful feathers?",
-  "How do airplanes fly?",
-  "What is quantum computing?",
+  "为什么鹦鹉有彩色的羽毛？",
+  "飞机是怎么飞的？",
+  "什么是量子计算？",
+  "为什么鹦鹉有彩色的羽毛？",
+  "飞机是怎么飞的？",
+  "什么是量子计算？",
 ]);
 for (const response of responses) {
   console.log(response);
@@ -363,21 +359,21 @@ sequenceDiagram
     participant M as Model
     participant T as Tools
 
-    U->>M: "What's the weather in SF and NYC?"
-    M->>M: Analyze request & decide tools needed
+    U->>M: "北京和上海的天气怎么样？"
+    M->>M: 分析请求并决定所需的工具
 
-    par Parallel Tool Calls
-        M->>T: getWeather("San Francisco")
-        M->>T: getWeather("New York")
+    par 并行工具调用 (Parallel Tool Calls)
+        M->>T: getWeather("北京")
+        M->>T: getWeather("上海")
     end
 
-    par Tool Execution
-        T-->>M: SF weather data
-        T-->>M: NYC weather data
+    par 工具执行 (Tool Execution)
+        T-->>M: 北京天气数据
+        T-->>M: 上海天气数据
     end
 
-    M->>M: Process results & generate response
-    M->>U: "SF: 72°F sunny, NYC: 68°F cloudy"
+    M->>M: 处理结果并生成响应
+    M->>U: "北京：72°F 晴，上海：68°F 多云"
 ```
 
 要使您定义的模型能够使用工具，必须使用 <a href="https://reference.langchain.com/javascript/classes/_langchain_core_language_models_chat_models.BaseChatModel.html#bindTools" target="_blank" rel="noreferrer" class="link"><code>bindTools</code></a> 绑定它们。在后续调用中，模型可以根据需要选择调用任何已绑定的工具。
@@ -396,12 +392,12 @@ import * as z from "zod";
 import { ChatOpenAI } from "@langchain/openai";
 
 const getWeather = tool(
-  (input) => `It's sunny in ${input.location}.`,
+  (input) => `${input.location} 的天气晴朗。`,
   {
     name: "get_weather",
-    description: "Get the weather at a location.",
+    description: "获取指定位置的天气。",
     schema: z.object({
-      location: z.string().describe("The location to get the weather for"),
+      location: z.string().describe("要查询天气的地点"),
     }),
   },
 );
@@ -409,12 +405,12 @@ const getWeather = tool(
 const model = new ChatOpenAI({ model: "gpt-4o" });
 const modelWithTools = model.bindTools([getWeather]);  // [!code highlight]
 
-const response = await modelWithTools.invoke("What's the weather like in Boston?");
+const response = await modelWithTools.invoke("北京的天气怎么样？");
 const toolCalls = response.tool_calls || [];
 for (const tool_call of toolCalls) {
-  // View tool calls made by the model
-  console.log(`Tool: ${tool_call.name}`);
-  console.log(`Args: ${tool_call.args}`);
+  // 查看模型发出的工具调用
+  console.log(`工具：${tool_call.name}`);
+  console.log(`参数：${tool_call.args}`);
 }
 ```
 
@@ -432,22 +428,22 @@ for (const tool_call of toolCalls) {
 // Bind (potentially multiple) tools to the model
 const modelWithTools = model.bindTools([get_weather])
 
-// Step 1: Model generates tool calls
-const messages = [{"role": "user", "content": "What's the weather in Boston?"}]
+// 步骤 1：模型生成工具调用
+const messages = [{"role": "user", "content": "北京的天气怎么样？"}]
 const ai_msg = await modelWithTools.invoke(messages)
 messages.push(ai_msg)
 
-// Step 2: Execute tools and collect results
+// 步骤 2：执行工具并收集结果
 for (const tool_call of ai_msg.tool_calls) {
-    // Execute the tool with the generated arguments
+    // 使用生成的参数执行工具
     const tool_result = await get_weather.invoke(tool_call)
     messages.push(tool_result)
 }
 
-// Step 3: Pass results back to model for final response
+// 步骤 3：将结果传回模型以获取最终响应
 const final_response = await modelWithTools.invoke(messages)
 console.log(final_response.text)
-// "The current weather in Boston is 72°F and sunny."
+// "北京当前的天气是 72°F，晴。"
 ```
 
 工具返回的每个 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.ToolMessage.html" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a> 都包含一个与原始工具调用匹配的 `tool_call_id`，帮助模型将结果与请求关联起来。
@@ -480,14 +476,14 @@ const modelWithTools = model.bindTools([tool_1], { toolChoice: "tool_1" })
 const modelWithTools = model.bind_tools([get_weather])
 
 const response = await modelWithTools.invoke(
-    "What's the weather in Boston and Tokyo?"
+    "北京和上海的天气怎么样？"
 )
 
-// The model may generate multiple tool calls
+// 模型可能会生成多个工具调用
 console.log(response.tool_calls)
 // [
-//   { name: 'get_weather', args: { location: 'Boston' }, id: 'call_1' },
-//   { name: 'get_time', args: { location: 'Tokyo' }, id: 'call_2' }
+//   { name: 'get_weather', args: { location: '北京' }, id: 'call_1' },
+//   { name: 'get_time', args: { location: '上海' }, id: 'call_2' }
 // ]
 
 // Execute all tools (can be done in parallel with async)
@@ -520,36 +516,36 @@ model.bind_tools([get_weather], parallel_tool_calls=False)
 
 ```typescript [Streaming tool calls]
 const stream = await modelWithTools.stream(
-    "What's the weather in Boston and Tokyo?"
+    "北京和上海的天气怎么样？"
 )
 for await (const chunk of stream) {
-    // Tool call chunks arrive progressively
+    // 工具调用块逐步到达
     if (chunk.tool_call_chunks) {
         for (const tool_chunk of chunk.tool_call_chunks) {
-        console.log(`Tool: ${tool_chunk.get('name', '')}`)
-        console.log(`Args: ${tool_chunk.get('args', '')}`)
+        console.log(`工具：${tool_chunk.get('name', '')}`)
+        console.log(`参数：${tool_chunk.get('args', '')}`)
         }
     }
 }
 
-// Output:
-// Tool: get_weather
-// Args:
-// Tool:
-// Args: {"loc
-// Tool:
-// Args: ation": "BOS"}
-// Tool: get_time
-// Args:
-// Tool:
-// Args: {"timezone": "Tokyo"}
+// 输出：
+// 工具：get_weather
+// 参数：
+// 工具：
+// 参数：{"loc
+// 工具：
+// 参数：ation": "北京"}
+// 工具：get_time
+// 参数：
+// 工具：
+// 参数：{"timezone": "上海"}
 ```
 
 您可以累积块来构建完整的工具调用：
 
 ```typescript [Accumulate tool calls]
 let full: AIMessageChunk | null = null
-const stream = await modelWithTools.stream("What's the weather in Boston?")
+const stream = await modelWithTools.stream("北京的天气怎么样？")
 for await (const chunk of stream) {
     full = full ? full.concat(chunk) : chunk
     console.log(full.contentBlocks)
@@ -580,15 +576,15 @@ for await (const chunk of stream) {
 import * as z from "zod";
 
 const Movie = z.object({
-  title: z.string().describe("The title of the movie"),
-  year: z.number().describe("The year the movie was released"),
-  director: z.string().describe("The director of the movie"),
-  rating: z.number().describe("The movie's rating out of 10"),
+  title: z.string().describe("电影标题"),
+  year: z.number().describe("发行年份"),
+  director: z.string().describe("导演"),
+  rating: z.number().describe("评分"),
 });
 
 const modelWithStructure = model.withStructuredOutput(Movie);
 
-const response = await modelWithStructure.invoke("Provide details about the movie Inception");
+const response = await modelWithStructure.invoke("提供电影《盗梦空间》的详情");
 console.log(response);
 // {
 //   title: "Inception",
@@ -607,24 +603,24 @@ console.log(response);
 ```typescript
 const jsonSchema = {
   "title": "Movie",
-  "description": "A movie with details",
+  "description": "包含详情的电影",
   "type": "object",
   "properties": {
     "title": {
       "type": "string",
-      "description": "The title of the movie",
+      "description": "电影标题",
     },
     "year": {
       "type": "integer",
-      "description": "The year the movie was released",
+      "description": "发行年份",
     },
     "director": {
       "type": "string",
-      "description": "The director of the movie",
+      "description": "导演",
     },
     "rating": {
       "type": "number",
-      "description": "The movie's rating out of 10",
+      "description": "评分",
     },
   },
   "required": ["title", "year", "director", "rating"],
@@ -635,7 +631,7 @@ const modelWithStructure = model.withStructuredOutput(
   { method: "jsonSchema" },
 )
 
-const response = await modelWithStructure.invoke("Provide details about the movie Inception")
+const response = await modelWithStructure.invoke("提供电影《盗梦空间》的详情")
 console.log(response)  // {'title': 'Inception', 'year': 2010, ...}
 ```
 
@@ -663,19 +659,15 @@ console.log(response)  // {'title': 'Inception', 'year': 2010, ...}
 import * as z from "zod";
 
 const Movie = z.object({
-  title: z.string().describe("The title of the movie"),
-  year: z.number().describe("The year the movie was released"),
-  director: z.string().describe("The director of the movie"),
-  rating: z.number().describe("The movie's rating out of 10"),
-  title: z.string().describe("The title of the movie"),
-  year: z.number().describe("The year the movie was released"),
-  director: z.string().describe("The director of the movie"),  // [!code highlight]
-  rating: z.number().describe("The movie's rating out of 10"),
+  title: z.string().describe("电影标题"),
+  year: z.number().describe("发行年份"),
+  director: z.string().describe("导演"),
+  rating: z.number().describe("评分"),
 });
 
 const modelWithStructure = model.withStructuredOutput(Movie, { includeRaw: true });
 
-const response = await modelWithStructure.invoke("Provide details about the movie Inception");
+const response = await modelWithStructure.invoke("提供电影《盗梦空间》的详情");
 console.log(response);
 // {
 //   raw: AIMessage { ... },
@@ -702,7 +694,7 @@ const MovieDetails = z.object({
   year: z.number(),
   cast: z.array(Actor),
   genres: z.array(z.string()),
-  budget: z.number().nullable().describe("Budget in millions USD"),
+  budget: z.number().nullable().describe("以百万美元为单位的预算"),
 });
 
 const modelWithStructure = model.withStructuredOutput(MovieDetails);
@@ -798,11 +790,11 @@ const model = initChatModel("...", { profile: customProfile });
 
 <Tooltip tip="并非所有LLM都生而平等！" cta="查看参考" href="https://models.dev/">某些模型</Tooltip>可以在其响应中返回多模态数据。如果被调用执行此操作，生成的 <a href="https://reference.langchain.com/javascript/classes/_langchain_core.messages.AIMessage.html" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a> 将包含具有多模态类型的内容块。
 
-```typescript [Multimodal output]
-const response = await model.invoke("Create a picture of a cat");
+```typescript [多模态输出]
+const response = await model.invoke("生成一张猫的照片");
 console.log(response.contentBlocks);
 // [
-//   { type: "text", text: "Here's a picture of a cat" },
+//   { type: "text", text: "这是猫的照片" },
 //   { type: "image", data: "...", mimeType: "image/jpeg" },
 // ]
 ```
@@ -817,16 +809,16 @@ console.log(response.contentBlocks);
 
 ::: code-group
 
-```typescript [Stream reasoning output]
-const stream = model.stream("Why do parrots have colorful feathers?");
+```typescript [流式推理输出]
+const stream = model.stream("为什么鹦鹉有彩色的羽毛？");
 for await (const chunk of stream) {
     const reasoningSteps = chunk.contentBlocks.filter(b => b.type === "reasoning");
     console.log(reasoningSteps.length > 0 ? reasoningSteps : chunk.text);
 }
 ```
 
-```typescript [Complete reasoning output]
-const response = await model.invoke("Why do parrots have colorful feathers?");
+```typescript [完整推理输出]
+const response = await model.invoke("为什么鹦鹉有彩色的羽毛？");
 const reasoningSteps = response.contentBlocks.filter(b => b.type === "reasoning");
 console.log(reasoningSteps.map(step => step.reasoning).join(" "));
 ```
@@ -874,7 +866,7 @@ import { initChatModel } from "langchain";
 const model = await initChatModel("gpt-4.1-mini");
 const modelWithTools = model.bindTools([{ type: "web_search" }])
 
-const message = await modelWithTools.invoke("What was a positive news story from today?");
+const message = await modelWithTools.invoke("今天有哪些正能量的新闻？");
 console.log(message.contentBlocks);
 ```
 
@@ -919,7 +911,7 @@ const model = new ChatOpenAI({
     logprobs: true,
 });
 
-const responseMessage = await model.invoke("Why do parrots talk?");
+const responseMessage = await model.invoke("为什么鹦鹉会说话？");
 
 responseMessage.response_metadata.logprobs.content.slice(0, 5);
 ```
@@ -940,14 +932,14 @@ responseMessage.response_metadata.logprobs.content.slice(0, 5);
 
 常见的配置选项包括：
 
-```typescript [Invocation with config]
+```typescript [带有配置的调用]
 const response = await model.invoke(
-    "Tell me a joke",
+    "讲个笑话",
     {
-        runName: "joke_generation",      // Custom name for this run
-        tags: ["humor", "demo"],          // Tags for categorization
-        metadata: {"user_id": "123"},     // Custom metadata
-        callbacks: [my_callback_handler], // Callback handlers
+        runName: "joke_generation",      // 自定义此次运行的名称
+        tags: ["幽默", "演示"],            // 用于分类的标签
+        metadata: {"user_id": "123"},     // 自定义元数据
+        callbacks: [my_callback_handler], // 回调处理器
     }
 )
 ```

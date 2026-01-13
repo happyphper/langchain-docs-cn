@@ -40,7 +40,7 @@ LangChain 的标准模型接口让您可以访问许多不同的提供商集成�
 <!--@include: @/snippets/python/chat-model-tabs.md-->
 
 ```python
-response = model.invoke("Why do parrots talk?")
+response = model.invoke("为什么鹦鹉会说话？")
 ```
 
 有关更多详细信息，包括如何传递模型[参数](#parameters)的信息，请参阅 <a href="https://reference.langchain.com/python/langchain/models/#langchain.chat_models.init_chat_model" target="_blank" rel="noreferrer" class="link"><code>init_chat_model</code></a>。
@@ -147,8 +147,8 @@ model = init_chat_model(
 
 调用模型最直接的方法是使用 <a href="https://reference.langchain.com/python/langchain_core/language_models/#langchain_core.language_models.chat_models.BaseChatModel.invoke" target="_blank" rel="noreferrer" class="link"><code>invoke()</code></a> 并传入单个消息或消息列表。
 
-```python [Single message]
-response = model.invoke("Why do parrots have colorful feathers?")
+```python [单条消息]
+response = model.invoke("为什么鹦鹉有彩色的羽毛？")
 print(response)
 ```
 
@@ -156,30 +156,30 @@ print(response)
 
 有关角色、类型和内容的更多详细信息，请参阅[消息](/oss/python/langchain/messages)指南。
 
-```python [Dictionary format]
+```python [字典格式]
 conversation = [
-    {"role": "system", "content": "You are a helpful assistant that translates English to French."},
-    {"role": "user", "content": "Translate: I love programming."},
-    {"role": "assistant", "content": "J'adore la programmation."},
-    {"role": "user", "content": "Translate: I love building applications."}
+    {"role": "system", "content": "你是一个得力的助手，负责将英文翻译成中文。"},
+    {"role": "user", "content": "翻译：I love programming."},
+    {"role": "assistant", "content": "我热爱编程。"},
+    {"role": "user", "content": "翻译：I love building applications."}
 ]
 
 response = model.invoke(conversation)
-print(response)  # AIMessage("J'adore créer des applications.")
+print(response)  # AIMessage("我热爱构建应用程序。")
 ```
 
-```python [Message objects]
+```python [消息对象]
 from langchain.messages import HumanMessage, AIMessage, SystemMessage
 
 conversation = [
-    SystemMessage("You are a helpful assistant that translates English to French."),
-    HumanMessage("Translate: I love programming."),
-    AIMessage("J'adore la programmation."),
-    HumanMessage("Translate: I love building applications.")
+    SystemMessage("你是一个得力的助手，负责将英文翻译成中文。"),
+    HumanMessage("翻译：I love programming."),
+    AIMessage("我热爱编程。"),
+    HumanMessage("翻译：I love building applications.")
 ]
 
 response = model.invoke(conversation)
-print(response)  # AIMessage("J'adore créer des applications.")
+print(response)  # AIMessage("我热爱构建应用程序。")
 ```
 
 <Info>
@@ -196,18 +196,18 @@ print(response)  # AIMessage("J'adore créer des applications.")
 
 ::: code-group
 
-```python [Basic text streaming]
-for chunk in model.stream("Why do parrots have colorful feathers?"):
+```python [基础文本流]
+for chunk in model.stream("为什么鹦鹉有彩色的羽毛？"):
     print(chunk.text, end="|", flush=True)
 ```
 
-```python [Stream tool calls, reasoning, and other content]
-for chunk in model.stream("What color is the sky?"):
+```python [流式传输工具调用、推理及其他内容]
+for chunk in model.stream("天空是什么颜色的？"):
     for block in chunk.content_blocks:
         if block["type"] == "reasoning" and (reasoning := block.get("reasoning")):
-            print(f"Reasoning: {reasoning}")
+            print(f"推理：{reasoning}")
         elif block["type"] == "tool_call_chunk":
-            print(f"Tool call chunk: {block}")
+            print(f"工具调用块：{block}")
         elif block["type"] == "text":
             print(block["text"])
         else:
@@ -218,21 +218,21 @@ for chunk in model.stream("What color is the sky?"):
 
 与返回单个 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.AIMessage" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a>（在模型完成生成其完整响应后）的 [`invoke()`](#invoke) 不同，`stream()` 返回多个 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.AIMessageChunk" target="_blank" rel="noreferrer" class="link"><code>AIMessageChunk</code></a> 对象，每个对象包含输出文本的一部分。重要的是，流中的每个块都设计为可以通过求和聚合成完整的消息：
 
-```python [Construct an AIMessage]
+```python [构建 AIMessage]
 full = None  # None | AIMessageChunk
-for chunk in model.stream("What color is the sky?"):
+for chunk in model.stream("天空是什么颜色的？"):
     full = chunk if full is None else full + chunk
     print(full.text)
 
-# The
-# The sky
-# The sky is
-# The sky is typically
-# The sky is typically blue
+# 天
+# 天空
+# 天空是
+# 天空通常
+# 天空通常是蓝色
 # ...
 
 print(full.content_blocks)
-# [{"type": "text", "text": "The sky is typically blue..."}]
+# [{"type": "text", "text": "天空通常是蓝色的..."}]
 ```
 
 生成的消息可以像使用 [`invoke()`](#invoke) 生成的消息一样处理——例如，它可以聚合到消息历史记录中，并作为对话上下文传递回模型。
@@ -252,31 +252,24 @@ LangChain 聊天模型也可以使用 `astream_events()` 流式传输语义事�
 这简化了基于事件类型和其他元数据的过滤，并将在后台聚合完整的消息。请参阅下面的示例。
 
 ```python
-async for event in model.astream_events("Hello"):
+async for event in model.astream_events("你好"):
 
     if event["event"] == "on_chat_model_start":
-        print(f"Input: {event['data']['input']}")
+        print(f"输入：{event['data']['input']}")
 
     elif event["event"] == "on_chat_model_stream":
-        print(f"Token: {event['data']['chunk'].text}")
+        print(f"令牌：{event['data']['chunk'].text}")
 
     elif event["event"] == "on_chat_model_end":
-        print(f"Full message: {event['data']['output'].text}")
-
-    else:
-        pass
+        print(f"全文：{event['data']['output'].text}")
 ```
 
 ```txt
-Input: Hello
-Token: Hi
-Token:  there
-Token: !
-Token:  How
-Token:  can
-Token:  I
-...
-Full message: Hi there! How can I help today?
+输入：你好
+令牌：你
+令牌：好
+令牌：！
+全文：你好！今天有什么我可以帮你的吗？
 ```
 
 <Tip>
@@ -307,11 +300,11 @@ LangChain 通过在某些情况下自动启用流式传输模式来简化从聊�
 
 将一组独立的请求批量发送到模型可以显著提高性能并降低成本，因为处理可以并行完成：
 
-```python [Batch]
+```python [批量处理]
 responses = model.batch([
-    "Why do parrots have colorful feathers?",
-    "How do airplanes fly?",
-    "What is quantum computing?"
+    "为什么鹦鹉有彩色的羽毛？",
+    "飞机是怎么飞的？",
+    "什么是量子计算？"
 ])
 for response in responses:
     print(response)
@@ -327,11 +320,11 @@ for response in responses:
 
 默认情况下，<a href="https://reference.langchain.com/python/langchain_core/language_models/#langchain_core.language_models.chat_models.BaseChatModel.batch" target="_blank" rel="noreferrer" class="link"><code>batch()</code></a> 将仅返回整个批次的最终输出。如果您希望在每个单独输入完成生成时接收其输出，可以使用 <a href="https://reference.langchain.com/python/langchain_core/language_models/#langchain_core.language_models.chat_models.BaseChatModel.batch_as_completed" target="_blank" rel="noreferrer" class="link"><code>batch_as_completed()</code></a> 流式传输结果：
 
-```python [Yield batch responses upon completion]
+```python [在完成后生成批量响应]
 for response in model.batch_as_completed([
-    "Why do parrots have colorful feathers?",
-    "How do airplanes fly?",
-    "What is quantum computing?"
+    "为什么鹦鹉有彩色的羽毛？",
+    "飞机是怎么飞的？",
+    "什么是量子计算？"
 ]):
     print(response)
 ```
@@ -384,21 +377,21 @@ sequenceDiagram
     participant M as Model
     participant T as Tools
 
-    U->>M: "What's the weather in SF and NYC?"
-    M->>M: Analyze request & decide tools needed
+    U->>M: "北京和上海的天气怎么样？"
+    M->>M: 分析请求并决定所需的工具
 
-    par Parallel Tool Calls
-        M->>T: get_weather("San Francisco")
-        M->>T: get_weather("New York")
+    par 并行工具调用 (Parallel Tool Calls)
+        M->>T: get_weather("北京")
+        M->>T: get_weather("上海")
     end
 
-    par Tool Execution
-        T-->>M: SF weather data
-        T-->>M: NYC weather data
+    par 工具执行 (Tool Execution)
+        T-->>M: 北京天气数据
+        T-->>M: 上海天气数据
     end
 
-    M->>M: Process results & generate response
-    M->>U: "SF: 72°F sunny, NYC: 68°F cloudy"
+    M->>M: 处理结果并生成响应
+    M->>U: "北京：72°F 晴，上海：68°F 多云"
 ```
 
 要使您定义的模型能够使用工具，必须使用 <a href="https://reference.langchain.com/python/langchain_core/language_models/#langchain_core.language_models.chat_models.BaseChatModel.bind_tools" target="_blank" rel="noreferrer" class="link"><code>bind_tools</code></a> 绑定它们。在后续调用中，模型可以根据需要选择调用任何已绑定的工具。
@@ -416,16 +409,16 @@ from langchain.tools import tool
 
 @tool
 def get_weather(location: str) -> str:
-    """Get the weather at a location."""
-    return f"It's sunny in {location}."
+    """获取指定位置的天气。"""
+    return f"{location} 的天气晴朗。"
 
 model_with_tools = model.bind_tools([get_weather])  # [!code highlight]
 
-response = model_with_tools.invoke("What's the weather like in Boston?")
+response = model_with_tools.invoke("北京的天气怎么样？")
 for tool_call in response.tool_calls:
-    # View tool calls made by the model
-    print(f"Tool: {tool_call['name']}")
-    print(f"Args: {tool_call['args']}")
+    # 查看模型发出的工具调用
+    print(f"工具：{tool_call['name']}")
+    print(f"参数：{tool_call['args']}")
 ```
 
 绑定用户定义的工具时，模型的响应会包含执行工具的**请求**。当将模型与 [智能体](/oss/python/langchain/agents) 分开使用时，需要您自己执行请求的工具，并将结果返回给模型以供后续推理使用。当使用 [智能体](/oss/python/langchain/agents) 时，智能体循环将为您处理工具执行循环。
@@ -442,21 +435,21 @@ for tool_call in response.tool_calls:
 # Bind (potentially multiple) tools to the model
 model_with_tools = model.bind_tools([get_weather])
 
-# Step 1: Model generates tool calls
-messages = [{"role": "user", "content": "What's the weather in Boston?"}]
+# 步骤 1：模型生成工具调用
+messages = [{"role": "user", "content": "北京的天气怎么样？"}]
 ai_msg = model_with_tools.invoke(messages)
 messages.append(ai_msg)
 
-# Step 2: Execute tools and collect results
+# 步骤 2：执行工具并收集结果
 for tool_call in ai_msg.tool_calls:
-    # Execute the tool with the generated arguments
+    # 使用生成的参数执行工具
     tool_result = get_weather.invoke(tool_call)
     messages.append(tool_result)
 
-# Step 3: Pass results back to model for final response
+# 步骤 3：将结果传回模型以获取最终响应
 final_response = model_with_tools.invoke(messages)
 print(final_response.text)
-# "The current weather in Boston is 72°F and sunny."
+# "北京当前的天气是 72°F，晴。"
 ```
 
 工具返回的每个 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.ToolMessage" target="_blank" rel="noreferrer" class="link"><code>ToolMessage</code></a> 都包含一个与原始工具调用匹配的 `tool_call_id`，帮助模型将结果与请求关联起来。
@@ -489,14 +482,14 @@ model_with_tools = model.bind_tools([tool_1], tool_choice="tool_1")
 model_with_tools = model.bind_tools([get_weather])
 
 response = model_with_tools.invoke(
-    "What's the weather in Boston and Tokyo?"
+    "北京和上海的天气怎么样？"
 )
 
-# The model may generate multiple tool calls
+# 模型可能会生成多个工具调用
 print(response.tool_calls)
 # [
-#   {'name': 'get_weather', 'args': {'location': 'Boston'}, 'id': 'call_1'},
-#   {'name': 'get_weather', 'args': {'location': 'Tokyo'}, 'id': 'call_2'},
+#   {'name': 'get_weather', 'args': {'location': '北京'}, 'id': 'call_1'},
+#   {'name': 'get_weather', 'args': {'location': '上海'}, 'id': 'call_2'},
 # ]
 
 # Execute all tools (can be done in parallel with async)
@@ -528,39 +521,37 @@ model.bind_tools([get_weather], parallel_tool_calls=False)
 
 ```python [Streaming tool calls]
 for chunk in model_with_tools.stream(
-    "What's the weather in Boston and Tokyo?"
+    "北京和上海的天气怎么样？"
 ):
-    # Tool call chunks arrive progressively
+    # 工具调用块逐步到达
     for tool_chunk in chunk.tool_call_chunks:
         if name := tool_chunk.get("name"):
-            print(f"Tool: {name}")
+            print(f"工具：{name}")
         if id_ := tool_chunk.get("id"):
             print(f"ID: {id_}")
         if args := tool_chunk.get("args"):
-            print(f"Args: {args}")
+            print(f"参数：{args}")
 
-# Output:
-# Tool: get_weather
+# 输出：
+# 工具：get_weather
 # ID: call_SvMlU1TVIZugrFLckFE2ceRE
-# Args: {"lo
-# Args: catio
-# Args: n": "B
-# Args: osto
-# Args: n"}
-# Tool: get_weather
+# 参数：{"lo
+# 参数：catio
+# 参数：n": "北
+# 参数：京"}
+# 工具：get_weather
 # ID: call_QMZdy6qInx13oWKE7KhuhOLR
-# Args: {"lo
-# Args: catio
-# Args: n": "T
-# Args: okyo
-# Args: "}
+# 参数：{"lo
+# 参数：catio
+# 参数：n": "上
+# 参数：海"}
 ```
 
 您可以累积块来构建完整的工具调用：
 
 ```python [Accumulate tool calls]
 gathered = None
-for chunk in model_with_tools.stream("What's the weather in Boston?"):
+for chunk in model_with_tools.stream("北京的天气怎么样？"):
     gathered = chunk if gathered is None else gathered + chunk
     print(gathered.tool_calls)
 ```
@@ -589,14 +580,14 @@ for chunk in model_with_tools.stream("What's the weather in Boston?"):
 from pydantic import BaseModel, Field
 
 class Movie(BaseModel):
-    """A movie with details."""
-    title: str = Field(..., description="The title of the movie")
-    year: int = Field(..., description="The year the movie was released")
-    director: str = Field(..., description="The director of the movie")
-    rating: float = Field(..., description="The movie's rating out of 10")
+    """包含详情的电影。"""
+    title: str = Field(..., description="电影标题")
+    year: int = Field(..., description="发行年份")
+    director: str = Field(..., description="导演")
+    rating: float = Field(..., description="满分为 10 分的评分")
 
 model_with_structure = model.with_structured_output(Movie)
-response = model_with_structure.invoke("Provide details about the movie Inception")
+response = model_with_structure.invoke("提供电影《盗梦空间》的详情")
 print(response)  # Movie(title="Inception", year=2010, director="Christopher Nolan", rating=8.8)
 ```
 
@@ -610,14 +601,14 @@ Python 的 `TypedDict` 提供了比 Pydantic 模型更简单的替代方案，�
 from typing_extensions import TypedDict, Annotated
 
 class MovieDict(TypedDict):
-    """A movie with details."""
-    title: Annotated[str, ..., "The title of the movie"]
-    year: Annotated[int, ..., "The year the movie was released"]
-    director: Annotated[str, ..., "The director of the movie"]
-    rating: Annotated[float, ..., "The movie's rating out of 10"]
+    """包含详情的电影。"""
+    title: Annotated[str, ..., "电影标题"]
+    year: Annotated[int, ..., "发行年份"]
+    director: Annotated[str, ..., "导演"]
+    rating: Annotated[float, ..., "满分为 10 分的评分"]
 
 model_with_structure = model.with_structured_output(MovieDict)
-response = model_with_structure.invoke("Provide details about the movie Inception")
+response = model_with_structure.invoke("提供电影《盗梦空间》的详情")
 print(response)  # {'title': 'Inception', 'year': 2010, 'director': 'Christopher Nolan', 'rating': 8.8}
 ```
 
@@ -632,24 +623,24 @@ import json
 
 json_schema = {
     "title": "Movie",
-    "description": "A movie with details",
+    "description": "包含详情的电影",
     "type": "object",
     "properties": {
         "title": {
             "type": "string",
-            "description": "The title of the movie"
+            "description": "电影标题"
         },
         "year": {
             "type": "integer",
-            "description": "The year the movie was released"
+            "description": "发行年份"
         },
         "director": {
             "type": "string",
-            "description": "The director of the movie"
+            "description": "导演"
         },
         "rating": {
             "type": "number",
-            "description": "The movie's rating out of 10"
+            "description": "评分"
         }
     },
     "required": ["title", "year", "director", "rating"]
@@ -659,7 +650,7 @@ model_with_structure = model.with_structured_output(
     json_schema,
     method="json_schema",
 )
-response = model_with_structure.invoke("Provide details about the movie Inception")
+response = model_with_structure.invoke("提供电影《盗梦空间》的详情")
 print(response)  # {'title': 'Inception', 'year': 2010, ...}
 ```
 
@@ -690,14 +681,14 @@ print(response)  # {'title': 'Inception', 'year': 2010, ...}
 from pydantic import BaseModel, Field
 
 class Movie(BaseModel):
-    """A movie with details."""
-    title: str = Field(..., description="The title of the movie")
-    year: int = Field(..., description="The year the movie was released")
-    director: str = Field(..., description="The director of the movie")
-    rating: float = Field(..., description="The movie's rating out of 10")
+    """包含详情的电影。"""
+    title: str = Field(..., description="电影标题")
+    year: int = Field(..., description="发行年份")
+    director: str = Field(..., description="导演")
+    rating: float = Field(..., description="满分为 10 分的评分")
 
 model_with_structure = model.with_structured_output(Movie, include_raw=True)  # [!code highlight]
-response = model_with_structure.invoke("Provide details about the movie Inception")
+response = model_with_structure.invoke("提供电影《盗梦空间》的详情")
 response
 # {
 #     "raw": AIMessage(...),
@@ -726,7 +717,7 @@ class MovieDetails(BaseModel):
     year: int
     cast: list[Actor]
     genres: list[str]
-    budget: float | None = Field(None, description="Budget in millions USD")
+    budget: float | None = Field(None, description="以百万美元为单位的预算")
 
 model_with_structure = model.with_structured_output(MovieDetails)
 ```
@@ -743,7 +734,7 @@ class MovieDetails(TypedDict):
     year: int
     cast: list[Actor]
     genres: list[str]
-    budget: Annotated[float | None, ..., "Budget in millions USD"]
+    budget: Annotated[float | None, ..., "以百万美元为单位的预算"]
 
 model_with_structure = model.with_structured_output(MovieDetails)
 ```
@@ -867,11 +858,11 @@ uv run --with langchain-model-profiles --provider anthropic --data-dir langchain
 
 <Tooltip tip="并非所有LLM都生而平等！" cta="查看参考" href="https://models.dev/">某些模型</Tooltip>可以在其响应中返回多模态数据。如果被调用执行此操作，生成的 <a href="https://reference.langchain.com/python/langchain/messages/#langchain.messages.AIMessage" target="_blank" rel="noreferrer" class="link"><code>AIMessage</code></a> 将包含具有多模态类型的内容块。
 
-```python [Multimodal output]
-response = model.invoke("Create a picture of a cat")
+```python [多模态输出]
+response = model.invoke("生成一张猫的照片")
 print(response.content_blocks)
 # [
-#     {"type": "text", "text": "Here's a picture of a cat"},
+#     {"type": "text", "text": "这是猫的照片"},
 #     {"type": "image", "base64": "...", "mime_type": "image/jpeg"},
 # ]
 ```
@@ -886,14 +877,14 @@ print(response.content_blocks)
 
 ::: code-group
 
-```python [Stream reasoning output]
-for chunk in model.stream("Why do parrots have colorful feathers?"):
+```python [流式推理输出]
+for chunk in model.stream("为什么鹦鹉有彩色的羽毛？"):
     reasoning_steps = [r for r in chunk.content_blocks if r["type"] == "reasoning"]
     print(reasoning_steps if reasoning_steps else chunk.text)
 ```
 
-```python [Complete reasoning output]
-response = model.invoke("Why do parrots have colorful feathers?")
+```python [完整推理输出]
+response = model.invoke("为什么鹦鹉有彩色的羽毛？")
 reasoning_steps = [b for b in response.content_blocks if b["type"] == "reasoning"]
 print(" ".join(step["reasoning"] for step in reasoning_steps))
 ```
@@ -935,7 +926,7 @@ LangChain 支持在您自己的硬件上本地运行模型。这在数据隐私�
 
 如果模型在服务器端调用工具，响应消息的内容将包含表示工具调用和结果的内容。访问响应的[内容块](/oss/python/langchain/messages#standard-content-blocks)将以与提供商无关的格式返回服务器端工具调用和结果：
 
-```python [Invoke with server-side tool use]
+```python [带有服务器端工具调用的 Invoke]
 from langchain.chat_models import init_chat_model
 
 model = init_chat_model("gpt-4.1-mini")
@@ -943,17 +934,17 @@ model = init_chat_model("gpt-4.1-mini")
 tool = {"type": "web_search"}
 model_with_tools = model.bind_tools([tool])
 
-response = model_with_tools.invoke("What was a positive news story from today?")
+response = model_with_tools.invoke("今天有哪些正能量的新闻？")
 response.content_blocks
 ```
 
-```python [Result expandable]
+```python [结果展开]
 [
     {
         "type": "server_tool_call",
         "name": "web_search",
         "args": {
-            "query": "positive news stories today",
+            "query": "今天的正能量新闻",
             "type": "search"
         },
         "id": "ws_abc123"
@@ -965,12 +956,12 @@ response.content_blocks
     },
     {
         "type": "text",
-        "text": "Here are some positive news stories from today...",
+        "text": "以下是今天的一些正能量新闻...",
         "annotations": [
             {
                 "end_index": 410,
                 "start_index": 337,
-                "title": "article title",
+                "title": "文章标题",
                 "type": "citation",
                 "url": "..."
             }
@@ -997,9 +988,9 @@ LangChain 附带（可选的）内置 <a href="https://reference.langchain.com/p
 from langchain_core.rate_limiters import InMemoryRateLimiter
 
 rate_limiter = InMemoryRateLimiter(
-    requests_per_second=0.1,  # 1 request every 10s
-    check_every_n_seconds=0.1,  # Check every 100ms whether allowed to make a request
-    max_bucket_size=10,  # Controls the maximum burst size.
+    requests_per_second=0.1,  # 每 10 秒 1 个请求
+    check_every_n_seconds=0.1,  # 每 100 毫秒检查一次是否允许发送请求
+    max_bucket_size=10,  # 控制最大突发请求量
 )
 
 model = init_chat_model(
@@ -1073,7 +1064,7 @@ model = init_chat_model(
     model_provider="openai"
 ).bind(logprobs=True)
 
-response = model.invoke("Why do parrots talk?")
+response = model.invoke("为什么鹦鹉会说话？")
 print(response.response_metadata["logprobs"])
 ```
 
@@ -1101,8 +1092,8 @@ model_1 = init_chat_model(model="gpt-4o-mini")
 model_2 = init_chat_model(model="claude-haiku-4-5-20251001")
 
 callback = UsageMetadataCallbackHandler()
-result_1 = model_1.invoke("Hello", config={"callbacks": [callback]})
-result_2 = model_2.invoke("Hello", config={"callbacks": [callback]})
+result_1 = model_1.invoke("你好", config={"callbacks": [callback]})
+result_2 = model_2.invoke("你好", config={"callbacks": [callback]})
 callback.usage_metadata
 ```
 
@@ -1136,8 +1127,8 @@ model_1 = init_chat_model(model="gpt-4o-mini")
 model_2 = init_chat_model(model="claude-haiku-4-5-20251001")
 
 with get_usage_metadata_callback() as cb:
-    model_1.invoke("Hello")
-    model_2.invoke("Hello")
+    model_1.invoke("你好")
+    model_2.invoke("你好")
     print(cb.usage_metadata)
 ```
 
@@ -1169,14 +1160,14 @@ with get_usage_metadata_callback() as cb:
 
 常见的配置选项包括：
 
-```python [Invocation with config]
+```python [带有配置的调用]
 response = model.invoke(
-    "Tell me a joke",
+    "讲个笑话",
     config={
-        "run_name": "joke_generation",      # Custom name for this run
-        "tags": ["humor", "demo"],          # Tags for categorization
-        "metadata": {"user_id": "123"},     # Custom metadata
-        "callbacks": [my_callback_handler], # Callback handlers
+        "run_name": "joke_generation",      # 自定义此次运行的名称
+        "tags": ["幽默", "演示"],            # 用于分类的标签
+        "metadata": {"user_id": "123"},     # 自定义元数据
+        "callbacks": [my_callback_handler], # 回调处理器
     }
 )
 ```
@@ -1243,12 +1234,12 @@ from langchain.chat_models import init_chat_model
 configurable_model = init_chat_model(temperature=0)
 
 configurable_model.invoke(
-    "what's your name",
-    config={"configurable": {"model": "gpt-5-nano"}},  # Run with GPT-5-Nano
+    "你叫什么名字",
+    config={"configurable": {"model": "gpt-5-nano"}},  # 使用 GPT-5-Nano 运行
 )
 configurable_model.invoke(
-    "what's your name",
-    config={"configurable": {"model": "claude-sonnet-4-5-20250929"}},  # Run with Claude
+    "你叫什么名字",
+    config={"configurable": {"model": "claude-sonnet-4-5-20250929"}},  # 使用 Claude 运行
 )
 ```
 
@@ -1261,15 +1252,15 @@ first_model = init_chat_model(
         model="gpt-4.1-mini",
         temperature=0,
         configurable_fields=("model", "model_provider", "temperature", "max_tokens"),
-        config_prefix="first",  # Useful when you have a chain with multiple models
+        config_prefix="first",  # 当您的链中有多个模型时很有用
 )
 
-first_model.invoke("what's your name")
+first_model.invoke("你叫什么名字")
 ```
 
 ```python
 first_model.invoke(
-    "what's your name",
+    "你叫什么名字",
     config={
         "configurable": {
             "first_model": "claude-sonnet-4-5-20250929",
@@ -1292,20 +1283,20 @@ first_model.invoke(
 from pydantic import BaseModel, Field
 
 class GetWeather(BaseModel):
-    """Get the current weather in a given location"""
+    """获取指定位置的当前天气"""
 
-        location: str = Field(..., description="The city and state, e.g. San Francisco, CA")
+        location: str = Field(..., description="城市和省份，例如：上海市")
 
 class GetPopulation(BaseModel):
-    """Get the current population in a given location"""
+    """获取指定位置的当前人口"""
 
-        location: str = Field(..., description="The city and state, e.g. San Francisco, CA")
+        location: str = Field(..., description="城市和省份，例如：上海市")
 
 model = init_chat_model(temperature=0)
 model_with_tools = model.bind_tools([GetWeather, GetPopulation])
 
 model_with_tools.invoke(
-    "what's bigger in 2024 LA or NYC", config={"configurable": {"model": "gpt-4.1-mini"}}
+    "2024 年北京和上海哪个城市更大", config={"configurable": {"model": "gpt-4.1-mini"}}
 ).tool_calls
 ```
 
@@ -1313,13 +1304,13 @@ model_with_tools.invoke(
 [
     {
         'name': 'GetPopulation',
-        'args': {'location': 'Los Angeles, CA'},
+        'args': {'location': '北京市'},
         'id': 'call_Ga9m8FAArIyEjItHmztPYA22',
         'type': 'tool_call'
     },
     {
         'name': 'GetPopulation',
-        'args': {'location': 'New York, NY'},
+        'args': {'location': '上海市'},
         'id': 'call_jh2dEvBaAHRaw5JUDthOs7rt',
         'type': 'tool_call'
     }
@@ -1328,7 +1319,7 @@ model_with_tools.invoke(
 
 ```python
 model_with_tools.invoke(
-    "what's bigger in 2024 LA or NYC",
+    "2024 年北京和上海哪个城市更大",
     config={"configurable": {"model": "claude-sonnet-4-5-20250929"}},
 ).tool_calls
 ```
@@ -1337,13 +1328,13 @@ model_with_tools.invoke(
 [
     {
         'name': 'GetPopulation',
-        'args': {'location': 'Los Angeles, CA'},
+        'args': {'location': '北京市'},
         'id': 'toolu_01JMufPf4F4t2zLj7miFeqXp',
         'type': 'tool_call'
     },
     {
         'name': 'GetPopulation',
-        'args': {'location': 'New York City, NY'},
+        'args': {'location': '上海市'},
         'id': 'toolu_01RQBHcE8kEEbYTuuS8WqY1u',
         'type': 'tool_call'
     }

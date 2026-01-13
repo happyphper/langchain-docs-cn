@@ -226,18 +226,48 @@ export default defineConfig({
       { text: '首页', link: '/' },
       {
         text: 'LangChain + LangGraph',
+        activeMatch: '^/oss/',
         items: [
-          { text: 'LangChain', link: '/oss/python/langchain/overview' },
-          { text: 'LangGraph', link: '/oss/python/langgraph/overview' },
-          { text: 'Deep Agents', link: '/oss/python/deepagents/overview' },
-          { text: 'Integrations', link: '/oss/python/integrations/providers/overview' },
-          { text: 'Learn', link: '/oss/python/learn' },
-          { text: 'Reference', link: '/oss/python/reference/overview' },
-          { text: 'Contribute', link: '/oss/python/contributing/overview' }
+          {
+            text: 'LangChain',
+            link: '/oss/python/langchain/overview',
+            activeMatch: '^/oss/(python|javascript)/langchain/'
+          },
+          {
+            text: 'LangGraph',
+            link: '/oss/python/langgraph/overview',
+            activeMatch: '^/oss/(python|javascript)/langgraph/'
+          },
+          {
+            text: 'Deep Agents',
+            link: '/oss/python/deepagents/overview',
+            activeMatch: '^/oss/(python|javascript)/deepagents/'
+          },
+          {
+            text: 'Integrations',
+            link: '/oss/python/integrations/providers/overview',
+            activeMatch: '^/oss/(python|javascript)/integrations/'
+          },
+          {
+            text: 'Learn',
+            link: '/oss/python/learn',
+            activeMatch: '^/oss/(python|javascript)/learn'
+          },
+          {
+            text: 'Reference',
+            link: '/oss/python/reference/overview',
+            activeMatch: '^/oss/(python|javascript)/reference/'
+          },
+          {
+            text: 'Contribute',
+            link: '/oss/python/contributing/overview',
+            activeMatch: '^/oss/(python|javascript)/contributing/'
+          }
         ]
       },
       {
         text: 'LangSmith',
+        activeMatch: '^/langsmith/',
         items: [
           { text: 'Get started', link: '/langsmith/home' },
           { text: 'Observability', link: '/langsmith/observability' },

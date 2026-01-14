@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { MdxConverter } from './converter.js';
+import { MdxConverter } from './convert/converter.ts';
 import path from 'path';
 
 const program = new Command();

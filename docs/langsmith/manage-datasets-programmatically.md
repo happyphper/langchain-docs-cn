@@ -103,7 +103,7 @@ await client.createExamples({
 
 ### 从追踪记录创建数据集
 
-要从追踪记录中的运行（span）创建数据集，您可以使用相同的方法。关于如何获取和筛选运行的**更多**示例，请参阅[导出追踪记录](/langsmith/export-traces)指南。下面是一个示例：
+要从您的追踪记录中的运行（跨度）创建数据集，可以使用相同的方法。关于如何获取和筛选运行的**更多**示例，请参阅[导出追踪记录](/langsmith/export-traces)指南。下面是一个示例：
 
 ::: code-group
 
@@ -136,9 +136,9 @@ client.create_examples(
 import { Client, Run } from "langsmith";
 
 const client = new Client();
-const datasetName = "Example Dataset";
+const datasetName = "示例数据集";
 
-// 筛选要添加到数据集的运行
+// 筛选要添加到数据集的运行记录
 const runs: Run[] = [];
 for await (const run of client.listRuns({
   projectName: "my_project",
@@ -149,7 +149,7 @@ for await (const run of client.listRuns({
 }
 
 const dataset = await client.createDataset(datasetName, {
-  description: "An example dataset",
+  description: "一个示例数据集",
   dataType: "kv",
 });
 
@@ -171,7 +171,7 @@ await client.createExamples({
 
 在本节中，我们将演示如何通过上传 CSV 文件来创建数据集。
 
-首先，确保您的 CSV 文件格式正确，其列代表您的输入和输出键。这些键将在上传过程中用于正确映射您的数据。您可以为数据集指定可选的名称和描述。否则，将使用文件名作为数据集名称，且不提供描述。
+首先，请确保您的 CSV 文件格式正确，其列代表您的输入和输出键。这些键将在上传过程中用于正确映射您的数据。您可以为数据集指定一个可选的名称和描述。否则，将使用文件名作为数据集名称，且不提供描述。
 
 ::: code-group
 
@@ -188,8 +188,8 @@ dataset = client.upload_csv(
   csv_file=csv_file,
   input_keys=input_keys,
   output_keys=output_keys,
-  name="My CSV Dataset",
-  description="Dataset created from a CSV file",
+  name="我的 CSV 数据集",
+  description="从 CSV 文件创建的数据集",
   data_type="kv"
 )
 ```
@@ -204,10 +204,10 @@ const outputKeys = ['output1', 'output2']; // 替换为您的输出列名
 
 const dataset = await client.uploadCsv({
   csvFile: csvFile,
-  fileName: "My CSV Dataset",
+  fileName: "我的 CSV 数据集",
   inputKeys: inputKeys,
   outputKeys: outputKeys,
-  description: "Dataset created from a CSV file",
+  description: "从 CSV 文件创建的数据集",
   dataType: "kv"
 });
 ```
@@ -216,7 +216,7 @@ const dataset = await client.uploadCsv({
 
 ### 从 pandas DataFrame 创建数据集（仅限 Python）
 
-Python 客户端提供了一个额外的便捷方法，用于从 pandas DataFrame 上传数据集。
+Python 客户端提供了一个额外的便捷方法，用于从 pandas 数据框上传数据集。
 
 ```python
 from langsmith import Client
@@ -232,15 +232,15 @@ dataset = client.upload_dataframe(
     df=df,
     input_keys=input_keys,
     output_keys=output_keys,
-    name="My Parquet Dataset",
-    description="Dataset created from a parquet file",
+    name="我的 Parquet 数据集",
+    description="从 parquet 文件创建的数据集",
     data_type="kv" # 默认值
 )
 ```
 
 ## 获取数据集
 
-您可以使用 Python 和 TypeScript SDK 中的 `list_datasets`/`listDatasets` 方法以编程方式从 LangSmith 获取数据集。以下是一些常见的调用。
+您可以使用 Python 和 TypeScript SDK 中的 `list_datasets`/`listDatasets` 方法以编程方式从 LangSmith 获取数据集。以下是一些常见的调用示例。
 
 <Info>
 
@@ -285,12 +285,12 @@ const datasets = await client.listDatasets();
 ::: code-group
 
 ```python [Python]
-datasets = client.list_datasets(dataset_name="My Test Dataset 1")
+datasets = client.list_datasets(dataset_name="我的测试数据集 1")
 ```
 
 ```typescript [TypeScript]
 const datasets = await client.listDatasets({
-  datasetName: "My Test Dataset 1"
+  datasetName: "我的测试数据集 1"
 });
 ```
 
@@ -304,19 +304,11 @@ const datasets = await client.listDatasets({
 datasets = client.list_datasets(dataset_name_contains="some substring")
 ```
 
-```typescript [TypeScript]
-const datasets = await client.listDatasets({
-  datasetNameContains: "some substring"
-});
-```
-
-:::
-
 ### 按类型列出数据集
 
 您可以按类型筛选数据集：
 
-::: code-group
+<CodeGroup>
 
 ```python [Python]
 datasets = client.list_datasets(data_type="kv")
@@ -332,7 +324,7 @@ const datasets = await client.listDatasets({
 
 ## 获取示例
 
-您可以使用 Python 和 TypeScript SDK 中的 `list_examples`/`listExamples` 方法以编程方式从 LangSmith 获取示例。以下是一些常见的调用。
+您可以使用 Python 和 TypeScript SDK 中的 `list_examples`/`listExamples` 方法，以编程方式从 LangSmith 获取示例。以下是一些常见的调用。
 
 <Info>
 
@@ -374,7 +366,7 @@ const examples = await client.listExamples({
 
 :::
 
-或者，您可以按数据集名称进行筛选（这必须与您要查询的数据集名称完全匹配）
+或者，您可以按数据集名称进行筛选（这必须与您要查询的数据集名称完全匹配）：
 
 ::: code-group
 
@@ -392,7 +384,7 @@ const examples = await client.listExamples({
 
 ### 按 ID 列出示例
 
-您还可以按 ID 一次性列出多个示例。
+您还可以按 ID 列出多个示例。
 
 ::: code-group
 
@@ -422,7 +414,7 @@ const examples = await client.listExamples({
 
 ### 按元数据列出示例
 
-您还可以按元数据筛选示例。下面是一个查询具有特定元数据键值对的示例的示例。在底层，我们会检查示例的元数据是否包含您指定的键值对。
+您还可以按元数据筛选示例。以下是一个查询具有特定元数据键值对的示例。在底层，我们会检查示例的元数据是否包含您指定的键值对。
 
 例如，如果您有一个元数据为 `{"foo": "bar", "baz": "qux"}` 的示例，那么 `{foo: bar}` 和 `{baz: qux}` 都会匹配，`{foo: bar, baz: qux}` 也会匹配。
 
@@ -443,17 +435,17 @@ const examples = await client.listExamples({
 
 ### 按结构化筛选器列出示例
 
-与您可以使用结构化筛选查询语言[获取运行](/langsmith/export-traces#use-filter-query-language)类似，您也可以使用它来获取示例。
+类似于您可以使用结构化筛选查询语言来[获取运行记录](/langsmith/export-traces#use-filter-query-language)，您也可以用它来获取示例。
 
 <Note>
 
-目前这仅在 Python SDK v0.1.83 及更高版本以及 TypeScript SDK v0.1.35 及更高版本中可用。
+目前，这仅在 Python SDK v0.1.83 及更高版本以及 TypeScript SDK v0.1.35 及更高版本中可用。
 
 此外，结构化筛选查询语言仅支持 `metadata` 字段。
 
 </Note>
 
-您可以使用 `has` 操作符来获取元数据字段包含特定键/值对的示例，使用 `exists` 操作符来获取元数据字段包含特定键的示例。此外，您还可以使用 `and` 操作符将多个筛选器链接在一起，并使用 `not` 操作符对筛选器进行取反。
+您可以使用 `has` 操作符来获取元数据字段包含特定键/值对的示例，使用 `exists` 操作符来获取元数据字段包含特定键的示例。此外，您可以使用 `and` 操作符将多个筛选器链接在一起，并使用 `not` 操作符来否定一个筛选器。
 
 ::: code-group
 
@@ -477,7 +469,7 @@ const examples = await client.listExamples({
 
 ### 更新单个示例
 
-您可以使用 Python 和 TypeScript SDK 中的 `update_example`/`updateExample` 方法以编程方式更新 LangSmith 中的示例。下面是一个示例。
+您可以通过 Python 和 TypeScript SDK 中的 `update_example`/`updateExample` 方法以编程方式更新 LangSmith 中的示例。以下是一个示例。
 
 ::: code-group
 
@@ -504,7 +496,7 @@ await client.updateExample(example.id, {
 
 ### 批量更新示例
 
-您还可以使用 Python 和 TypeScript SDK 中的 `update_examples`/`updateExamples` 方法在单个请求中以编程方式更新多个示例。下面是一个示例。
+您还可以通过 Python 和 TypeScript SDK 中的 `update_examples`/`updateExamples` 方法，在单个请求中以编程方式更新多个示例。以下是一个示例。
 
 ::: code-group
 
@@ -517,7 +509,7 @@ client.update_examples(
       {"output": "updated output 2"},
   ],
   metadata=[{"foo": "baz"}, {"foo": "qux"}],
-  splits=[["training", "foo"], "training"] # 拆分可以是数组或独立的字符串
+  splits=[["training", "foo"], "training"] # Splits can be arrays or standalone strings
 )
 ```
 
@@ -528,7 +520,7 @@ await client.updateExamples([
     inputs: { input: "updated input 1" },
     outputs: { output: "updated output 1" },
     metadata: { foo: "baz" },
-    split: ["training", "foo"] // 拆分可以是数组或独立的字符串
+    split: ["training", "foo"] // Splits can be arrays or standalone strings
   },
   {
     id: example2.id,

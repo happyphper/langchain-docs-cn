@@ -1,9 +1,9 @@
 ---
-title: LangSmith Studio
+title: LangSmith 工作室
 ---
-在本地使用 LangChain 构建智能体（agent）时，可视化智能体内部运行情况、实时交互以及调试出现的问题会非常有帮助。**LangSmith Studio** 是一个免费的视觉界面，用于从本地机器开发和测试您的 LangChain 智能体。
+在本地构建 LangChain 智能体时，可视化智能体内部运行情况、实时交互以及调试问题会很有帮助。**LangSmith Studio** 是一个免费的视觉界面，用于从本地机器开发和测试您的 LangChain 智能体。
 
-Studio 连接到您本地运行的智能体，向您展示智能体执行的每个步骤：发送给模型的提示（prompts）、工具调用及其结果，以及最终输出。您可以测试不同的输入、检查中间状态，并在无需额外代码或部署的情况下迭代优化智能体的行为。
+Studio 连接到您本地运行的智能体，向您展示智能体执行的每个步骤：发送给模型的提示、工具调用及其结果，以及最终输出。您可以测试不同的输入、检查中间状态，并在无需额外代码或部署的情况下迭代优化智能体的行为。
 
 本页描述了如何为您的本地 LangChain 智能体设置 Studio。
 
@@ -13,7 +13,7 @@ Studio 连接到您本地运行的智能体，向您展示智能体执行的每�
 
 - **一个 LangSmith 账户**：在 [smith.langchain.com](https://smith.langchain.com) 免费注册或登录。
 - **一个 LangSmith API 密钥**：请遵循[创建 API 密钥](/langsmith/create-account-api-key#create-an-api-key)指南。
-- 如果您不希望数据被[追踪](/langsmith/observability-concepts#traces)到 LangSmith，请在您应用的 `.env` 文件中设置 `LANGSMITH_TRACING=false`。禁用追踪后，数据不会离开您的本地服务器。
+- 如果您不希望数据被[追踪](/langsmith/observability-concepts#traces)到 LangSmith，请在您应用程序的 `.env` 文件中设置 `LANGSMITH_TRACING=false`。禁用追踪后，数据不会离开您的本地服务器。
 
 ## 设置本地智能体服务器
 
@@ -34,20 +34,20 @@ pip install --upgrade "langgraph-cli[inmem]"
 from langchain.agents import create_agent
 
 def send_email(to: str, subject: str, body: str):
-    """Send an email"""
+    """发送邮件"""
     email = {
         "to": to,
         "subject": subject,
         "body": body
     }
-    # ... email sending logic
+    # ... 邮件发送逻辑
 
-    return f"Email sent to {to}"
+    return f"邮件已发送给 {to}"
 
 agent = create_agent(
     "gpt-4o",
     tools=[send_email],
-    system_prompt="You are an email assistant. Always use the send_email tool.",
+    system_prompt="您是一个邮件助手。请始终使用 send_email 工具。",
 )
 ```
 
@@ -79,7 +79,7 @@ LangGraph CLI 使用一个配置文件来定位您的智能体并管理依赖项
 }
 ```
 
-<a href="https://reference.langchain.com/python/langchain/agents/#langchain.agents.create_agent" target="_blank" rel="noreferrer" class="link"><code>create_agent</code></a> 函数会自动返回一个已编译的 LangGraph 图（graph），这正是配置文件中 `graphs` 键所期望的内容。
+<a href="https://reference.langchain.com/python/langchain/agents/#langchain.agents.create_agent" target="_blank" rel="noreferrer" class="link"><code>create_agent</code></a> 函数会自动返回一个已编译的 LangGraph 图，这正是配置文件中 `graphs` 键所期望的内容。
 
 <Info>
 
@@ -115,7 +115,7 @@ uv add langchain langchain-openai
 
 ### 6. 在 Studio 中查看您的智能体
 
-启动开发服务器，将您的智能体连接到 Studio：
+启动开发服务器以将您的智能体连接到 Studio：
 
 ```shell
 langgraph dev
@@ -123,7 +123,7 @@ langgraph dev
 
 <Warning>
 
-Safari 浏览器会阻止到 Studio 的 `localhost` 连接。要解决此问题，请使用 `--tunnel` 参数运行上述命令，以便通过安全隧道访问 Studio。
+Safari 会阻止到 Studio 的 `localhost` 连接。要解决此问题，请使用 `--tunnel` 运行上述命令，通过安全隧道访问 Studio。您需要在 Studio UI 中点击 <strong>Connect to a local server</strong>，手动将隧道 URL 添加到允许的来源中。具体步骤请参阅 [故障排除指南](/langsmith/troubleshooting-studio#safari-connection-issues)。
 
 </Warning>
 
@@ -135,16 +135,16 @@ Safari 浏览器会阻止到 Studio 的 `localhost` 连接。要解决此问题�
 
 </Frame>
 
-当 Studio 连接到您的本地智能体后，您可以快速迭代优化智能体的行为。运行测试输入，检查完整的执行轨迹（trace），包括提示、工具参数、返回值以及令牌/延迟指标。当出现问题时，Studio 会捕获异常及其周围状态，帮助您理解发生了什么。
+当 Studio 连接到您的本地智能体后，您可以快速迭代智能体的行为。运行测试输入，检查完整的执行轨迹，包括提示词、工具参数、返回值以及令牌/延迟指标。当出现问题时，Studio 会捕获异常及其周围的状态，帮助您了解发生了什么。
 
-开发服务器支持热重载（hot-reloading）—— 在代码中修改提示或工具签名，Studio 会立即反映这些更改。您可以从任何步骤重新运行对话线程来测试您的更改，而无需从头开始。此工作流程适用于从简单的单工具智能体到复杂的多节点图。
+开发服务器支持热重载——在代码中更改提示词或工具签名，Studio 会立即反映这些更改。您可以从任何步骤重新运行对话线程来测试更改，而无需从头开始。此工作流程可扩展，从简单的单工具智能体到复杂的多节点图。
 
-有关如何运行 Studio 的更多信息，请参阅 [LangSmith 文档](/langsmith/home)中的以下指南：
+有关如何运行 Studio 的更多信息，请参阅 [LangSmith 文档](/langsmith/home) 中的以下指南：
 
-- [运行应用](/langsmith/use-studio#run-application)
+- [运行应用程序](/langsmith/use-studio#run-application)
 - [管理助手](/langsmith/use-studio#manage-assistants)
 - [管理线程](/langsmith/use-studio#manage-threads)
-- [迭代提示](/langsmith/observability-studio)
+- [迭代提示词](/langsmith/observability-studio)
 - [调试 LangSmith 轨迹](/langsmith/observability-studio#debug-langsmith-traces)
 - [将节点添加到数据集](/langsmith/observability-studio#add-node-to-dataset)
 

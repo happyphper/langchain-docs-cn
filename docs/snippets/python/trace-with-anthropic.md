@@ -1,44 +1,74 @@
-Python 中的 `wrap_anthropic` 方法允许你包装 Anthropic 客户端，以便自动记录追踪信息——无需使用装饰器或函数包装！使用此包装器可以确保消息（包括工具调用和多模态内容块）能在 LangSmith 中良好地呈现。该包装器与 `@traceable` 装饰器或 `traceable` 函数无缝协作，你可以在同一个应用程序中同时使用它们。
+Python 中的 Anthropic 包装器方法（@[`wrap_anthropic`][wrap_anthropic]）和 TypeScript 中的 [`wrapAnthropic`](https://reference.langchain.com/javascript/functions/langsmith.wrappers_anthropic.wrapAnthropic.html) 允许您包装您的 Anthropic 客户端，以便自动记录追踪。使用此包装器可以确保消息（包括工具调用和多模态内容块）在 LangSmith 中能够良好地呈现。该包装器与 `@traceable` 装饰器（Python）或 `traceable` 函数（TypeScript）无缝协作，因此您可以使用包装器追踪您的 Anthropic 调用，同时使用装饰器或函数追踪应用程序的其他部分。
 
 <Note>
 
-即使在使用 `wrap_anthropic` 时，也必须将 `LANGSMITH_TRACING` 环境变量设置为 `'true'`，才能将追踪信息记录到 LangSmith。这允许你在不更改代码的情况下开启或关闭追踪功能。
+即使在使用 `wrap_anthropic` 或 `wrapAnthropic` 时，也必须将 `LANGSMITH_TRACING` 环境变量设置为 `'true'`，才能将追踪记录到 LangSmith。这允许您在不更改代码的情况下开启或关闭追踪。
 
-此外，你需要将 `LANGSMITH_API_KEY` 环境变量设置为你的 API 密钥（更多信息请参阅[设置](/)）。
+此外，您需要将 `LANGSMITH_API_KEY` 环境变量设置为您 API 密钥（更多信息请参阅 [Setup](/)）。
 
-如果你的 LangSmith API 密钥关联了多个工作区，请设置 `LANGSMITH_WORKSPACE_ID` 环境变量来指定要使用的工作区。
+如果您的 LangSmith API 密钥关联到多个工作区，请设置 `LANGSMITH_WORKSPACE_ID` 环境变量以指定要使用的工作区。
 
-默认情况下，追踪信息将记录到名为 `default` 的项目中。要将追踪信息记录到其他项目，请参阅[此部分](/langsmith/log-traces-to-project)。
+默认情况下，追踪将记录到名为 `default` 的项目中。要将追踪记录到其他项目，请参阅 [此部分](/langsmith/log-traces-to-project)。
 
 </Note>
 
-```python
+::: code-group
+
+```python [Python]
 import anthropic
 from langsmith import traceable
 from langsmith.wrappers import wrap_anthropic
 
 client = wrap_anthropic(anthropic.Anthropic())
 
-# 你也可以包装异步客户端
-# async_client = wrap_anthropic(anthropic.AsyncAnthropic())
-
 @traceable(run_type="tool", name="Retrieve Context")
 def my_tool(question: str) -> str:
-    return "During this morning's meeting, we solved all world conflict."
+  return "During this morning's meeting, we solved all world conflict."
 
 @traceable(name="Chat Pipeline")
 def chat_pipeline(question: str):
-    context = my_tool(question)
-    messages = [
-        { "role": "user", "content": f"Question: {question}\nContext: {context}"}
-    ]
-    messages = client.messages.create(
+  context = my_tool(question)
+  messages = [
+      { "role": "user", "content": f"Question: {question}\nContext: {context}"}
+  ]
+  message = client.messages.create(
       model="claude-sonnet-4-5-20250929",
       messages=messages,
       max_tokens=1024,
       system="You are a helpful assistant. Please respond to the user's request only based on the given context."
-    )
-    return messages
+  )
+  return message
 
 chat_pipeline("Can you summarize this morning's meetings?")
 ```
+
+```typescript [TypeScript]
+import Anthropic from "@anthropic-ai/sdk";
+import { traceable } from "langsmith/traceable";
+import { wrapAnthropic } from "langsmith/wrappers/anthropic";
+
+const client = wrapAnthropic(new Anthropic());
+
+const myTool = traceable(async (question: string) => {
+  return "During this morning's meeting, we solved all world conflict.";
+}, { name: "Retrieve Context", run_type: "tool" });
+
+const chatPipeline = traceable(async (question: string) => {
+  const context = await myTool(question);
+  const messages = [
+      { role: "user", content: `Question: ${question}\nContext: ${context}` }
+  ];
+  const message = await client.messages.create({
+      model: "claude-sonnet-4-5-20250929",
+      messages: messages,
+      max_tokens: 1024,
+      system: "You are a helpful assistant. Please respond to the user's request only based on the given context."
+  });
+  return message;
+}, { name: "Chat Pipeline" });
+
+await chatPipeline("Can you summarize this morning's meetings?");
+```
+
+:::
+

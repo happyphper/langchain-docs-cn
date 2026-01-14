@@ -1,7 +1,7 @@
 ---
 title: 获取帮助
 ---
-与 LangChain 社区建立联系，获取学习资源，并获得构建应用所需的支持。
+与 LangChain 社区建立联系，获取学习资源，并获得构建应用所需的支持，助您充满信心地开发。
 
 ## 学习资源
 
@@ -34,5 +34,5 @@ title: 获取帮助
 
 关注我们以获取最新更新、公告和社区亮点。
 
-- **[X (Twitter)](https://twitter.com/langchainai)**: 每日更新和社区聚焦
-- **[LinkedIn](https://www.linkedin.com/company/langchain/)**: 专业网络和公司动态
+- **[X (Twitter)](https://x.com/langchain)**: 每日更新和社区聚焦
+- **[LinkedIn](https://www.linkedin.com/company/langchain/)**: 专业网络和公司更新

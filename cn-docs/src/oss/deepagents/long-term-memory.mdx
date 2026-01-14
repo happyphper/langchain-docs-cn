@@ -1,0 +1,424 @@
+---
+title: 长期记忆
+description: 了解如何为深度智能体（agent）扩展跨线程的持久记忆（memory）
+---
+深度智能体（deep agent）配备本地文件系统以卸载记忆（memory）。默认情况下，该文件系统存储在智能体状态中，并且**对单个线程是临时的**——当对话结束时文件会丢失。
+
+您可以通过使用 `CompositeBackend` 来扩展深度智能体，使其具备**长期记忆（long-term memory）**，该后端将特定路径路由到持久化存储。这实现了混合存储，其中一些文件跨线程持久存在，而其他文件则保持临时性。
+
+```mermaid
+graph LR
+    Agent[Deep Agent] --> Router{Path Router}
+
+    Router --> |/memories/*| Store[Store Backend]
+    Router --> |other| State[State Backend]
+
+    Store --> Persist[(Persistent<br/>across threads)]
+    State --> Ephemeral[(Ephemeral<br/>single thread)]
+```
+
+## 设置
+
+通过使用 `CompositeBackend` 配置长期记忆，该后端将 `/memories/` 路径路由到 `StoreBackend`：
+
+:::python
+```python
+from deepagents import create_deep_agent
+from deepagents.backends import CompositeBackend, StateBackend, StoreBackend
+from langgraph.store.memory import InMemoryStore
+from langgraph.checkpoint.memory import MemorySaver
+
+checkpointer = MemorySaver()
+
+def make_backend(runtime):
+    return CompositeBackend(
+        default=StateBackend(runtime),  # 临时存储
+        routes={
+            "/memories/": StoreBackend(runtime)  # 持久化存储
+        }
+    )
+
+agent = create_deep_agent(
+    store=InMemoryStore(),  # StoreBackend 必需
+    backend=make_backend,
+    checkpointer=checkpointer
+)
+```
+:::
+
+:::js
+```typescript
+import { createDeepAgent } from "deepagents";
+import { CompositeBackend, StateBackend, StoreBackend } from "deepagents";
+import { InMemoryStore } from "@langchain/langgraph-checkpoint";
+
+const agent = createDeepAgent({
+  store: new InMemoryStore(),  // StoreBackend 必需
+  backend: (config) => new CompositeBackend(
+    new StateBackend(config),  // 临时存储
+    { "/memories/": new StoreBackend(config) }  // 持久化存储
+  ),
+});
+```
+:::
+
+## 工作原理
+
+当使用 `CompositeBackend` 时，深度智能体维护**两个独立的文件系统**：
+
+### 1. 短期（临时）文件系统
+- 存储在智能体的状态中（通过 `StateBackend`）
+- 仅在单个线程内持久存在
+- 线程结束时文件丢失
+- 通过标准路径访问：`/notes.txt`、`/workspace/draft.md`
+
+### 2. 长期（持久化）文件系统
+- 存储在 LangGraph Store 中（通过 `StoreBackend`）
+- 跨所有线程和对话持久存在
+- 智能体重启后仍然存在
+- 通过以 `/memories/` 为前缀的路径访问：`/memories/preferences.txt`
+
+### 路径路由
+
+`CompositeBackend` 根据路径前缀路由文件操作：
+- 路径以 `/memories/` 开头的文件存储在 Store 中（持久化）
+- 没有此前缀的文件保留在临时状态中
+- 所有文件系统工具（`ls`、`read_file`、`write_file`、`edit_file`）对两者都适用
+
+:::python
+```python
+# 临时文件（线程结束后丢失）
+agent.invoke({
+    "messages": [{"role": "user", "content": "Write draft to /draft.txt"}]
+})
+
+# 持久化文件（跨线程保留）
+agent.invoke({
+    "messages": [{"role": "user", "content": "Save final report to /memories/report.txt"}]
+})
+```
+:::
+
+:::js
+```typescript
+// 临时文件（线程结束后丢失）
+await agent.invoke({
+  messages: [{ role: "user", content: "Write draft to /draft.txt" }],
+});
+
+// 持久化文件（跨线程保留）
+await agent.invoke({
+  messages: [{ role: "user", content: "Save final report to /memories/report.txt" }],
+});
+```
+:::
+
+## 跨线程持久性
+
+`/memories/` 中的文件可以从任何线程访问：
+
+:::python
+```python
+import uuid
+
+# 线程 1：写入长期记忆
+config1 = {"configurable": {"thread_id": str(uuid.uuid4())}}
+agent.invoke({
+    "messages": [{"role": "user", "content": "Save my preferences to /memories/preferences.txt"}]
+}, config=config1)
+
+# 线程 2：从长期记忆中读取（不同的对话！）
+config2 = {"configurable": {"thread_id": str(uuid.uuid4())}}
+agent.invoke({
+    "messages": [{"role": "user", "content": "我的偏好是什么？"}]
+}, config=config2)
+# 智能体可以从第一个线程读取 /memories/preferences.txt
+```
+:::
+
+:::js
+```typescript
+import { v4 as uuidv4 } from "uuid";
+
+// 线程 1：写入长期记忆
+const config1 = { configurable: { thread_id: uuidv4() } };
+await agent.invoke({
+  messages: [{ role: "user", content: "将我的偏好保存到 /memories/preferences.txt" }],
+}, config1);
+
+// 线程 2：从长期记忆中读取（不同的对话！）
+const config2 = { configurable: { thread_id: uuidv4() } };
+await agent.invoke({
+  messages: [{ role: "user", content: "我的偏好是什么？" }],
+}, config2);
+// 智能体可以从第一个线程读取 /memories/preferences.txt
+```
+:::
+
+## 使用案例
+
+### 用户偏好
+
+存储跨会话持续存在的用户偏好：
+
+:::python
+```python
+agent = create_deep_agent(
+    store=InMemoryStore(),
+    backend=lambda rt: CompositeBackend(
+        default=StateBackend(rt),
+        routes={"/memories/": StoreBackend(rt)}
+    ),
+    system_prompt="""当用户告诉你他们的偏好时，将其保存到
+    /memories/user_preferences.txt，以便你在未来的对话中记住它们。"""
+)
+```
+:::
+
+:::js
+```typescript
+const agent = createDeepAgent({
+  store: new InMemoryStore(),
+  backend: (config) => new CompositeBackend(
+    new StateBackend(config),
+    { "/memories/": new StoreBackend(config) }
+  ),
+  systemPrompt: `当用户告诉你他们的偏好时，将其保存到 /memories/user_preferences.txt，以便你在未来的对话中记住它们。`,
+});
+```
+:::
+
+### 自我改进的指令
+
+智能体可以根据反馈更新自己的指令：
+
+:::python
+```python
+agent = create_deep_agent(
+    store=InMemoryStore(),
+    backend=lambda rt: CompositeBackend(
+        default=StateBackend(rt),
+        routes={"/memories/": StoreBackend(rt)}
+    ),
+    system_prompt="""你在 /memories/instructions.txt 有一个包含附加
+    指令和偏好的文件。
+
+    在对话开始时读取此文件以了解用户偏好。
+
+    当用户提供诸如“请总是做 X”或“我更喜欢 Y”的反馈时，
+    使用 edit_file 工具更新 /memories/instructions.txt。"""
+)
+```
+:::
+
+:::js
+```typescript
+const agent = createDeepAgent({
+  store: new InMemoryStore(),
+  backend: (config) => new CompositeBackend(
+    new StateBackend(config),
+    { "/memories/": new StoreBackend(config) }
+  ),
+  systemPrompt: `你在 /memories/instructions.txt 有一个包含附加指令和偏好的文件。
+
+  在对话开始时读取此文件以了解用户偏好。
+
+  当用户提供诸如“请总是做 X”或“我更喜欢 Y”的反馈时，使用 edit_file 工具更新 /memories/instructions.txt。`,
+});
+```
+:::
+
+随着时间的推移，指令文件会积累用户偏好，帮助智能体改进。
+
+### 知识库
+
+在多次对话中积累知识：
+
+:::python
+```python
+# 对话 1：了解一个项目
+agent.invoke({
+    "messages": [{"role": "user", "content": "我们正在用 React 构建一个 Web 应用。保存项目笔记。"}]
+})
+
+# 对话 2：使用该知识
+agent.invoke({
+    "messages": [{"role": "user", "content": "我们使用什么框架？"}]
+})
+# 智能体从之前的对话中读取 /memories/project_notes.txt
+```
+:::
+
+:::js
+```typescript
+// 对话 1：了解一个项目
+await agent.invoke({
+  messages: [{ role: "user", content: "我们正在用 React 构建一个 Web 应用。保存项目笔记。" }],
+});
+
+// 对话 2：使用该知识
+await agent.invoke({
+  messages: [{ role: "user", content: "我们使用什么框架？" }],
+});
+// 智能体从之前的对话中读取 /memories/project_notes.txt
+```
+:::
+
+### 研究项目
+
+跨会话维护研究状态：
+
+:::python
+```python
+research_agent = create_deep_agent(
+    store=InMemoryStore(),
+    backend=lambda rt: CompositeBackend(
+        default=StateBackend(rt),
+        routes={"/memories/": StoreBackend(rt)}
+    ),
+    system_prompt="""You are a research assistant.
+
+    Save your research progress to /memories/research/:
+    - /memories/research/sources.txt - List of sources found
+    - /memories/research/notes.txt - Key findings and notes
+    - /memories/research/report.md - Final report draft
+
+    This allows research to continue across multiple sessions."""
+)
+```
+:::
+
+:::js
+```typescript
+const researchAgent = createDeepAgent({
+  store: new InMemoryStore(),
+  backend: (config) => new CompositeBackend(
+    new StateBackend(config),
+    { "/memories/": new StoreBackend(config) }
+  ),
+  systemPrompt: `You are a research assistant.
+
+  Save your research progress to /memories/research/:
+  - /memories/research/sources.txt - List of sources found
+  - /memories/research/notes.txt - Key findings and notes
+  - /memories/research/report.md - Final report draft
+
+  This allows research to continue across multiple sessions.`,
+});
+```
+:::
+
+## 存储实现
+
+任何 LangGraph 的 `BaseStore` 实现都可以使用：
+
+### InMemoryStore（开发环境）
+
+适用于测试和开发，但重启后数据会丢失：
+
+:::python
+```python
+from langgraph.store.memory import InMemoryStore
+
+store = InMemoryStore()
+agent = create_deep_agent(
+    store=store,
+    backend=lambda rt: CompositeBackend(
+        default=StateBackend(rt),
+        routes={"/memories/": StoreBackend(rt)}
+    )
+)
+```
+:::
+
+:::js
+```typescript
+import { InMemoryStore } from "@langchain/langgraph-checkpoint";
+import { createDeepAgent, CompositeBackend, StateBackend, StoreBackend } from "deepagents";
+
+const store = new InMemoryStore();
+const agent = createDeepAgent({
+  store,
+  backend: (config) => new CompositeBackend(
+    new StateBackend(config),
+    { "/memories/": new StoreBackend(config) }
+  ),
+});
+```
+:::
+
+### PostgresStore（生产环境）
+
+生产环境请使用持久化存储：
+
+:::python
+```python
+from langgraph.store.postgres import PostgresStore
+import os
+
+# 使用 PostgresStore.from_conn_string 作为上下文管理器
+store_ctx = PostgresStore.from_conn_string(os.environ["DATABASE_URL"])
+store = store_ctx.__enter__()
+store.setup()
+
+agent = create_deep_agent(
+    store=store,
+    backend=lambda rt: CompositeBackend(
+        default=StateBackend(rt),
+        routes={"/memories/": StoreBackend(rt)}
+    )
+)
+```
+:::
+
+:::js
+```typescript
+import { PostgresStore } from "@langchain/langgraph-checkpoint-postgres";
+import { createDeepAgent, CompositeBackend, StateBackend, StoreBackend } from "deepagents";
+
+const store = new PostgresStore({
+  connectionString: process.env.DATABASE_URL,
+});
+const agent = createDeepAgent({
+  store,
+  backend: (config) => new CompositeBackend(
+    new StateBackend(config),
+    { "/memories/": new StoreBackend(config) }
+  ),
+});
+```
+:::
+
+## 最佳实践
+
+### 使用描述性路径
+
+使用清晰的路径组织持久化文件：
+
+```
+/memories/user_preferences.txt
+/memories/research/topic_a/sources.txt
+/memories/research/topic_a/notes.txt
+/memories/project/requirements.md
+```
+
+### 记录内存结构
+
+在系统提示中告知智能体（agent）存储内容的位置：
+
+```
+您的持久化内存结构：
+- /memories/preferences.txt：用户偏好和设置
+- /memories/context/：关于用户的长期上下文
+- /memories/knowledge/：随时间学习到的事实和信息
+```
+
+### 清理旧数据
+
+定期清理过时的持久化文件，以保持存储空间的可管理性。
+
+### 选择合适的存储
+
+- **开发环境**：使用 `InMemoryStore` 进行快速迭代
+- **生产环境**：使用 `PostgresStore` 或其他持久化存储
+- **多租户场景**：考虑在存储中使用基于 `assistant_id` 的命名空间

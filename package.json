@@ -17,15 +17,18 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "convert": "tsx src/index.ts",
-    "translate": "tsx src/translate.ts",
+    "translate": "tsx src/translate/index.ts",
     "sync-assets": "tsx src/sync_assets.ts",
-    "check-missing": "tsx src/check_missing.ts"
+    "check-missing": "tsx src/check_missing.ts",
+    "gen-routes": "tsx src/router/router.ts"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
     "@fortawesome/free-brands-svg-icons": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/vue-fontawesome": "^3.1.3",
+    "@types/cli-progress": "^3.11.6",
+    "cli-progress": "^3.12.0",
     "medium-zoom": "^1.1.0",
     "vitepress-mermaid-renderer": "^1.1.7",
     "vitepress-plugin-group-icons": "^1.6.5"

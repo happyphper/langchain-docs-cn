@@ -1,33 +1,79 @@
+// lsAgentBuilder 侧边栏配置
 export const lsAgentBuilder = [
     {
-        text: '智能体构建器 (Agent Builder)',
-        items: [
-            { text: '概述', link: '/langsmith/agent-builder' }
+        "text": "智能体（Agent）构建器",
+        "link": "/langsmith/agent-builder"
+    },
+    {
+        "text": "入门指南",
+        "collapsed": false,
+        "items": [
+            {
+                "text": "智能体（Agent）构建器快速入门",
+                "link": "/langsmith/agent-builder-quickstart"
+            },
+            {
+                "text": "智能体（Agent）构建器基础",
+                "link": "/langsmith/agent-builder-essentials"
+            },
+            {
+                "text": "智能体（Agent）构建器模板",
+                "link": "/langsmith/agent-builder-templates"
+            },
+            {
+                "text": "智能体（Agent）构建器设置",
+                "link": "/langsmith/agent-builder-setup"
+            },
+            {
+                "text": "智能体（Agent）构建器可见性",
+                "link": "/langsmith/agent-builder-visibility"
+            }
         ]
     },
     {
-        text: '智能体构建器 - 开始使用',
-        items: [
-            { text: '核心要素', link: '/langsmith/agent-builder-essentials' },
-            { text: '模板', link: '/langsmith/agent-builder-templates' },
-            { text: '安装与设置', link: '/langsmith/agent-builder-setup' },
-            { text: '智能体可见性 (工作区与私有)', link: '/langsmith/agent-builder-workspace-vs-private' }
+        "text": "工具与集成（Integrations）",
+        "collapsed": false,
+        "items": [
+            {
+                "text": "智能体（Agent）构建器工具",
+                "link": "/langsmith/agent-builder-tools"
+            },
+            {
+                "text": "智能体（Agent）构建器远程MCP服务器",
+                "link": "/langsmith/agent-builder-remote-mcp-servers"
+            },
+            {
+                "text": "智能体（Agent）构建器Slack应用",
+                "link": "/langsmith/agent-builder-slack-app"
+            }
         ]
     },
     {
-        text: '工具与集成',
-        items: [
-            { text: '工具库', link: '/langsmith/agent-builder-tools' },
-            { text: 'Slack 应用', link: '/langsmith/agent-builder-slack-app' }
+        "text": "高级",
+        "collapsed": false,
+        "items": [
+            {
+                "text": "智能体（Agent）构建器认证格式",
+                "link": "/langsmith/agent-builder-auth-format"
+            },
+            {
+                "text": "智能体（Agent）构建器代码",
+                "link": "/langsmith/agent-builder-code"
+            },
+            {
+                "text": "智能体（Agent）构建器MCP框架",
+                "link": "/langsmith/agent-builder-mcp-framework"
+            }
         ]
     },
     {
-        text: '进阶功能',
-        items: [
-            { text: '认证响应格式', link: '/langsmith/agent-builder-auth-format' },
-            { text: '通过代码调用', link: '/langsmith/agent-builder-code' },
-            { text: 'MCP 框架', link: '/langsmith/agent-builder-mcp-framework' },
-            { text: '更新 MCP 服务器', link: '/langsmith/agent-builder-update-mcp-servers' }
+        "text": "其他资源",
+        "collapsed": false,
+        "items": [
+            {
+                "text": "智能体（Agent）构建器定价常见问题",
+                "link": "/langsmith/agent-builder-pricing-faq"
+            }
         ]
     }
 ];

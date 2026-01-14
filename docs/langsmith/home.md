@@ -5,12 +5,12 @@ mode: wide
 ---
 **LangSmith 提供用于开发、调试和部署 LLM 应用程序的工具。**
 它帮助您在一个地方追踪请求、评估输出、测试提示词并管理部署。
-LangSmith 是框架无关的，因此您可以将其与 LangChain 的开源库 [`langchain`](/oss/langchain/overview) 和 [`langgraph`](/oss/langgraph/overview) 一起使用，也可以单独使用。
+LangSmith 是框架无关的，因此您可以搭配或不搭配 LangChain 的开源库 [`langchain`](/oss/langchain/overview) 和 [`langgraph`](/oss/langgraph/overview) 使用它。
 先在本地进行原型设计，然后借助集成的监控和评估功能转向生产环境，以构建更可靠的 AI 系统。
 
 <Callout icon="bullhorn" color="#DFC5FE" iconType="regular">
 
-LangGraph Platform 现已更名为 [LangSmith Deployment](/langsmith/deployments)。更多信息，请查看 [更新日志](https://changelog.langchain.com/announcements/product-naming-changes-langsmith-deployment-and-langsmith-studio)。
+LangGraph Platform 现已更名为 [LangSmith Deployment](/langsmith/deployments)。欲了解更多信息，请查看 [更新日志](https://changelog.langchain.com/announcements/product-naming-changes-langsmith-deployment-and-langsmith-studio)。
 
 </Callout>
 
@@ -71,7 +71,7 @@ arrow="true"
 cta="部署您的智能体"
 >
 
-将您的智能体部署为 Agent Server，为生产环境扩展做好准备。
+将您的智能体部署为 Agent Servers，为生产环境扩展做好准备。
 
 </Card>
 
@@ -87,22 +87,10 @@ icon="server"
 iconType="solid"
 href="/langsmith/platform-setup"
 arrow="true"
-cta="选择 LangSmith 设置方式"
+cta="选择如何设置 LangSmith"
 >
 
-根据您的基础设施和合规需求，在托管云、自托管环境或混合环境中使用 LangSmith。
-
-</Card>
-
-<Card
-title="智能体构建器 (Beta)"
-icon="sparkles"
-href="/langsmith/agent-builder"
-arrow="true"
-cta="构建智能体"
->
-
-通过无代码界面可视化地设计和部署 AI 智能体——非常适合快速原型设计和无需编写代码即可上手。
+使用托管云、自托管环境或混合模式来设置 LangSmith，以满足您的基础设施和合规性需求。
 
 </Card>
 
@@ -111,7 +99,7 @@ title="Studio"
 icon="window"
 href="/langsmith/quick-start-studio"
 arrow="true"
-cta="使用 Studio 开发"
+cta="使用 Studio 进行开发"
 >
 
 使用可视化界面端到端地设计、测试和完善应用程序。
@@ -130,18 +118,30 @@ cta="测试您的提示词"
 
 </Card>
 
+<Card
+title="智能体构建器"
+icon="sparkles"
+href="/langsmith/agent-builder"
+arrow="true"
+cta="构建一个智能体"
+>
+
+通过无代码界面可视化地设计和部署 AI 智能体——非常适合快速原型设计和无需编写代码即可上手。
+
+</Card>
+
 </Columns>
 
 <Callout icon="lock" color="#DFC5FE" iconType="regular">
 
-LangSmith 符合 HIPAA、SOC 2 Type 2 和 GDPR 标准，满足数据安全和隐私的最高要求。更多信息，请参阅 [信任中心](https://trust.langchain.com/)。
+LangSmith 符合 HIPAA、SOC 2 Type 2 和 GDPR 标准，满足数据安全和隐私的最高要求。欲了解更多信息，请参阅 [信任中心](https://trust.langchain.com/)。
 
 </Callout>
 
-## 工作流程
+## 工作流
 
-LangSmith 将可观测性、评估、部署和平台设置整合到一个集成的工作流程中——从本地开发到生产环境。
+LangSmith 将可观测性、评估、部署和平台设置整合到一个集成的工作流中——从本地开发到生产环境。
 
-<img src="/langsmith/images/overview-light.svg" alt="图表展示了 LangSmith 如何将可观测性、评估、部署和平台设置集成到从开发到生产的单一工作流程中。" />
+<img src="/langsmith/images/overview-light.svg" alt="图表展示了 LangSmith 如何将可观测性、评估、部署和平台设置集成到从开发到生产的单一工作流中。" />
 
-<img src="/langsmith/images/overview-dark.svg" alt="图表展示了 LangSmith 如何将可观测性、评估、部署和平台设置集成到从开发到生产的单一工作流程中。" />
+<img src="/langsmith/images/overview-dark.svg" alt="图表展示了 LangSmith 如何将可观测性、评估、部署和平台设置集成到从开发到生产的单一工作流中。" />

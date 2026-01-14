@@ -1,7 +1,7 @@
 ---
 title: 自定义工作流
 ---
-在**自定义工作流**架构中，你可以使用 [LangGraph](/oss/python/langgraph/overview) 定义自己的专属执行流程。你可以完全控制图的结构——包括顺序步骤、条件分支、循环和并行执行。
+在**自定义工作流**架构中，您可以使用 [LangGraph](/oss/python/langgraph/overview) 定义自己的定制执行流程。您对图结构拥有完全的控制权——包括顺序步骤、条件分支、循环和并行执行。
 
 ```mermaid
 graph LR
@@ -14,16 +14,16 @@ graph LR
 
 ## 主要特点
 
-*   完全控制图结构
+*   对图结构拥有完全控制权
 *   混合确定性逻辑与智能体行为
 *   支持顺序步骤、条件分支、循环和并行执行
-*   可将其他模式作为节点嵌入到工作流中
+*   可将其他模式作为节点嵌入到您的工作流中
 
 ## 何时使用
 
-当标准模式（子智能体、技能等）不符合你的需求、你需要混合确定性逻辑与智能体行为，或者你的用例需要复杂路由或多阶段处理时，请使用自定义工作流。
+当标准模式（子智能体、技能等）不符合您的要求、您需要混合确定性逻辑与智能体行为，或者您的用例需要复杂路由或多阶段处理时，请使用自定义工作流。
 
-工作流中的每个节点可以是一个简单函数、一个 LLM 调用，或者是一个包含[工具](/oss/python/langchain/tools)的完整[智能体](/oss/python/langchain/agents)。你也可以在自定义工作流中组合其他架构——例如，将一个多智能体系统作为单个节点嵌入。
+工作流中的每个节点可以是一个简单函数、一个 LLM 调用，或者是一个包含[工具](/oss/python/langchain/tools)的完整[智能体](/oss/python/langchain/agents)。您还可以在自定义工作流中组合其他架构——例如，将一个多智能体系统作为单个节点嵌入。
 
 有关自定义工作流的完整示例，请参阅下面的教程。
 
@@ -34,14 +34,14 @@ href="/oss/langchain/multi-agent/router-knowledge-base"
 arrow cta="了解更多"
 >
 
-[路由模式](/oss/python/langchain/multi-agent/router)是自定义工作流的一个例子。本教程将逐步指导你构建一个路由器，该路由器可以并行查询 GitHub、Notion 和 Slack，然后综合结果。
+[路由模式](/oss/python/langchain/multi-agent/router) 是自定义工作流的一个例子。本教程将逐步指导您构建一个路由器，该路由器可以并行查询 GitHub、Notion 和 Slack，然后综合结果。
 >
 
 </Card>
 
-## 基本实现
+## 基础实现
 
-核心思路是，你可以在任何 LangGraph 节点内直接调用 LangChain 智能体，从而将自定义工作流的灵活性与预构建智能体的便利性结合起来：
+核心思路是，您可以在任何 LangGraph 节点内直接调用 LangChain 智能体，从而将自定义工作流的灵活性与预构建智能体的便利性结合起来：
 
 ```python
 from langchain.agents import create_agent
@@ -50,13 +50,13 @@ from langgraph.graph import StateGraph, START, END
 agent = create_agent(model="openai:gpt-4o", tools=[...])
 
 def agent_node(state: State) -> dict:
-    """一个调用 LangChain 智能体的 LangGraph 节点。"""
+    """A LangGraph node that invokes a LangChain agent."""
     result = agent.invoke({
         "messages": [{"role": "user", "content": state["query"]}]
     })
     return {"answer": result["messages"][-1].content}
 
-# 构建一个简单的工作流
+# Build a simple workflow
 workflow = (
     StateGraph(State)
     .add_node("agent", agent_node)
@@ -68,15 +68,15 @@ workflow = (
 
 ## 示例：RAG 管道
 
-一个常见的用例是将[检索](/oss/python/langchain/retrieval)与智能体结合。这个示例构建了一个 WNBA 数据助手，它可以从知识库中检索信息，并能获取实时新闻。
+一个常见的用例是将[检索](/oss/python/langchain/retrieval)与智能体相结合。此示例构建了一个 WNBA 数据助手，它可以从知识库中检索信息，并能获取实时新闻。
 
 :::: details 自定义 RAG 工作流
 
 该工作流展示了三种类型的节点：
 
--   <strong>模型节点</strong> (Rewrite)：使用[结构化输出](/oss/python/langchain/structured-output)重写用户查询以获得更好的检索效果。
--   <strong>确定性节点</strong> (Retrieve)：执行向量相似性搜索——不涉及 LLM。
--   <strong>智能体节点</strong> (Agent)：基于检索到的上下文进行推理，并可以通过工具获取额外信息。
+-   <strong>模型节点</strong>（重写）：使用[结构化输出](/oss/python/langchain/structured-output)重写用户查询以获得更好的检索效果。
+-   <strong>确定性节点</strong>（检索）：执行向量相似性搜索——不涉及 LLM。
+-   <strong>智能体节点</strong>（智能体）：基于检索到的上下文进行推理，并可以通过工具获取额外信息。
 
 ```mermaid
 graph LR
@@ -86,11 +86,9 @@ graph LR
     D --> E([Response])
 ```
 
-<Tip>
-
-你可以使用 LangGraph 状态在工作流步骤之间传递信息。这允许工作流的每个部分读取和更新结构化字段，从而轻松地在节点之间共享数据和上下文。
-
-</Tip>
+<提示>
+您可以使用 LangGraph 状态在工作流步骤之间传递信息。这允许工作流的每个部分读取和更新结构化字段，从而轻松地在节点之间共享数据和上下文。
+</提示>
 
 ```python
 from typing import TypedDict
@@ -129,7 +127,7 @@ retriever = vector_store.as_retriever(search_kwargs={"k": 5})
 @tool
 def get_latest_news(query: str) -> str:
     """获取最新的 WNBA 新闻和更新。"""
-    # 你的新闻 API 在这里
+    # 您的新闻 API 在这里
     return "Latest: The WNBA announced expanded playoff format for 2025..."
 
 agent = create_agent(
@@ -143,10 +141,10 @@ class RewrittenQuery(BaseModel):
     query: str
 
 def rewrite_query(state: State) -> dict:
-    """重写用户查询以获得更好的检索效果。"""
-    system_prompt = """Rewrite this query to retrieve relevant WNBA information.
-The knowledge base contains: team rosters, game results with scores, and player statistics (PPG, RPG, APG).
-Focus on specific player names, team names, or stat categories mentioned."""
+    """重写用户查询以优化检索效果。"""
+    system_prompt = """重写此查询以检索相关的 WNBA 信息。
+知识库包含：球队阵容、带比分的比赛结果和球员统计数据（PPG、RPG、APG）。
+重点关注提到的具体球员姓名、球队名称或统计类别。"""
     response = model.with_structured_output(RewrittenQuery).invoke([
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": state["question"]}
@@ -154,7 +152,7 @@ Focus on specific player names, team names, or stat categories mentioned."""
     return {"rewritten_query": response.query}
 
 def retrieve(state: State) -> dict:
-    """基于重写后的查询检索文档。"""
+    """根据重写后的查询检索文档。"""
     docs = retriever.invoke(state["rewritten_query"])
     return {"documents": [doc.page_content for doc in docs]}
 

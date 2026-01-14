@@ -3,37 +3,51 @@ title: Couchbase
 ---
 >[Couchbase](http://couchbase.com/) 是一款屡获殊荣的分布式 NoSQL 云数据库，为您的所有云、移动、AI 和边缘计算应用提供无与伦比的多功能性、性能、可扩展性和财务价值。
 
+如果您想查看详细的使用示例，请参阅 [Couchbase 向量存储](/oss/python/integrations/vectorstores/couchbase)。
+
 ## 安装与设置
 
-我们需要安装 `langchain-couchbase` 包。
+安装 `langchain-couchbase` 包以及嵌入依赖项：
 
 ::: code-group
 
 ```bash [pip]
-pip install langchain-couchbase
+pip install langchain-couchbase langchain-openai
 ```
 
 ```bash [uv]
-uv add langchain-couchbase
+uv add langchain-couchbase langchain-openai
 ```
 
 :::
 
 ## 向量存储
 
-查看[使用示例](/oss/python/integrations/vectorstores/couchbase)。
+Couchbase 为 LangChain 提供了两种不同的向量存储实现：
+
+| 向量存储 | 索引类型 | 最低版本 | 最佳适用场景 |
+|-------------|-----------|-----------------|----------|
+| `CouchbaseSearchVectorStore` | [搜索向量索引](https://docs.couchbase.com/server/current/vector-search/vector-search.html) | Couchbase Server 7.6+ | 结合向量相似性与全文搜索（FTS）和地理空间搜索的混合搜索 |
+| `CouchbaseQueryVectorStore` | [超大规模向量索引](https://docs.couchbase.com/server/current/vector-index/hyperscale-vector-index.html) 或 [复合向量索引](https://docs.couchbase.com/server/current/vector-index/composite-vector-index.html) | Couchbase Server 8.0+ | 大规模纯向量搜索或结合向量相似性与标量过滤器的搜索 |
+
+### CouchbaseSearchVectorStore
 
 ```python
 from langchain_couchbase import CouchbaseSearchVectorStore
+from langchain_openai import OpenAIEmbeddings
 
 import getpass
+import os
 
-# 连接常量
+# 获取凭据
 COUCHBASE_CONNECTION_STRING = getpass.getpass(
     "Enter the connection string for the Couchbase cluster: "
 )
 DB_USERNAME = getpass.getpass("Enter the username for the Couchbase cluster: ")
 DB_PASSWORD = getpass.getpass("Enter the password for the Couchbase cluster: ")
+OPENAI_API_KEY = getpass.getpass("Enter your OpenAI API key: ")
+
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 # 创建 Couchbase 连接对象
 from datetime import timedelta
@@ -44,30 +58,71 @@ from couchbase.options import ClusterOptions
 
 auth = PasswordAuthenticator(DB_USERNAME, DB_PASSWORD)
 options = ClusterOptions(auth)
+options.apply_profile("wan_development")
 cluster = Cluster(COUCHBASE_CONNECTION_STRING, options)
 
 # 等待集群准备就绪。
 cluster.wait_until_ready(timedelta(seconds=5))
 
+# 设置嵌入
+embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+
+# 创建向量存储
 vector_store = CouchbaseSearchVectorStore(
     cluster=cluster,
-    bucket_name=BUCKET_NAME,
-    scope_name=SCOPE_NAME,
-    collection_name=COLLECTION_NAME,
-    embedding=my_embeddings,
-    index_name=SEARCH_INDEX_NAME,
+    bucket_name="my_bucket",
+    scope_name="_default",
+    collection_name="_default",
+    embedding=embeddings,
+    index_name="my_search_index",
 )
 
 # 添加文档
 texts = ["Couchbase is a NoSQL database", "LangChain is a framework for LLM applications"]
-vectorstore.add_texts(texts)
+vector_store.add_texts(texts)
 
 # 搜索
 query = "What is Couchbase?"
-docs = vectorstore.similarity_search(query)
+docs = vector_store.similarity_search(query)
 ```
 
 API 参考：[CouchbaseSearchVectorStore](https://couchbase-ecosystem.github.io/langchain-couchbase/langchain_couchbase.html#module-langchain_couchbase.vectorstores.search_vector_store)
+
+### CouchbaseQueryVectorStore
+
+```python
+from langchain_couchbase import CouchbaseQueryVectorStore
+from langchain_openai import OpenAIEmbeddings
+
+# (按照上述方式设置集群连接后)
+
+embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+
+vector_store = CouchbaseQueryVectorStore(
+    cluster=cluster,
+    bucket_name="my_bucket",
+    scope_name="_default",
+    collection_name="_default",
+    embedding=embeddings,
+    index_name="my_vector_index",
+)
+
+# 创建索引（如果需要）
+vector_store.create_index(
+    index_type=IndexType.HYPERSCALE,
+    index_description="IVF,SQ8",
+    index_name="my_vector_index",
+)
+
+# 添加文档与搜索
+vector_store.add_documents([
+    Document(page_content="Couchbase 是一个 NoSQL 数据库", metadata={"source": "couchbase"}),
+    Document(page_content="LangChain 是一个用于 LLM 应用的框架", metadata={"source": "langchain"}),
+])
+docs = vector_store.similarity_search("什么是 Couchbase？")
+```
+
+API 参考：[CouchbaseQueryVectorStore](https://couchbase-ecosystem.github.io/langchain-couchbase/langchain_couchbase.html#module-langchain_couchbase.vectorstores.query_vector_store)
 
 ## 文档加载器
 
@@ -102,6 +157,7 @@ docs = loader.load()
 ## LLM 缓存
 
 ### CouchbaseCache
+
 使用 Couchbase 作为提示词和响应的缓存。
 
 导入此缓存：
@@ -130,6 +186,7 @@ set_llm_cache(
 API 参考：[CouchbaseCache](https://couchbase-ecosystem.github.io/langchain-couchbase/langchain_couchbase.html#langchain_couchbase.cache.CouchbaseCache)
 
 ### CouchbaseSemanticCache
+
 语义缓存允许用户基于用户输入与先前缓存输入之间的语义相似性来检索缓存的提示词。其底层使用 Couchbase 同时作为缓存和向量存储。
 CouchbaseSemanticCache 需要定义一个搜索索引才能工作。请查看[使用示例](/oss/python/integrations/vectorstores/couchbase)了解如何设置索引。
 
@@ -154,10 +211,10 @@ set_llm_cache(
     CouchbaseSemanticCache(
         cluster=cluster,
         embedding = embeddings,
-        bucket_name=BUCKET_NAME,
-        scope_name=SCOPE_NAME,
-        collection_name=COLLECTION_NAME,
-        index_name=INDEX_NAME,
+        bucket_name="my_bucket",
+        scope_name="_default",
+        collection_name="_default",
+        index_name="my_search_index",
     )
 )
 ```

@@ -1,19 +1,17 @@
 ---
-title: 设置代理身份验证（Beta）
-description: 通过 Agent Auth，使用 OAuth 2.0 凭证为代理（agents）启用对任何系统的安全访问。
+title: 设置智能体身份验证（Beta）
+description: 通过Agent Auth，使用OAuth 2.0凭证为智能体（agent）启用对任何系统的安全访问。
 ---
 
 <Note>
-代理身份验证仅适用于 [LangSmith 云部署](/langsmith/deploy-to-cloud)。
-</Note>
-
-<Note>
-代理身份验证处于 <strong>Beta</strong> 阶段，正在积极开发中。如需提供反馈或使用此功能，请联系 [LangChain 团队](https://forum.langchain.com/c/help/langsmith/)。
+智能体认证（Agent Auth）目前处于 <strong>Beta</strong> 测试阶段，正在积极开发中。如需提供反馈或使用此功能，请联系 [LangChain 团队](https://forum.langchain.com/c/help/langsmith/)。
 </Note>
 
 ## 安装
 
-从 PyPI 安装 Agent Auth 客户端库：
+<Tabs>
+
+<Tab title="Python">
 
 ::: code-group
 
@@ -27,9 +25,25 @@ uv add langchain-auth
 
 :::
 
+</Tab>
+
+<Tab title="JavaScript">
+
+```bash
+npm install @langchain/auth
+```
+
+</Tab>
+
+</Tabs>
+
 ## 快速开始
 
 ### 1. 初始化客户端
+
+<Tabs>
+
+<Tab title="Python">
 
 ```python
 from langchain_auth import Client
@@ -37,13 +51,78 @@ from langchain_auth import Client
 client = Client(api_key="your-langsmith-api-key")
 ```
 
-### 2. 设置 OAuth 提供者
+</Tab>
 
-在代理可以进行身份验证之前，您需要使用以下流程配置一个 OAuth 提供者：
+<Tab title="JavaScript">
 
-1.  为您的 OAuth 提供者选择一个在 LangChain 平台中使用的唯一标识符（例如，"github-local-dev"、"google-workspace-prod"）。
-2.  前往您的 OAuth 提供者的开发者控制台，创建一个新的 OAuth 应用程序。
-3.  使用以下结构在您的 OAuth 提供者中设置回调 URL：
+```javascript
+import { Client } from '@langchain/auth';
+
+const client = new Client({ apiKey: 'your-langsmith-api-key' });
+```
+
+</Tab>
+
+</Tabs>
+
+#### 自托管配置
+
+对于自托管的 LangSmith 实例，请使用您实例上的 `/api-host` 路径来指定 API URL。
+
+<Tabs>
+
+<Tab title="环境变量">
+
+```bash
+export LANGSMITH_API_URL="https://your-langsmith-instance.com/api-host"
+```
+
+然后正常初始化客户端：
+
+```python
+client = Client(api_key="your-langsmith-api-key")
+```
+
+</Tab>
+
+<Tab title="显式配置 (Python)">
+
+```python
+client = Client(
+    api_key="your-langsmith-api-key",
+    api_url="https://your-langsmith-instance.com/api-host"
+)
+```
+
+</Tab>
+
+<Tab title="显式配置 (JavaScript)">
+
+```javascript
+const client = new Client({
+    apiKey: 'your-langsmith-api-key',
+    apiUrl: 'https://your-langsmith-instance.com/api-host'
+});
+```
+
+</Tab>
+
+</Tabs>
+
+### 2. 设置 OAuth 提供方
+
+在智能体（agent）进行身份验证之前，您需要按照以下流程配置一个 OAuth 提供方：
+
+1.  为您的 OAuth 提供方选择一个在 LangChain 平台中使用的唯一标识符（例如 "github-local-dev"、"google-workspace-prod"）。
+
+2.  前往您的 OAuth 提供方的开发者控制台，创建一个新的 OAuth 应用程序。
+
+3.  在您的 OAuth 提供方中设置回调 URL：
+
+<Tabs>
+
+<Tab title="LangSmith 云服务">
+
 ```
 https://smith.langchain.com/host-oauth-callback/{provider_id}
 ```
@@ -51,12 +130,33 @@ https://smith.langchain.com/host-oauth-callback/{provider_id}
 ```
 https://smith.langchain.com/host-oauth-callback/github-local-dev
 ```
+
+</Tab>
+
+<Tab title="自托管">
+
+```
+https://{your-langsmith-instance}/host-oauth-callback/{provider_id}
+```
+例如，如果您的实例是 `langsmith.example.com` 且 provider_id 是 "github"，请使用：
+```
+https://langsmith.example.com/host-oauth-callback/github
+```
+
+</Tab>
+
+</Tabs>
+
 4.  使用 `client.create_oauth_provider()` 并传入您 OAuth 应用的凭据：
+
+<Tabs>
+
+<Tab title="Python">
 
 ```python
 new_provider = await client.create_oauth_provider(
-    provider_id="{provider_id}", # 提供任何唯一的 ID。与提供者没有正式绑定关系。
-    name="{provider_display_name}", # 提供任何显示名称
+    provider_id="{provider_id}",  # 提供任意唯一 ID
+    name="{provider_display_name}",  # 提供任意显示名称
     client_id="{your_client_id}",
     client_secret="{your_client_secret}",
     auth_url="{auth_url_of_your_provider}",
@@ -64,39 +164,62 @@ new_provider = await client.create_oauth_provider(
 )
 ```
 
-### 3. 从代理进行身份验证
+</Tab>
 
-客户端 `authenticate()` API 用于从预配置的提供者获取 OAuth 令牌。在首次调用时，它会引导调用者完成 OAuth 2.0 授权流程。
+<Tab title="JavaScript">
+
+```javascript
+const newProvider = await client.createOAuthProvider({
+    providerId: '{provider_id}',  // 提供任意唯一 ID
+    name: '{provider_display_name}',  // 提供任意显示名称
+    clientId: '{your_client_id}',
+    clientSecret: '{your_client_secret}',
+    authUrl: '{auth_url_of_your_provider}',
+    tokenUrl: '{token_url_of_your_provider}',
+});
+```
+
+</Tab>
+
+</Tabs>
+
+### 3. 从智能体进行身份验证
+
+客户端 `authenticate()` API 用于从预先配置的提供方获取 OAuth 令牌。在首次调用时，它会引导调用者完成 OAuth 2.0 授权流程。
 
 #### 在 LangGraph 上下文中
 
-默认情况下，令牌使用 Assistant ID 参数限定在调用代理的范围内。
+默认情况下，令牌会使用 Assistant ID 参数限定在调用智能体的范围内。
 
 ```python
 auth_result = await client.authenticate(
     provider="{provider_id}",
     scopes=["scopeA"],
-    user_id="your_user_id" # 任何唯一的标识符，用于将此令牌限定在人类调用者的范围内
+    user_id="your_user_id"  # 任何唯一的标识符，用于将此令牌限定到人类调用者
 )
 
-# 或者，如果您想要一个可以被任何代理使用的令牌，请设置 agent_scoped=False
+# 或显式指定代理范围的令牌的 agent_id
 auth_result = await client.authenticate(
     provider="{provider_id}",
     scopes=["scopeA"],
     user_id="your_user_id",
-    agent_scoped=False
+    agent_id="specific-agent-id"  # 可选：显式设置代理范围
 )
 ```
 
-在执行过程中，如果需要身份验证，SDK 将抛出一个 [中断](https://langchain-ai.github.io/langgraph/how-tos/human_in_the_loop/add-human-in-the-loop/#pause-using-interrupt)。代理执行暂停，并向用户显示 OAuth URL：
+在执行过程中，如果需要身份验证，SDK 将抛出一个[中断](https://langchain-ai.github.io/langgraph/how-tos/human_in_the_loop/add-human-in-the-loop/#pause-using-interrupt)。代理执行暂停，并向用户展示 OAuth URL：
 
-![显示 OAuth URL 的 Studio 中断](/images/langgraph-auth-interrupt.png)
+<Frame caption="Studio 中断显示 OAuth URL">
+<img src="/images/langgraph-auth-interrupt.png" alt="" />
+</Frame>
 
-用户完成 OAuth 身份验证并且我们从提供者收到回调后，他们将看到身份验证成功页面。
+用户完成 OAuth 身份验证且我们从提供商处收到回调后，他们将看到身份验证成功页面。
 
-![GitHub OAuth 成功页面](/images/github-auth-success.png)
+<Frame caption="GitHub OAuth 成功页面">
+<img src="/images/github-auth-success.png" alt="" />
+</Frame>
 
-然后，代理将从其暂停的点恢复执行，并且该令牌可用于任何 API 调用。我们存储并刷新 OAuth 令牌，以便用户或代理将来使用该服务时无需再进行 OAuth 流程。
+随后，代理将从其暂停处恢复执行，并且该令牌可用于任何 API 调用。我们存储并刷新 OAuth 令牌，以便用户或代理将来使用该服务时无需再次进行 OAuth 流程。
 
 ```python
 token = auth_result.token
@@ -104,21 +227,69 @@ token = auth_result.token
 
 #### 在 LangGraph 上下文之外
 
-向用户提供 `auth_url` 以进行带外 (out-of-band) OAuth 流程。
+向用户提供 `auth_url` 以进行带外 OAuth 流程。
+
+<Tabs>
+
+<Tab title="Python">
 
 ```python
-# 默认：用户范围的令牌（适用于此用户下的任何代理）
 auth_result = await client.authenticate(
     provider="{provider_id}",
     scopes=["scopeA"],
     user_id="your_user_id"
 )
 
-if auth_result.needs_auth:
-    print(f"Complete OAuth at: {auth_result.auth_url}")
-    # 等待完成
+if auth_result.status == "pending":
+    print(f"Complete OAuth at: {auth_result.url}")
+    # 等待用户完成 OAuth
     completed_auth = await client.wait_for_completion(auth_result.auth_id)
-    token = completed_auth.token
+    print("Authentication completed!")
 else:
     token = auth_result.token
+    print(f"Already authenticated, token: {token}")
+```
+
+</Tab>
+
+<Tab title="JavaScript">
+
+```javascript
+const authResult = await client.authenticate({
+    provider: '{provider_id}',
+    scopes: ['scopeA'],
+    userId: 'your_user_id'
+});
+
+if (authResult.status === 'pending') {
+    console.log(`Complete OAuth at: ${authResult.authUrl}`);
+    // 等待用户完成 OAuth
+    const completedAuth = await client.waitForCompletion(authResult.authId);
+    console.log('Authentication completed!');
+} else {
+    const token = authResult.token;
+    console.log(`Already authenticated, token: ${token}`);
+}
+```
+
+</Tab>
+
+</Tabs>
+
+## 故障排除
+
+### 自托管：405 方法不允许
+
+如果收到 `405 Method Not Allowed` 错误，请确保 `LANGSMITH_API_URL` 指向 `/api-host` 路径：
+
+```bash
+export LANGSMITH_API_URL="https://your-instance.com/api-host"
+```
+
+### 自托管：OAuth 回调 URL 格式错误
+
+确保您的 OAuth 提供商的 redirect URI 与您的 LangSmith 实例 URL 匹配：
+
+```
+https://your-instance.com/host-oauth-callback/{provider_id}
 ```

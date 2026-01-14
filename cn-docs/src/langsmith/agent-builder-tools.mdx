@@ -1,0 +1,153 @@
+---
+title: 内置工具
+mode: wide
+---
+您可以在智能体构建器（Agent Builder）中访问多种工具。使用内置工具，让您的智能体能够访问电子邮件、日历、聊天、项目管理、代码托管、电子表格/商业智能（BI）、搜索、社交媒体和通用网络实用程序。
+
+<Info>
+  Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylon 和 Twitter/X 使用工作区密钥（API 密钥）。
+</Info>
+
+<CardGroup cols={2}>
+  <Card title="Gmail" icon="google">
+    读取和发送电子邮件
+    <ul>
+      <li>读取电子邮件（可选包含正文，使用搜索过滤）</li>
+      <li>发送电子邮件或回复现有消息</li>
+      <li>创建草稿邮件</li>
+      <li>将消息标记为已读</li>
+      <li>获取对话线程</li>
+      <li>应用或创建标签</li>
+      <li>列出邮箱标签</li>
+    </ul>
+  </Card>
+
+  <Card title="Google Calendar" icon="google">
+    管理日程事件
+    <ul>
+      <li>列出某日期的日程事件</li>
+      <li>获取日程事件详情</li>
+      <li>创建新日程事件</li>
+    </ul>
+  </Card>
+
+  <Card title="Google Sheets" icon="google">
+    电子表格
+    <ul>
+      <li>创建电子表格</li>
+      <li>读取范围</li>
+    </ul>
+  </Card>
+
+  <Card title="BigQuery" icon="database">
+    分析
+    <ul>
+      <li>执行 SQL 查询</li>
+    </ul>
+  </Card>
+
+  <Card title="Slack" icon="slack">
+    发送和读取消息
+    <ul>
+      <li>向用户发送私信</li>
+      <li>向频道发布消息</li>
+      <li>在主题中回复</li>
+      <li>读取频道历史记录</li>
+      <li>读取主题消息</li>
+    </ul>
+  </Card>
+
+  <Card title="LinkedIn" icon="linkedin">
+    发布到个人资料
+    <ul>
+      <li>发布带有可选图片或链接的帖子</li>
+    </ul>
+  </Card>
+
+  <div style={{ position: 'relative', margin: 0, padding: 0 }}>
+    <Card title="Twitter/X" icon="twitter">
+      <ul>
+        <li>按 ID 读取推文</li>
+        <li>从列表读取最近的帖子</li>
+      </ul>
+    </Card>
+    <div style={{ position: 'absolute', top: 16, right: 16 }}>
+      <Tooltip tip="所需密钥：TWITTER_API_KEY, TWITTER_API_KEY_SECRET">
+        <Icon icon="key" size={16} />
+      </Tooltip>
+    </div>
+  </div>
+
+  <Card title="GitHub" icon="github">
+    拉取请求（PR）、议题和内容
+    <ul>
+      <li>列出拉取请求</li>
+      <li>获取拉取请求详情</li>
+      <li>创建议题和拉取请求</li>
+      <li>对议题和拉取请求发表评论</li>
+      <li>读取仓库文件并列出目录</li>
+    </ul>
+  </Card>
+
+  <Card title="Linear" icon="list-check">
+    管理议题和团队
+    <ul>
+      <li>列出团队和团队成员</li>
+      <li>使用过滤器列出议题</li>
+      <li>获取议题详情</li>
+      <li>创建、更新或删除议题</li>
+    </ul>
+  </Card>
+
+  <Card title="Pylon" icon="list-check">
+    议题管理
+    <ul>
+      <li>列出议题</li>
+      <li>获取议题详情</li>
+      <li>更新议题</li>
+    </ul>
+  </Card>
+
+  <div style={{ position: 'relative', margin: 0, padding: 0 }}>
+    <Card title="搜索" icon="magnifying-glass">
+      <ul>
+        <li>Exa 网络搜索（可选获取页面内容）</li>
+        <li>Exa LinkedIn 个人资料搜索</li>
+        <li>Tavily 网络搜索</li>
+      </ul>
+    </Card>
+    <div style={{ position: 'absolute', top: 16, right: 16 }}>
+      <Tooltip tip="Exa: EXA_API_KEY; Tavily: TAVILY_API_KEY">
+        <Icon icon="key" size={16} />
+      </Tooltip>
+    </div>
+  </div>
+
+  <Card title="网络实用程序" icon="globe">
+    <ul>
+      <li>读取网页文本内容</li>
+      <li>提取图片 URL 和元数据</li>
+      <li>通知用户（用于确认/更新）</li>
+    </ul>
+  </Card>
+</CardGroup>
+
+<Tip>
+您还可以连接到远程 MCP 服务器，为您的智能体提供更多工具。更多信息请参阅 [远程 MCP 服务器](/langsmith/agent-builder-remote-mcp-servers)。
+</Tip>
+
+## 断开工具连接
+
+要从您的智能体中移除工具：
+
+<Steps>
+  <Step title="打开智能体设置">
+    在 [LangSmith UI](https://smith.langchain.com) 中，将鼠标悬停在左侧边栏的 **我的智能体（My Agents）** 上，然后点击 <Icon icon="gear" /> 设置图标。
+  </Step>
+  <Step title="找到集成">
+    在集成部分，找到您想要移除的已连接应用。
+  </Step>
+  <Step title="断开连接">
+    点击该集成对应的 **断开连接（Disconnect）**。
+  </Step>
+</Steps>

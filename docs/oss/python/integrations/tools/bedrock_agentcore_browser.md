@@ -1,0 +1,272 @@
+---
+title: Amazon Bedrock AgentCore 浏览器
+---
+[Amazon Bedrock AgentCore Browser](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/browser-tool.html) 使智能体（agent）能够通过托管的 Chrome 浏览器与网页交互。智能体可以在一个安全、托管的环境中导航网站、提取内容、填写表单、点击元素和截取屏幕截图。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | [JS 支持](https://js.langchain.com/docs/integrations/tools/) | 版本 |
+|:------|:--------|:------------:|:---------------------------------------------------------------:|:--------:|
+| [BrowserToolkit](https://github.com/langchain-ai/langchain-aws/tree/main/libs/aws/langchain_aws/tools) | [langchain-aws](https://pypi.org/project/langchain-aws/) | ✅ | ❌ | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-aws?style=flat-square&label=%20) |
+
+### 工具特性
+
+| [返回工件](/oss/python/langchain/tools) | 原生异步 | 支持浏览器交互 | 定价 |
+|:-----------------------------------------------:|:------------:|:----------------------------:|:-------:|
+| ✅ | ✅ | ✅ | 按使用量付费 (AWS) |
+
+### 可用工具
+
+该工具包提供了多种用于浏览器自动化的工具：
+
+| 工具 | 描述 |
+|:-----|:------------|
+| `navigate_browser` | 导航到 URL |
+| `click_element` | 使用 CSS 选择器点击元素 |
+| `type_text` | 在输入字段中输入文本 |
+| `extract_text` | 从页面提取所有文本内容 |
+| `extract_hyperlinks` | 从页面提取所有超链接 |
+| `get_elements` | 获取匹配 CSS 选择器的元素 |
+| `current_webpage` | 获取当前页面 URL 和标题 |
+| `navigate_back` | 返回上一页 |
+| `take_screenshot` | 截取页面屏幕截图 |
+| `scroll_page` | 沿指定方向滚动页面 |
+| `wait_for_element` | 等待元素出现 |
+
+## 设置
+
+该集成位于 `langchain-aws` 包中。它还需要 `playwright` 和 `beautifulsoup4` 用于浏览器自动化和 HTML 解析。
+
+::: code-group
+
+```bash [pip]
+pip install -U langchain-aws bedrock-agentcore playwright beautifulsoup4
+playwright install chromium
+```
+```bash [uv]
+uv add langchain-aws bedrock-agentcore playwright beautifulsoup4
+playwright install chromium
+```
+
+:::
+
+### 凭证
+
+您需要配置具有 Bedrock AgentCore Browser 权限的 AWS 凭证。有关所需的 IAM 权限，请参阅 [Amazon Bedrock AgentCore 文档](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html)。
+
+为了获得一流的可观测性，设置 LangSmith 也很有帮助（但不是必需的）：
+
+```python
+import os
+
+os.environ["LANGSMITH_API_KEY"] = "your-api-key"
+os.environ["LANGSMITH_TRACING"] = "true"
+```
+
+## 实例化
+
+该工具包使用工厂函数创建：
+
+```python
+from langchain_aws.tools import create_browser_toolkit
+
+# 创建工具包并获取工具
+toolkit, browser_tools = create_browser_toolkit(region="us-west-2")
+```
+
+## 调用
+
+### 直接使用工具
+
+获取特定工具并调用它们：
+
+```python
+# 按名称获取工具
+tools_by_name = toolkit.get_tools_by_name()
+
+# 导航到 URL (需要包含 thread_id 的配置)
+config = {"configurable": {"thread_id": "session-123"}}
+
+result = tools_by_name["navigate_browser"].invoke(
+    {"url": "https://example.com"},
+    config=config
+)
+print(result)
+
+# 从页面提取文本
+text = tools_by_name["extract_text"].invoke({}, config=config)
+print(text)
+```
+
+### 在智能体中使用
+
+```python
+import asyncio
+from langchain.agents import create_react_agent
+from langchain.chat_models import init_chat_model
+from langchain_aws.tools import create_browser_toolkit
+
+async def main():
+    # 创建工具包
+    toolkit, browser_tools = create_browser_toolkit(region="us-west-2")
+
+    # 初始化聊天模型
+    llm = init_chat_model(
+        "us.anthropic.claude-sonnet-4-20250514-v1:0",
+        model_provider="bedrock_converse",
+    )
+
+# 创建带有浏览器工具的智能体
+agent = create_react_agent(
+    model=llm,
+    tools=browser_tools,
+)
+
+# 创建包含 thread_id 的配置以实现会话隔离
+config = {"configurable": {"thread_id": "research-session"}}
+
+# 运行智能体
+result = await agent.ainvoke(
+    {"messages": [{
+        "role": "user",
+        "content": "导航到 https://example.com 并告诉我主标题"
+    }]},
+    config=config
+)
+print(result["messages"][-1].content)
+
+# 完成后清理
+await toolkit.cleanup()
+
+asyncio.run(main())
+```
+
+## 基于线程的会话隔离
+
+该工具包为每个 `thread_id` 维护独立的浏览器会话。这使得并发使用不会相互干扰：
+
+```python
+# 每个线程获得自己的浏览器会话
+config_user1 = {"configurable": {"thread_id": "user-1"}}
+config_user2 = {"configurable": {"thread_id": "user-2"}}
+
+# 用户 1 导航到站点 A
+tools_by_name["navigate_browser"].invoke(
+    {"url": "https://site-a.com"},
+    config=config_user1
+)
+
+# 用户 2 导航到站点 B（不同的浏览器会话）
+tools_by_name["navigate_browser"].invoke(
+    {"url": "https://site-b.com"},
+    config=config_user2
+)
+```
+
+## 浏览器操作
+
+### 导航
+
+```python
+config = {"configurable": {"thread_id": "session-123"}}
+
+# 导航到 URL
+tools_by_name["navigate_browser"].invoke({"url": "https://example.com"}, config=config)
+
+# 后退
+tools_by_name["navigate_back"].invoke({}, config=config)
+
+# 获取当前页面信息
+current = tools_by_name["current_webpage"].invoke({}, config=config)
+print(current)  # URL 和标题
+```
+
+### 与元素交互
+
+```python
+# 点击元素
+tools_by_name["click_element"].invoke({"selector": "#submit-button"}, config=config)
+
+# 在输入字段中输入文本
+tools_by_name["type_text"].invoke({
+    "selector": "input[name='search']",
+    "text": "搜索查询"
+}, config=config)
+
+# 等待元素出现
+tools_by_name["wait_for_element"].invoke({
+    "selector": ".results",
+    "timeout": 10000,  # 10 秒
+    "state": "visible"
+}, config=config)
+```
+
+### 提取内容
+
+```python
+# 提取所有文本
+text = tools_by_name["extract_text"].invoke({}, config=config)
+
+# 提取所有超链接
+links = tools_by_name["extract_hyperlinks"].invoke({}, config=config)
+
+# 获取特定元素
+elements = tools_by_name["get_elements"].invoke(
+    {"selector": "article h2"},
+    config=config
+)
+```
+
+### 截图和滚动
+
+```python
+# 截图（返回 base64 图像）
+screenshot = tools_by_name["take_screenshot"].invoke(
+    {"full_page": False},  # 设置为 True 以获取整个页面
+    config=config
+)
+
+# 滚动页面
+tools_by_name["scroll_page"].invoke({
+    "direction": "down",
+    "amount": 500  # 像素
+}, config=config)
+```
+
+## 会话清理
+
+完成后务必清理浏览器会话以释放资源：
+
+```python
+# 清理所有浏览器会话
+await toolkit.cleanup()
+```
+
+> **注意：** 虽然 `create_browser_toolkit()` 是同步的，但 `cleanup()` 方法是异步的，必须使用 await。
+
+## 并发保护
+
+该工具包包含内置的并发保护。每个浏览器会话都绑定到特定的 `thread_id`，尝试在会话已被使用时访问同一会话将引发 `RuntimeError`。对于并发操作，请使用不同的 `thread_id` 值。
+
+```python
+# 正确做法：为并发操作使用不同的线程 ID
+config_a = {"configurable": {"thread_id": "task-a"}}
+config_b = {"configurable": {"thread_id": "task-b"}}
+
+# 这些可以并发运行而不会冲突
+await asyncio.gather(
+    agent.ainvoke({"messages": [...]}, config=config_a),
+    agent.ainvoke({"messages": [...]}, config=config_b),
+)
+```
+
+---
+
+## API 参考
+
+有关所有功能和配置的详细文档，请参阅：
+
+- [langchain-aws API 参考文档](https://python.langchain.com/api_reference/aws/)
+- [Amazon Bedrock AgentCore 文档](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html)

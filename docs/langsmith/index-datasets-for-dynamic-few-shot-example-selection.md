@@ -3,20 +3,20 @@ title: 动态少样本示例选择
 sidebarTitle: Dynamic few shot example selection
 ---
 
-<Note>
+<Danger>
 
-此功能处于公开测试阶段。仅适用于付费团队计划。如果您对启用此功能有疑问，请通过 [support.langchain.com](https://support.langchain.com) 联系支持团队。
+数据集中的动态少样本功能已弃用，将于 2026 年 2 月 28 日移除。
 
-</Note>
+</Danger>
 
 配置您的数据集，以便能够根据传入的请求搜索少样本示例。
 
 ## 前提条件
 
-1.  您的数据集必须使用 KV 存储数据类型（我们目前不支持聊天模型或 LLM 类型的数据集）。
-2.  您必须为数据集定义了输入模式。有关详细信息，请参阅我们在 UI 中设置模式验证的文档。
-3.  您必须处于付费团队计划中（例如 Plus 计划）。
-4.  您必须使用 LangSmith 云服务。
+1. 您的数据集必须使用 KV 存储数据类型（我们目前不支持聊天模型或 LLM 类型的数据集）
+2. 您必须为数据集定义输入模式。有关详细信息，请参阅我们关于[在 UI 中设置模式验证](/langsmith/manage-datasets-in-application#dataset-schema-validation)的文档。
+3. 您必须处于付费团队计划（例如 Plus 计划）
+4. 您必须使用 LangSmith 云服务
 
 ## 为少样本搜索建立数据集索引
 
@@ -26,9 +26,9 @@ sidebarTitle: Dynamic few shot example selection
 
 默认情况下，我们会同步到数据集的最新版本。这意味着当新示例添加到您的数据集时，它们将自动添加到您的索引中。此过程每隔几分钟运行一次，因此索引新示例会有很短的延迟。您可以在下一节屏幕左侧的 `Few-shot index` 下查看您的索引是否是最新的。
 
-## 在少样本测试场中测试搜索质量
+## 在少样本游乐场中测试搜索质量
 
-现在您已为数据集启用了索引，您将看到新的少样本测试场。
+现在您已为数据集启用了索引，您将看到新的少样本游乐场。
 
 ![Few shot synced empty state](/langsmith/images/few-shot-synced-empty-state.png)
 
@@ -40,7 +40,7 @@ sidebarTitle: Dynamic few shot example selection
 
 <Note>
 
-搜索使用类似 BM25 的算法进行基于关键词的相似度评分。随着我们改进搜索算法，实际分数可能会发生变化，因此我们建议不要依赖分数本身，因为其含义可能会随时间演变。它们仅用于在测试场中方便地直观测试输出。
+搜索使用类似 BM25 的算法进行基于关键词的相似度评分。实际分数可能会随着我们改进搜索算法而改变，因此我们建议不要依赖分数本身，因为它们的含义可能会随着时间的推移而演变。它们仅用于在游乐场中方便地进行输出氛围测试。
 
 </Note>
 
@@ -50,23 +50,23 @@ sidebarTitle: Dynamic few shot example selection
 
 ![Few shot code snippet](/langsmith/images/few-shot-code-snippet.png)
 
-有关在 LangChain Python 应用程序中使用少样本搜索的代码示例，请参阅我们在 LangChain 文档中的操作指南。
+有关在 LangChain Python 应用程序中使用少样本搜索的代码示例，请参阅我们在 [LangChain 文档中的操作指南](https://python.langchain.com/v0.2/docs/how_to/example_selectors_langsmith/)。
 
 ### 代码片段
 
 <Note>
 
-请确保您使用的 Python SDK 版本 >= 1.101 或 TypeScript SDK 版本 >= 1.43。
+请确保您使用的 Python SDK 版本 >= 1.101 或 TypeScript SDK 版本 >= 1.43
 
 </Note>
 
-为方便复制粘贴，您可以在此处找到与上图所示类似的代码片段：
+为方便复制粘贴，您可以在此处找到与上面截图中显示的类似的代码片段：
 
 ::: code-group
 
 ```python [Python (Async)]
 import langsmith as ls
-# Copy this value from LangSmith UI
+# 从 LangSmith UI 复制此值
 dataset_id = "1c5e9c95-dfd4-4dc5-a4b8-df7ea921c913"
 async with ls.AsyncClient() as client:
   examples = await client.similar_examples(
@@ -78,7 +78,7 @@ async with ls.AsyncClient() as client:
 ```python [Python]
 from langsmith import Client
 client = Client()
-# Copy this value from LangSmith UI
+# 从 LangSmith UI 复制此值
 dataset_id = "1c5e9c95-dfd4-4dc5-a4b8-df7ea921c913"
 examples = client.similar_examples(
   {"question": "knock knock"}, dataset_id=dataset_id, limit=1
@@ -90,7 +90,7 @@ print(examples[0].outputs)
 ```typescript [TypeScript]
 import { Client } from "langsmith";
 const client = new Client();
-// Copy this value from LangSmith UI
+// 从 LangSmith UI 复制此值
 const dataset_id = "1c5e9c95-dfd4-4dc5-a4b8-df7ea921c913";
 const examples = await client.similarExamples({question: "knock knock"}, dataset_id, 1);
 console.log(examples[0].outputs);

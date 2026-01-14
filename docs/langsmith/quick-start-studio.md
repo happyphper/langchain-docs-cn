@@ -4,16 +4,16 @@ sidebarTitle: Quickstart
 ---
 [Studio](/langsmith/studio) 在 [LangSmith 部署界面](https://smith.langchain.com) 中支持连接到两种类型的图：
 
-- 部署在[云端或自托管](#deployed-graphs)的图。
-- 通过[代理服务器](#local-development-server)在本地运行的图。
+- 部署在 [云端或自托管](#deployed-graphs) 的图。
+- 通过 [智能体服务器](#local-development-server) 在本地运行的图。
 
 ## 已部署的图
 
-Studio 可在 [LangSmith 界面](https://smith.langchain.com) 中通过 **Deployments** 导航访问。
+在 [LangSmith 界面](https://smith.langchain.com) 中，可以通过 **Deployments** 导航访问 Studio。
 
-对于[已部署](/langsmith/deployment-quickstart)的应用程序，您可以将 Studio 作为该部署的一部分进行访问。为此，请在界面中导航到相应的部署，然后选择 **Studio**。
+对于 [已部署](/langsmith/deployment-quickstart) 的应用程序，您可以将 Studio 作为该部署的一部分进行访问。为此，请在界面中导航到该部署，然后选择 **Studio**。
 
-这将加载连接到您实时部署的 Studio，允许您在该部署中创建、读取和更新[线程](/oss/langgraph/persistence#threads)、[助手](/langsmith/assistants)和[记忆](/oss/concepts/memory)。
+这将加载连接到您实时部署的 Studio，允许您在该部署中创建、读取和更新 [线程](/oss/langgraph/persistence#threads)、[助手](/langsmith/assistants) 和 [记忆](/oss/concepts/memory)。
 
 ## 本地开发服务器
 
@@ -21,8 +21,8 @@ Studio 可在 [LangSmith 界面](https://smith.langchain.com) 中通过 **Deploy
 
 要使用 Studio 在本地测试您的应用程序：
 
-- 请首先遵循[本地应用程序快速入门](/langsmith/local-server)。
-- 如果您不希望数据被[追踪](/langsmith/observability-concepts#traces)到 LangSmith，请在应用程序的 `.env` 文件中设置 `LANGSMITH_TRACING=false`。禁用追踪后，不会有数据离开您的本地服务器。
+- 请先遵循 [本地应用程序快速入门](/langsmith/local-server)。
+- 如果您不希望数据被 [追踪](/langsmith/observability-concepts#traces) 到 LangSmith，请在应用程序的 `.env` 文件中设置 `LANGSMITH_TRACING=false`。禁用追踪后，数据不会离开您的本地服务器。
 
 ### 设置
 
@@ -49,11 +49,11 @@ npx @langchain/langgraph-cli dev
 <Warning>
 
 <strong>浏览器兼容性</strong>
-Safari 会阻止到 Studio 的 `localhost` 连接。要解决此问题，请使用 `--tunnel` 参数运行命令，以便通过安全隧道访问 Studio。
+Safari 会阻止到 Studio 的 `localhost` 连接。要解决此问题，请使用 `--tunnel` 参数运行命令，通过安全隧道访问 Studio。您需要在 Studio 界面中点击 <strong>Connect to a local server</strong>，手动将隧道 URL 添加到允许的来源中。有关步骤，请参阅 [故障排除指南](/langsmith/troubleshooting-studio#safari-connection-issues)。
 
 </Warning>
 
-这将在本地启动代理服务器，以内存模式运行。服务器将以监视模式运行，监听代码更改并自动重启。阅读此[参考文档](/langsmith/cli#dev)以了解启动 API 服务器的所有选项。
+这将在本地启动智能体服务器，以内存模式运行。服务器将以监视模式运行，监听代码更改并自动重启。阅读此 [参考文档](/langsmith/cli#dev) 以了解启动 API 服务器的所有选项。
 
 您将看到以下日志：
 
@@ -71,7 +71,7 @@ Safari 会阻止到 Studio 的 `localhost` 连接。要解决此问题，请使�
 
 1.  对于正在运行的服务器，可以通过以下任一方式访问调试器：
     1.  直接导航到以下 URL：`https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024`。
-    1.  在界面中导航到 **Deployments**，点击某个部署上的 **Studio** 按钮，输入 `http://127.0.0.1:2024` 并点击 **Connect**。
+    1.  在界面中导航到 **Deployments**，点击部署上的 **Studio** 按钮，输入 `http://127.0.0.1:2024` 并点击 **Connect**。
 
 如果您的服务器运行在不同的主机或端口上，请相应更新 `baseUrl`。
 
@@ -107,7 +107,7 @@ langgraph dev --debug-port 5678
 
 ```json
 {
-    "name": "Attach to LangGraph",
+    "name": "附加到 LangGraph",
     "type": "debugpy",
     "request": "attach",
     "connect": {
@@ -121,11 +121,11 @@ langgraph dev --debug-port 5678
 
 <Tab title="PyCharm">
 
-1. 转到 Run → Edit Configurations
-2. 点击 + 并选择 "Python Debug Server"
+1. 转到 运行 → 编辑配置
+2. 点击 + 并选择 "Python 调试服务器"
 3. 设置 IDE 主机名：`localhost`
-4. 设置端口：`5678`（或您在上一步中选择的端口号）
-5. 点击 "OK" 并开始调试
+4. 设置端口：`5678`（或你在上一步中选择的端口号）
+5. 点击 "确定" 并开始调试
 
 </Tab>
 
@@ -133,7 +133,7 @@ langgraph dev --debug-port 5678
 
 <Tip>
 
-如果在入门时遇到问题，请参考[故障排除指南](/langsmith/troubleshooting-studio)。
+如果在启动时遇到问题，请参考 [故障排除指南](/langsmith/troubleshooting-studio)。
 
 </Tip>
 

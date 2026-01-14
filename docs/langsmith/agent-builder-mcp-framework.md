@@ -2,20 +2,20 @@
 title: LangSmith 工具服务器
 sidebarTitle: MCP framework
 ---
-LangSmith 工具服务器是一个独立的 MCP 框架，用于构建和部署具有内置身份验证和授权的工具。当您需要以下功能时，请使用工具服务器：
+LangSmith 工具服务器是一个独立的 MCP 框架，用于构建和部署具有内置身份验证和授权的工具。在以下情况下使用工具服务器：
 
 - [创建自定义工具](#create-a-custom-toolkit)，这些工具与 LangSmith 的 [Agent Auth](/langsmith/agent-auth) 集成，用于 OAuth 身份验证
-- [构建一个 MCP 网关](#use-as-an-mcp-gateway)，用于您自己构建的（在 Agent Builder 之外的）智能体
+- [构建一个 MCP 网关](#use-as-an-mcp-gateway)，用于您自己构建的（在 Agent Builder 之外的）智能体（agent）
 
 <Note>
 
 如果您正在使用 [Agent Builder](/langsmith/agent-builder)，则无需直接与工具服务器交互。Agent Builder 提供了[内置工具](/langsmith/agent-builder-tools)并支持[远程 MCP 服务器](/langsmith/agent-builder-tools#using-remote-mcp-servers)，而无需设置工具服务器。
 
-但是，您可以将关联的工具服务器实例配置为 MCP 服务器，这将允许您在您的智能体中使用您的自定义 MCP 服务器。
+但是，您可以将关联的工具服务器实例配置为 MCP 服务器，这将允许您在您的智能体（agent）中使用您的自定义 MCP 服务器。
 
 </Note>
 
-下载 [PyPi 包](https://pypi.org/project/langsmith-tool-server/) 以开始使用。
+下载 [PyPi 包](https://pypi.org/project/langsmith-tool-server/) 开始使用。
 
 ## 创建自定义工具包
 
@@ -128,7 +128,7 @@ args = ["-m", "mcp_server_math"]
 
 对于需要访问第三方 API（如 Google、GitHub、Slack 等）的工具，您可以使用 [Agent Auth](/langsmith/agent-auth) 进行 OAuth 身份验证。
 
-在您的工具中使用 OAuth 之前，您需要在 LangSmith 工作区设置中配置一个 OAuth 提供者。有关设置说明，请参阅 [Agent Auth 文档](/langsmith/agent-auth)。
+在您的工具中使用 OAuth 之前，您需要在 LangSmith 工作区设置中配置一个 OAuth 提供程序。有关设置说明，请参阅 [Agent Auth 文档](/langsmith/agent-auth)。
 
 配置完成后，在您的工具装饰器中指定 `auth_provider`：
 
@@ -143,17 +143,17 @@ from googleapiclient.discovery import build
     integration="gmail"
 )
 async def read_emails(context: Context, max_results: int = 10) -> str:
-    """Read recent emails from Gmail."""
+    """从 Gmail 读取最近的邮件。"""
     credentials = Credentials(token=context.token)
     service = build('gmail', 'v1', credentials=credentials)
-    # ... Gmail API calls
-    return f"Retrieved {max_results} emails"
+    # ... Gmail API 调用
+    return f"已检索 {max_results} 封邮件"
 ```
 
-具有 `auth_provider` 的工具必须：
+带有 `auth_provider` 的工具必须：
 - 将 `context: Context` 作为第一个参数
-- 指定至少一个作用域
-- 使用 `context.token` 进行经过身份验证的 API 调用
+- 指定至少一个作用域（scope）
+- 使用 `context.token` 进行身份验证的 API 调用
 
 ### 自定义请求身份验证
 
@@ -166,7 +166,7 @@ auth = Auth()
 
 @auth.authenticate
 async def authenticate(authorization: str = None) -> dict:
-    """Validate requests and return user identity."""
+    """验证请求并返回用户身份。"""
     if not authorization or not authorization.startswith("Bearer "):
         raise auth.exceptions.HTTPException(
             status_code=401,
@@ -174,7 +174,7 @@ async def authenticate(authorization: str = None) -> dict:
         )
 
     token = authorization.replace("Bearer ", "")
-    # Validate token with your identity provider
+    # 使用您的身份提供者验证令牌
     user = await verify_token_with_idp(token)
 
     return {"identity": user.id}

@@ -1,60 +1,66 @@
 ---
-title: 代理服务器
+title: 智能体服务器
 ---
-LangSmith 部署的 **Agent Server** 提供了一个用于创建和管理基于代理的应用程序的 API。它建立在 [助手](/langsmith/assistants) 的概念之上，助手是为特定任务配置的代理，并内置了 [持久化](/oss/langgraph/persistence#memory-store) 和一个 **任务队列**。这个多功能的 API 支持广泛的代理应用程序用例，从后台处理到实时交互。
+LangSmith 部署的**智能体服务器（Agent Server）** 提供了一个用于创建和管理基于智能体的应用程序的 API。它建立在[助手（assistants）](/langsmith/assistants)的概念之上，助手是为特定任务配置的智能体，并内置了[持久化（persistence）](/oss/langgraph/persistence#memory-store)和一个**任务队列（task queue）**。这个多功能的 API 支持广泛的智能体应用用例，从后台处理到实时交互。
 
-使用 Agent Server 来创建和管理 [助手](/langsmith/assistants)、[线程](/oss/langgraph/persistence#threads)、[运行](/langsmith/assistants#execution)、[定时任务](/langsmith/cron-jobs)、[Webhook](/langsmith/use-webhooks) 等。
+使用智能体服务器来创建和管理[助手（assistants）](/langsmith/assistants)、[线程（threads）](/oss/langgraph/persistence#threads)、[运行（runs）](/langsmith/assistants#execution)、[定时任务（cron jobs）](/langsmith/cron-jobs)、[Webhook](/langsmith/use-webhooks)等。
 
 <Tip>
 
 <strong>API 参考</strong><br></br>
-有关 API 端点和数据模型的详细信息，请参阅 [API 参考文档](https://langchain-ai.github.io/langgraph/cloud/reference/api/api_ref.html)。
+有关 API 端点和数据模型的详细信息，请参阅[智能体服务器 API 参考](/langsmith/server-api-ref)。
 
 </Tip>
 
-要使用 Agent Server 的企业版，您必须获取一个许可证密钥，在运行 Docker 镜像时需要指定该密钥。要获取许可证密钥，请 [联系我们的销售团队](https://www.langchain.com/contact-sales)。
-
-您可以在以下 LangSmith [平台](/langsmith/platform-setup) 选项上运行 Agent Server 的企业版：
-
-- [云平台](/langsmith/cloud)
-- [混合平台](/langsmith/hybrid)
-- [自托管平台](/langsmith/self-hosted)
-
 ## 应用程序结构
 
-要部署一个 Agent Server 应用程序，您需要指定要部署的图，以及任何相关的配置设置，例如依赖项和环境变量。
+要部署一个智能体服务器应用程序，您需要指定要部署的图（graph(s)），以及任何相关的配置设置，例如依赖项和环境变量。
 
-阅读 [应用程序结构](/langsmith/application-structure) 指南，了解如何为部署构建您的 LangGraph 应用程序。
+阅读[应用程序结构](/langsmith/application-structure)指南，了解如何为部署构建您的 LangGraph 应用程序。
 
 ## 部署的组成部分
 
-当您部署 Agent Server 时，您正在部署一个或多个 [图](#graphs)、一个用于 [持久化](/oss/langgraph/persistence) 的数据库和一个任务队列。
+当您部署智能体服务器时，您正在部署一个或多个[图（graphs）](#graphs)、一个用于[持久化（persistence）](/oss/langgraph/persistence)的数据库和一个任务队列。
 
 ### 图
 
-当您使用 Agent Server 部署一个图时，您正在部署一个 [助手](/langsmith/assistants) 的“蓝图”。
+当您使用智能体服务器部署一个图时，您正在部署一个[助手（Assistant）](/langsmith/assistants)的“蓝图”。
 
-一个 [助手](/langsmith/assistants) 是一个图与特定配置设置的配对。您可以为每个图创建多个助手，每个助手都有独特的设置，以适应可由同一图服务的不同用例。
+一个[助手（Assistant）](/langsmith/assistants)是一个图与特定配置设置的配对。您可以为每个图创建多个助手，每个助手都有独特的设置，以适应可以由同一个图服务的不同用例。
 
-部署后，Agent Server 将使用图的默认配置设置自动为每个图创建一个默认助手。
+部署后，智能体服务器将使用图的默认配置设置，自动为每个图创建一个默认助手。
 
 <Note>
 
-我们通常认为一个图实现了一个 [代理](/oss/langgraph/workflows-agents)，但一个图不一定需要实现一个代理。例如，一个图可以实现一个仅支持来回对话的简单聊天机器人，而无需影响任何应用程序控制流。实际上，随着应用程序变得更加复杂，一个图通常会实现一个更复杂的流程，该流程可能使用 [多个代理](/oss/langchain/multi-agent) 协同工作。
+我们通常认为一个图实现了一个[智能体（agent）](/oss/langgraph/workflows-agents)，但一个图不一定需要实现一个智能体。例如，一个图可以实现一个仅支持来回对话的简单聊天机器人，而无需影响任何应用程序控制流。实际上，随着应用程序变得更加复杂，一个图通常会实现一个更复杂的流程，该流程可能使用[多个智能体（multiple agents）](/oss/langchain/multi-agent)协同工作。
 
 </Note>
 
 ### 持久化和任务队列
 
-Agent Server 利用数据库进行 [持久化](/oss/langgraph/persistence) 并利用一个任务队列。
+智能体服务器利用数据库进行[持久化（persistence）](/oss/langgraph/persistence)和一个任务队列。
 
-[PostgreSQL](https://www.postgresql.org/) 被支持作为 Agent Server 的数据库，[Redis](https://redis.io/) 被支持作为任务队列。
+[PostgreSQL](https://www.postgresql.org/) 被支持作为智能体服务器的数据库，[Redis](https://redis.io/) 作为任务队列。
 
-如果您使用 [LangSmith 云平台](/langsmith/cloud) 进行部署，这些组件会为您管理。如果您在自己的 [基础设施上](/langsmith/self-hosted) 部署 Agent Server，您需要自己设置和管理这些组件。
+如果您使用 [LangSmith 云服务（LangSmith cloud）](/langsmith/cloud) 进行部署，这些组件会为您管理。如果您在自己的[基础设施（own infrastructure）](/langsmith/self-hosted)上部署智能体服务器，您需要自己设置和管理这些组件。
 
-有关这些组件如何设置和管理的更多信息，请查看 [托管选项](/langsmith/platform-setup) 指南。
+有关这些组件如何设置和管理的更多信息，请查看[托管选项（hosting options）](/langsmith/platform-setup)指南。
+
+### 如何部署
+
+根据您的基础设施，可以使用不同的方法部署智能体服务器：
+
+-   [云部署（Cloud）](/langsmith/deploy-to-cloud)：从 GitHub 仓库部署，使用完全托管的基础设施。
+-   [混合或自托管与控制平面（Hybrid or self-hosted with control plane）](/langsmith/deploy-with-control-plane)：构建 Docker 镜像并通过 UI 部署。
+-   [独立服务器（Standalone servers）](/langsmith/deploy-standalone-server)：直接部署智能体服务器，无需控制平面。
+
+<Note>
+
+云部署在所有 LangSmith 套餐中都可用。混合和自托管选项需要企业套餐和许可证密钥。要获取许可证密钥，请[联系我们的销售团队](https://www.langchain.com/contact-sales)。
+
+</Note>
 
 ## 了解更多
 
-- [应用程序结构](/langsmith/application-structure) 指南解释了如何为部署构建您的应用程序。
-- [API 参考](https://langchain-ai.github.io/langgraph/cloud/reference/api/api_ref.html) 提供了有关 API 端点和数据模型的详细信息。
+- [应用结构](/langsmith/application-structure)指南解释了如何为部署构建您的应用程序结构。
+- [API 参考](https://langchain-ai.github.io/langgraph/cloud/reference/api/api_ref.html)提供了关于 API 端点和数据模型的详细信息。

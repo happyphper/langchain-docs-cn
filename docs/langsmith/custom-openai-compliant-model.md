@@ -21,20 +21,20 @@ LangSmith 的 Playground 允许您使用任何符合 OpenAI API 规范的模型�
 
 要访问 **提示设置** 菜单：
 
-1.  在 **Prompts** 标题下，选择模型名称旁边的齿轮 <Icon icon="gear" iconType="solid" /> 图标。
-2.  在 **Model Configuration** 选项卡中，从下拉菜单中选择要编辑的模型。
-3.  在 **Provider** 下拉菜单中，选择 **OpenAI Compatible Endpoint**。
-4.  将您的 OpenAI 兼容端点添加到 **Base URL** 输入框中。
+1.  在 **提示** 标题下，选择模型名称旁边的齿轮 <Icon icon="gear" iconType="solid" /> 图标。
+2.  在 **模型配置** 选项卡中，从下拉菜单中选择要编辑的模型。
+3.  在 **提供商** 下拉菜单中，选择 **OpenAI 兼容端点**。
+4.  将您的 OpenAI 兼容端点添加到 **基础 URL** 输入框中。
 
     
 <div :style="{ textAlign: 'center' }">
 
-<img src="/langsmith/images/openai-compatible-endpoint.png" alt="Model Configuration window in the LangSmith UI with a model selected and the Provider dropdown with OpenAI Compatible Endpoint selected." />
+<img src="/langsmith/images/openai-compatible-endpoint.png" alt="LangSmith UI 中的模型配置窗口，已选择模型，并且提供商下拉菜单中选择了 OpenAI 兼容端点。" />
 
-<img src="/langsmith/images/openai-compatible-endpoint-dark.png" alt="Model Configuration window in the LangSmith UI with a model selected and the Provider dropdown with OpenAI Compatible Endpoint selected." />
+<img src="/langsmith/images/openai-compatible-endpoint-dark.png" alt="LangSmith UI 中的模型配置窗口，已选择模型，并且提供商下拉菜单中选择了 OpenAI 兼容端点。" />
 
 </div>
 
-如果一切设置正确，您将在 Playground 中看到模型的响应。您也可以使用此功能来调用下游管道。
+如果一切设置正确，您应该在 Playground 中看到模型的响应。您也可以使用此功能来调用下游流水线。
 
 有关如何存储模型配置的信息，请参阅 [配置提示设置](/langsmith/managing-model-configurations)。

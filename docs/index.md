@@ -11,7 +11,7 @@ aside: false
 <div class="mdx-content prose prose-gray dark:prose-invert mx-4 pt-10">
 <h1 class="flex whitespace-pre-wrap group font-semibold text-2xl sm:text-3xl mt-8">文档</h1>
 
-LangChain 是智能体（agent）工程平台。来自 Replit、Clay、Rippling、Cloudflare、Workday 等公司的 AI 团队信赖 LangChain 的产品来构建可靠的智能体。
+LangChain 是智能体（agent）工程的平台。Replit、Clay、Rippling、Cloudflare、Workday 等公司的 AI 团队信赖 LangChain 的产品来构建可靠的智能体。
 
 <h2 class="flex whitespace-pre-wrap group font-semibold">开源智能体框架</h2>
 
@@ -39,7 +39,7 @@ icon="circle-nodes"
 cta="了解更多"
 >
 
-通过底层编排、记忆（memory）和人机协同（human-in-the-loop）支持，精确控制您自定义智能体的每一步。
+通过低层级的编排、记忆（memory）和人机协同（human-in-the-loop）支持，控制您自定义智能体的每一步。
 
 </Card>
 
@@ -80,7 +80,7 @@ icon="circle-nodes"
 cta="了解更多"
 >
 
-通过底层编排、记忆（memory）和人机协同（human-in-the-loop）支持，精确控制您自定义智能体的每一步。
+通过低层级的编排、记忆（memory）和人机协同（human-in-the-loop）支持，控制您自定义智能体的每一步。
 
 </Card>
 
@@ -105,7 +105,7 @@ cta="了解更多"
 
 [**LangSmith**](/langsmith/home) 是一个帮助 AI 团队利用实时生产数据进行持续测试和改进的平台。LangSmith 提供：
 
-<CardGroup :cols="3">
+<CardGroup :cols="4">
 
 <Card
 title="可观测性"
@@ -114,7 +114,7 @@ icon="magnifying-glass"
 cta="了解更多"
 >
 
-通过详细的追踪和聚合趋势指标，精确了解您的智能体如何思考和行动。
+通过详细的追踪和聚合趋势指标，精确了解您的智能体（agent）如何思考和行动。
 
 </Card>
 
@@ -136,7 +136,7 @@ icon="terminal"
 cta="了解更多"
 >
 
-利用版本控制、提示词优化和协作功能迭代改进提示词。
+利用版本控制、提示词优化和协作功能，迭代优化提示词。
 
 </Card>
 
@@ -151,33 +151,35 @@ cta="了解更多"
 
 </Card>
 
+</CardGroup>
+
+<Callout icon="lock" color="#DFC5FE" iconType="regular">
+
+LangSmith 符合 HIPAA、SOC 2 Type 2 和 GDPR 标准，满足数据安全和隐私的最高要求。欲了解更多信息，请参阅 [信任中心](https://trust.langchain.com/)。
+
+</Callout>
+
+<h2 class="flex whitespace-pre-wrap group font-semibold">LangSmith 智能体构建器</h2>
+
 <Card
-title="智能体构建器 (Beta)"
+title="智能体构建器"
 href="/langsmith/agent-builder"
 icon="wand-magic-sparkles"
 cta="了解更多"
 >
 
-将自然语言想法转化为具有持久记忆（persistent memory）和自我更新能力的生产级智能体。
+无需代码即可创建有用的 AI 智能体。从模板开始，连接您的账户，让智能体处理日常工作，同时您保持掌控。
 
 </Card>
 
-</CardGroup>
-
-<Callout icon="lock" color="#DFC5FE" iconType="regular">
-
-LangSmith 符合 HIPAA、SOC 2 Type 2 和 GDPR 标准，满足数据安全和隐私的最高要求。更多信息，请参阅 [信任中心](https://trust.langchain.com/)。
-
-</Callout>
-
-<h2 class="flex whitespace-pre-wrap group font-semibold">快速开始</h2>
+<h2 class="flex whitespace-pre-wrap group font-semibold">开始使用</h2>
 
 <CardGroup :cols="4">
 
 <Card title="使用 LangChain 构建您的第一个智能体" icon="gear" href="/oss/python/langchain/quickstart" cta="开始使用" />
 <Card title="注册 LangSmith" icon="screwdriver-wrench" href="https://smith.langchain.com/" cta="试用 LangSmith" />
 <Card title="使用 LangGraph 构建高级智能体" icon="robot" href="/oss/python/langgraph/quickstart" cta="开始使用"/>
-<Card title="加入 LangChain 学院" icon="graduation-cap" href="https://academy.langchain.com/" cta="开始学习"/>
+<Card title="报名 LangChain 学院" icon="graduation-cap" href="https://academy.langchain.com/" cta="开始使用"/>
 
 </CardGroup>
 
@@ -193,7 +195,7 @@ LangSmith 符合 HIPAA、SOC 2 Type 2 和 GDPR 标准，满足数据安全和隐
 
 <Card title="社区 Slack" icon="slack" href="https://www.langchain.com/join-community" cta="加入">
 
-与其他开发者交流并获得快速帮助。
+与其他构建者联系并获得快速帮助。
 
 </Card>
 

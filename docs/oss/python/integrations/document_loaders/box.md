@@ -7,19 +7,19 @@ title: BoxLoader 与 BoxBlobLoader
 
 ## 概述
 
-`BoxLoader` 类帮助您将 Box 中的非结构化内容以 LangChain 的 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link"><code>Document</code></a> 格式获取。您可以使用包含 Box 文件 ID 的 `List[str]` 或包含 Box 文件夹 ID 的 `str` 来实现。
+`BoxLoader` 类帮助您以 LangChain 的 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link"><code>Document</code></a> 格式从 Box 获取非结构化内容。您可以使用包含 Box 文件 ID 的 `List[str]` 或包含 Box 文件夹 ID 的 `str` 来实现。
 
-`BoxBlobLoader` 类帮助您将 Box 中的非结构化内容以 LangChain 的 `Blob` 格式获取。您可以使用包含 Box 文件 ID 的 `List[str]`、包含 Box 文件夹 ID 的 `str`、搜索查询或 `BoxMetadataQuery` 来实现。
+`BoxBlobLoader` 类帮助您以 LangChain 的 `Blob` 格式从 Box 获取非结构化内容。您可以使用包含 Box 文件 ID 的 `List[str]`、包含 Box 文件夹 ID 的 `str`、搜索查询或 `BoxMetadataQuery` 来实现。
 
-如果要从具有文件夹 ID 的文件夹中获取文件，您还可以设置一个 `Bool` 值来指示加载器是否也获取该文件夹中的所有子文件夹。
+如果要从具有文件夹 ID 的文件夹中获取文件，您还可以设置一个 `Bool` 值来指示加载器获取该文件夹中的所有子文件夹。
 
 <Info>
 
-一个 Box 实例可以包含 PB 级别的文件，文件夹可以包含数百万个文件。在选择要索引的文件夹时请务必谨慎。我们建议永远不要递归地从文件夹 0 获取所有文件。文件夹 ID 0 是您的根文件夹。
+一个 Box 实例可以包含 PB 级别的文件，文件夹可以包含数百万个文件。在选择要索引的文件夹时请务必谨慎。我们建议永远不要递归地获取文件夹 0 中的所有文件。文件夹 ID 0 是您的根文件夹。
 
 </Info>
 
-`BoxLoader` 将跳过没有文本表示形式的文件，而 `BoxBlobLoader` 将为所有文档和图像文件返回 blob。
+`BoxLoader` 将跳过没有文本表示的文件，而 `BoxBlobLoader` 将返回所有文档和图像文件的 blob。
 
 ### 集成详情
 
@@ -30,22 +30,22 @@ title: BoxLoader 与 BoxBlobLoader
 
 ### 加载器特性
 
-| 来源 | 文档惰性加载 | 异步支持 |
+| 源 | 文档惰性加载 | 异步支持 |
 | :---: | :---: | :---: |
 | BoxLoader | ✅ | ❌ |
 | BoxBlobLoader | ✅ | ❌ |
 
 ## 设置
 
-为了使用 Box 包，您需要准备以下几样东西：
+为了使用 Box 包，您需要准备以下几项：
 
-*   **一个 Box 账户** — 如果您还不是 Box 的现有客户，或者想在您的生产 Box 实例之外进行测试，可以使用[免费开发者账户](https://account.box.com/signup/n/developer#ty9l3)。
-*   **[一个 Box 应用](https://developer.box.com/guides/getting-started/first-application/)** — 这是在[开发者控制台](https://account.box.com/developers/console)中配置的，对于 Box AI，必须启用 `Manage AI` 权限范围。在这里您还需要选择您的身份验证方法。
-*   该应用必须[由管理员启用](https://developer.box.com/guides/authorization/custom-app-approval/#manual-approval)。对于免费开发者账户，管理员就是注册该账户的人。
+* 一个 Box 账户 — 如果您不是当前的 Box 客户，或者想在您的生产 Box 实例之外进行测试，可以使用[免费开发者账户](https://account.box.com/signup/n/developer#ty9l3)。
+* [一个 Box 应用](https://developer.box.com/guides/getting-started/first-application/) — 这是在[开发者控制台](https://account.box.com/developers/console)中配置的，对于 Box AI，必须启用 `Manage AI` 范围。在这里您还需要选择身份验证方法。
+* 该应用必须[由管理员启用](https://developer.box.com/guides/authorization/custom-app-approval/#manual-approval)。对于免费开发者账户，管理员就是注册该账户的人。
 
 ### 凭证
 
-对于这些示例，我们将使用[令牌身份验证](https://developer.box.com/guides/authentication/tokens/developer-tokens)。这可以与任何[身份验证方法](https://developer.box.com/guides/authentication/)一起使用。只需使用任何方法获取令牌即可。如果您想了解更多关于如何在 `langchain-box` 中使用其他身份验证类型的信息，请访问 [Box 提供商](/oss/python/integrations/providers/box) 文档。
+对于这些示例，我们将使用[令牌身份验证](https://developer.box.com/guides/authentication/tokens/developer-tokens)。这可以与任何[身份验证方法](https://developer.box.com/guides/authentication/)一起使用。只需使用任何方法获取令牌即可。如果您想了解更多关于如何在 `langchain-box` 中使用其他身份验证类型的信息，请访问 [Box 提供者](/oss/python/integrations/providers/box) 文档。
 
 ```python
 import getpass
@@ -111,7 +111,7 @@ loader = BoxBlobLoader(
 
 ### 从文件夹加载
 
-如果您希望从文件夹加载文件，必须在实例化时提供包含 Box 文件夹 ID 的 `str`。
+如果您希望从文件夹加载文件，必须在实例化时提供一个包含 Box 文件夹 ID 的 `str`。
 
 这需要 1 条信息：
 
@@ -181,7 +181,7 @@ loader = BoxBlobLoader(
 )
 ```
 
-您还可以基于 Box 元数据进行内容搜索。如果您的 Box 实例使用元数据，您可以搜索附加了特定元数据模板并满足特定条件的任何文档，例如返回上一季度创建且总额大于或等于 500 美元的任何发票。
+您还可以基于 Box 元数据进行内容搜索。如果您的 Box 实例使用了元数据，您可以搜索附加了特定元数据模板且满足特定条件（例如，返回上季度创建且总金额大于或等于 500 美元的任何发票）的任何文档。
 
 这需要 1 条信息：
 
@@ -240,9 +240,9 @@ Blob(id='1514555423624' metadata={'source': 'https://app.box.com/0/260935730128/
 Blob(id='1514553902288' metadata={'source': 'https://app.box.com/0/260935730128/260931903795/Invoice-B1234.txt', 'name': 'Invoice-B1234.txt', 'file_size': 168} data="b'Vendor: Galactic Gizmos Inc.\\nInvoice Number: B1234\\nPurchase Order Number: 001\\nLine Items:\\n    - Quantum Flux Capacitor: $500\\n    - Anti-Gravity Pen Set: $75\\nTotal: $575'" mimetype='text/plain' path='https://app.box.com/0/260935730128/260931903795/Invoice-B1234.txt')
 ```
 
-## 惰性加载
+## 延迟加载
 
-#### 仅限 BoxLoader
+#### 仅 BoxLoader
 
 ```python
 page = []
@@ -257,16 +257,16 @@ for doc in loader.lazy_load():
 
 ## 额外字段
 
-所有 Box 连接器都提供了从 Box `FileFull` 对象中选择额外字段作为自定义 LangChain 元数据返回的能力。每个对象都接受一个名为 `extra_fields` 的可选 `List[str]`，其中包含返回对象中的 JSON 键，例如 `extra_fields=["shared_link"]`。
+所有 Box 连接器都提供了从 Box `FileFull` 对象中选择额外字段作为自定义 LangChain 元数据返回的能力。每个对象都接受一个可选的 `List[str]` 类型参数 `extra_fields`，其中包含返回对象中的 JSON 键，例如 `extra_fields=["shared_link"]`。
 
-连接器会将该字段添加到集成功能所需的字段列表中，然后将结果添加到返回的 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link"><code>Document</code></a> 或 `Blob` 的元数据中，例如 `"metadata" : { "source" : "source, "shared_link" : "shared_link" }`。如果该字段对该文件不可用，它将作为空字符串返回，例如 `"shared_link" : ""`。
+连接器会将该字段添加到集成功能所需的字段列表中，然后将结果添加到返回的 <a href="https://reference.langchain.com/python/langchain_core/documents/#langchain_core.documents.base.Document" target="_blank" rel="noreferrer" class="link"><code>Document</code></a> 或 `Blob` 的元数据中，例如 `"metadata" : { "source" : "source, "shared_link" : "shared_link" }`。如果该文件没有该字段，它将作为空字符串返回，例如 `"shared_link" : ""`。
 
 ---
 
 ## API 参考
 
-有关所有 BoxLoader 功能和配置的详细文档，请前往 [API 参考](https://python.langchain.com/api_reference/box/document_loaders/langchain_box.document_loaders.box.BoxLoader.html)
+有关 BoxLoader 所有功能和配置的详细文档，请前往 [API 参考](https://python.langchain.com/api_reference/box/document_loaders/langchain_box.document_loaders.box.BoxLoader.html)
 
 ## 帮助
 
-如果您有任何问题，可以查看我们的[开发者文档](https://developer.box.com)，或者在我们的[开发者社区](https://community.box.com)中联系我们。
+如果您有任何问题，可以查阅我们的 [开发者文档](https://developer.box.com) 或在我们的 [开发者社区](https://community.box.com) 中联系我们。

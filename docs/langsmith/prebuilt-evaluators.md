@@ -6,7 +6,7 @@ LangSmith 与开源 openevals 包集成，提供了一套预构建的评估器�
 
 <Note>
 
-本操作指南将演示如何设置和运行一种评估器（LLM-as-a-judge）。有关包含使用示例的完整预构建评估器列表，请参阅 [openevals](https://github.com/langchain-ai/openevals) 和 [agentevals](https://github.com/langchain-ai/agentevals) 代码仓库。
+本操作指南将演示如何设置和运行一种评估器（LLM-as-a-judge）。有关包含使用示例的预构建评估器的完整列表，请参阅 [openevals](https://github.com/langchain-ai/openevals) 和 [agentevals](https://github.com/langchain-ai/agentevals) 仓库。
 
 </Note>
 
@@ -32,7 +32,7 @@ yarn add openevals @langchain/core
 export OPENAI_API_KEY="your_openai_api_key"
 ```
 
-我们还将使用 LangSmith 的 Python [pytest](/langsmith/pytest) 集成和 TypeScript 的 [Vitest/Jest](/langsmith/vitest-jest) 集成来运行我们的评估。`openevals` 也能与 [`evaluate`](https://docs.smith.langchain.com/reference/python/evaluation/langsmith.evaluation._runner.evaluate) 方法无缝集成。有关设置说明，请参阅[相应指南](/langsmith/pytest)。
+我们还将使用 LangSmith 的 Python [pytest](/langsmith/pytest) 集成和 TypeScript 的 [Vitest/Jest](/langsmith/vitest-jest) 来运行我们的评估。`openevals` 也与 [`evaluate`](https://docs.smith.langchain.com/reference/python/evaluation/langsmith.evaluation._runner.evaluate) 方法无缝集成。有关设置说明，请参阅[相应指南](/langsmith/pytest)。
 
 ## 运行评估器
 
@@ -56,7 +56,7 @@ correctness_evaluator = create_llm_as_judge(
     model="openai:o3-mini",
 )
 
-# 您的应用程序的模拟占位符
+# 您的应用程序的模拟替代品
 def my_llm_app(inputs: dict) -> str:
     return "Doodads have increased in price by 10% in the past year."
 
@@ -88,7 +88,7 @@ const correctnessEvaluator = createLLMAsJudge({
     model: "openai:o3-mini",
 });
 
-// 您的应用程序的模拟占位符
+// 您的应用程序的模拟替代品
 const myLLMApp = async (_inputs: Record<string, unknown>) => {
     return "Doodads have increased in price by 10% in the past year.";
 };
@@ -138,7 +138,7 @@ conciseness_evaluator = create_llm_as_judge(
 )
 
 experiment_results = client.evaluate(
-    # 这是一个虚拟的目标函数，请替换为您的实际基于 LLM 的系统
+    # 这是一个虚拟目标函数，请替换为您的实际基于 LLM 的系统
     lambda inputs: "What color is the sky?",
     data="Sample dataset",
     evaluators=[

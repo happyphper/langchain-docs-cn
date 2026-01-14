@@ -1,7 +1,7 @@
 ---
 title: 自定义工作流
 ---
-在**自定义工作流**架构中，你可以使用 [LangGraph](/oss/javascript/langgraph/overview) 定义自己的专属执行流程。你可以完全控制图的结构——包括顺序步骤、条件分支、循环和并行执行。
+在**自定义工作流**架构中，您可以使用 [LangGraph](/oss/javascript/langgraph/overview) 定义自己的定制执行流程。您对图结构拥有完全的控制权——包括顺序步骤、条件分支、循环和并行执行。
 
 ```mermaid
 graph LR
@@ -14,16 +14,16 @@ graph LR
 
 ## 主要特点
 
-*   完全控制图结构
+*   对图结构拥有完全控制权
 *   混合确定性逻辑与智能体行为
 *   支持顺序步骤、条件分支、循环和并行执行
-*   可将其他模式作为节点嵌入到工作流中
+*   可将其他模式作为节点嵌入到您的工作流中
 
 ## 何时使用
 
-当标准模式（子智能体、技能等）不符合你的需求、你需要混合确定性逻辑与智能体行为，或者你的用例需要复杂路由或多阶段处理时，请使用自定义工作流。
+当标准模式（子智能体、技能等）不符合您的要求、您需要混合确定性逻辑与智能体行为，或者您的用例需要复杂路由或多阶段处理时，请使用自定义工作流。
 
-工作流中的每个节点可以是一个简单函数、一个 LLM 调用，或者是一个包含[工具](/oss/javascript/langchain/tools)的完整[智能体](/oss/javascript/langchain/agents)。你也可以在自定义工作流中组合其他架构——例如，将一个多智能体系统作为单个节点嵌入。
+工作流中的每个节点可以是一个简单函数、一个 LLM 调用，或者是一个包含[工具](/oss/javascript/langchain/tools)的完整[智能体](/oss/javascript/langchain/agents)。您还可以在自定义工作流中组合其他架构——例如，将一个多智能体系统作为单个节点嵌入。
 
 有关自定义工作流的完整示例，请参阅下面的教程。
 
@@ -34,30 +34,34 @@ href="/oss/langchain/multi-agent/router-knowledge-base"
 arrow cta="了解更多"
 >
 
-[路由模式](/oss/javascript/langchain/multi-agent/router)是自定义工作流的一个例子。本教程将逐步指导你构建一个路由器，该路由器可以并行查询 GitHub、Notion 和 Slack，然后综合结果。
+[路由模式](/oss/javascript/langchain/multi-agent/router) 是自定义工作流的一个例子。本教程将逐步指导您构建一个路由器，该路由器可以并行查询 GitHub、Notion 和 Slack，然后综合结果。
 >
 
 </Card>
 
-## 基本实现
+## 基础实现
 
-核心思路是，你可以在任何 LangGraph 节点内直接调用 LangChain 智能体，从而将自定义工作流的灵活性与预构建智能体的便利性结合起来：
+核心思路是，您可以在任何 LangGraph 节点内直接调用 LangChain 智能体，从而将自定义工作流的灵活性与预构建智能体的便利性结合起来：
 
 ```typescript
+import { z } from "zod";
 import { createAgent } from "langchain";
-import { StateGraph, START, END } from "@langchain/langgraph";
+import { StateGraph, START, END, MessagesZodState } from "@langchain/langgraph";
 
 const agent = createAgent({ model: "openai:gpt-4o", tools: [...] });
+const State = MessagesZodState.extend({
+  query: z.string(),
+});
 
-async function agentNode(state: typeof State.State) {
-  // 一个调用 LangChain 智能体的 LangGraph 节点
+async function agentNode(state: z.infer<typeof State>) {
+  // A LangGraph node that invokes a LangChain agent
   const result = await agent.invoke({
     messages: [{ role: "user", content: state.query }]
   });
   return { answer: result.messages.at(-1)?.content };
 }
 
-// 构建一个简单的工作流
+// Build a simple workflow
 const workflow = new StateGraph(State)
   .addNode("agent", agentNode)
   .addEdge(START, "agent")
@@ -67,15 +71,15 @@ const workflow = new StateGraph(State)
 
 ## 示例：RAG 管道
 
-一个常见的用例是将[检索](/oss/javascript/langchain/retrieval)与智能体结合。这个示例构建了一个 WNBA 数据助手，它可以从知识库中检索信息，并能获取实时新闻。
+一个常见的用例是将[检索](/oss/javascript/langchain/retrieval)与智能体相结合。此示例构建了一个 WNBA 数据助手，它可以从知识库中检索信息，并能获取实时新闻。
 
 :::: details 自定义 RAG 工作流
 
 该工作流展示了三种类型的节点：
 
--   <strong>模型节点</strong> (Rewrite)：使用[结构化输出](/oss/javascript/langchain/structured-output)重写用户查询以获得更好的检索效果。
--   <strong>确定性节点</strong> (Retrieve)：执行向量相似性搜索——不涉及 LLM。
--   <strong>智能体节点</strong> (Agent)：基于检索到的上下文进行推理，并可以通过工具获取额外信息。
+-   <strong>模型节点</strong>（重写）：使用[结构化输出](/oss/javascript/langchain/structured-output)重写用户查询以获得更好的检索效果。
+-   <strong>确定性节点</strong>（检索）：执行向量相似性搜索——不涉及 LLM。
+-   <strong>智能体节点</strong>（智能体）：基于检索到的上下文进行推理，并可以通过工具获取额外信息。
 
 ```mermaid
 graph LR
@@ -85,17 +89,15 @@ graph LR
     D --> E([Response])
 ```
 
-<Tip>
-
-你可以使用 LangGraph 状态在工作流步骤之间传递信息。这允许工作流的每个部分读取和更新结构化字段，从而轻松地在节点之间共享数据和上下文。
-
-</Tip>
+<提示>
+您可以使用 LangGraph 状态在工作流步骤之间传递信息。这允许工作流的每个部分读取和更新结构化字段，从而轻松地在节点之间共享数据和上下文。
+</提示>
 
 ```typescript
 import { StateGraph, Annotation, START, END } from "@langchain/langgraph";
 import { createAgent, tool } from "langchain";
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 import * as z from "zod";
 
 const State = Annotation.Root({
@@ -134,8 +136,8 @@ const getLatestNews = tool(
   },
   {
     name: "get_latest_news",
-    description: "Get the latest WNBA news and updates",
-    schema: z.object({ query: z.string() })
+    description: "获取最新的 WNBA 新闻和更新",
+    schema: z.object({ query: z.string() }),
   }
 );
 
@@ -149,25 +151,27 @@ const model = new ChatOpenAI({ model: "gpt-4o" });
 const RewrittenQuery = z.object({ query: z.string() });
 
 async function rewriteQuery(state: typeof State.State) {
-  const systemPrompt = `Rewrite this query to retrieve relevant WNBA information.
-The knowledge base contains: team rosters, game results with scores, and player statistics (PPG, RPG, APG).
-Focus on specific player names, team names, or stat categories mentioned.`;
+  const systemPrompt = `重写此查询以检索相关的 WNBA 信息。
+知识库包含：球队阵容、带比分的比赛结果和球员统计数据（PPG、RPG、APG）。
+重点关注提到的具体球员姓名、球队名称或统计类别。`;
   const response = await model.withStructuredOutput(RewrittenQuery).invoke([
     { role: "system", content: systemPrompt },
-    { role: "user", content: state.question }
+    { role: "user", content: state.question },
   ]);
   return { rewrittenQuery: response.query };
 }
 
 async function retrieve(state: typeof State.State) {
   const docs = await retriever.invoke(state.rewrittenQuery);
-  return { documents: docs.map(doc => doc.pageContent) };
+  return { documents: docs.map((doc) => doc.pageContent) };
 }
 
 async function callAgent(state: typeof State.State) {
   const context = state.documents.join("\n\n");
-  const prompt = `Context:\n${context}\n\nQuestion: ${state.question}`;
-  const response = await agent.invoke({ messages: [{ role: "user", content: prompt }] });
+  const prompt = `上下文：\n${context}\n\n问题：${state.question}`;
+  const response = await agent.invoke({
+    messages: [{ role: "user", content: prompt }],
+  });
   return { answer: response.messages.at(-1)?.contentBlocks };
 }
 
@@ -181,7 +185,9 @@ const workflow = new StateGraph(State)
   .addEdge("agent", END)
   .compile();
 
-const result = await workflow.invoke({ question: "Who won the 2024 WNBA Championship?" });
+const result = await workflow.invoke({
+  question: "Who won the 2024 WNBA Championship?",
+});
 console.log(result.answer);
 ```
 

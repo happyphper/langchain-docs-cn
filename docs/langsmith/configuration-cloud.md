@@ -2,13 +2,13 @@
 title: 管理助手
 sidebarTitle: Manage assistants
 ---
-本页介绍如何创建、配置和管理[助手](/langsmith/assistants)。助手允许您通过配置（例如模型选择、提示词和工具可用性）来定制[已部署](/langsmith/deployments)图的行为，而无需更改底层图代码。
+本页面介绍如何创建、配置和管理[助手](/langsmith/assistants)。助手允许您通过配置（例如模型选择、提示词和工具可用性）来定制[已部署](/langsmith/deployments)图的行为，而无需更改底层图代码。
 
-您可以使用 [SDK](https://reference.langchain.com/python/langsmith/deployment/sdk/) 或在 [LangSmith UI](https://smith.langchain.com) 中操作。
+您可以使用[SDK](https://reference.langchain.com/python/langsmith/deployment/sdk/)或在[LangSmith UI](https://smith.langchain.com)中操作。
 
 ## 理解助手配置
 
-助手存储运行时用于定制图行为的*上下文*值。您在代码中定义上下文模式，然后在通过 @[`context` 参数][AssistantsClient.create] 创建助手时提供特定的上下文值。
+助手存储运行时用于定制图行为的*上下文*值。您在图代码中定义上下文模式，然后在通过 @[`context` 参数][AssistantsClient.create] 创建助手时提供特定的上下文值。
 
 考虑以下 `call_model` 节点的示例，该节点从上下文中读取 `model_name`：
 
@@ -51,7 +51,7 @@ function callModel(state: State, runtime: Runtime[ContextSchema]) {
 
 有关 [LangGraph](/oss/langgraph/overview) 中配置的更多信息，请参阅[运行时上下文文档](/oss/langgraph/graph-api#runtime-context)。
 
-**为工作流选择 SDK 或 UI：**
+**为您的流程选择 SDK 或 UI：**
 
 <Tabs>
 
@@ -114,9 +114,9 @@ curl --request POST \
 
 **响应：**
 
-API 返回一个包含以下内容的助手对象：
+API 返回一个包含以下字段的助手对象：
 - `assistant_id`：唯一标识此助手的 UUID
-- `graph_id`：此助手配置对应的图
+- `graph_id`：此助手配置所针对的图
 - `context`：您提供的配置值
 - `name`、`metadata`、时间戳和其他字段
 
@@ -134,13 +134,13 @@ API 返回一个包含以下内容的助手对象：
 }
 ```
 
-`assistant_id`（一个类似 `"62e209ca-9154-432a-b9e9-2d75c7a9219b"` 的 UUID）唯一标识此助手配置。在运行图以指定应用哪个配置时，您将使用此 ID。
+`assistant_id`（一个类似 `"62e209ca-9154-432a-b9e9-2d75c7a9219b"` 的 UUID）唯一标识此助手配置。在运行您的图以指定应用哪个配置时，您将使用此 ID。
 
 <Note>
 
 <strong>图 ID 与助手 ID</strong>
 
-创建助手时，您指定一个<strong>图 ID</strong>（图名称，如 `"agent"`）。这将返回一个<strong>助手 ID</strong>（UUID，如 `"62e209ca..."`）。在运行图时，您可以使用任意一个：
+创建助手时，您需要指定一个<strong>图 ID</strong>（图名称，如 `"agent"`）。这将返回一个<strong>助手 ID</strong>（UUID，如 `"62e209ca..."`）。在运行您的图时，您可以使用两者之一：
 - <strong>图 ID</strong>（例如 `"agent"`）：使用该图的默认助手
 - <strong>助手 ID</strong>（UUID）：使用特定的助手配置
 
@@ -150,7 +150,7 @@ API 返回一个包含以下内容的助手对象：
 
 ## 使用助手
 
-要使用助手，请在创建运行时传递其 `assistant_id`。以下示例使用我们上面创建的助手：
+要使用助手，请在创建运行时传递其 `assistant_id`。下面的示例使用了我们上面创建的助手：
 
 ::: code-group
 
@@ -185,7 +185,7 @@ const input = { "messages": [{ "role": "user", "content": "who made you?" }] };
 // 将 assistant_id (UUID) 作为第二个参数传递
 const streamResponse = client.runs.stream(
   thread["thread_id"],
-  openAIAssistant["assistant_id"],  # 助手 ID (UUID)
+  openAIAssistant["assistant_id"],  // 助手 ID (UUID)
   {
     input,
     streamMode: "updates"
@@ -248,7 +248,7 @@ curl --request POST \
 
 **响应：**
 
-流在您的助手配置下执行图时返回事件：
+当图使用您的助手配置执行时，流会返回事件：
 
 ```
 Receiving event of type: metadata
@@ -262,19 +262,19 @@ Receiving event of type: updates
 
 <strong>使用图 ID 与助手 ID</strong>
 
-运行图时，您可以传递<strong>图 ID</strong> 或<strong>助手 ID</strong>：
+运行图时，您可以传递<strong>图 ID</strong>或<strong>助手 ID</strong>：
 
 ```python
 # 选项 1：使用图 ID 获取默认助手
 client.runs.stream(thread_id, "agent", input=input)
 
-# 选项 2：使用助手 ID (UUID) 获取特定配置
+# 选项 2：使用助手 ID（UUID）获取特定配置
 client.runs.stream(thread_id, "62e209ca-9154-432a-b9e9-2d75c7a9219b", input=input)
 ```
 
 </Note>
 
-## 为助手创建新版本
+## 为您的助手创建新版本
 
 使用 <a href="https://reference.langchain.com/python/langsmith/deployment/sdk/#langgraph_sdk.client.AssistantsClient.update" target="_blank" rel="noreferrer" class="link">AssistantsClient.update</a> 方法创建助手的新版本。
 
@@ -282,11 +282,11 @@ client.runs.stream(thread_id, "62e209ca-9154-432a-b9e9-2d75c7a9219b", input=inpu
 
 <strong>更新需要完整配置</strong>
 
-更新时必须提供<strong>完整</strong>配置。更新端点从头开始创建新版本，不会与先前版本合并。请包含您希望保留的所有配置字段。
+更新时必须提供<strong>完整</strong>配置。更新端点会从头创建新版本，不会与先前版本合并。请包含您希望保留的所有配置字段。
 
 </Warning>
 
-例如，要向助手添加系统提示：
+例如，要为助手添加系统提示：
 
 ::: code-group
 
@@ -294,7 +294,7 @@ client.runs.stream(thread_id, "62e209ca-9154-432a-b9e9-2d75c7a9219b", input=inpu
 # 使用新配置更新助手
 # 重要：包含所有配置字段，而不仅仅是您要更改的字段
 openai_assistant_v2 = await client.assistants.update(
-    openai_assistant["assistant_id"],  # 助手 ID (UUID)
+    openai_assistant["assistant_id"],  # 助手 ID（UUID）
     context={
           "model_name": "openai",  # 必须包含现有字段
           "system_prompt": "You are a mindful assistant!",  # 新字段
@@ -309,7 +309,7 @@ openai_assistant_v2 = await client.assistants.update(
 // 使用新配置更新助手
 // 重要：包含所有配置字段，而不仅仅是您要更改的字段
 const openaiAssistantV2 = await client.assistants.update(
-    openAIAssistant["assistant_id"],  # 助手 ID (UUID)
+    openAIAssistant["assistant_id"],  // 助手 ID（UUID）
     {
         context: {
             model_name: 'openai',  // 必须包含现有字段
@@ -333,32 +333,32 @@ curl --request PATCH \
 
 :::
 
-更新会创建一个新版本并自动将其设置为活动版本。所有未来使用此助手 ID 的运行都将使用新配置。
+更新操作会创建新版本并自动将其设置为活动版本。未来所有使用此助手 ID 的运行都将使用新配置。
 
 ## 使用先前的助手版本
 
-使用 `setLatest` 方法更改哪个版本是活动的：
+使用 `setLatest` 方法更改活动版本：
 
 ::: code-group
 
 ```python [Python]
 # 回滚到助手的版本 1
 await client.assistants.set_latest(
-    openai_assistant['assistant_id'],  # 助手 ID (UUID)
+    openai_assistant['assistant_id'],  # 助手 ID（UUID）
     1  # 版本号
 )
 
-# 所有未来使用此 assistant_id 的运行现在将使用版本 1
+# 未来所有使用此 assistant_id 的运行现在将使用版本 1
 ```
 
 ```javascript [JavaScript]
 // 回滚到助手的版本 1
 await client.assistants.setLatest(
-    openaiAssistant['assistant_id'],  # 助手 ID (UUID)
+    openaiAssistant['assistant_id'],  // 助手 ID（UUID）
     1  // 版本号
 );
 
-// 所有未来使用此 assistant_id 的运行现在将使用版本 1
+// 未来所有使用此 assistant_id 的运行现在将使用版本 1
 ```
 
 ```bash [cURL]
@@ -382,7 +382,7 @@ curl --request POST \
 
 您可以从 [LangSmith UI](https://smith.langchain.com) 创建助手：
 
-1. 导航到您的部署并选择 **Assistants** 选项卡。
+1. 导航到您的部署并选择 **Assistants** 标签页。
 1. 点击 **+ New assistant**。
 1. 在打开的表格中：
    - 选择此助手对应的图。
@@ -390,38 +390,38 @@ curl --request POST \
    - 使用该图的配置模式配置助手。
 1. 点击 **Create assistant**。
 
-这将带您进入 [Studio](/langsmith/studio)，您可以在其中测试助手。返回 **Assistants** 选项卡以在表格中查看新创建的助手。
+这将带您进入 [Studio](/langsmith/studio)，您可以在其中测试助手。返回 **Assistants** 标签页，在表格中查看您新创建的助手。
 
 ## 使用助手
 
 要在 LangSmith UI 中使用助手：
 
-1. 导航到您的部署并选择 **Assistants** 选项卡。
-1. 找到您要使用的助手。
-1. 点击该助手的 **Studio**。
+1.  导航到您的部署并选择 **助手** 标签页。
+1.  找到您想要使用的助手。
+1.  点击该助手的 **Studio**。
 
-这将打开 [Studio](/langsmith/studio) 并加载选定的助手。当您提交输入（在 **Graph** 或 **Chat** 模式下）时，助手的配置将应用于运行。
+这将打开 [Studio](/langsmith/studio) 并加载选定的助手。当您提交输入（在 **Graph** 或 **Chat** 模式下）时，该助手的配置将应用于此次运行。
 
-## 为助手创建新版本
+## 为您的助手创建新版本
 
-要从 UI 更新助手并创建新版本，您可以使用 Assistants 选项卡或 Studio。两种方法都会创建新版本并将其设置为活动版本：
+要从 UI 更新助手并创建新版本，您可以使用助手标签页或 Studio。两种方法都会创建一个新版本并将其设置为活动版本：
 
 <Tabs>
-<Tab title="Assistants 选项卡">
-1. 导航到您的部署并选择 **Assistants** 选项卡。
-1. 找到您要编辑的助手。
-1. 点击 **Edit**。
-1. 修改助手的名称、描述或配置。
-1. 保存更改。
+<Tab title="助手标签页">
+1.  导航到您的部署并选择 **助手** 标签页。
+1.  找到您想要编辑的助手。
+1.  点击 **编辑**。
+1.  修改助手的名称、描述或配置。
+1.  保存您的更改。
 
 </Tab>
 
 <Tab title="Studio">
 
-1. 为助手打开 Studio。
-1. 点击 **Manage Assistants**。
-1. 编辑助手的配置。
-1. 保存更改。
+1.  为该助手打开 Studio。
+1.  点击 **管理助手**。
+1.  编辑助手的配置。
+1.  保存您的更改。
 
 </Tab>
 
@@ -429,18 +429,18 @@ curl --request POST \
 
 ## 使用先前的助手版本
 
-要从 Studio 将先前版本设置为活动版本：
+要从 Studio 将先前的版本设置为活动版本：
 
-1. 为助手打开 Studio。
-2. 点击 **Manage Assistants**。
-3. 找到助手并选择您要使用的版本。
-4. 切换该版本的 **Active** 开关。
+1.  为该助手打开 Studio。
+2.  点击 **管理助手**。
+3.  找到该助手并选择您想要使用的版本。
+4.  为该版本切换 **活动** 开关。
 
-这将更新助手，使所有未来运行都使用选定的版本。
+这将更新助手，使其在未来的所有运行中都使用选定的版本。
 
 <Warning>
 
-删除助手将删除其<strong>所有</strong>版本。目前无法删除单个版本。要跳过某个版本，只需将其他版本设置为活动版本即可。
+删除一个助手将删除其 <strong>所有</strong> 版本。目前无法删除单个版本。要跳过某个版本，只需将其他版本设置为活动版本即可。
 
 </Warning>
 

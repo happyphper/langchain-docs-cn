@@ -1,7 +1,7 @@
 ---
 title: Docling
 ---
-[Docling](https://github.com/DS4SD/docling) 能够将 PDF、DOCX、PPTX、HTML 等格式解析为丰富的统一表示，包括文档布局、表格等，使其适用于 RAG 等生成式 AI 工作流。
+[Docling](https://github.com/DS4SD/docling) 能够将 PDF、DOCX、PPTX、HTML 等格式的文档解析为包含文档布局、表格等信息的丰富统一表示，使其适用于 RAG 等生成式 AI 工作流。
 
 此集成通过 `DoclingLoader` 文档加载器提供 Docling 的功能。
 
@@ -11,7 +11,7 @@ title: Docling
 
 | 类 | 包 | 本地 | 可序列化 | JS 支持 |
 | :--- | :--- | :---: | :---: | :---: |
-| langchain_docling.DoclingLoader | langchain-docling | ✅ | ❌ | ❌ |
+| langchain_docling.loader | langchain-docling | ✅ | ❌ | ❌ |
 
 ### 加载器特性
 
@@ -19,10 +19,10 @@ title: Docling
 | :---: | :---: | :---: |
 | DoclingLoader | ✅ | ❌ |
 
-提供的 `DoclingLoader` 组件使您能够：
+所提供的 `DoclingLoader` 组件使您能够：
 
-- 在您的 LLM 应用中轻松快速地使用各种文档类型，并且
-- 利用 Docling 的丰富格式进行高级的、文档原生的基础信息提取。
+- 在您的 LLM 应用程序中轻松快速地使用各种文档类型，并且
+- 利用 Docling 的丰富格式进行高级的、文档原生的基础（grounding）。
 
 `DoclingLoader` 支持两种不同的导出模式：
 
@@ -31,7 +31,7 @@ title: Docling
 
 示例允许通过参数 `EXPORT_TYPE` 探索这两种模式；根据设置的值，示例管道会相应地进行设置。
 
-## 安装
+## 设置
 
 ```python
 pip install -qU langchain-docling
@@ -44,7 +44,7 @@ pip install -qU langchain-docling
 基本初始化如下所示：
 
 ```python
-from langchain_docling import DoclingLoader
+from langchain_docling.loader import DoclingLoader
 
 FILE_PATH = "https://arxiv.org/pdf/2408.09869"
 
@@ -55,9 +55,9 @@ loader = DoclingLoader(file_path=FILE_PATH)
 
 - `file_path`：源，可以是单个字符串（URL 或本地文件）或其可迭代对象
 - `converter`（可选）：要使用的任何特定 Docling 转换器实例
-- `convert_kwargs`（可选）：转换执行所需的任何特定关键字参数
+- `convert_kwargs`（可选）：用于转换执行的任何特定 kwargs
 - `export_type`（可选）：要使用的导出模式：`ExportType.DOC_CHUNKS`（默认）或 `ExportType.MARKDOWN`
-- `md_export_kwargs`（可选）：任何特定的 Markdown 导出关键字参数（用于 Markdown 模式）
+- `md_export_kwargs`（可选）：任何特定的 Markdown 导出 kwargs（用于 Markdown 模式）
 - `chunker`（可选）：任何特定的 Docling 分块器实例（用于文档分块模式）
 - `meta_extractor`（可选）：要使用的任何特定元数据提取器
 
@@ -71,7 +71,7 @@ docs = loader.load()
 Token indices sequence length is longer than the specified maximum sequence length for this model (1041 > 512). Running this sequence through the model will result in indexing errors
 ```
 
-> 注意：在这种情况下，可以忽略显示 `"Token indices sequence length is longer than the specified maximum sequence length..."` 的消息——更多详情请见[此处](https://github.com/DS4SD/docling-core/issues/119#issuecomment-2577418826)。
+> 注意：显示 `"Token indices sequence length is longer than the specified maximum sequence length..."` 的消息在这种情况下可以忽略——更多详情请见[此处](https://github.com/DS4SD/docling-core/issues/119#issuecomment-2577418826)。
 
 检查一些示例文档：
 
@@ -93,7 +93,7 @@ for d in docs[:3]:
 ```python
 doc_iter = loader.lazy_load()
 for doc in doc_iter:
-    pass  # 您可以在此处操作 `doc`
+    pass  # 你可以在此处对 `doc` 进行操作
 ```
 
 ## 端到端示例
@@ -105,14 +105,14 @@ import os
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 ```
 
-> - 以下示例管道使用 HuggingFace 的 Inference API；为了增加 LLM 配额，可以通过环境变量 `HF_TOKEN` 提供令牌。
-> - 此管道的依赖项可以如下所示安装（`--no-warn-conflicts` 适用于 Colab 预填充的 Python 环境；为严格使用，可随意移除）：
+> - 以下示例流程使用了 HuggingFace 的推理 API；如需增加 LLM 配额，可通过环境变量 `HF_TOKEN` 提供令牌。
+> - 此流程的依赖项可按如下方式安装（`--no-warn-conflicts` 适用于 Colab 预置的 Python 环境；为更严格的使用，可随意移除）：
 
 ```python
 pip install -q --progress-bar off --no-warn-conflicts langchain-core langchain-huggingface langchain-milvus langchain python-dotenv
 ```
 
-定义管道参数：
+定义流程参数：
 
 ```python
 from pathlib import Path
@@ -137,7 +137,7 @@ def _get_env_from_colab_or_os(key):
 load_dotenv()
 
 HF_TOKEN = _get_env_from_colab_or_os("HF_TOKEN")
-FILE_PATH = ["https://arxiv.org/pdf/2408.09869"]  # Docling Technical Report
+FILE_PATH = ["https://arxiv.org/pdf/2408.09869"]  # Docling 技术报告
 EMBED_MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
 GEN_MODEL_ID = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 EXPORT_TYPE = ExportType.DOC_CHUNKS
@@ -281,13 +281,12 @@ Source 2:
   dl_meta: {'schema_name': 'docling_core.transforms.chunker.DocMeta', 'version': '1.0.0', 'doc_items': [{'self_ref': '#/texts/26', 'parent': {'$ref': '#/body'}, 'children': [], 'label': 'text', 'prov': [{'page_no': 2, 'bbox': {'l': 108.0, 't': 273.01800537109375, 'r': 504.00299072265625, 'b': 176.83799743652344, 'coord_origin': 'BOTTOMLEFT'}, 'charspan': [0, 796]}]}], 'headings': ['3 Processing pipeline'], 'origin': {'mimetype': 'application/pdf', 'binary_hash': 11465328351749295394, 'filename': '2408.09869v5.pdf'}}
   source: https://arxiv.org/pdf/2408.09869
 
-Source 3:
-  text: "6 Future work and contributions\nDocling is designed to allow easy extension of the model library and pipelines. In the future, we plan to extend Docling with several more models, such as a figure-classifier model, an equationrecognition model, a code-recognition model and more. This will help improve the quality of conversion for specific types of ..."
+源文 3：
+  文本："6 未来工作与贡献\nDocling 的设计旨在便于扩展模型库和流水线。未来，我们计划为 Docling 扩展更多模型，例如图表分类模型、公式识别模型、代码识别模型等。这将有助于提升特定类型文档的转换质量……"
   dl_meta: {'schema_name': 'docling_core.transforms.chunker.DocMeta', 'version': '1.0.0', 'doc_items': [{'self_ref': '#/texts/76', 'parent': {'$ref': '#/body'}, 'children': [], 'label': 'text', 'prov': [{'page_no': 5, 'bbox': {'l': 108.0, 't': 322.468994140625, 'r': 504.00299072265625, 'b': 259.0169982910156, 'coord_origin': 'BOTTOMLEFT'}, 'charspan': [0, 543]}]}, {'self_ref': '#/texts/77', 'parent': {'$ref': '#/body'}, 'children': [], 'label': 'text', 'prov': [{'page_no': 5, 'bbox': {'l': 108.0, 't': 251.6540069580078, 'r': 504.00299072265625, 'b': 198.99200439453125, 'coord_origin': 'BOTTOMLEFT'}, 'charspan': [0, 402]}]}], 'headings': ['6 Future work and contributions'], 'origin': {'mimetype': 'application/pdf', 'binary_hash': 11465328351749295394, 'filename': '2408.09869v5.pdf'}}
-  source: https://arxiv.org/pdf/2408.09869
-```
+  来源：https://arxiv.org/pdf/2408.09869
 
-请注意，源包含丰富的基础信息，包括段落标题（即章节）、页码和精确的边界框。
+请注意，这些源文包含了丰富的定位信息，包括段落标题（即章节）、页码以及精确的边界框。
 
 ---
 

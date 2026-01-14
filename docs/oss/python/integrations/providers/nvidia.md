@@ -1,75 +1,81 @@
 ---
 title: 英伟达
 ---
-`langchain-nvidia-ai-endpoints` 包包含了 LangChain 与 NVIDIA NIM 推理微服务上的模型构建应用程序的集成。NIM 支持来自社区和 NVIDIA 的跨领域模型，如聊天、嵌入和重排序模型。这些模型由 NVIDIA 优化，以在 NVIDIA 加速基础设施上提供最佳性能，并部署为 NIM，这是一种易于使用的预构建容器，可在 NVIDIA 加速基础设施上使用单个命令随处部署。
+`langchain-nvidia-ai-endpoints` 软件包包含 LangChain 与由 [NVIDIA AI Foundation Models](https://www.nvidia.com/en-us/ai-data-science/foundation-models/) 提供支持、并托管在 [NVIDIA API Catalog](https://build.nvidia.com/) 上的聊天模型和嵌入模型的集成。
 
-NVIDIA 托管的 NIM 部署可在 [NVIDIA API 目录](https://build.nvidia.com/) 上进行测试。测试后，可以使用 NVIDIA AI Enterprise 许可证从 NVIDIA 的 API 目录导出 NIM，并在本地或云端运行，使企业能够拥有并完全控制其 IP 和 AI 应用程序。
+NVIDIA AI Foundation 模型是由社区和 NVIDIA 构建的模型，经过优化可在 NVIDIA 加速基础设施上提供最佳性能。您可以使用 API 查询 NVIDIA API Catalog 上可用的实时端点，以从 DGX 托管的云计算环境快速获取结果；或者，您可以使用包含在 NVIDIA AI Enterprise 许可证中的 NVIDIA NIM，从 NVIDIA 的 API 目录下载模型。在本地运行模型的能力使您的企业能够拥有自定义内容的所有权，并完全控制您的知识产权和 AI 应用程序。
 
-NIM 以每个模型为基础打包为容器镜像，并通过 NVIDIA NGC 目录作为 NGC 容器镜像分发。NIM 的核心是为 AI 模型运行推理提供简单、一致且熟悉的 API。
+NIM 微服务以每个模型/模型系列为基础打包为容器镜像，并通过 [NVIDIA NGC Catalog](https://catalog.ngc.nvidia.com/) 作为 NGC 容器镜像分发。NIM 微服务的核心是提供交互式 API 以在 AI 模型上运行推理的容器。
 
-以下是一个关于如何使用文本生成和嵌入模型常见功能的示例。
+请使用本文档学习如何安装 `langchain-nvidia-ai-endpoints` 软件包，并将其用于文本生成和嵌入模型的一些常见功能。
 
-## 安装
+## 安装软件包
 
-```python
+```bash
 pip install -qU langchain-nvidia-ai-endpoints
 ```
 
-## 设置
+## 访问 NVIDIA API Catalog
 
-**开始使用：**
+要获取对 NVIDIA API Catalog 的访问权限，请执行以下操作：
 
-1.  在托管 NVIDIA AI Foundation 模型的 [NVIDIA](https://build.nvidia.com/) 上创建一个免费账户。
-2.  点击您选择的模型。
-3.  在输入部分选择 Python 标签页，然后点击 `Get API Key`。接着点击 `Generate Key`。
-4.  复制并保存生成的密钥为 `NVIDIA_API_KEY`。之后，您应该就能访问这些端点了。
+1.  在 [NVIDIA API Catalog](https://build.nvidia.com/) 上创建一个免费帐户并登录。
+2.  单击您的个人资料图标，然后单击 **API Keys**。**API Keys** 页面将出现。
+3.  单击 **Generate API Key**。**Generate API Key** 窗口将出现。
+4.  单击 **Generate Key**。您应该会看到 **API Key Granted**，并且您的密钥会出现。
+5.  复制密钥并将其保存为 `NVIDIA_API_KEY`。
+6.  要验证您的密钥，请使用以下代码。
 
 ```python
 import getpass
 import os
 
-if not os.environ.get("NVIDIA_API_KEY", "").startswith("nvapi-"):
-    nvidia_api_key = getpass.getpass("Enter your NVIDIA API key: ")
-    assert nvidia_api_key.startswith("nvapi-"), f"{nvidia_api_key[:5]}... is not a valid key"
-    os.environ["NVIDIA_API_KEY"] = nvidia_api_key
+if os.environ.get("NVIDIA_API_KEY", "").startswith("nvapi-"):
+    print("Valid NVIDIA_API_KEY already in environment. Delete to reset")
+else:
+    nvapi_key = getpass.getpass("NVAPI Key (starts with nvapi-): ")
+    assert nvapi_key.startswith(
+        "nvapi-"
+    ), f"{nvapi_key[:5]}... is not a valid key"
+    os.environ["NVIDIA_API_KEY"] = nvapi_key
 ```
 
-## 使用 NVIDIA API 目录
+现在，您可以使用您的密钥访问 NVIDIA API Catalog 上的端点了。
+
+## 使用 API Catalog
 
 ```python
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
 
 llm = ChatNVIDIA(model="mistralai/mixtral-8x22b-instruct-v0.1")
-result = llm.invoke("写一首关于 LangChain 的民谣。")
+result = llm.invoke("Write a ballad about LangChain.")
 print(result.content)
 ```
 
-使用该 API，您可以查询 NVIDIA API 目录上可用的实时端点，以从 DGX 托管的云计算环境中快速获得结果。所有模型都可以访问源代码，并且可以使用 NVIDIA NIM（NVIDIA AI Enterprise 的一部分）部署在您自己的计算集群上，如下一节 [使用 NVIDIA NIMs](#working-with-nvidia-nims) 所示。
+## 使用 NVIDIA NIM 微服务进行自托管
 
-## 使用 NVIDIA NIMs
-当准备部署时，您可以使用 NVIDIA NIM（包含在 NVIDIA AI Enterprise 软件许可证中）自托管模型，并在任何地方运行它们，从而拥有您的自定义项并完全控制您的知识产权 (IP) 和 AI 应用程序。
+当您准备好部署 AI 应用程序时，可以使用 NVIDIA NIM 自托管模型。有关更多信息，请参阅 [NVIDIA NIM Microservices](https://www.nvidia.com/en-us/ai-data-science/products/nim-microservices/)。
 
-[了解更多关于 NIMs 的信息](https://developer.nvidia.com/blog/nvidia-nim-offers-optimized-inference-microservices-for-deploying-ai-models-at-scale/)
+以下代码连接到本地托管的 NIM 微服务。
 
 ```python
 from langchain_nvidia_ai_endpoints import ChatNVIDIA, NVIDIAEmbeddings, NVIDIARerank
 
-# 连接到运行在 localhost:8000 的聊天 NIM，指定模型
+# 连接到运行在 localhost:8000 的聊天 NIM，并指定模型
 llm = ChatNVIDIA(base_url="http://localhost:8000/v1", model="meta/llama3-8b-instruct")
 
 # 连接到运行在 localhost:8080 的嵌入 NIM
 embedder = NVIDIAEmbeddings(base_url="http://localhost:8080/v1")
 
-# 连接到运行在 localhost:2016 的重排序 NIM
+# 连接到运行在 localhost:2016 的重新排序 NIM
 ranker = NVIDIARerank(base_url="http://localhost:2016/v1")
 ```
 
-## 使用 NVIDIA AI Foundation 端点
+## 相关主题
 
-LangChain 直接支持一部分 NVIDIA AI Foundation 模型，并提供熟悉的 API。
-
-当前支持的活动模型可以在 [API 目录](https://build.nvidia.com/) 中找到。
-
-**以下示例可能对您入门有所帮助：**
-- **[`ChatNVIDIA` 模型](/oss/python/integrations/chat/nvidia_ai_endpoints)。**
-- **[用于 RAG 工作流的 `NVIDIAEmbeddings` 模型](/oss/python/integrations/text_embedding/nvidia_ai_endpoints)。**
+- [`langchain-nvidia-ai-endpoints` 包 README](https://github.com/langchain-ai/langchain-nvidia/blob/main/libs/ai-endpoints/README.md)
+- [NVIDIA NIM 大型语言模型 (LLMs) 概述](https://docs.nvidia.com/nim/large-language-models/latest/introduction.html)
+- [NeMo Retriever 嵌入 NIM 概述](https://docs.nvidia.com/nim/nemo-retriever/text-embedding/latest/overview.html)
+- [NeMo Retriever 重排序 NIM 概述](https://docs.nvidia.com/nim/nemo-retriever/text-reranking/latest/overview.html)
+- [用于 RAG 工作流的 `ChatNVIDIA` 模型](/oss/python/integrations/chat/nvidia_ai_endpoints)
+- [用于 RAG 工作流的 `NVIDIAEmbeddings` 模型](/oss/python/integrations/text_embedding/nvidia_ai_endpoints)

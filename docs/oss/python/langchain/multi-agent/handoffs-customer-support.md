@@ -1,17 +1,17 @@
 ---
-title: 构建带有人工转接的客户支持系统
+title: 构建支持人工转接的客户支持系统
 sidebarTitle: 'Handoffs: Customer support'
 ---
 
 
-[状态机模式](/oss/python/langchain/multi-agent/handoffs)描述了智能体在任务的不同状态间移动时其行为发生变化的工作流。本教程展示了如何通过使用工具调用来动态更改单个智能体的配置，从而基于当前状态实现状态机——根据当前状态更新其可用工具和指令。状态可以由多个来源确定：智能体的过往操作（工具调用）、外部状态（例如 API 调用结果），甚至初始用户输入（例如，通过运行分类器来确定用户意图）。
+[状态机模式](/oss/python/langchain/multi-agent/handoffs)描述了智能体（agent）在任务的不同状态间移动时，其行为随之改变的工作流。本教程展示了如何通过工具调用（tool calls）来实现状态机，从而动态改变单个智能体的配置——根据当前状态更新其可用工具和指令。状态可以从多个来源确定：智能体的过往操作（工具调用）、外部状态（例如 API 调用结果），甚至是初始用户输入（例如，通过运行分类器来确定用户意图）。
 
 在本教程中，你将构建一个客户支持智能体，其功能如下：
 
-- 在继续之前收集保修信息。
-- 将问题分类为硬件或软件问题。
-- 提供解决方案或升级到人工支持。
-- 在多轮对话中维护会话状态。
+-   在继续之前收集保修信息。
+-   将问题分类为硬件或软件问题。
+-   提供解决方案或升级至人工支持。
+-   在多轮对话中维持会话状态。
 
 与[子智能体模式](/oss/python/langchain/multi-agent/subagents-personal-assistant)（其中子智能体作为工具被调用）不同，**状态机模式**使用单个智能体，其配置根据工作流进度而变化。每个“步骤”只是同一个底层智能体的不同配置（系统提示词 + 工具），根据状态动态选择。
 
@@ -52,7 +52,7 @@ flowchart TD
     class Escalate escalateNode
 ```
 
-## 设置
+## 环境设置
 
 ### 安装
 
@@ -105,7 +105,7 @@ os.environ["LANGSMITH_API_KEY"] = getpass.getpass()
 
 ## 1. 定义自定义状态
 
-首先，定义一个自定义状态模式，用于跟踪当前处于哪个步骤：
+首先，定义一个自定义状态模式，用于跟踪当前处于哪个活动步骤：
 
 ```python
 from langchain.agents import AgentState
@@ -122,13 +122,13 @@ class SupportState(AgentState):  # [!code highlight]
     issue_type: NotRequired[Literal["hardware", "software"]]
 ```
 
-`current_step` 字段是状态机模式的核心——它决定了在每一轮中加载哪个配置（提示词 + 工具）。
+`current_step` 字段是状态机模式的核心——它决定了在每个回合加载哪个配置（提示词 + 工具）。
 
 ## 2. 创建管理工作流状态的工具
 
 创建用于更新工作流状态的工具。这些工具允许智能体记录信息并转换到下一步。
 
-关键在于使用 `Command` 来更新状态，包括 `current_step` 字段：
+关键点是使用 `Command` 来更新状态，包括 `current_step` 字段：
 
 ```python
 from langchain.tools import tool, ToolRuntime
@@ -185,51 +185,51 @@ def provide_solution(solution: str) -> str:
     return f"Solution provided: {solution}"
 ```
 
-注意 `record_warranty_status` 和 `record_issue_type` 如何返回 `Command` 对象，这些对象既更新数据（`warranty_status`、`issue_type`）也更新 `current_step`。这就是状态机的工作原理——工具控制工作流的进展。
+请注意 `record_warranty_status` 和 `record_issue_type` 如何返回 `Command` 对象，这些对象既更新数据（`warranty_status`、`issue_type`）也更新 `current_step`。这就是状态机的工作方式——工具控制工作流的进展。
 
 ## 3. 定义步骤配置
 
-为每个步骤定义提示词和工具。首先，为每个步骤定义提示词：
+为每个步骤定义提示词和工具。首先，定义每个步骤的提示词：
 
 :::: details 查看完整的提示词定义
 
 ```python
 # 将提示词定义为常量以便引用
-WARRANTY_COLLECTOR_PROMPT = """You are a customer support agent helping with device issues.
+WARRANTY_COLLECTOR_PROMPT = """您是一名客户支持代理，正在帮助处理设备问题。
 
-CURRENT STAGE: Warranty verification
+当前阶段：保修验证
 
-At this step, you need to:
-1. Greet the customer warmly
-2. Ask if their device is under warranty
-3. Use record_warranty_status to record their response and move to the next step
+在此步骤中，您需要：
+1. 热情问候客户
+2. 询问他们的设备是否在保修期内
+3. 使用 record_warranty_status 记录他们的回复并进入下一步
 
-Be conversational and friendly. Don't ask multiple questions at once."""
+保持对话性和友好性。不要一次问多个问题。"""
 
-ISSUE_CLASSIFIER_PROMPT = """You are a customer support agent helping with device issues.
+ISSUE_CLASSIFIER_PROMPT = """您是一名客户支持代理，正在帮助处理设备问题。
 
-CURRENT STAGE: Issue classification
-CUSTOMER INFO: Warranty status is {warranty_status}
+当前阶段：问题分类
+客户信息：保修状态为 {warranty_status}
 
-At this step, you need to:
-1. Ask the customer to describe their issue
-2. Determine if it's a hardware issue (physical damage, broken parts) or software issue (app crashes, performance)
-3. Use record_issue_type to record the classification and move to the next step
+在此步骤中，您需要：
+1. 请客户描述他们的问题
+2. 确定是硬件问题（物理损坏、部件故障）还是软件问题（应用崩溃、性能问题）
+3. 使用 record_issue_type 记录分类并进入下一步
 
-If unclear, ask clarifying questions before classifying."""
+如果不明确，请在分类前提出澄清性问题。"""
 
-RESOLUTION_SPECIALIST_PROMPT = """You are a customer support agent helping with device issues.
+RESOLUTION_SPECIALIST_PROMPT = """您是一名客户支持代理，正在帮助处理设备问题。
 
-CURRENT STAGE: Resolution
-CUSTOMER INFO: Warranty status is {warranty_status}, issue type is {issue_type}
+当前阶段：解决方案
+客户信息：保修状态为 {warranty_status}，问题类型为 {issue_type}
 
-At this step, you need to:
-1. For SOFTWARE issues: provide troubleshooting steps using provide_solution
-2. For HARDWARE issues:
-   - If IN WARRANTY: explain warranty repair process using provide_solution
-   - If OUT OF WARRANTY: escalate_to_human for paid repair options
+在此步骤中，您需要：
+1. 对于软件问题：使用 provide_solution 提供故障排除步骤
+2. 对于硬件问题：
+   - 如果在保修期内：使用 provide_solution 解释保修维修流程
+   - 如果超出保修期：使用 escalate_to_human 寻求付费维修选项
 
-Be specific and helpful in your solutions."""
+在解决方案中要具体且乐于助人。"""
 ```
 
 ::::
@@ -237,7 +237,7 @@ Be specific and helpful in your solutions."""
 然后使用字典将步骤名称映射到其配置：
 
 ```python
-# 步骤配置：将步骤名称映射到（提示词，工具，所需状态）
+# 步骤配置：将步骤名称映射到（提示、工具、所需状态）
 STEP_CONFIG = {
     "warranty_collector": {
         "prompt": WARRANTY_COLLECTOR_PROMPT,
@@ -259,13 +259,13 @@ STEP_CONFIG = {
 
 这种基于字典的配置使得：
 - 一目了然地查看所有步骤
-- 添加新步骤（只需添加另一个条目）
+- 轻松添加新步骤（只需添加另一个条目）
 - 理解工作流依赖关系（`requires` 字段）
-- 使用带有状态变量的提示词模板（例如 `{warranty_status}`）
+- 使用带有状态变量的提示模板（例如 `{warranty_status}`）
 
 ## 4. 创建基于步骤的中间件
 
-创建一个中间件，从状态中读取 `current_step` 并应用相应的配置。我们将使用 `@wrap_model_call` 装饰器来实现一个清晰的实现：
+创建从状态中读取 `current_step` 并应用相应配置的中间件。我们将使用 `@wrap_model_call` 装饰器来实现一个简洁的实现：
 
 ```python
 from langchain.agents.middleware import wrap_model_call, ModelRequest, ModelResponse
@@ -276,43 +276,85 @@ def apply_step_config(
     request: ModelRequest,
     handler: Callable[[ModelRequest], ModelResponse],
 ) -> ModelResponse:
-    """根据当前步骤配置智能体行为。"""
+    """根据当前步骤配置代理行为。"""
     # 获取当前步骤（首次交互默认为 warranty_collector）
     current_step = request.state.get("current_step", "warranty_collector")  # [!code highlight]
 
     # 查找步骤配置
     stage_config = STEP_CONFIG[current_step]  # [!code highlight]
-
-    # 验证所需状态是否存在
-    for key in stage_config["requires"]:
-        if request.state.get(key) is None:
-            raise ValueError(f"{key} must be set before reaching {current_step}")
-
-    # 使用状态值格式化提示词（支持 {warranty_status}、{issue_type} 等）
-    system_prompt = stage_config["prompt"].format(**request.state)
-
-    # 注入系统提示词和步骤特定工具
-    request = request.override(  # [!code highlight]
-        system_prompt=system_prompt,  # [!code highlight]
-        tools=stage_config["tools"],  # [!code highlight]
-    )
-
-    return handler(request)
 ```
 
-这个中间件：
+# 验证必需状态是否存在
+for key in stage_config["requires"]:
+if request.state.get(key) is None:
+raise ValueError(f"{key} must be set before reaching {current_step}")
+
+    # 使用状态值格式化提示（支持 {warranty_status}、{issue_type} 等）
+system_prompt = stage_config["prompt"].format(**request.state)
+
+    # 注入系统提示和步骤特定工具
+request = request.override(  # [!code highlight]
+system_prompt=system_prompt,  # [!code highlight]
+tools=stage_config["tools"],  # [!code highlight]
+)
+
+return handler(request)
+```
+:::
+
+:::js
+
+```typescript
+
+const applyStepMiddleware = createMiddleware({
+  name: "applyStep",
+  stateSchema: SupportStateSchema,
+  wrapModelCall: async (request, handler) => {
+// 获取当前步骤（首次交互默认为 warranty_collector）
+const currentStep = request.state.currentStep ?? "warranty_collector"; // [!code highlight]
+
+// 查找步骤配置
+const stepConfig = STEP_CONFIG[currentStep]; // [!code highlight]
+
+// 验证必需状态是否存在
+for (const key of stepConfig.requires) {
+if (request.state[key] === undefined) {
+throw new Error(`${key} must be set before reaching ${currentStep}`);
+}
+}
+
+// 使用状态值格式化提示（支持 {warrantyStatus}、{issueType} 等）
+let systemPrompt: string = stepConfig.prompt;
+for (const [key, value] of Object.entries(request.state)) {
+systemPrompt = systemPrompt.replace(`{${key}}`, String(value ?? ""));
+}
+
+// 注入系统提示和步骤特定工具
+return handler({
+...request, // [!code highlight]
+systemPrompt, // [!code highlight]
+tools: [...stepConfig.tools], // [!code highlight]
+});
+  },
+});
+```
+:::
+
+此中间件：
 
 1.  **读取当前步骤**：从状态中获取 `current_step`（默认为 "warranty_collector"）。
 2.  **查找配置**：在 `STEP_CONFIG` 中找到匹配的条目。
-3.  **验证依赖关系**：确保所需的状态字段存在。
-4.  **格式化提示词**：将状态值注入到提示词模板中。
-5.  **应用配置**：覆盖系统提示词和可用工具。
+3.  **验证依赖项**：确保必需的状态字段存在。
+4.  **格式化提示**：将状态值注入到提示模板中。
+5.  **应用配置**：覆盖系统提示和可用工具。
 
 `request.override()` 方法是关键——它允许我们根据状态动态更改智能体的行为，而无需创建单独的智能体实例。
 
 ## 5. 创建智能体
 
-现在使用基于步骤的中间件和一个用于状态持久化的检查点器来创建智能体：
+现在，使用基于步骤的中间件和用于状态持久化的检查点创建智能体：
+
+:::python
 
 ```python
 from langchain.agents import create_agent
@@ -320,83 +362,116 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 # 从所有步骤配置中收集所有工具
 all_tools = [
-    record_warranty_status,
-    record_issue_type,
-    provide_solution,
-    escalate_to_human,
+record_warranty_status,
+record_issue_type,
+provide_solution,
+escalate_to_human,
 ]
 
 # 使用基于步骤的配置创建智能体
 agent = create_agent(
-    model,
-    tools=all_tools,
-    state_schema=SupportState,  # [!code highlight]
-    middleware=[apply_step_config],  # [!code highlight]
-    checkpointer=InMemorySaver(),  # [!code highlight]
+model,
+tools=all_tools,
+state_schema=SupportState,  # [!code highlight]
+middleware=[apply_step_config],  # [!code highlight]
+checkpointer=InMemorySaver(),  # [!code highlight]
 )
+```
+:::
+
+:::js
+
+```typescript
+
+// 从所有步骤配置中收集所有工具
+const allTools = [
+  recordWarrantyStatus,
+  recordIssueType,
+  provideSolution,
+  escalateToHuman,
+];
+
+// 初始化模型
+const model = new ChatOpenAI({
+  model: "gpt-5o-mini",
+  temperature: 0.7,
+});
+
+// 使用基于步骤的配置创建智能体
+const agent = createAgent({
+  model,
+  tools: allTools,
+  stateSchema: SupportStateSchema,  // [!code highlight]
+  middleware: [applyStepMiddleware],  // [!code highlight]
+  checkpointer: new MemorySaver(),  // [!code highlight]
+});
 ```
 
 <Note>
-
-<strong>为什么需要检查点器？</strong> 检查点器在对话轮次之间维护状态。没有它，`current_step` 状态将在用户消息之间丢失，从而破坏工作流。
-
+**为什么需要检查点？** 检查点（checkpointer）在对话轮次间维护状态。没有它，`current_step` 状态会在用户消息之间丢失，从而破坏工作流。
 </Note>
 
 ## 6. 测试工作流
 
 测试完整的工作流：
 
+:::python
+
 ```python
 from langchain.messages import HumanMessage
-import uuid
 
-# 此对话线程的配置
-thread_id = str(uuid.uuid4())
-config = {"configurable": {"thread_id": thread_id}}
+// Configuration for this conversation thread
+const threadId = uuidv4();
+const config = { configurable: { thread_id: threadId } };
 
-# 第 1 轮：初始消息 - 从 warranty_collector 步骤开始
-print("=== Turn 1: Warranty Collection ===")
-result = agent.invoke(
-    {"messages": [HumanMessage("Hi, my phone screen is cracked")]},
-    config
-)
-for msg in result['messages']:
-    msg.pretty_print()
+// Turn 1: Initial message - starts with warranty_collector step
+console.log("=== Turn 1: Warranty Collection ===");
+let result = await agent.invoke(
+  { messages: [new HumanMessage("Hi, my phone screen is cracked")] },
+  config
+);
+for (const msg of result.messages) {
+  console.log(msg.content);
+}
 
-# 第 2 轮：用户回应保修情况
-print("\n=== Turn 2: Warranty Response ===")
-result = agent.invoke(
-    {"messages": [HumanMessage("Yes, it's still under warranty")]},
-    config
-)
-for msg in result['messages']:
-    msg.pretty_print()
-print(f"Current step: {result.get('current_step')}")
+// Turn 2: User responds about warranty
+console.log("\n=== Turn 2: Warranty Response ===");
+result = await agent.invoke(
+  { messages: [new HumanMessage("Yes, it's still under warranty")] },
+  config
+);
+for (const msg of result.messages) {
+  console.log(msg.content);
+}
+console.log(`Current step: ${result.currentStep}`);
 
-# 第 3 轮：用户描述问题
-print("\n=== Turn 3: Issue Description ===")
-result = agent.invoke(
-    {"messages": [HumanMessage("The screen is physically cracked from dropping it")]},
-    config
-)
-for msg in result['messages']:
-    msg.pretty_print()
-print(f"Current step: {result.get('current_step')}")
+// Turn 3: User describes the issue
+console.log("\n=== Turn 3: Issue Description ===");
+result = await agent.invoke(
+  { messages: [new HumanMessage("The screen is physically cracked from dropping it")] },
+  config
+);
+for (const msg of result.messages) {
+  console.log(msg.content);
+}
+console.log(`Current step: ${result.currentStep}`);
 
-# 第 4 轮：解决方案
-print("\n=== Turn 4: Resolution ===")
-result = agent.invoke(
-    {"messages": [HumanMessage("What should I do?")]},
-    config
-)
-for msg in result['messages']:
-    msg.pretty_print()
+// Turn 4: Resolution
+console.log("\n=== Turn 4: Resolution ===");
+result = await agent.invoke(
+  { messages: [new HumanMessage("What should I do?")] },
+  config
+);
+for (const msg of result.messages) {
+  console.log(msg.content);
+}
 ```
+:::
 
 预期流程：
 1.  **保修验证步骤**：询问保修状态
-2.  **问题分类步骤**：询问问题，确定为硬件问题
-3.  **解决方案步骤**：提供保修维修说明
+2.  **问题分类步骤**：询问问题详情，确定为硬件问题
+3.  **解决方案步骤**：提供保修维修指导
 
 ## 7. 理解状态转换
 
@@ -404,50 +479,97 @@ for msg in result['messages']:
 
 ### 第 1 轮：初始消息
 
+:::python
+
 ```python
 {
-    "messages": [HumanMessage("Hi, my phone screen is cracked")],
-    "current_step": "warranty_collector"  # 默认值
+"messages": [HumanMessage("Hi, my phone screen is cracked")],
+"current_step": "warranty_collector"  # Default value
 }
 ```
+:::
+
+:::js
+
+```typescript
+{
+  messages: [new HumanMessage("Hi, my phone screen is cracked")],
+  currentStep: "warranty_collector"  // Default value
+}
+```
+:::
 
 中间件应用：
-- 系统提示词：`WARRANTY_COLLECTOR_PROMPT`
+- 系统提示：`WARRANTY_COLLECTOR_PROMPT`
 - 工具：`[record_warranty_status]`
 
-### 第 2 轮：保修记录后
+### 第 2 轮：记录保修状态后
+
+:::python
 工具调用：`record_warranty_status("in_warranty")` 返回：
 
 ```python
 Command(update={
-    "warranty_status": "in_warranty",
-    "current_step": "issue_classifier"  # 状态转换！
+"warranty_status": "in_warranty",
+"current_step": "issue_classifier"  # State transition!
 })
 ```
+:::
+
+:::js
+工具调用：`recordWarrantyStatus("in_warranty")` 返回：
+
+```typescript
+new Command({
+  update: {
+warrantyStatus: "in_warranty",
+currentStep: "issue_classifier"  // 状态转换！
+  }
+})
+```
+:::
 
 下一轮，中间件应用：
-- 系统提示词：`ISSUE_CLASSIFIER_PROMPT`（使用 `warranty_status="in_warranty"` 格式化）
+- 系统提示：`ISSUE_CLASSIFIER_PROMPT`（使用 `warranty_status="in_warranty"` 格式化）
 - 工具：`[record_issue_type]`
 
 ### 第 3 轮：问题分类后
+
+:::python
 工具调用：`record_issue_type("hardware")` 返回：
 
 ```python
 Command(update={
-    "issue_type": "hardware",
-    "current_step": "resolution_specialist"  # 状态转换！
+"issue_type": "hardware",
+"current_step": "resolution_specialist"  # 状态转换！
 })
 ```
+:::
+
+:::js
+工具调用：`recordIssueType("hardware")` 返回：
+
+```typescript
+new Command({
+  update: {
+issueType: "hardware",
+currentStep: "resolution_specialist"  // 状态转换！
+  }
+})
+```
+:::
 
 下一轮，中间件应用：
-- 系统提示词：`RESOLUTION_SPECIALIST_PROMPT`（使用 `warranty_status` 和 `issue_type` 格式化）
+- 系统提示：`RESOLUTION_SPECIALIST_PROMPT`（使用 `warranty_status` 和 `issue_type` 格式化）
 - 工具：`[provide_solution, escalate_to_human]`
 
-关键见解：**工具通过更新 `current_step` 来驱动工作流**，而**中间件通过在下轮应用适当的配置来响应**。
+关键洞察：**工具通过更新 `current_step` 来驱动工作流**，而**中间件通过在下轮应用适当的配置来响应**。
 
-## 8. 管理消息历史记录
+## 8. 管理消息历史
 
-随着智能体在步骤中前进，消息历史记录会增长。使用[摘要中间件](/oss/python/langchain/short-term-memory#summarize-messages)来压缩较早的消息，同时保留对话上下文：
+随着智能体（agent）逐步推进，消息历史会增长。使用[摘要中间件](/oss/langchain/short-term-memory#summarize-messages)来压缩较早的消息，同时保留对话上下文：
+
+:::python
 
 ```python
 from langchain.agents import create_agent
@@ -455,19 +577,458 @@ from langchain.agents.middleware import SummarizationMiddleware  # [!code highli
 from langgraph.checkpoint.memory import InMemorySaver
 
 agent = create_agent(
-    model,
-    tools=all_tools,
-    state_schema=SupportState,
-    middleware=[
-        apply_step_config,
-        SummarizationMiddleware(  # [!code highlight]
-            model="gpt-4o-mini",
-            trigger=("tokens", 4000),
-            keep=("messages", 10)
-        )
-    ],
-    checkpointer=InMemorySaver(),
+model,
+tools=all_tools,
+state_schema=SupportState,
+middleware=[
+apply_step_config,
+SummarizationMiddleware(  # [!code highlight]
+model="gpt-4o-mini",
+trigger=("tokens", 4000),
+keep=("messages", 10)
+)
+],
+checkpointer=InMemorySaver(),
 )
 ```
+:::
 
-有关其他内存管理技术，请参阅[短期记忆指南
+:::js
+
+```typescript
+
+const agent = createAgent({
+  model,
+  tools: allTools,
+  stateSchema: SupportStateSchema,
+  middleware: [
+applyStepMiddleware,
+new SummarizationMiddleware({  // [!code highlight]
+model: "gpt-4o-mini",
+trigger: { tokens: 4000 },
+keep: { messages: 10 },
+}),
+  ],
+  checkpointer: new MemorySaver(),
+});
+```
+:::
+
+有关其他记忆（memory）管理技术，请参阅[短期记忆指南](/oss/langchain/short-term-memory)。
+
+## 9. 增加灵活性：返回
+
+某些工作流需要允许用户返回之前的步骤以更正信息（例如，更改保修状态或问题分类）。然而，并非所有转换都有意义——例如，一旦退款已处理，通常无法返回。对于这个支持工作流，我们将添加工具以返回到保修验证和问题分类步骤。
+
+<Tip>
+如果你的工作流需要在大多数步骤之间进行任意转换，请考虑你是否真的需要一个结构化的工作流。这种模式在步骤遵循清晰的顺序进展、偶尔需要向后转换以进行更正时效果最佳。
+</Tip>
+
+向解决步骤添加“返回”工具：
+
+:::python
+
+```python
+@tool
+def go_back_to_warranty() -> Command:  # [!code highlight]
+"""返回保修验证步骤。"""
+return Command(update={"current_step": "warranty_collector"})  # [!code highlight]
+
+@tool
+def go_back_to_classification() -> Command:  # [!code highlight]
+"""返回问题分类步骤。"""
+return Command(update={"current_step": "issue_classifier"})  # [!code highlight]
+
+# 更新 resolution_specialist 配置以包含这些工具
+STEP_CONFIG["resolution_specialist"]["tools"].extend([
+go_back_to_warranty,
+go_back_to_classification
+])
+```
+:::
+
+:::js
+
+```typescript
+
+const goBackToWarranty = tool(  // [!code highlight]
+  async () => {
+return new Command({ update: { currentStep: "warranty_collector" } });  // [!code highlight]
+  },
+  {
+name: "go_back_to_warranty",
+description: "Go back to warranty verification step.",
+schema: z.object({}),
+  }
+);
+
+const goBackToClassification = tool(  // [!code highlight]
+  async () => {
+return new Command({ update: { currentStep: "issue_classifier" } });  // [!code highlight]
+  },
+  {
+name: "go_back_to_classification",
+description: "Go back to issue classification step.",
+schema: z.object({}),
+  }
+);
+
+// Update the resolution_specialist configuration to include these tools
+STEP_CONFIG.resolution_specialist.tools.push(
+  goBackToWarranty,
+  goBackToClassification
+);
+```
+:::
+
+更新解决方案专家的提示词，提及这些工具：
+
+:::python
+
+```python
+RESOLUTION_SPECIALIST_PROMPT = """You are a customer support agent helping with device issues.
+
+CURRENT STAGE: Resolution
+CUSTOMER INFO: Warranty status is {warranty_status}, issue type is {issue_type}
+
+At this step, you need to:
+1. For SOFTWARE issues: provide troubleshooting steps using provide_solution
+2. For HARDWARE issues:
+   - If IN WARRANTY: explain warranty repair process using provide_solution
+   - If OUT OF WARRANTY: escalate_to_human for paid repair options
+
+If the customer indicates any information was wrong, use:
+- go_back_to_warranty to correct warranty status
+- go_back_to_classification to correct issue type
+
+Be specific and helpful in your solutions."""
+```
+:::
+
+:::js
+
+```typescript
+const RESOLUTION_SPECIALIST_PROMPT = `You are a customer support agent helping with device issues.
+
+CURRENT STAGE: Resolution
+CUSTOMER INFO: Warranty status is {warrantyStatus}, issue type is {issueType}
+
+At this step, you need to:
+1. For SOFTWARE issues: provide troubleshooting steps using provide_solution
+2. For HARDWARE issues:
+   - If IN WARRANTY: explain warranty repair process using provide_solution
+   - If OUT OF WARRANTY: escalate_to_human for paid repair options
+
+If the customer indicates any information was wrong, use:
+- go_back_to_warranty to correct warranty status
+- go_back_to_classification to correct issue type
+
+Be specific and helpful in your solutions.`;
+```
+:::
+
+现在智能体可以处理更正了：
+
+:::python
+
+```python
+result = agent.invoke(
+{"messages": [HumanMessage("Actually, I made a mistake - my device is out of warranty")]},
+config
+)
+# Agent will call go_back_to_warranty and restart the warranty verification step
+```
+:::
+
+:::js
+
+```typescript
+const result = await agent.invoke(
+  { messages: [new HumanMessage("Actually, I made a mistake - my device is out of warranty")] },
+  config
+);
+// Agent will call go_back_to_warranty and restart the warranty verification step
+```
+:::
+
+## 完整示例
+
+以下是一个可运行脚本中的所有内容：
+
+<Expandable title="Complete code" defaultOpen={false}>
+:::python
+
+```python
+"""
+Customer Support State Machine Example
+
+This example demonstrates the state machine pattern.
+A single agent dynamically changes its behavior based on the current_step state,
+creating a state machine for sequential information collection.
+"""
+
+// 定义可能的工作流步骤
+const SupportStepSchema = z.enum([
+  "warranty_collector",
+  "issue_classifier",
+  "resolution_specialist",
+]);
+const WarrantyStatusSchema = z.enum(["in_warranty", "out_of_warranty"]);
+const IssueTypeSchema = z.enum(["hardware", "software"]);
+
+// 客户支持工作流的状态
+const SupportStateSchema = z.object({
+
+  currentStep: SupportStepSchema.optional(),
+  warrantyStatus: WarrantyStatusSchema.optional(),
+  issueType: IssueTypeSchema.optional(),
+});
+
+const recordWarrantyStatus = tool(
+  async (input, config: ToolRuntime<typeof SupportStateSchema>) => {
+return new Command({
+
+update: {
+
+messages: [
+new ToolMessage({
+content: `Warranty status recorded as: ${input.status}`,
+tool_call_id: config.toolCallId,
+}),
+],
+warrantyStatus: input.status,
+currentStep: "issue_classifier",
+},
+});
+  },
+  {
+name: "record_warranty_status",
+description:
+"记录客户的保修状态并过渡到问题分类。",
+schema: z.object({
+status: WarrantyStatusSchema,
+}),
+  }
+);
+
+const recordIssueType = tool(
+  async (input, config: ToolRuntime<typeof SupportStateSchema>) => {
+return new Command({
+
+update: {
+
+messages: [
+new ToolMessage({
+content: `问题类型已记录为：${input.issueType}`,
+tool_call_id: config.toolCallId,
+}),
+],
+issueType: input.issueType,
+currentStep: "resolution_specialist",
+},
+});
+  },
+  {
+name: "record_issue_type",
+description:
+"记录问题类型并转交给解决方案专家。",
+schema: z.object({
+issueType: IssueTypeSchema,
+}),
+  }
+);
+
+const escalateToHuman = tool(
+  async (input) => {
+// 在实际系统中，这里会创建工单、通知工作人员等。
+return `正在升级至人工支持。原因：${input.reason}`;
+  },
+  {
+name: "escalate_to_human",
+description: "将案例升级至人工支持专家。",
+schema: z.object({
+reason: z.string(),
+}),
+  }
+);
+
+const provideSolution = tool(
+  async (input) => {
+return `提供的解决方案：${input.solution}`;
+  },
+  {
+name: "provide_solution",
+description: "为客户的问题提供解决方案。",
+schema: z.object({
+solution: z.string(),
+}),
+  }
+);
+
+// 将提示定义为常量以便引用
+const WARRANTY_COLLECTOR_PROMPT = `您是一位帮助处理设备问题的客户支持代理。
+
+当前阶段：保修验证
+
+在此步骤中，您需要：
+1. 热情问候客户
+2. 询问他们的设备是否在保修期内
+3. 使用 record_warranty_status 记录他们的回复并进入下一步
+
+保持对话性和友好性。不要一次性提出多个问题。`;
+
+const ISSUE_CLASSIFIER_PROMPT = `您是一位帮助处理设备问题的客户支持代理。
+
+当前阶段：问题分类
+客户信息：保修状态为 {warranty_status}
+
+在此步骤中，您需要：
+1. 请客户描述他们的问题
+2. 判断是硬件问题（物理损坏、部件故障）还是软件问题（应用崩溃、性能问题）
+3. 使用 record_issue_type 记录分类并进入下一步
+
+如果不明确，请在分类前提出澄清性问题。`;
+
+const RESOLUTION_SPECIALIST_PROMPT = `您是一位帮助处理设备问题的客户支持代理。
+
+当前阶段：解决方案
+客户信息：保修状态为 {warranty_status}，问题类型为 {issue_type}
+
+在此步骤中，您需要：
+1. 对于软件问题：使用 provide_solution 提供故障排除步骤
+2. 对于硬件问题：
+   - 如果在保修期内：使用 provide_solution 解释保修维修流程
+   - 如果超出保修期：使用 escalate_to_human 寻求付费维修选项
+
+在解决方案中要具体且有用。`;
+
+// 步骤配置：将步骤名称映射到（提示、工具、所需状态）
+const STEP_CONFIG = {
+  warranty_collector: {
+prompt: WARRANTY_COLLECTOR_PROMPT,
+tools: [recordWarrantyStatus],
+requires: [],
+  },
+  issue_classifier: {
+prompt: ISSUE_CLASSIFIER_PROMPT,
+tools: [recordIssueType],
+requires: ["warrantyStatus"],
+  },
+  resolution_specialist: {
+prompt: RESOLUTION_SPECIALIST_PROMPT,
+tools: [provideSolution, escalateToHuman],
+requires: ["warrantyStatus", "issueType"],
+  },
+} as const;
+
+const applyStepMiddleware = createMiddleware({
+  name: "applyStep",
+  stateSchema: SupportStateSchema,
+  wrapModelCall: async (request, handler) => {
+// 获取当前步骤（首次交互默认为 warranty_collector）
+const currentStep = request.state.currentStep ?? "warranty_collector";
+
+// 查找步骤配置
+const stepConfig = STEP_CONFIG[currentStep];
+
+// 验证所需状态是否存在
+for (const key of stepConfig.requires) {
+if (request.state[key] === undefined) {
+throw new Error(`在进入 ${currentStep} 之前必须设置 ${key}`);
+}
+}
+
+// 使用状态值格式化提示（支持 {warrantyStatus}、{issueType} 等）
+let systemPrompt: string = stepConfig.prompt;
+for (const [key, value] of Object.entries(request.state)) {
+systemPrompt = systemPrompt.replace(`{${key}}`, String(value ?? ""));
+}
+
+// 注入系统提示和步骤特定工具
+return handler({
+...request,
+systemPrompt,
+tools: [...stepConfig.tools],
+});
+  },
+});
+
+// 从所有步骤配置中收集所有工具
+const allTools = [
+  recordWarrantyStatus,
+  recordIssueType,
+  provideSolution,
+  escalateToHuman,
+];
+
+const model = new ChatOpenAI({
+  model: "gpt-5-mini",
+});
+
+// 使用基于步骤的配置创建智能体
+const agent = createAgent({
+  model,
+  tools: allTools,
+  middleware: [applyStepMiddleware],
+  checkpointer: new MemorySaver(),
+});
+
+// 此对话线程的配置
+const threadId = uuidv4();
+const config = { configurable: { thread_id: threadId } };
+
+// 第 1 轮：初始消息 - 从 warranty_collector 步骤开始
+console.log("=== Turn 1: Warranty Collection ===");
+let result = await agent.invoke(
+  { messages: [new HumanMessage("Hi, my phone screen is cracked")] },
+  config
+);
+for (const msg of result.messages) {
+  console.log(msg.content);
+}
+
+// 第 2 轮：用户回复关于保修的信息
+console.log("\n=== Turn 2: Warranty Response ===");
+result = await agent.invoke(
+  { messages: [new HumanMessage("Yes, it's still under warranty")] },
+  config
+);
+for (const msg of result.messages) {
+  console.log(msg.content);
+}
+console.log(`Current step: ${result.currentStep}`);
+
+// 第 3 轮：用户描述问题
+console.log("\n=== Turn 3: Issue Description ===");
+result = await agent.invoke(
+  {
+messages: [
+new HumanMessage("The screen is physically cracked from dropping it"),
+],
+  },
+  config
+);
+for (const msg of result.messages) {
+  console.log(msg.content);
+}
+console.log(`Current step: ${result.currentStep}`);
+
+// 第 4 轮：解决方案
+console.log("\n=== Turn 4: Resolution ===");
+result = await agent.invoke(
+  { messages: [new HumanMessage("What should I do?")] },
+  config
+);
+for (const msg of result.messages) {
+  console.log(msg.content);
+}
+```
+
+</Expandable>
+
+## 后续步骤
+
+- 了解用于集中编排的[子智能体模式](/oss/python/langchain/multi-agent/subagents-personal-assistant)
+- 探索[中间件](/oss/python/langchain/middleware)以获取更多动态行为
+- 阅读[多智能体概述](/oss/python/langchain/multi-agent)以比较不同模式
+- 使用 [LangSmith](https://smith.langchain.com) 来调试和监控您的多智能体系统

@@ -1,20 +1,20 @@
 ---
-title: 如何为你的应用程序添加 TTL
+title: 如何为您的应用程序添加 TTL
 sidebarTitle: Add TTLs to your application
 ---
 
 <Tip>
 
 <strong>前提条件</strong>
-本指南假设您已熟悉 [LangSmith](/langsmith/home)、[持久化](/oss/langgraph/persistence) 以及 [跨线程持久化](/oss/langgraph/persistence#memory-store) 的概念。
+本指南假设您已熟悉 [LangSmith](/langsmith/home)、[持久化](/oss/langgraph/persistence) 和 [跨线程持久化](/oss/langgraph/persistence#memory-store) 的概念。
 
 </Tip>
 
-LangSmith 会持久化 [检查点](/oss/langgraph/persistence#checkpoints)（线程状态）和 [跨线程记忆](/oss/langgraph/persistence#memory-store)（存储项）。在 `langgraph.json` 中配置生存时间（TTL）策略，可以自动管理这些数据的生命周期，防止其无限累积。
+LangSmith 会持久化 [检查点](/oss/langgraph/persistence#checkpoints)（线程状态）和 [跨线程记忆](/oss/langgraph/persistence#memory-store)（存储项）。在 `langgraph.json` 中配置生存时间（TTL）策略，可以自动管理这些数据的生命周期，防止无限累积。
 
-## 配置检查点 TTL
+## 配置线程和检查点 TTL
 
-检查点捕获对话线程的状态。设置 TTL 可确保旧的检查点和线程被自动删除。
+检查点捕获对话线程的状态。设置 TTL 可确保旧的检查点和线程元数据被自动删除。
 
 在您的 `langgraph.json` 文件中添加 `checkpointer.ttl` 配置：
 
@@ -36,7 +36,7 @@ LangSmith 会持久化 [检查点](/oss/langgraph/persistence#checkpoints)（线
 
 * `strategy`：指定过期时采取的操作。目前仅支持 `"delete"`，它会在过期时删除线程中的所有检查点。
 * `sweep_interval_minutes`：定义系统检查过期检查点的频率（以分钟为单位）。
-* `default_ttl`：设置线程（及相应检查点）的默认生存时间（以分钟为单位，例如 43200 分钟 = 30 天）。仅适用于此配置部署后创建的检查点；现有的检查点/线程不会更改。要清除旧数据，请显式删除它。
+* `default_ttl`：设置线程（及相应检查点）的默认生存时间（以分钟为单位，例如 43200 分钟 = 30 天）。仅适用于此配置部署后创建的检查点；现有的检查点/线程不会更改。要清除旧数据，请显式删除。
 
 ## 配置存储项 TTL
 
@@ -66,7 +66,7 @@ LangSmith 会持久化 [检查点](/oss/langgraph/persistence#checkpoints)（线
 
 ## 组合 TTL 配置
 
-您可以在同一个 `langgraph.json` 文件中为检查点和存储项配置 TTL，从而为每种数据类型设置不同的策略。以下是一个示例：
+您可以在同一个 `langgraph.json` 文件中为检查点和存储项配置 TTL，从而为每种数据类型设置不同的策略。示例如下：
 
 ```json
 {
@@ -104,12 +104,18 @@ thread = await client.threads.create(
 )
 ```
 
+<Note>
+
+线程级别的 TTL 也会删除所有关联的检查点。因此，您可以设置线程级别的 TTL，而无需为检查点单独设置 TTL。
+
+</Note>
+
 ## 运行时覆盖
 
-`langgraph.json` 中的默认 `store.ttl` 设置可以在运行时被覆盖，方法是在 SDK 方法调用（如 `get`、`put` 和 `search`）中提供特定的 TTL 值。
+`langgraph.json` 中的默认 `store.ttl` 设置可以在运行时通过 SDK 方法调用（如 `get`、`put` 和 `search`）中提供特定的 TTL 值来覆盖。
 
 ## 部署流程
 
-在 `langgraph.json` 中配置 TTL 后，部署或重启您的 LangGraph 应用程序以使更改生效。使用 `langgraph dev` 进行本地开发，或使用 `langgraph up` 进行 Docker 部署。
+在 `langgraph.json` 中配置 TTL 后，部署或重启您的 LangGraph 应用程序以使更改生效。本地开发请使用 `langgraph dev`，Docker 部署请使用 `langgraph up`。
 
 有关其他可配置选项的更多详细信息，请参阅 [langgraph.json CLI 参考](https://langchain-ai.github.io/langgraph/reference/configuration/#configuration-file)。

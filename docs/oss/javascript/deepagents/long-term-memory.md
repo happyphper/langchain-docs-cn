@@ -1,10 +1,10 @@
 ---
 title: 长期记忆
-description: 了解如何为深度智能体（deep agents）扩展跨线程的持久化记忆功能
+description: 了解如何为深度智能体（agent）扩展跨线程的持久记忆（memory）
 ---
-Deep agents 附带一个本地文件系统来卸载内存。默认情况下，这个文件系统存储在 agent 状态中，并且**对单个线程是临时的**——当对话结束时文件会丢失。
+深度智能体（deep agent）配备本地文件系统以卸载记忆（memory）。默认情况下，该文件系统存储在智能体状态中，并且**对单个线程是临时的**——当对话结束时文件会丢失。
 
-你可以通过使用 **CompositeBackend** 来扩展 deep agents，使其具备**长期记忆**，该后端将特定路径路由到持久化存储。这实现了混合存储，其中一些文件跨线程持久化，而另一些则保持临时性。
+您可以通过使用 `CompositeBackend` 来扩展深度智能体，使其具备**长期记忆（long-term memory）**，该后端将特定路径路由到持久化存储。这实现了混合存储，其中一些文件跨线程持久存在，而其他文件则保持临时性。
 
 ```mermaid
 graph LR
@@ -19,7 +19,7 @@ graph LR
 
 ## 设置
 
-通过使用一个将 `/memories/` 路径路由到 `StoreBackend` 的 `CompositeBackend` 来配置长期记忆：
+通过使用 `CompositeBackend` 配置长期记忆，该后端将 `/memories/` 路径路由到 `StoreBackend`：
 
 ```typescript
 import { createDeepAgent } from "deepagents";
@@ -37,18 +37,18 @@ const agent = createDeepAgent({
 
 ## 工作原理
 
-当使用 `CompositeBackend` 时，deep agents 维护**两个独立的文件系统**：
+当使用 `CompositeBackend` 时，深度智能体维护**两个独立的文件系统**：
 
 ### 1. 短期（临时）文件系统
-- 存储在 agent 的状态中（通过 `StateBackend`）
-- 仅在单个线程内持久化
+- 存储在智能体的状态中（通过 `StateBackend`）
+- 仅在单个线程内持久存在
 - 线程结束时文件丢失
 - 通过标准路径访问：`/notes.txt`、`/workspace/draft.md`
 
 ### 2. 长期（持久化）文件系统
 - 存储在 LangGraph Store 中（通过 `StoreBackend`）
-- 跨所有线程和对话持久化
-- 在 agent 重启后仍然存在
+- 跨所有线程和对话持久存在
+- 智能体重启后仍然存在
 - 通过以 `/memories/` 为前缀的路径访问：`/memories/preferences.txt`
 
 ### 路径路由
@@ -70,7 +70,7 @@ await agent.invoke({
 });
 ```
 
-## 跨线程持久化
+## 跨线程持久性
 
 `/memories/` 中的文件可以从任何线程访问：
 
@@ -80,22 +80,22 @@ import { v4 as uuidv4 } from "uuid";
 // 线程 1：写入长期记忆
 const config1 = { configurable: { thread_id: uuidv4() } };
 await agent.invoke({
-  messages: [{ role: "user", content: "Save my preferences to /memories/preferences.txt" }],
+  messages: [{ role: "user", content: "将我的偏好保存到 /memories/preferences.txt" }],
 }, config1);
 
-// 线程 2：从长期记忆读取（不同的对话！）
+// 线程 2：从长期记忆中读取（不同的对话！）
 const config2 = { configurable: { thread_id: uuidv4() } };
 await agent.invoke({
-  messages: [{ role: "user", content: "What are my preferences?" }],
+  messages: [{ role: "user", content: "我的偏好是什么？" }],
 }, config2);
-// Agent 可以从第一个线程读取 /memories/preferences.txt
+// 智能体可以从第一个线程读取 /memories/preferences.txt
 ```
 
-## 使用场景
+## 使用案例
 
 ### 用户偏好
 
-存储跨会话持久化的用户偏好：
+存储跨会话持续存在的用户偏好：
 
 ```typescript
 const agent = createDeepAgent({
@@ -110,7 +110,7 @@ const agent = createDeepAgent({
 
 ### 自我改进的指令
 
-Agent 可以根据反馈更新自己的指令：
+智能体可以根据反馈更新自己的指令：
 
 ```typescript
 const agent = createDeepAgent({
@@ -119,15 +119,15 @@ const agent = createDeepAgent({
     new StateBackend(config),
     { "/memories/": new StoreBackend(config) }
   ),
-  systemPrompt: `你在 /memories/instructions.txt 有一个包含额外指令和偏好的文件。
+  systemPrompt: `你在 /memories/instructions.txt 有一个包含附加指令和偏好的文件。
 
   在对话开始时读取此文件以了解用户偏好。
 
-  当用户提供类似“请总是做 X”或“我更喜欢 Y”的反馈时，使用 edit_file 工具更新 /memories/instructions.txt。`,
+  当用户提供诸如“请总是做 X”或“我更喜欢 Y”的反馈时，使用 edit_file 工具更新 /memories/instructions.txt。`,
 });
 ```
 
-随着时间的推移，指令文件会积累用户偏好，帮助 agent 改进。
+随着时间的推移，指令文件会积累用户偏好，帮助智能体改进。
 
 ### 知识库
 
@@ -143,7 +143,7 @@ await agent.invoke({
 await agent.invoke({
   messages: [{ role: "user", content: "我们使用什么框架？" }],
 });
-// Agent 从之前的对话中读取 /memories/project_notes.txt
+// 智能体从之前的对话中读取 /memories/project_notes.txt
 ```
 
 ### 研究项目
@@ -157,22 +157,22 @@ const researchAgent = createDeepAgent({
     new StateBackend(config),
     { "/memories/": new StoreBackend(config) }
   ),
-  systemPrompt: `你是一个研究助手。
+  systemPrompt: `You are a research assistant.
 
-  将你的研究进度保存到 /memories/research/：
-  - /memories/research/sources.txt - 找到的资料来源列表
-  - /memories/research/notes.txt - 关键发现和笔记
-  - /memories/research/report.md - 最终报告草稿
+  Save your research progress to /memories/research/:
+  - /memories/research/sources.txt - List of sources found
+  - /memories/research/notes.txt - Key findings and notes
+  - /memories/research/report.md - Final report draft
 
-  这使得研究可以跨多个会话继续进行。`,
+  This allows research to continue across multiple sessions.`,
 });
 ```
 
 ## 存储实现
 
-任何 LangGraph `BaseStore` 实现都适用：
+任何 LangGraph 的 `BaseStore` 实现都可以使用：
 
-### InMemoryStore（开发）
+### InMemoryStore（开发环境）
 
 适用于测试和开发，但重启后数据会丢失：
 
@@ -190,9 +190,9 @@ const agent = createDeepAgent({
 });
 ```
 
-### PostgresStore（生产）
+### PostgresStore（生产环境）
 
-对于生产环境，使用持久化存储：
+生产环境请使用持久化存储：
 
 ```typescript
 import { PostgresStore } from "@langchain/langgraph-checkpoint-postgres";
@@ -214,7 +214,7 @@ const agent = createDeepAgent({
 
 ### 使用描述性路径
 
-用清晰的路径组织持久化文件：
+使用清晰的路径组织持久化文件：
 
 ```
 /memories/user_preferences.txt
@@ -225,10 +225,10 @@ const agent = createDeepAgent({
 
 ### 记录内存结构
 
-在你的系统提示中告诉 agent 什么内容存储在什么位置：
+在系统提示中告知智能体（agent）存储内容的位置：
 
 ```
-你的持久化内存结构：
+您的持久化内存结构：
 - /memories/preferences.txt：用户偏好和设置
 - /memories/context/：关于用户的长期上下文
 - /memories/knowledge/：随时间学习到的事实和信息
@@ -236,10 +236,10 @@ const agent = createDeepAgent({
 
 ### 清理旧数据
 
-定期清理过时的持久化文件，以保持存储的可管理性。
+定期清理过时的持久化文件，以保持存储空间的可管理性。
 
 ### 选择合适的存储
 
-- **开发**：使用 `InMemoryStore` 进行快速迭代
-- **生产**：使用 `PostgresStore` 或其他持久化存储
-- **多租户**：考虑在你的存储中使用基于 assistant_id 的命名空间
+- **开发环境**：使用 `InMemoryStore` 进行快速迭代
+- **生产环境**：使用 `PostgresStore` 或其他持久化存储
+- **多租户场景**：考虑在存储中使用基于 `assistant_id` 的命名空间

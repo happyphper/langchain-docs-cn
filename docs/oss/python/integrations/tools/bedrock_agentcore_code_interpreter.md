@@ -1,0 +1,250 @@
+---
+title: Amazon Bedrock AgentCore 代码解释器
+---
+[Amazon Bedrock AgentCore 代码解释器](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/code-interpreter-tool.html) 使智能体（agent）能够在安全、托管的沙箱环境中执行代码。智能体可以运行 Python、JavaScript 和 TypeScript 代码，用于计算、数据分析、文件操作和可视化。
+
+## 概述
+
+### 集成详情
+
+| 类 | 包 | 可序列化 | [JS 支持](https://js.langchain.com/docs/integrations/tools/) | 版本 |
+|:------|:--------|:------------:|:---------------------------------------------------------------:|:--------:|
+| [CodeInterpreterToolkit](https://github.com/langchain-ai/langchain-aws/tree/main/libs/aws/langchain_aws/tools) | [langchain-aws](https://pypi.org/project/langchain-aws/) | ✅ | ❌ | ![PyPI - Version](https://img.shields.io/pypi/v/langchain-aws?style=flat-square&label=%20) |
+
+### 工具特性
+
+| [返回工件](/oss/python/langchain/tools) | 原生异步 | 返回数据 | 定价 |
+|:-----------------------------------------------:|:------------:|:-----------:|:-------:|
+| ✅ | ✅ | 文本、文件、图像 | 按使用量付费 (AWS) |
+
+### 可用工具
+
+该工具包提供了多个用于代码执行和文件管理的工具：
+
+| 工具 | 描述 |
+|:-----|:------------|
+| `execute_code` | 运行具有持久状态的 Python/JavaScript/TypeScript 代码 |
+| `execute_command` | 在环境中运行 shell 命令 |
+| `read_files` | 读取环境中文件的内容 |
+| `write_files` | 创建或更新文件 |
+| `list_files` | 列出目录中的文件 |
+| `delete_files` | 从环境中删除文件 |
+| `upload_file` | 上传带有语义描述的文件 |
+| `install_packages` | 安装 Python 包 |
+| `start_command_execution` | 异步启动长时间运行的命令 |
+| `get_task` | 通过 task_id 检查异步任务的状态 |
+| `stop_task` | 通过 task_id 停止正在运行的异步任务 |
+
+## 设置
+
+该集成位于 `langchain-aws` 包中，该包封装了 `bedrock-agentcore` SDK。
+
+::: code-group
+
+```bash [pip]
+pip install -U langchain-aws bedrock-agentcore
+```
+```bash [uv]
+uv add langchain-aws bedrock-agentcore
+```
+
+:::
+
+### 凭证
+
+您需要配置具有 Bedrock AgentCore 代码解释器权限的 AWS 凭证。有关所需的 IAM 权限，请参阅 [Amazon Bedrock AgentCore 文档](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html)。
+
+为了获得一流的可观测性，设置 LangSmith 也很有帮助（但不是必需的）：
+
+```python
+import os
+
+os.environ["LANGSMITH_API_KEY"] = "your-api-key"
+os.environ["LANGSMITH_TRACING"] = "true"
+```
+
+## 实例化
+
+该工具包是使用一个**异步**工厂函数创建的：
+
+```python
+from langchain_aws.tools import create_code_interpreter_toolkit
+
+# 创建工具包并获取工具（异步）
+toolkit, code_tools = await create_code_interpreter_toolkit(region="us-west-2")
+```
+
+## 调用
+
+### 直接使用工具
+
+获取特定工具并调用它们：
+
+```python
+# 按名称获取工具
+tools_by_name = toolkit.get_tools_by_name()
+
+# 执行 Python 代码
+result = tools_by_name["execute_code"].invoke({
+    "code": """
+import numpy as np
+data = [1, 2, 3, 4, 5]
+print(f"Mean: {np.mean(data)}")
+print(f"Sum: {np.sum(data)}")
+""",
+    "language": "python"
+})
+print(result)
+```
+
+### 在智能体中使用
+
+```python
+import asyncio
+from langchain.agents import create_react_agent
+from langchain.chat_models import init_chat_model
+from langchain_aws.tools import create_code_interpreter_toolkit
+
+async def main():
+    # 创建工具包
+    toolkit, code_tools = await create_code_interpreter_toolkit(region="us-west-2")
+
+    # 初始化聊天模型
+    llm = init_chat_model(
+        "us.anthropic.claude-sonnet-4-20250514-v1:0",
+        model_provider="bedrock_converse",
+    )
+
+    # 使用代码解释器工具创建智能体
+    agent = create_react_agent(
+        model=llm,
+        tools=code_tools,
+    )
+```
+
+# 创建包含 thread_id 的配置以实现会话隔离
+config = {"configurable": {"thread_id": "session-123"}}
+
+    # 运行智能体
+result = await agent.ainvoke(
+{"messages": [{"role": "user", "content": "计算 10 的阶乘"}]},
+config=config
+)
+print(result["messages"][-1].content)
+
+    # 完成后清理
+await toolkit.cleanup()
+
+asyncio.run(main())
+```
+
+## 基于线程的会话隔离
+
+该工具包通过 `thread_id` 支持多个并发会话。每个线程维护其自身具有隔离状态的代码解释器会话：
+
+```python
+# 不同线程拥有隔离的会话
+config_user1 = {"configurable": {"thread_id": "user-1"}}
+config_user2 = {"configurable": {"thread_id": "user-2"}}
+
+# 在 user-1 会话中定义的变量不会存在于 user-2 的会话中
+await agent.ainvoke(
+{"messages": [{"role": "user", "content": "设置 x = 100"}]},
+config=config_user1
+)
+
+await agent.ainvoke(
+{"messages": [{"role": "user", "content": "x 是什么？"}]},  # 此处 x 未定义
+config=config_user2
+)
+```
+
+## 处理文件
+
+### 写入和读取文件
+
+```python
+tools_by_name = toolkit.get_tools_by_name()
+
+# 写入文件
+tools_by_name["write_files"].invoke({
+"files": [{"path": "data.csv", "text": "name,value\nAlice,100\nBob,200"}]
+})
+
+# 读取文件
+content = tools_by_name["read_files"].invoke({"paths": ["data.csv"]})
+print(content)
+
+# 列出当前目录中的文件
+files = tools_by_name["list_files"].invoke({"directory_path": "."})
+print(files)
+```
+
+### 上传带描述的文件
+
+```python
+tools_by_name["upload_file"].invoke({
+"path": "sales.csv",
+"content": "date,revenue,product\n2024-01-01,1000,Widget\n2024-01-02,1500,Gadget",
+"description": "销售数据，包含列：date, revenue, product_id"
+})
+```
+
+## 安装包
+
+```python
+tools_by_name["install_packages"].invoke({
+"packages": ["pandas>=2.0", "matplotlib", "scikit-learn"],
+"upgrade": False
+})
+```
+
+## 异步任务管理
+
+对于长时间运行的命令，您可以异步启动它们并检查其状态：
+
+```python
+tools_by_name = toolkit.get_tools_by_name()
+config = {"configurable": {"thread_id": "session-123"}}
+
+# 异步启动一个长时间运行的命令
+result = tools_by_name["start_command_execution"].invoke(
+{"command": "python long_running_script.py"},
+config=config
+)
+# 返回一个 task_id
+
+# 检查任务状态
+status = tools_by_name["get_task"].invoke(
+{"task_id": "task-abc123"},
+config=config
+)
+print(status)
+
+# 如果需要，停止正在运行的任务
+tools_by_name["stop_task"].invoke(
+{"task_id": "task-abc123"},
+config=config
+)
+```
+
+## 会话清理
+
+完成后务必清理会话以释放资源：
+
+```python
+# 清理所有会话
+await toolkit.cleanup()
+
+# 或清理特定线程的会话
+await toolkit.cleanup(thread_id="session-123")
+```
+
+---
+
+## API 参考
+
+有关所有功能和配置的详细文档，请参阅：
+
+- [langchain-aws API 参考](https://python.langchain.com/api_reference/aws/)
+- [Amazon Bedrock AgentCore 文档](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html)

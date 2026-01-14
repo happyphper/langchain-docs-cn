@@ -1,10 +1,10 @@
 ---
-title: 贡献指南
+title: 贡献
 sidebarTitle: Overview
 ---
-**欢迎！感谢您对贡献感兴趣。**
+**欢迎！感谢您有兴趣参与贡献。**
 
-LangChain 已帮助形成了生成式 AI 领域最大的开发者社区，我们始终欢迎新的贡献者。无论是修复错误、添加功能、改进文档还是分享反馈，您的参与都有助于让 LangChain 和 LangGraph 对每个人来说都变得更好 🦜❤️
+LangChain 已帮助形成了生成式 AI 领域最大的开发者社区，我们始终对新贡献者持开放态度。无论是修复错误、添加功能、改进文档还是分享反馈，您的参与都有助于让 LangChain 和 LangGraph 对每个人来说都变得更好 🦜❤️
 
 ## 贡献方式
 
@@ -32,21 +32,21 @@ Issues
 
 </Step>
 
-<Step title="创建 Issue">
+<Step title="创建问题">
 
-如果不存在相关 Issue，请创建一个新的。撰写时，请务必遵循提供的模板，并包含一个[最小化、可复现的示例](https://stackoverflow.com/help/minimal-reproducible-example)。Issue 创建后，请为其附加任何相关的标签。如果项目维护者无法复现该问题，则不太可能及时处理。
+如果不存在相应问题，请创建一个新的。撰写时，请务必遵循提供的模板，并包含一个[最小、可复现的示例](https://stackoverflow.com/help/minimal-reproducible-example)。问题创建后，请为其附加任何相关的标签。如果项目维护者无法复现该问题，则不太可能及时处理。
 
 </Step>
 
 <Step title="等待">
 
-项目维护者将对 Issue 进行分类，并可能要求提供更多信息。由于我们处理的 Issue 数量庞大，请耐心等待。除非您有新的信息需要提供，否则请不要在 Issue 中催促。
+项目维护者将对问题进行分流，并可能要求提供更多信息。由于我们处理的问题量很大，请耐心等待。除非您有新的信息要提供，否则请不要顶帖。
 
 </Step>
 
 </Steps>
 
-如果您要添加一个 Issue，请尽量使其专注于单一主题。如果两个 Issue 相关或存在阻塞关系，请[链接它们](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)，而不是将它们合并。例如：
+如果您要添加一个问题，请尽量使其专注于单一主题。如果两个问题相关或存在阻塞关系，请[链接它们](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)，而不是合并它们。例如，
 
 ```text
 This issue is blocked by #123 and related to #456.
@@ -80,13 +80,13 @@ Issues
 
 <Step title="讨论">
 
-如果没有相关请求，请在[相关类别](https://forum.langchain.com/c/help/langchain/13)下发起新的讨论，以便项目维护者和社区提供反馈。
+如果不存在相关请求，请在[相关类别](https://forum.langchain.com/c/help/langchain/13)下发起新的讨论，以便项目维护者和社区提供反馈。
 
 </Step>
 
 <Step title="描述">
 
-请务必描述用例以及它为何对他人有价值。如果可能，请提供示例或适用的模型图。概述应通过的测试用例。
+请务必描述用例及其对他人有价值的理由。如果可能，请提供适用的示例或模型。概述应通过的测试用例。
 
 </Step>
 
@@ -96,7 +96,7 @@ Issues
 
 :::: details <Icon icon="book" style="margin-right: 8px; vertical-align: middle;" /> 改进文档
 
-文档改进总是受欢迎的！我们努力保持文档清晰全面，您的视角可以带来很大的不同。
+我们始终欢迎文档改进！我们努力保持文档清晰全面，您的视角可以带来巨大改变。
 
 <Card title="如何提议文档更改" href="/oss/contributing/documentation" arrow>
 指南
@@ -106,15 +106,15 @@ Issues
 
 :::: details <Icon icon="code" style="margin-right: 8px; vertical-align: middle;" /> 贡献代码
 
-拥有庞大的用户群，我们的小团队很难跟上所有的功能请求和错误修复。如果您有技能和时间，我们非常欢迎您的帮助！
+面对庞大的用户群，我们的小团队很难跟上所有功能请求和错误修复。如果您具备技能和时间，我们非常欢迎您的帮助！
 
-<Card title="如何创建您的第一个 Pull Request" href="/oss/contributing/code" arrow>
+<Card title="如何创建您的第一个拉取请求" href="/oss/contributing/code" arrow>
 指南
 </Card>
 
-如果您开始处理某个 Issue，请将其分配给自己或请维护者分配。这有助于避免重复工作。
+如果您开始处理某个问题，请将其分配给自己或请维护者分配。这有助于避免重复工作。
 
-如果您正在寻找可以着手的工作，请查看我们仓库中标记为 "good first issue" 或 "help wanted" 的 Issues：
+如果您正在寻找可以处理的工作，请查看我们仓库中标记为 "good first issue" 或 "help wanted" 的问题：
 
 <Columns :cols="2">
 
@@ -138,10 +138,14 @@ Labels
 
 ::::
 
-## LLM 的可接受用途
+## 大语言模型（LLM）的可接受用途
 
-生成式 AI 对贡献者来说可能是一个有用的工具，但像任何工具一样，使用时需要批判性思维和良好的判断力。
+生成式人工智能可以成为贡献者的有用工具，但如同任何工具一样，使用时需要批判性思维和良好判断力。
 
-当贡献者的全部工作（代码更改、文档更新、Pull Request 描述）都由 LLM 生成时，我们会感到困扰。这些"路过式"的贡献通常本意良好，但在上下文相关性、准确性和质量方面往往不尽如人意。
+我们鼓励贡献者在有帮助的地方高效使用人工智能工具。然而，人工智能辅助必须与有意义的人工干预、判断和上下文理解相结合。**如果创建拉取请求所需的人工努力少于维护者审查它所需的努力，那么该贡献就不应被提交。**
 
-我们将关闭那些没有成效的 Pull Requests 和 Issues，以便将维护者的精力集中在其他地方。
+当贡献者的全部工作（代码更改、文档更新、拉取请求描述）都由大语言模型生成时，我们会感到困扰。这些"路过式贡献"通常出于好意，但在上下文相关性、准确性和质量方面往往不尽如人意。像这样的大规模自动化贡献，对我们的团队人力来说无异于一种拒绝服务攻击。
+
+**我们将关闭那些看起来是低质量、由人工智能生成的垃圾内容的拉取请求和议题。**
+
+能力越大，责任越大。

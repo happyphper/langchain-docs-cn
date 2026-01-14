@@ -1,13 +1,10 @@
 ---
-title: 工具
+title: 内置工具
+mode: wide
 ---
-在 Agent Builder 中，你可以访问多种工具，包括[内置工具](#built-in-tools)和[来自远程 MCP 服务器的工具](#remote-mcp-server-tools)。
+您可以在智能体构建器（Agent Builder）中访问多种工具。使用内置工具，让您的智能体能够访问电子邮件、日历、聊天、项目管理、代码托管、电子表格/商业智能（BI）、搜索、社交媒体和通用网络实用程序。
 
-## 内置工具
-
-使用这些内置工具，可以让你的智能体访问电子邮件、日历、聊天、项目管理、代码托管、电子表格/BI、搜索、社交媒体和通用网络实用程序。
-
-<Info icon="circle-info" color="#DCFCE7" iconType="regular">
+<Info>
 
 Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylon 和 Twitter/X 使用工作区密钥（API 密钥）。
 
@@ -20,9 +17,9 @@ Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylo
 读取和发送电子邮件
 <ul>
 <li>读取电子邮件（可选包含正文，使用搜索过滤）</li>
-<li>发送电子邮件或回复现有邮件</li>
+<li>发送电子邮件或回复现有消息</li>
 <li>创建草稿邮件</li>
-<li>将邮件标记为已读</li>
+<li>将消息标记为已读</li>
 <li>获取对话线程</li>
 <li>应用或创建标签</li>
 <li>列出邮箱标签</li>
@@ -34,9 +31,9 @@ Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylo
 
 管理日程事件
 <ul>
-<li>列出指定日期的事件</li>
-<li>获取事件详情</li>
-<li>创建新事件</li>
+<li>列出某日期的日程事件</li>
+<li>获取日程事件详情</li>
+<li>创建新日程事件</li>
 </ul>
 
 </Card>
@@ -46,14 +43,14 @@ Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylo
 电子表格
 <ul>
 <li>创建电子表格</li>
-<li>读取数据范围</li>
+<li>读取范围</li>
 </ul>
 
 </Card>
 
 <Card title="BigQuery" icon="database">
 
-数据分析
+分析
 <ul>
 <li>执行 SQL 查询</li>
 </ul>
@@ -88,7 +85,7 @@ Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylo
 
 <ul>
 <li>按 ID 读取推文</li>
-<li>从列表中读取最近的帖子</li>
+<li>从列表读取最近的帖子</li>
 </ul>
 
 </Card>
@@ -102,7 +99,7 @@ Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylo
 
 <Card title="GitHub" icon="github">
 
-拉取请求、议题和内容
+拉取请求（PR）、议题和内容
 <ul>
 <li>列出拉取请求</li>
 <li>获取拉取请求详情</li>
@@ -155,7 +152,7 @@ Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylo
 
 </div>
 
-<Card title="网络实用工具" icon="globe">
+<Card title="网络实用程序" icon="globe">
 
 <ul>
 <li>读取网页文本内容</li>
@@ -167,27 +164,35 @@ Google、Slack、Linear、GitHub 和 LinkedIn 使用 OAuth。Exa、Tavily、Pylo
 
 </CardGroup>
 
-## 远程 MCP 服务器工具
+<Tip>
 
-Agent Builder 可以发现并使用来自远程 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 服务器的工具。这使你能够连接到外部 MCP 服务器，并在你的智能体中使用它们的工具。
+您还可以连接到远程 MCP 服务器，为您的智能体提供更多工具。更多信息请参阅 [远程 MCP 服务器](/langsmith/agent-builder-remote-mcp-servers)。
 
-### 工作原理
+</Tip>
 
-- Agent Builder 通过标准的 MCP 协议从远程 MCP 服务器发现工具。
-- 在你的工作区中配置的请求头会在获取工具或调用工具时自动附加。请求头可用于身份验证。
-- 来自远程服务器的工具在 Agent Builder 中与内置工具一起可用。
+## 断开工具连接
 
-### 配置
+要从您的智能体中移除工具：
 
-在你的 LangSmith [工作区](/langsmith/administration-overview#workspaces) 中配置远程 MCP 服务器：
+<Steps>
 
-1.  在 [LangSmith UI](https://smith.langchain.com) 中导航到你的工作区设置。
-2.  添加你的 MCP 服务器 URL 和任何必需的请求头（例如，<code v-pre>Authorization: Bearer {{MCP_TOKEN}}</code>）。
-3.  Agent Builder 会自动从服务器发现工具，并在调用工具时应用配置的请求头。
+<Step title="打开智能体设置">
 
-<Note>
+在 [LangSmith UI](https://smith.langchain.com) 中，将鼠标悬停在左侧边栏的 <strong>我的智能体（My Agents）</strong> 上，然后点击 <Icon icon="gear" /> 设置图标。
 
-在请求头中使用工作区密钥占位符，例如 <code v-pre>{{MCP_TOKEN}}</code>。平台会在运行时从你的工作区密钥中解析这些值。
+</Step>
 
-</Note>
+<Step title="找到集成">
+
+在集成部分，找到您想要移除的已连接应用。
+
+</Step>
+
+<Step title="断开连接">
+
+点击该集成对应的 <strong>断开连接（Disconnect）</strong>。
+
+</Step>
+
+</Steps>
 

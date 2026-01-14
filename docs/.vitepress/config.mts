@@ -16,7 +16,7 @@ import { sidebarDeepAgentsPython, sidebarDeepAgentsJS } from './routes/sidebar_d
 import { sidebarIntegrationsPython, sidebarIntegrationsJS } from './routes/sidebar_integrations'
 import { sidebarLearnPython, sidebarLearnJS } from './routes/sidebar_learn'
 import { sidebarContributingPython, sidebarContributingJS } from './routes/sidebar_contributing'
-import { sidebarPythonReference, sidebarJSReference } from './routes/sidebar_reference'
+import { sidebarReferencePython, sidebarReferenceJS } from './routes/sidebar_reference'
 import { sidebarLangChainPython, sidebarLangChainJS } from './routes/sidebar_langchain'
 
 export default defineConfig({
@@ -308,8 +308,8 @@ export default defineConfig({
       '/oss/javascript/contributing/': sidebarContributingJS,
 
       // 通用路径兜底
-      '/oss/python/': sidebarPythonReference,
-      '/oss/javascript/': sidebarJSReference,
+      '/oss/python/': sidebarReferencePython,
+      '/oss/javascript/': sidebarReferenceJS,
     }
   }
 })

@@ -1,7 +1,7 @@
 ---
-title: 自定义深度代理
+title: 定制深度智能体
 sidebarTitle: Customization
-description: 了解如何通过系统提示、工具、子代理等自定义深度代理
+description: 了解如何通过系统提示、工具、子智能体等方式自定义深度智能体
 ---
 ```mermaid
 graph LR
@@ -13,10 +13,10 @@ graph LR
     Core --> Tools[工具]
 
     Features --> Backend[后端]
-    Features --> Sub[子代理]
+    Features --> Sub[子智能体]
     Features --> Interrupt[中断]
 
-    Model --> Agent[定制化代理]
+    Model --> Agent[定制化智能体]
     Prompt --> Agent
     Tools --> Agent
     Backend --> Agent
@@ -26,7 +26,13 @@ graph LR
 
 ## 模型
 
-默认情况下，`deepagents` 使用 [`claude-sonnet-4-5-20250929`](https://platform.claude.com/docs/en/about-claude/models/overview)。你可以通过传递任何受支持的 <Tooltip tip="遵循 `provider:model` 格式的字符串（例如 openai:gpt-5）" cta="查看映射关系" href="https://reference.langchain.com/python/langchain/models/#langchain.chat_models.init_chat_model(model)">模型标识符字符串</Tooltip> 或 [LangChain 模型对象](/oss/javascript/integrations/chat) 来自定义所使用的模型。
+默认情况下，`deepagents` 使用 [`claude-sonnet-4-5-20250929`](https://platform.claude.com/docs/en/about-claude/models/overview)。您可以通过传递任何受支持的 <Tooltip tip="遵循 `provider:model` 格式的字符串（例如 openai:gpt-5）" cta="查看映射关系" href="https://reference.langchain.com/python/langchain/models/#langchain.chat_models.init_chat_model(model)">模型标识符字符串</Tooltip> 或 [LangChain 模型对象](/oss/javascript/integrations/chat) 来自定义所使用的模型。
+
+<Tip>
+
+使用 `provider:model` 格式（例如 `openai:gpt-5`）可以快速在不同模型间切换。
+
+</Tip>
 
 ```typescript
 import { ChatAnthropic } from "@langchain/anthropic";
@@ -52,14 +58,14 @@ const agent2 = createDeepAgent({
 
 ## 系统提示词
 
-深度代理内置了一个受 Claude Code 系统提示词启发的系统提示词。默认的系统提示词包含了关于如何使用内置规划工具、文件系统工具和子代理的详细说明。
+深度智能体（deep agents）内置了一个受 Claude Code 系统提示词启发的系统提示词。默认的系统提示词包含了关于如何使用内置规划工具、文件系统工具和子智能体的详细说明。
 
-为特定用例定制的每个深度代理都应包含针对该用例的自定义系统提示词。
+为特定用例定制的每个深度智能体都应包含针对该用例的自定义系统提示词。
 
 ```typescript
 import { createDeepAgent } from "deepagents";
 
-const researchInstructions = `你是一位专家研究员。你的工作是进行深入研究，然后撰写一份完善的报告。`;
+const researchInstructions = `你是一位专家研究员。你的工作是进行深入研究，然后撰写一份精炼的报告。`;
 
 const agent = createDeepAgent({
   systemPrompt: researchInstructions,
@@ -68,7 +74,7 @@ const agent = createDeepAgent({
 
 ## 工具
 
-与工具调用代理类似，深度代理也拥有一组可以访问的顶层工具。
+除了您提供的自定义工具外，深度智能体还包含用于规划、文件管理和生成子智能体的[内置工具](/oss/javascript/deepagents/overview#core-capabilities)。
 
 ```typescript
 import { tool } from "langchain";
@@ -98,7 +104,7 @@ const internetSearch = tool(
   },
   {
     name: "internet_search",
-    description: "运行网络搜索",
+    description: "执行网络搜索",
     schema: z.object({
       query: z.string().describe("搜索查询"),
       maxResults: z.number().optional().default(5),
@@ -116,11 +122,3 @@ const agent = createDeepAgent({
 });
 ```
 
-除了你提供的任何工具外，深度代理还可以访问许多默认工具：
-
-- `write_todos` – 更新代理的待办事项列表
-- `ls` – 列出代理文件系统中的所有文件
-- `read_file` – 从代理的文件系统中读取文件
-- `write_file` – 在代理的文件系统中写入新文件
-- `edit_file` – 编辑代理文件系统中的现有文件
-- `task` – 生成一个子代理来处理特定任务

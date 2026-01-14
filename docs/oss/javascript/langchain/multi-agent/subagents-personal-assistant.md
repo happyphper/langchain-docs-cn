@@ -1,30 +1,30 @@
 ---
-title: 构建一个带有子代理的个人助手
+title: 构建一个包含子智能体的个人助手
 sidebarTitle: 'Subagents: Personal assistant'
 ---
 
 
 ## 概述
 
-**监督者模式**是一种[多智能体](/oss/javascript/langchain/multi-agent)架构，其中一个中央监督者智能体协调专门的执行者智能体。当任务需要不同类型的专业知识时，这种方法表现出色。与其构建一个管理跨领域工具选择的智能体，不如创建由理解整体工作流程的监督者协调的、专注的专家。
+**监督者模式（supervisor pattern）** 是一种[多智能体](/oss/javascript/langchain/multi-agent)架构，其中一个中央监督者智能体（supervisor agent）负责协调多个专业的工作者智能体（worker agents）。当任务需要不同类型的专业知识时，这种方法表现出色。与其构建一个管理跨领域工具选择的智能体，不如创建由理解整体工作流程的监督者协调的专注型专家。
 
-在本教程中，你将构建一个个人助理系统，通过一个现实的工作流程来展示这些优势。该系统将协调两个职责根本不同的专家：
+在本教程中，您将构建一个个人助理系统，通过一个现实的工作流程来展示这些优势。该系统将协调两个职责根本不同的专家：
 
 - 一个**日历智能体**，负责处理日程安排、可用性检查和事件管理。
 - 一个**电子邮件智能体**，负责管理通信、起草消息和发送通知。
 
-我们还将引入[人工介入审查](/oss/javascript/langchain/human-in-the-loop)，允许用户根据需要批准、编辑和拒绝操作（例如外发电子邮件）。
+我们还将整合[人机协同（human-in-the-loop）审查](/oss/javascript/langchain/human-in-the-loop)，允许用户根据需要批准、编辑和拒绝操作（例如外发电子邮件）。
 
 ### 为什么使用监督者？
 
-多智能体架构允许你将[工具](/oss/javascript/langchain/tools)划分给各个执行者，每个执行者都有自己的提示词或指令。考虑一个可以直接访问所有日历和电子邮件 API 的智能体：它必须从许多相似的工具中进行选择，理解每个 API 的确切格式，并同时处理多个领域。如果性能下降，将相关工具和关联的提示词分离到逻辑组中可能会有所帮助（部分是为了管理迭代改进）。
+多智能体架构允许您将[工具](/oss/javascript/langchain/tools)划分给不同的工作者，每个工作者都有自己的提示词或指令。考虑一个可以直接访问所有日历和电子邮件 API 的智能体：它必须从许多相似的工具中进行选择，理解每个 API 的确切格式，并同时处理多个领域。如果性能下降，将相关工具和关联的提示词分离成逻辑组可能会有所帮助（部分是为了管理迭代改进）。
 
 ### 概念
 
 我们将涵盖以下概念：
 
 - [多智能体系统](/oss/javascript/langchain/multi-agent)
-- [人工介入审查](/oss/javascript/langchain/human-in-the-loop)
+- [人机协同（human-in-the-loop）审查](/oss/javascript/langchain/human-in-the-loop)
 
 ## 设置
 
@@ -52,7 +52,7 @@ pnpm add langchain
 
 ### LangSmith
 
-设置 [LangSmith](https://smith.langchain.com) 以检查智能体内部发生的情况。然后设置以下环境变量：
+设置 [LangSmith](https://smith.langchain.com) 以检查您的智能体内部发生的情况。然后设置以下环境变量：
 
 ::: code-group
 
@@ -76,7 +76,7 @@ process.env.LANGSMITH_API_KEY = "...";
 
 ## 1. 定义工具
 
-首先定义需要结构化输入的工具。在实际应用中，这些工具会调用真实的 API（Google Calendar、SendGrid 等）。在本教程中，你将使用存根来演示该模式。
+首先定义需要结构化输入的工具。在实际应用中，这些工具会调用真实的 API（如 Google Calendar、SendGrid 等）。在本教程中，您将使用存根（stubs）来演示该模式。
 
 ```typescript
 import { tool } from "langchain";
@@ -84,17 +84,17 @@ import { z } from "zod";
 
 const createCalendarEvent = tool(
   async ({ title, startTime, endTime, attendees, location }) => {
-    // Stub: In practice, this would call Google Calendar API, Outlook API, etc.
-    return `Event created: ${title} from ${startTime} to ${endTime} with ${attendees.length} attendees`;
+    // 存根：实际应用中，这将调用 Google Calendar API、Outlook API 等。
+    return `事件已创建: ${title} 从 ${startTime} 到 ${endTime}，有 ${attendees.length} 位与会者`;
   },
   {
     name: "create_calendar_event",
-    description: "Create a calendar event. Requires exact ISO datetime format.",
+    description: "创建日历事件。需要精确的 ISO 日期时间格式。",
     schema: z.object({
       title: z.string(),
-      startTime: z.string().describe("ISO format: '2024-01-15T14:00:00'"),
-      endTime: z.string().describe("ISO format: '2024-01-15T15:00:00'"),
-      attendees: z.array(z.string()).describe("email addresses"),
+      startTime: z.string().describe("ISO 格式: '2024-01-15T14:00:00'"),
+      endTime: z.string().describe("ISO 格式: '2024-01-15T15:00:00'"),
+      attendees: z.array(z.string()).describe("电子邮件地址"),
       location: z.string().optional(),
     }),
   }
@@ -102,14 +102,14 @@ const createCalendarEvent = tool(
 
 const sendEmail = tool(
   async ({ to, subject, body, cc }) => {
-    // Stub: In practice, this would call SendGrid, Gmail API, etc.
-    return `Email sent to ${to.join(', ')} - Subject: ${subject}`;
+    // 存根：实际应用中，这将调用 SendGrid、Gmail API 等。
+    return `邮件已发送至 ${to.join(', ')} - 主题: ${subject}`;
   },
   {
     name: "send_email",
-    description: "Send an email via email API. Requires properly formatted addresses.",
+    description: "通过电子邮件 API 发送邮件。需要正确格式化的地址。",
     schema: z.object({
-      to: z.array(z.string()).describe("email addresses"),
+      to: z.array(z.string()).describe("电子邮件地址"),
       subject: z.string(),
       body: z.string(),
       cc: z.array(z.string()).optional(),
@@ -119,15 +119,15 @@ const sendEmail = tool(
 
 const getAvailableTimeSlots = tool(
   async ({ attendees, date, durationMinutes }) => {
-    // Stub: In practice, this would query calendar APIs
+    // 存根：实际应用中，这将查询日历 API
     return ["09:00", "14:00", "16:00"];
   },
   {
     name: "get_available_time_slots",
-    description: "Check calendar availability for given attendees on a specific date.",
+    description: "在特定日期检查给定与会者的日历可用性。",
     schema: z.object({
       attendees: z.array(z.string()),
-      date: z.string().describe("ISO format: '2024-01-15'"),
+      date: z.string().describe("ISO 格式: '2024-01-15'"),
       durationMinutes: z.number(),
     }),
   }
@@ -140,18 +140,17 @@ const getAvailableTimeSlots = tool(
 
 ### 创建日历智能体
 
-日历智能体理解自然语言日程安排请求，并将其转换为精确的 API 调用。它处理日期解析、可用性检查和事件创建。
+日历智能体理解自然语言调度请求，并将其转换为精确的 API 调用。它处理日期解析、可用性检查和事件创建。
 
 ```typescript
 import { createAgent } from "langchain";
 
 const CALENDAR_AGENT_PROMPT = `
-You are a calendar scheduling assistant.
-Parse natural language scheduling requests (e.g., 'next Tuesday at 2pm')
-into proper ISO datetime formats.
-Use get_available_time_slots to check availability when needed.
-Use create_calendar_event to schedule events.
-Always confirm what was scheduled in your final response.
+你是一个日历调度助手。
+将自然语言调度请求（例如，'下周二下午2点'）解析为正确的 ISO 日期时间格式。
+需要时使用 get_available_time_slots 检查可用性。
+使用 create_calendar_event 来安排事件。
+始终在最终响应中确认已安排的内容。
 `.trim();
 
 const calendarAgent = createAgent({
@@ -161,7 +160,7 @@ const calendarAgent = createAgent({
 });
 ```
 
-测试日历智能体，看看它如何处理自然语言日程安排：
+测试日历智能体，观察其如何处理自然语言日程安排：
 
 ```typescript
 const query = "Schedule a team meeting next Tuesday at 2pm for 1 hour";
@@ -212,11 +211,11 @@ Event created: Team Meeting from 2024-06-18T14:00:00 to 2024-06-18T15:00:00 with
 The team meeting has been scheduled for next Tuesday, June 18th, at 2:00 PM and will last for 1 hour. If you need to add attendees or a location, please let me know!
 ```
 
-该智能体将“下周二下午 2 点”解析为 ISO 格式（"2024-01-16T14:00:00"），计算结束时间，调用 `create_calendar_event`，并返回自然语言确认。
+该智能体将"下周二下午2点"解析为ISO格式（"2024-01-16T14:00:00"），计算结束时间，调用`create_calendar_event`，并返回自然语言确认信息。
 
-### 创建电子邮件智能体
+### 创建邮件智能体
 
-电子邮件智能体处理消息撰写和发送。它专注于提取收件人信息、制作适当的主题行和正文文本，以及管理电子邮件通信。
+邮件智能体处理邮件撰写和发送。它专注于提取收件人信息、撰写合适的主题行和正文内容，并管理邮件通信。
 
 ```typescript
 const EMAIL_AGENT_PROMPT = `
@@ -234,7 +233,7 @@ const emailAgent = createAgent({
 });
 ```
 
-使用自然语言请求测试电子邮件智能体：
+使用自然语言请求测试邮件智能体：
 
 ```typescript
 const query = "Send the design team a reminder about reviewing the new mockups";
@@ -243,73 +242,110 @@ const stream = await emailAgent.stream({
   messages: [{ role: "user", content: query }]
 });
 
+```javascript
 for await (const step of stream) {
   for (const update of Object.values(step)) {
-    if (update && typeof update === "object" && "messages" in update) {
-      for (const message of update.messages) {
-        console.log(message.toFormattedString());
-      }
-    }
+if (update && typeof update === "object" && "messages" in update) {
+for (const message of update.messages) {
+console.log(message.toFormattedString());
+}
+}
   }
 }
 ```
-
+:::
 ```
 ================================== Ai Message ==================================
-Tool Calls:
+工具调用:
   send_email (call_OMl51FziTVY6CRZvzYfjYOZr)
- Call ID: call_OMl51FziTVY6CRZvzYfjYOZr
-  Args:
-    to: ['design-team@example.com']
-    subject: Reminder: Please Review the New Mockups
-    body: Hi Design Team,
+ 调用 ID: call_OMl51FziTVY6CRZvzYfjYOZr
+  参数:
+to: ['design-team@example.com']
+subject: Reminder: Please Review the New Mockups
+body: 设计团队，您好：
 
-This is a friendly reminder to review the new mockups at your earliest convenience. Your feedback is important to ensure that we stay on track with our project timeline.
+这是一封友好提醒，请您在方便时尽早审阅新的设计稿。您的反馈对于确保我们按项目时间线推进至关重要。
 
-Please let me know if you have any questions or need additional information.
+如果您有任何疑问或需要更多信息，请随时告知。
 
-Thank you!
+谢谢！
 
-Best regards,
+此致，
 ================================= Tool Message =================================
-Name: send_email
+名称: send_email
 
-Email sent to design-team@example.com - Subject: Reminder: Please Review the New Mockups
+邮件已发送至 design-team@example.com - 主题: Reminder: Please Review the New Mockups
 ================================== Ai Message ==================================
 
-I've sent a reminder to the design team asking them to review the new mockups. If you need any further communication on this topic, just let me know!
+我已向设计团队发送了提醒，请他们审阅新的设计稿。如果您需要就此主题进行进一步沟通，请随时告知！
 ```
 
-该智能体从非正式请求中推断出收件人，制作专业的主题行和正文，调用 `send_email`，并返回确认信息。每个子智能体都有狭窄的焦点和特定领域的工具及提示词，使其能够在特定任务上表现出色。
+智能体从非正式的请求中推断出收件人，精心设计了专业的主题行和正文，调用了 `send_email` 工具，并返回了确认信息。每个子智能体都有其专注的领域，配备了特定领域的工具和提示，使其能够在特定任务上表现出色。
 
 ## 3. 将子智能体包装为工具
 
-现在将每个子智能体包装为监督者可以调用的工具。这是创建分层系统的关键架构步骤。监督者将看到高级工具，如 "schedule_event"，而不是低级工具，如 "create_calendar_event"。
+现在将每个子智能体包装成一个可供监督者调用的工具。这是创建分层系统的关键架构步骤。监督者将看到诸如 "schedule_event" 这样的高级工具，而不是 "create_calendar_event" 这样的低级工具。
+
+:::python
+
+```python
+@tool
+def schedule_event(request: str) -> str:
+"""使用自然语言安排日历事件。
+
+当用户想要创建、修改或查看日历预约时使用此工具。
+处理日期/时间解析、可用性检查和事件创建。
+
+输入：自然语言调度请求（例如，'下周二下午2点与设计团队开会'）
+"""
+result = calendar_agent.invoke({
+"messages": [{"role": "user", "content": request}]
+})
+return result["messages"][-1].text
+
+@tool
+def manage_email(request: str) -> str:
+"""使用自然语言发送电子邮件。
+
+当用户想要发送通知、提醒或任何电子邮件通信时使用此工具。
+处理收件人提取、主题生成和邮件撰写。
+
+输入：自然语言邮件请求（例如，'给他们发送一个关于会议的提醒'）
+"""
+result = email_agent.invoke({
+"messages": [{"role": "user", "content": request}]
+})
+return result["messages"][-1].text
+```
+:::
+
+:::js
 
 ```typescript
 const scheduleEvent = tool(
   async ({ request }) => {
-    const result = await calendarAgent.invoke({
-      messages: [{ role: "user", content: request }]
-    });
-    const lastMessage = result.messages[result.messages.length - 1];
-    return lastMessage.text;
+const result = await calendarAgent.invoke({
+messages: [{ role: "user", content: request }]
+});
+const lastMessage = result.messages[result.messages.length - 1];
+return lastMessage.text;
   },
   {
-    name: "schedule_event",
-    description: `
-Schedule calendar events using natural language.
+name: "schedule_event",
+description: `
+使用自然语言安排日历事件。
 
-Use this when the user wants to create, modify, or check calendar appointments.
-Handles date/time parsing, availability checking, and event creation.
+当用户想要创建、修改或查看日历预约时使用此工具。
+处理日期/时间解析、可用性检查和事件创建。
 
-Input: Natural language scheduling request (e.g., 'meeting with design team next Tuesday at 2pm')
-    `.trim(),
-    schema: z.object({
-      request: z.string().describe("Natural language scheduling request"),
-    }),
+输入：自然语言调度请求（例如，'下周二下午2点与设计团队开会'）
+`.trim(),
+schema: z.object({
+request: z.string().describe("自然语言调度请求"),
+}),
   }
 );
+```
 
 const manageEmail = tool(
   async ({ request }) => {
@@ -322,32 +358,32 @@ const manageEmail = tool(
   {
     name: "manage_email",
     description: `
-Send emails using natural language.
+使用自然语言发送电子邮件。
 
-Use this when the user wants to send notifications, reminders, or any email communication.
-Handles recipient extraction, subject generation, and email composition.
+当用户想要发送通知、提醒或任何电子邮件通信时使用此工具。
+处理收件人提取、主题生成和邮件内容撰写。
 
-Input: Natural language email request (e.g., 'send them a reminder about the meeting')
+输入：自然语言电子邮件请求（例如，“给他们发送一个关于会议的提醒”）
     `.trim(),
     schema: z.object({
-      request: z.string().describe("Natural language email request"),
+      request: z.string().describe("自然语言电子邮件请求"),
     }),
   }
 );
 ```
 
-工具描述有助于监督者决定何时使用每个工具，因此请使其清晰具体。我们只返回子智能体的最终响应，因为监督者不需要看到中间推理或工具调用。
+工具描述有助于监督者决定何时使用每个工具，因此请确保它们清晰且具体。我们只返回子智能体的最终响应，因为监督者不需要看到中间推理或工具调用过程。
 
 ## 4. 创建监督者智能体
 
-现在创建协调子智能体的监督者。监督者只看到高级工具，并在领域级别而非单个 API 级别做出路由决策。
+现在创建用于协调子智能体的监督者。监督者只看到高级工具，并在领域层面做出路由决策，而不是在单个 API 层面。
 
 ```typescript
 const SUPERVISOR_PROMPT = `
-You are a helpful personal assistant.
-You can schedule calendar events and send emails.
-Break down user requests into appropriate tool calls and coordinate the results.
-When a request involves multiple actions, use multiple tools in sequence.
+你是一个有用的个人助手。
+你可以安排日历事件和发送电子邮件。
+将用户请求分解为适当的工具调用并协调结果。
+当请求涉及多个操作时，按顺序使用多个工具。
 `.trim();
 
 const supervisorAgent = createAgent({
@@ -359,7 +395,7 @@ const supervisorAgent = createAgent({
 
 ## 5. 使用监督者
 
-现在使用需要跨多个领域协调的复杂请求来测试你的完整系统：
+现在，使用需要跨多个领域协调的复杂请求来测试你的完整系统：
 
 ### 示例 1：简单的单领域请求
 
@@ -397,13 +433,11 @@ The team standup has been scheduled for tomorrow at 9:00 AM with Alice and Bob. 
 The team standup with Alice and Bob is scheduled for tomorrow at 9:00 AM. If you need any further arrangements or adjustments, please let me know!
 ```
 
-监督者将其识别为日历任务，调用 `schedule_event`，然后日历智能体处理日期解析和事件创建。
+监督者将此识别为日历任务，调用 `schedule_event`，然后日历智能体处理日期解析和事件创建。
 
-<Tip>
-
-要完全了解信息流，包括每次聊天模型调用的提示词和响应，请查看上述运行的 [LangSmith 追踪](https://smith.langchain.com/public/91a9a95f-fba9-4e84-aff0-371861ad2f4a/r)。
-
-</Tip>
+<提示>
+要全面了解信息流，包括每次聊天模型调用的提示和响应，请查看上述运行的 [LangSmith 追踪](https://smith.langchain.com/public/91a9a95f-fba9-4e84-aff0-371861ad2f4a/r)。
+</提示>
 
 ### 示例 2：复杂的多领域请求
 
@@ -428,369 +462,44 @@ for await (const step of stream) {
 ```
 
 ```
-================================== Ai Message ==================================
-Tool Calls:
+================================== Ai 消息 ==================================
+工具调用:
   schedule_event (call_YA68mqF0koZItCFPx0kGQfZi)
- Call ID: call_YA68mqF0koZItCFPx0kGQfZi
-  Args:
+ 调用 ID: call_YA68mqF0koZItCFPx0kGQfZi
+  参数:
     request: meeting with the design team next Tuesday at 2pm for 1 hour
   manage_email (call_XxqcJBvVIuKuRK794ZIzlLxx)
- Call ID: call_XxqcJBvVIuKuRK794ZIzlLxx
-  Args:
+ 调用 ID: call_XxqcJBvVIuKuRK794ZIzlLxx
+  参数:
     request: send the design team an email reminder about reviewing the new mockups
-================================= Tool Message =================================
-Name: schedule_event
+================================= 工具消息 =================================
+名称: schedule_event
 
-Your meeting with the design team is scheduled for next Tuesday, June 18th, from 2:00pm to 3:00pm. Let me know if you need to add more details or make any changes!
-================================= Tool Message =================================
-Name: manage_email
+您与设计团队的会议已安排在下周二，6月18日，下午2:00至3:00。如果您需要添加更多细节或进行任何更改，请告诉我！
+================================= 工具消息 =================================
+名称: manage_email
 
-I've sent an email reminder to the design team requesting them to review the new mockups. If you need to include more information or recipients, just let me know!
-================================== Ai Message ==================================
+我已向设计团队发送了一封电子邮件提醒，请他们审阅新的设计稿。如果您需要包含更多信息或收件人，请告诉我！
+================================== Ai 消息 ==================================
 
-Your meeting with the design team is scheduled for next Tuesday, June 18th, from 2:00pm to 3:00pm.
+您与设计团队的会议已安排在下周二，6月18日，下午2:00至3:00。
 
-I've also sent an email reminder to the design team, asking them to review the new mockups.
+我还向设计团队发送了一封电子邮件提醒，请他们审阅新的设计稿。
 
-Let me know if you'd like to add more details to the meeting or include additional information in the email!
+如果您想为会议添加更多细节或在电子邮件中包含更多信息，请告诉我！
 ```
 
-监督者识别出这需要日历和电子邮件操作，为会议调用 `schedule_event`，然后为提醒调用 `manage_email`。每个子智能体完成其任务，监督者将两个结果综合成一个连贯的响应。
+监督者（supervisor）识别出这需要日历和电子邮件两种操作，首先调用 `schedule_event` 安排会议，然后调用 `manage_email` 发送提醒。每个子智能体（sub-agent）完成其任务，监督者将两个结果综合成一个连贯的响应。
 
-<Tip>
+<提示>
+请参考 [LangSmith 追踪](https://smith.langchain.com/public/95cd00a3-d1f9-4dba-9731-7bf733fb6a3c/r) 查看上述运行的详细信息流，包括各个聊天模型的提示和响应。
+</提示>
 
-请参阅 [LangSmith 追踪](https://smith.langchain.com/public/95cd00a3-d1f9-4dba-9731-7bf733fb6a3c/r) 以查看上述运行的详细信息流，包括各个聊天模型的提示词和响应。
+### 完整可运行示例
 
-</Tip>
-
-### 完整工作示例
-
-以下是一个可运行脚本中的所有内容：
+以下是一个包含所有内容的可运行脚本：
 
 <Expandable title="查看完整代码" :defaultOpen="false">
-
-```typescript
-/**
- * Personal Assistant Supervisor Example
- *
- * This example demonstrates the tool calling pattern for multi-agent systems.
- * A supervisor agent coordinates specialized sub-agents (calendar and email)
- * that are wrapped as tools.
- */
-
-import { tool, createAgent } from "langchain";
-import { ChatAnthropic } from "@langchain/anthropic";
-import { z } from "zod";
-
-// ============================================================================
-// Step 1: Define low-level API tools (stubbed)
-// ============================================================================
-
-const createCalendarEvent = tool(
-  async ({ title, startTime, endTime, attendees, location }) => {
-    // Stub: In practice, this would call Google Calendar API, Outlook API, etc.
-    return `Event created: ${title} from ${startTime} to ${endTime} with ${attendees.length} attendees`;
-  },
-  {
-    name: "create_calendar_event",
-    description: "Create a calendar event. Requires exact ISO datetime format.",
-    schema: z.object({
-      title: z.string(),
-      startTime: z.string().describe("ISO format: '2024-01-15T14:00:00'"),
-      endTime: z.string().describe("ISO format: '2024-01-15T15:00:00'"),
-      attendees: z.array(z.string()).describe("email addresses"),
-      location: z.string().optional().default(""),
-    }),
-  }
-);
-
-const sendEmail = tool(
-  async ({ to, subject, body, cc }) => {
-    // Stub: In practice, this would call SendGrid, Gmail API, etc.
-    return `Email sent to ${to.join(", ")} - Subject: ${subject}`;
-  },
-  {
-    name: "send_email",
-    description:
-      "Send an email via email API. Requires properly formatted addresses.",
-    schema: z.object({
-      to: z.array(z.string()).describe("email addresses"),
-      subject: z.string(),
-      body: z.string(),
-      cc: z.array(z.string()).optional().default([]),
-    }),
-  }
-);
-
-const getAvailableTimeSlots = tool(
-  async ({ attendees, date, durationMinutes }) => {
-    // Stub: In practice, this would query calendar APIs
-    return ["09:00", "14:00", "16:00"];
-  },
-  {
-    name: "get_available_time_slots",
-    description:
-      "Check calendar availability for given attendees on a specific date.",
-    schema: z.object({
-      attendees: z.array(z.string()),
-      date: z.string().describe("ISO format: '2024-01-15'"),
-      durationMinutes: z.number(),
-    }),
-  }
-);
-
-// ============================================================================
-// Step 2: Create specialized sub-agents
-// ============================================================================
-
-const llm = new ChatAnthropic({
-  model: "claude-haiku-4-5-20251001",
-});
-
-const calendarAgent = createAgent({
-  model: llm,
-  tools: [createCalendarEvent, getAvailableTimeSlots],
-  systemPrompt: `
-You are a calendar scheduling assistant.
-Parse natural language scheduling requests (e.g., 'next Tuesday at 2pm')
-into proper ISO datetime formats.
-Use get_available_time_slots to check availability when needed.
-Use create_calendar_event to schedule events.
-Always confirm what was scheduled in your final response.
-  `.trim(),
-});
-
-const emailAgent = createAgent({
-  model: llm,
-  tools: [sendEmail],
-  systemPrompt: `
-You are an email assistant.
-Compose professional emails based on natural language requests.
-Extract recipient information and craft appropriate subject lines and body text.
-Use send_email to send the message.
-Always confirm what was sent in your final response.
-  `.trim(),
-});
-
-// ============================================================================
-// Step 3: Wrap sub-agents as tools for the supervisor
-// ============================================================================
-
-const scheduleEvent = tool(
-  async ({ request }) => {
-    const result = await calendarAgent.invoke({
-      messages: [{ role: "user", content: request }],
-    });
-    const lastMessage = result.messages[result.messages.length - 1];
-    return lastMessage.text;
-  },
-  {
-    name: "schedule_event",
-    description: `
-Schedule calendar events using natural language.
-
-Use this when the user wants to create, modify, or check calendar appointments.
-Handles date/time parsing, availability checking, and event creation.
-
-Input: Natural language scheduling request (e.g., 'meeting with design team next Tuesday at 2pm')
-    `.trim(),
-    schema: z.object({
-      request: z.string().describe("Natural language scheduling request"),
-    }),
-  }
-);
-
-const manageEmail = tool(
-  async ({ request }) => {
-    const result = await emailAgent.invoke({
-      messages: [{ role: "user", content: request }],
-    });
-    const lastMessage = result.messages[result.messages.length - 1];
-    return lastMessage.text;
-  },
-  {
-    name: "manage_email",
-    description: `
-Send emails using natural language.
-
-Use this when the user wants to send notifications, reminders, or any email communication.
-Handles recipient extraction, subject generation, and email composition.
-
-Input: Natural language email request (e.g., 'send them a reminder about the meeting')
-    `.trim(),
-    schema: z.object({
-      request: z.string().describe("Natural language email request"),
-    }),
-  }
-);
-
-// ============================================================================
-// Step 4: Create the supervisor agent
-// ============================================================================
-
-const supervisorAgent = createAgent({
-  model: llm,
-  tools: [scheduleEvent, manageEmail],
-  systemPrompt: `
-You are a helpful personal assistant.
-You can schedule calendar events and send emails.
-Break down user requests into appropriate tool calls and coordinate the results.
-When a request involves multiple actions, use multiple tools in sequence.
-  `.trim(),
-});
-
-// ============================================================================
-// Step 5: Use the supervisor
-// ============================================================================
-
-// Example: User request requiring both calendar and email coordination
-const userRequest =
-  "Schedule a meeting with the design team next Tuesday at 2pm for 1 hour, " +
-  "and send them an email reminder about reviewing the new mockups.";
-
-console.log("User Request:", userRequest);
-console.log(`\n${"=".repeat(80)}\n`);
-
-const stream = await supervisorAgent.stream({
-  messages: [{ role: "user", content: userRequest }],
-});
-
-for await (const step of stream) {
-  for (const update of Object.values(step)) {
-    if (update && typeof update === "object" && "messages" in update) {
-      for (const message of update.messages) {
-        console.log(message.toFormattedString());
-      }
-    }
-  }
-}
-```
-
-</Expandable>
-
-### 理解架构
-
-你的系统有三层。底层包含需要精确格式的严格 API 工具。中间层包含接受自然语言、将其转换为结构化 API 调用并返回自然语言确认的子智能体。顶层包含监督者，它路由到高级功能并综合结果。
-
-这种关注点分离提供了几个好处：每一层都有明确的职责，你可以添加新领域而不影响现有领域，并且可以独立测试和迭代每一层。
-
-## 6. 添加人工介入审查
-
-对敏感操作进行[人工介入审查](/oss/javascript/langchain/human-in-the-loop)可能是审慎的做法。LangChain 包含[内置中间件](/oss/javascript/langchain/human-in-the-loop#configuring-interrupts)来审查工具调用，在本例中是子智能体调用的工具。
-
-让我们为两个子智能体添加人工介入审查：
-- 我们将 `create_calendar_event` 和 `send_email` 工具配置为中断，允许所有[响应类型](/oss/javascript/langchain/human-in-the-loop)（`approve`、`edit`、`reject`）
-- 我们添加一个[检查点](/oss/javascript/langchain/short-term-memory)**仅到顶层智能体**。这是暂停和恢复执行所必需的。
-
-```typescript
-import { createAgent, humanInTheLoopMiddleware } from "langchain"; // [!code highlight]
-import { MemorySaver } from "@langchain/langgraph"; // [!code highlight]
-
-const calendarAgent = createAgent({
-  model: llm,
-  tools: [createCalendarEvent, getAvailableTimeSlots],
-  systemPrompt: CALENDAR_AGENT_PROMPT,
-  middleware: [ // [!code highlight]
-    humanInTheLoopMiddleware({ // [!code highlight]
-      interruptOn: { create_calendar_event: true }, // [!code highlight]
-      descriptionPrefix: "Calendar event pending approval", // [!code highlight]
-    }), // [!code highlight]
-  ], // [!code highlight]
-});
-
-const emailAgent = createAgent({
-  model: llm,
-  tools: [sendEmail],
-  systemPrompt: EMAIL_AGENT_PROMPT,
-  middleware: [ // [!code highlight]
-    humanInTheLoopMiddleware({ // [!code highlight]
-      interruptOn: { send_email: true }, // [!code highlight]
-      descriptionPrefix: "Outbound email pending approval", // [!code highlight]
-    }), // [!code highlight]
-  ], // [!code highlight]
-});
-
-const supervisorAgent = createAgent({
-  model: llm,
-  tools: [scheduleEvent, manageEmail],
-  systemPrompt: SUPERVISOR_PROMPT,
-  checkpointer: new MemorySaver(), // [!code highlight]
-});
-```
-
-让我们重复查询。注意，我们将中断事件收集到一个列表中以便后续访问：
-
-```typescript
-const query =
-  "Schedule a meeting with the design team next Tuesday at 2pm for 1 hour, " +
-  "and send them an email reminder about reviewing the new mockups.";
-
-const config = { configurable: { thread_id: "6" } };
-
-const interrupts: any[] = [];
-const stream = await supervisorAgent.stream(
-  { messages: [{ role: "user", content: query }] },
-  config
-);
-
-for await (const step of stream) {
-  for (const update of Object.values(step)) {
-    if (update && typeof update === "object" && "messages" in update) {
-      for (const message of update.messages) {
-        console.log(message.toFormattedString());
-      }
-    } else if (Array.isArray(update)) {
-      const interrupt = update[0];
-      interrupts.push(interrupt);
-      console.log(`\nINTERRUPTED: ${interrupt.id}`);
-    }
-  }
-}
-```
-
-```
-================================== Ai Message ==================================
-Tool Calls:
-  schedule_event (call_t4Wyn32ohaShpEZKuzZbl83z)
- Call ID: call_t4Wyn32ohaShpEZKuzZbl83z
-  Args:
-    request: Schedule a meeting with the design team next Tuesday at 2pm for 1 hour.
-  manage_email (call_JWj4vDJ5VMnvkySymhCBm4IR)
- Call ID: call_JWj4vDJ5VMnvkySymhCBm4IR
-  Args:
-    request: Send an email reminder to the design team about reviewing the new mockups before our meeting next Tuesday at 2pm.
-
-INTERRUPTED: 4f994c9721682a292af303ec1a46abb7
-
-INTERRUPTED: 2b56f299be313ad8bc689eff02973f16
-```
-
-这次我们中断了执行。让我们检查中断事件：
-
-```typescript
-for (const interrupt of interrupts) {
-  for (const request of interrupt.value.actionRequests) {
-    console.log(`INTERRUPTED: ${interrupt.id}`);
-    console.log(`${request.description}\n`);
-  }
-}
-```
-
-```
-INTERRUPTED: 4f994c9721682a292af303ec1a46abb7
-Calendar event pending approval
-
-Tool: create_calendar_event
-Args: {'title': 'Meeting with the Design Team', 'start_time': '2024-06-18T14:00:00', 'end_time': '2024-06-18T15:00:00', 'attendees': ['design team']}
-
-INTERRUPTED: 2b56f299be313ad8bc689eff02973f16
-Outbound email pending approval
-
-Tool: send_email
-Args: {'to': ['designteam@example.com'], 'subject': 'Reminder: Review New Mockups Before Meeting Next Tuesday at 2pm', 'body': "Hello Team,\n\nThis is a reminder to review the new mockups ahead of our meeting scheduled for next Tuesday at 2pm. Your feedback and insights will be valuable for our discussion and next steps.\n\nPlease ensure you've gone through the designs and are ready to share your thoughts during the meeting.\n\nThank you!\n\nBest regards,\n[Your Name]"}
-```
-
-我们可以通过使用 <a href="https://reference.langchain.com/javascript/classes/_langchain_langgraph.index.Command.html" target="_blank" rel="noreferrer" class="link"><code>Command</code></a> 引用其 ID 来为每个中断指定决策。有关更多详细信息，请参阅[人工介入指南](/oss/javascript/langchain/human-in-the-loop)。出于演示目的，这里我们将接受日历事件，但编辑外发电子邮件的主题：
 
 ```typescript
 import { Command } from "@langchain/langgraph"; // [!code highlight]
@@ -827,139 +536,160 @@ for await (const step of resumeStream) {
 ```
 
 ```
-================================= Tool Message =================================
-Name: schedule_event
+================================= 工具消息 =================================
+名称: schedule_event
 
-Your meeting with the design team has been scheduled for next Tuesday, June 18th, from 2:00 pm to 3:00 pm.
-================================= Tool Message =================================
-Name: manage_email
+您与设计团队的会议已安排在下周二，6月18日，下午2:00至3:00。
+================================= 工具消息 =================================
+名称: manage_email
 
-Your email reminder to the design team has been sent. Here’s what was sent:
+您发送给设计团队的邮件提醒已发出。以下是发送内容：
 
-- Recipient: designteam@example.com
-- Subject: Mockups reminder
-- Body: A reminder to review the new mockups before the meeting next Tuesday at 2pm, with a request for feedback and readiness for discussion.
+- 收件人: designteam@example.com
+- 主题: Mockups reminder
+- 正文: 提醒在下周二下午2点的会议前审阅新的设计稿，并请求反馈和为讨论做好准备。
 
-Let me know if you need any further assistance!
-================================== Ai Message ==================================
+如有任何进一步需求，请告知！
+================================== AI 消息 ==================================
 
-- Your meeting with the design team has been scheduled for next Tuesday, June 18th, from 2:00 pm to 3:00 pm.
-- An email reminder has been sent to the design team about reviewing the new mockups before the meeting.
+- 您与设计团队的会议已安排在下周二，6月18日，下午2:00至3:00。
+- 已向设计团队发送了一封关于在会议前审阅新设计稿的邮件提醒。
 
-Let me know if you need any further assistance!
+如有任何进一步需求，请告知！
 ```
+运行过程根据我们的输入继续进行。
 
-运行根据我们的输入继续进行。
+## 7. 进阶：控制信息流
 
-## 7. 高级：控制信息流
-
-默认情况下，子智能体只接收来自监督者的请求字符串。你可能希望传递额外的上下文，例如对话历史记录或用户偏好。
+默认情况下，子智能体仅接收来自监督者的请求字符串。您可能希望传递额外的上下文，例如对话历史或用户偏好。
 
 ### 向子智能体传递额外的对话上下文
 
 ```typescript
 import { getCurrentTaskInput } from "@langchain/langgraph";
-import type { InternalAgentState } from "langchain";
-import { HumanMessage } from "@langchain/core/messages";
+import { type BuiltInState, HumanMessage } from "langchain";
 
 const scheduleEvent = tool(
   async ({ request }, config) => {
-    // Customize context received by sub-agent
-    // Access full thread messages from the config
-    const currentMessages = getCurrentTaskInput<InternalAgentState>(config).messages;
-
+    // 自定义子智能体接收的上下文
+    // 从配置中访问完整的线程消息
+    const currentMessages = getCurrentTaskInput<BuiltInState>(config).messages;
     const originalUserMessage = currentMessages.find(HumanMessage.isInstance);
-
     const prompt = `
-You are assisting with the following user inquiry:
+您正在协助处理以下用户查询：
+```
 
-${originalUserMessage?.content || "No context available"}
+${originalUserMessage?.content || "无上下文可用"}
 
-You are tasked with the following sub-request:
+您被分配了以下子请求：
 
 ${request}
-    `.trim();
+`.trim();
 
-    const result = await calendarAgent.invoke({
-      messages: [{ role: "user", content: prompt }],
-    });
-    const lastMessage = result.messages[result.messages.length - 1];
-    return lastMessage.text;
+const result = await calendarAgent.invoke({
+messages: [{ role: "user", content: prompt }],
+});
+const lastMessage = result.messages[result.messages.length - 1];
+return lastMessage.text;
   },
   {
-    name: "schedule_event",
-    description: "Schedule calendar events using natural language.",
-    schema: z.object({
-      request: z.string().describe("Natural language scheduling request"),
-    }),
+name: "schedule_event",
+description: "使用自然语言安排日历事件。",
+schema: z.object({
+request: z.string().describe("自然语言日程安排请求"),
+}),
   }
 );
 ```
+:::
 
-这允许子智能体看到完整的对话上下文，这对于解决歧义很有用，例如“安排到明天同一时间”（引用之前的对话）。
+这允许子智能体看到完整的对话上下文，这对于解决诸如“明天同一时间安排它”（引用之前的对话）之类的歧义非常有用。
 
 <Tip>
-
-你可以在 LangSmith 追踪的[聊天模型调用](https://smith.langchain.com/public/c7d54882-afb8-4039-9c5a-4112d0f458b0/r/6803571e-af78-4c68-904a-ecf55771084d)中看到子智能体接收到的完整上下文。
-
+您可以在 LangSmith 跟踪的 [聊天模型调用](https://smith.langchain.com/public/c7d54882-afb8-4039-9c5a-4112d0f458b0/r/6803571e-af78-4c68-904a-ecf55771084d) 中查看子智能体接收到的完整上下文。
 </Tip>
 
 ### 控制监督者接收的内容
 
-你还可以自定义返回给监督者的信息：
+您还可以自定义哪些信息流回监督者：
+
+:::python
+
+```python
+import json
+
+@tool
+def schedule_event(request: str) -> str:
+"""使用自然语言安排日历事件。"""
+result = calendar_agent.invoke({
+"messages": [{"role": "user", "content": request}]
+})
+
+    # 选项 1：仅返回确认消息
+return result["messages"][-1].text
+
+    # 选项 2：返回结构化数据
+    # return json.dumps({
+    #     "status": "success",
+    #     "event_id": "evt_123",
+    #     "summary": result["messages"][-1].text
+    # })
+```
+:::
+
+:::js
 
 ```typescript
 const scheduleEvent = tool(
   async ({ request }) => {
-    const result = await calendarAgent.invoke({
-      messages: [{ role: "user", content: request }]
-    });
+const result = await calendarAgent.invoke({
+messages: [{ role: "user", content: request }]
+});
 
-    const lastMessage = result.messages[result.messages.length - 1];
+const lastMessage = result.messages[result.messages.length - 1];
 
-    // Option 1: Return just the confirmation message
-    return lastMessage.text;
+// 选项 1：仅返回确认消息
+return lastMessage.text;
 
-    // Option 2: Return structured data
-    // return JSON.stringify({
-    //   status: "success",
-    //   event_id: "evt_123",
-    //   summary: lastMessage.text
-    // });
+// 选项 2：返回结构化数据
+// return JSON.stringify({
+//   status: "success",
+//   event_id: "evt_123",
+//   summary: lastMessage.text
+// });
   },
   {
-    name: "schedule_event",
-    description: "Schedule calendar events using natural language.",
-    schema: z.object({
-      request: z.string().describe("Natural language scheduling request"),
-    }),
+name: "schedule_event",
+description: "使用自然语言安排日历事件。",
+schema: z.object({
+request: z.string().describe("自然语言日程安排请求"),
+}),
   }
 );
 ```
 
-**重要：** 确保子智能体的提示词强调其最终消息应包含所有相关信息。一个常见的故障模式是子智能体执行了工具调用，但没有在最终响应中包含结果。
+**重要：** 确保子智能体的提示强调其最终消息应包含所有相关信息。一个常见的失败模式是子智能体执行了工具调用，但没有将结果包含在其最终响应中。
 
 <Tip>
 
-要查看一个完整的工作示例，演示了具有人工介入审查和高级信息流控制的完整监督者模式，请查看 LangChain.js 示例中的 [`supervisor_complete.ts`](https://github.com/langchain-ai/langchainjs/blob/main/examples/src/createAgent/supervisor_complete.ts)。
+要查看一个完整的工作示例，该示例演示了包含人机协同（human-in-the-loop）审查和高级信息流控制的完整监督者模式，请查看 LangChain.js 示例中的 [`supervisor_complete.ts`](https://github.com/langchain-ai/langchainjs/blob/main/examples/src/createAgent/supervisor_complete.ts)。
 
 </Tip>
 
 ## 8. 关键要点
 
-监督者模式创建了抽象层，每一层都有明确的职责。在设计监督者系统时，从清晰的领域边界开始，并为每个子智能体提供专注的工具和提示词。为监督者编写清晰的工具描述，在集成前独立测试每一层，并根据你的具体需求控制信息流。
+监督者模式创建了具有明确职责的抽象层。在设计监督者系统时，从清晰的领域边界开始，并为每个子智能体提供专注的工具和提示。为监督者编写清晰的工具描述，在集成前独立测试每一层，并根据您的具体需求控制信息流。
 
 <Tip>
 
 <strong>何时使用监督者模式</strong>
 
-当你有多个不同的领域（日历、电子邮件、CRM、数据库），每个领域都有多个工具或复杂逻辑，你希望集中控制工作流程，并且子智能体不需要直接与用户对话时，请使用监督者模式。
+当您拥有多个不同的领域（日历、电子邮件、CRM、数据库），每个领域都有多个工具或复杂逻辑，您希望集中控制工作流，并且子智能体不需要直接与用户对话时，请使用监督者模式。
 
-对于只有少数工具的简单情况，请使用单个智能体。当智能体需要与用户对话时，请改用[交接](/oss/javascript/langchain/multi-agent/handoffs)。对于智能体之间的点对点协作，请考虑其他多智能体模式。
+对于只有少数工具的简单情况，请使用单个智能体。当智能体需要与用户对话时，请改用 [交接](/oss/javascript/langchain/multi-agent/handoffs)。对于智能体之间的点对点协作，请考虑其他多智能体模式。
 
 </Tip>
 
 ## 后续步骤
 
-了解用于智能体间对话的[交接](/oss/javascript/langchain/multi-agent/handoffs)，探索[上下文工程](/oss/javascript/langchain/context-engineering)以微调信息流，阅读[多智能体概述](/oss/javascript/langchain/multi-agent)以比较不同模式，并使用 [LangSmith](https://smith.langchain.com) 来调试和监控你的多智能体系统。
-
+了解[交接](/oss/javascript/langchain/multi-agent/handoffs)以实现智能体间对话，探索[上下文工程](/oss/javascript/langchain/context-engineering)以优化信息流，阅读[多智能体概述](/oss/javascript/langchain/multi-agent)以比较不同模式，并使用[LangSmith](https://smith.langchain.com)来调试和监控您的多智能体系统。

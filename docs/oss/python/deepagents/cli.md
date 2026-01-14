@@ -1,9 +1,9 @@
 ---
 title: Deep Agents CLI
 sidebarTitle: Use the CLI
-description: 用于构建深度代理的交互式命令行界面
+description: 用于构建深度智能体的交互式命令行界面
 ---
-一个用于构建具有持久记忆的智能体（agent）的终端界面。智能体能够在会话间保持上下文，学习项目惯例，并在审批控制下执行代码。
+一个用于构建具有持久记忆的智能体（agent）的终端界面。智能体能够在会话间保持上下文，学习项目惯例，并通过审批控制执行代码。
 
 Deep Agents CLI 具备以下内置功能：
 
@@ -13,11 +13,11 @@ Deep Agents CLI 具备以下内置功能：
 * <Icon icon="globe" :size="16" /> **HTTP 请求** - 向 API 和外部服务发起 HTTP 请求，用于数据获取和集成任务。
 * <Icon icon="list-check" :size="16" /> **任务规划与跟踪** - 将复杂任务分解为离散步骤，并通过内置的待办事项系统跟踪进度。
 * <Icon icon="brain" :size="16" /> **记忆存储与检索** - 跨会话存储和检索信息，使智能体能够记住项目惯例和学习到的模式。
-* <Icon icon="head-side" :size="16" /> **人在回路** - 对敏感的工具操作要求人工批准。
+* <Icon icon="head-side" :size="16" /> **人机协同（human-in-the-loop）** - 对敏感的工具操作要求人工批准。
 
 <Tip>
 
-[观看演示视频](https://youtu.be/IrnacLa9PJc?si=3yUnPbxnm2yaqVQb) 了解 Deep Agents CLI 的工作原理。
+[观看演示视频](https://youtu.be/IrnacLa9PJc?si=3yUnPbxnm2yaqVQb)，了解 Deep Agents CLI 的工作原理。
 
 </Tip>
 
@@ -43,9 +43,18 @@ ANTHROPIC_API_KEY=your-api-key
 
 <Step title="运行 CLI" icon="terminal">
 
-```bash
+::: code-group
+
+```bash [全局安装]
+uv tool install deepagents-cli
+deepagents
+```
+
+```bash [运行（无需全局安装）]
 uvx deepagents-cli
 ```
+
+:::
 
 </Step>
 
@@ -55,15 +64,38 @@ uvx deepagents-cli
 > 创建一个打印 "Hello, World!" 的 Python 脚本
 ```
 
-智能体会在修改文件前，通过差异对比（diff）的方式提出更改建议供您批准。
+智能体会在修改文件前，通过差异对比（diff）的方式提出更改建议，等待您的批准。
 
 </Step>
 
 </Steps>
 
+:::: details 配置追踪（可选）
+
+启用 LangSmith 追踪：
+
+```bash
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY="your-api-key"
+```
+
+为工具调用和智能体决策配置智能体追踪：
+
+```bash
+export DEEPAGENTS_LANGSMITH_PROJECT="my-agent-project"
+```
+
+为通过 shell 命令执行的代码配置用户代码追踪：
+
+```bash
+export LANGSMITH_PROJECT="my-user-code-project"
+```
+
+::::
+
 :::: details 其他安装和配置选项
 
-如有需要，可本地安装：
+如有需要，本地安装：
 
 ::: code-group
 
@@ -99,11 +131,11 @@ API 密钥可以设置为环境变量或放在 `.env` 文件中。
 
 | 选项                 | 描述                                                 |
 |------------------------|-------------------------------------------------------------|
-| `--agent NAME`         | 使用具有独立记忆的命名智能体                        |
-| `--auto-approve`       | 跳过工具确认提示（可通过 `Ctrl+T` 切换）       |
-| `--sandbox TYPE`       | 在远程沙箱中执行：`modal`、`daytona` 或 `runloop` |
-| `--sandbox-id ID`      | 重用现有沙箱                                      |
-| `--sandbox-setup PATH` | 在沙箱中运行设置脚本                                 |
+| `--agent NAME`         | 使用具有独立记忆的指定名称智能体（agent）                        |
+| `--auto-approve`       | 跳过工具确认提示（可使用 `Ctrl+T` 切换）       |
+| `--sandbox TYPE`       | 在远程沙盒中执行：`modal`、`daytona` 或 `runloop` |
+| `--sandbox-id ID`      | 重用现有沙盒                                      |
+| `--sandbox-setup PATH` | 在沙盒中运行设置脚本                                 |
 
 ::::
 
@@ -111,10 +143,10 @@ API 密钥可以设置为环境变量或放在 `.env` 文件中。
 
 | 命令                              | 描述                            |
 |--------------------------------------|----------------------------------------|
-| `deepagents list`                    | 列出所有智能体                        |
+| `deepagents list`                    | 列出所有智能体（agent）                        |
 | `deepagents help`                    | 显示帮助                              |
-| `deepagents reset --agent NAME`      | 清除智能体记忆并重置为默认值|
-| `deepagents reset --agent NAME --target SOURCE` | 从另一个智能体复制记忆 |
+| `deepagents reset --agent NAME`      | 清除智能体（agent）记忆并重置为默认值|
+| `deepagents reset --agent NAME --target SOURCE` | 从另一个智能体（agent）复制记忆 |
 
 ::::
 
@@ -125,14 +157,14 @@ API 密钥可以设置为环境变量或放在 `.env` 文件中。
 在 CLI 会话中使用这些命令：
 
 - `/tokens` - 显示令牌使用情况
-- `/clear` - 清除对话历史
+- `/clear` - 清除对话历史记录
 - `/exit` 或 `/quit` - 退出 CLI
 
 ::::
 
 :::: details <Icon icon="terminal" style="margin-right: 8px; vertical-align: middle;" /> Bash 命令
 
-通过在命令前添加 `!` 直接执行 shell 命令：
+通过前缀 `!` 直接执行 shell 命令：
 
 ```bash
 !git status
@@ -149,15 +181,15 @@ API 密钥可以设置为环境变量或放在 `.env` 文件中。
 | `Enter` | 提交 |
 | `Option+Enter` (Mac) 或 `Alt+Enter` (Windows) | 换行 |
 | `Ctrl+E` | 外部编辑器 |
-| `Ctrl+T` | 切换自动批准 |
+| `Ctrl+T` | 切换自动批准（auto-approve） |
 | `Ctrl+C` | 中断 |
 | `Ctrl+D` | 退出 |
 
 ::::
 
-## 使用记忆设置项目惯例
+## 使用记忆设置项目规范
 
-智能体使用记忆优先协议，将信息以 Markdown 文件的形式存储在 `~/.deepagents/AGENT_NAME/memories/` 目录下：
+智能体（agent）使用记忆优先协议，将信息以 Markdown 文件的形式存储在 `~/.deepagents/AGENT_NAME/memories/` 目录下：
 
 1.  **研究**：在开始任务前搜索记忆以获取相关上下文
 2.  **响应**：在执行过程中不确定时检查记忆
@@ -172,54 +204,54 @@ API 密钥可以设置为环境变量或放在 `.env` 文件中。
 └── deployment-process.md
 ```
 
-只需教导智能体一次惯例：
+只需教导智能体（agent）一次规范：
 
 ```bash
 uvx deepagents-cli --agent backend-dev
 > 我们的 API 使用 snake_case 并包含 created_at/updated_at 时间戳
 ```
 
-它会在未来的会话中记住：
+它会为未来的会话记住：
 
 ```bash
 > 创建一个 /users 端点
-# 无需提示即可应用惯例
+# 无需提示即可应用规范
 ```
 
-## 使用远程沙箱
+## 使用远程沙盒
 
-在隔离的远程环境中执行代码，以确保安全性和灵活性。远程沙箱提供以下优势：
+在隔离的远程环境中执行代码，以确保安全性和灵活性。远程沙盒提供以下优势：
 
   - **安全性**：保护您的本地机器免受潜在有害代码执行的影响
   - **干净的环境**：使用特定的依赖项或操作系统配置，无需本地设置
-  - **并行执行**：在隔离环境中同时运行多个智能体
+  - **并行执行**：在隔离环境中同时运行多个智能体（agent）
   - **长时间运行的任务**：执行耗时的操作而不阻塞您的机器
-  - **可复现性**：确保跨团队一致的执行环境
+  - **可重现性**：确保跨团队一致的执行环境
 
-要使用远程沙箱，请按照以下步骤操作：
+要使用远程沙盒，请按照以下步骤操作：
 
-1. 配置您的沙箱提供商（[Runloop](https://www.runloop.ai/)、[Daytona](https://www.daytona.io/) 或 [Modal](https://modal.com/)）：
+1. 配置您的沙盒提供商（[Runloop](https://www.runloop.ai/)、[Daytona](https://www.daytona.io/) 或 [Modal](https://modal.com/)）：
 
 ```bash
-# Runloop
-export RUNLOOP_API_KEY="your-key"
+    # Runloop
+    export RUNLOOP_API_KEY="your-key"
 
-# Daytona
-export DAYTONA_API_KEY="your-key"
+    # Daytona
+    export DAYTONA_API_KEY="your-key"
 
-# Modal
-modal setup
+# 模态框
+模态框设置
 ```
 
-1. 使用沙箱运行 CLI：
+1. 使用沙盒运行 CLI：
 
 ```bash
 uvx deepagents-cli --sandbox runloop --sandbox-setup ./setup.sh
 ```
 
-智能体在本地运行，但所有代码操作都在远程沙箱中执行。可选的设置脚本可以配置环境变量、克隆仓库和准备依赖项。
+智能体（agent）在本地运行，但所有代码操作都在远程沙盒中执行。可选的设置脚本可以配置环境变量、克隆仓库并准备依赖项。
 
-1. （可选）创建一个 `setup.sh` 文件来配置您的沙箱环境：
+1. （可选）创建一个 `setup.sh` 文件来配置你的沙盒环境：
 
 ```bash
 #!/bin/bash
@@ -243,9 +275,9 @@ source ~/.bashrc
 
 <Warning>
 
-沙箱隔离了代码执行，但智能体在面对不受信任的输入时仍然容易受到提示注入（prompt injection）攻击。请仅使用人在回路审批、短期有效的密钥和受信任的设置脚本。
+沙盒隔离了代码执行，但智能体（agent）在面对不受信任的输入时，仍然容易受到提示注入（prompt injection）攻击。请仅使用人机协同（human-in-the-loop）批准、短期有效的密钥以及受信任的设置脚本。
 
-请注意，沙箱 API 正在快速发展，我们预计会有更多提供商支持代理（proxy），以帮助缓解提示注入和密钥管理问题。
+请注意，沙盒 API 正在快速发展，我们预计会有更多供应商支持有助于缓解提示注入（prompt injection）和密钥管理问题的代理。
 
 </Warning>
 

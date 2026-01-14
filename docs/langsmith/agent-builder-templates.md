@@ -1,53 +1,68 @@
 ---
 title: 模板
-description: 通过精选的 Agent Builder 模板快速启动，并自定义工具、提示词和触发器。
-sidebarTitle: Templates
-mode: wide
+description: 通过精选的智能体构建器模板快速启动，并自定义工具、提示和触发器。
 ---
-Agent Builder 包含入门模板，帮助您快速创建智能体。这些模板为常见用例提供了预定义的系统提示、工具和触发器（如适用）。您可以直接使用模板，或将其作为自定义的基础。
+Agent Builder 包含[入门模板](https://www.langchain.com/templates)，可帮助您快速创建智能体（agent）。这些模板为常见用例提供了预定义的指令、[工具](/langsmith/agent-builder-tools)和[触发器](/langsmith/agent-builder-essentials#triggers)（如适用）。您可以直接使用模板，或将其作为自定义的基准。
 
-## 如何使用模板
+<Tip>
 
-<Steps>
+如果您是 Agent Builder 的新手，请从分步[快速入门](/langsmith/agent-builder-quickstart)开始，使用模板构建您的第一个智能体。
 
-<Step title="选择模板" icon="squares-plus">
+</Tip>
 
-在 Agent Builder 中，选择一个与您的用例匹配的模板（例如，Gmail 助手、Linear Slack 机器人等）。
+## 功能特性
 
-</Step>
+模板是为特定用例设计的预配置智能体。每个模板包含以下组件：
 
-<Step title="审查工具和提示" icon="sliders">
+### 预配置工具
 
-每个模板都附带一个初始系统提示和一组工具。请审查这些工具和提示，确保它们符合您的需求（您随时可以稍后编辑它们，或让智能体为您编辑）。
+模板附带一套精选的[工具](/langsmith/agent-builder-essentials#tools)，使智能体能够执行特定操作。例如，电子邮件助手模板包含用于阅读、发送和组织邮件的工具。这些工具通过 OAuth 认证连接到外部服务，允许您的智能体与 Gmail、Slack 或 Linear 等应用交互。完整列表请参阅[支持的工具](/langsmith/agent-builder-tools)。
 
-</Step>
+### 系统指令
 
-<Step title="克隆并认证" icon="key">
+每个模板都包含一个*系统提示*（也称为*指令*），用于定义智能体的行为、个性和能力。系统提示指导智能体如何解释用户请求并使用其可用工具。您可以自定义这些指令以满足您的特定需求。
 
-点击右上角的 `Clone Template` 开始克隆过程。如果您尚未为模板中的工具进行 OAuth 认证，系统将提示您完成认证。
+### 触发器（可选）
 
-</Step>
+某些模板包含[触发器](/langsmith/agent-builder-essentials#triggers)，允许智能体自动响应外部事件。例如，Slack 机器人模板可能包含一个触发器，当有人在频道中提及该智能体时激活。触发器使智能体能够超越基于聊天的交互，实现主动行为。
 
-<Step title="添加触发器（可选）" icon="clock">
+### 克隆与自定义
 
-如果模板包含触发器，系统将提示您：
-- 如果您之前未设置过，请认证并设置触发器
-或
-- 从下拉列表中选择一个现有的触发器
+模板可作为起点，您可以通过克隆来创建自己的智能体。克隆模板时，您会创建一个独立的副本，可以对其进行自定义而不会影响原始模板。您可以修改提示、添加或删除工具、附加不同的触发器以及切换模型，以根据您的要求定制智能体。
 
-</Step>
+## 可用模板
 
-<Step title="测试与迭代" icon="rocket">
+<CardGroup :cols="2">
 
-运行智能体，审查输出，并优化提示或工具。要编辑您克隆的智能体，可以手动进行更改，或者要求智能体为您进行更改！
+<Card title="每日日历简报" icon="calendar">
 
-</Step>
+一个每日运行的智能体，扫描您的日历并提供包含会议详情和重要背景的简明简报。
 
-</Steps>
+</Card>
 
-<Note icon="sliders" color="#E9D5FF" iconType="regular">
+<Card title="电子邮件助手" icon="envelope">
 
-模板是起点。您可以随时自定义提示、添加或移除工具、附加触发器以及切换模型。
+通过智能体自动化邮件分类，标记重要邮件、起草和发送回复以及安排会议。
 
-</Note>
+</Card>
+
+<Card title="LinkedIn 招聘专员" icon="users">
+
+通过智能体自动化招聘流程，消化候选人要求、适应反馈并输出候选人列表。
+
+</Card>
+
+<Card title="社交媒体 AI 监控器" icon="newspaper">
+
+一个跟踪 X 列表和 Hacker News 上热门 AI 讨论的智能体，并通过 Slack 每日发送包含重要更新的消息。
+
+</Card>
+
+</CardGroup>
+
+<Info>
+
+更多信息，请参阅[模板](https://www.langchain.com/templates)。
+
+</Info>
 
